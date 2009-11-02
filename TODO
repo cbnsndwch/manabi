@@ -1,0 +1,52 @@
+manabi notes
+
+
+
+TODO:
+disable controls after each review
+
+bonus for late review<D-]>
+
+ajax error handling
+
+change deck for fact in fact editor
+
+BUGS:
+-delete facts associated with deck when deleting deck
+
+clear card edit view when deleting a card
+
+fail the last card. it will ask again, but won't hide the answer first.
+
+theres a bug in this scenario: fail a card, request more cards from server before the card failure request is returned by the server.
+the failed card will be excluded. have to think about how to prevent this one.
+failed cards at end isn't consistent yet. try this: 3 cards left, all failed. grade 2 as hard. last failed 
+card won't show.
+
+don't show the same card multiple times after itself, ever. this sometimes happens with failed cards
+i think.
+
+fieldcontent.contents uniqueness should be enforced on a per-deck level, so that downloading decks is fine,
+but creating a new non-unique card currently is not allowed - it should be allowed as long as it is unique 
+for that specific deck it's being inserted into, i guess.
+
+double import (see: sys.modules) http://pastebin.com/m30b7c28f 676 721
+
+
+IDEAS:
+mark a word 'completely learned and memorized!' when interval reaches 120 - age of user. Haha!
+'view newly learned cards from this session' after session ends
+
+only constrain unique deck names when creating a new deck, not downloading (for now - makes things easier)
+
+
+SOMEDAY TODO:
+
+
+
+OTHER NOTES
+comment tags:
+#TODO
+#FIXME
+#SOMEDAY
+#IDEA
