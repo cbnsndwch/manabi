@@ -1,0 +1,15 @@
+
+
+
+
+<table cellspacing=2 cellpadding=2 width=200>
+{% for deck in deck_list %}
+	<tr>
+		<td>{{ deck.name }}</td>
+		<td><a href="#" onClick="ajaxLink('/flashcards/decks/{{ deck.id }}/update', '{{ container_id }}');">edit</a></td>
+		<td><a href="#" onClick="ajaxLink('/flashcards/decks/{{ deck.id }}/delete', '{{ container_id }}');">delete</a></td>
+	</tr>
+{% endfor %}
+</table>
+<br>
+<a href="#" onClick="ajaxLink('/flashcards/decks/create', '{{ container_id }}');">Add New Deck</a>

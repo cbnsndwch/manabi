@@ -1,0 +1,11 @@
+Dojango is a reusable django application that helps you to use the client-side
+framework dojo within your django project. It provides capabilites to easily 
+switch between several dojo versions and sources (e.g. aol, google, local) and 
+delivers helping utilities, that makes the development of rich internet 
+applications in combination with dojo more comfortable. Also it makes the building 
+of your own packed dojo release easier. Another goal of this project is, that you 
+can learn how you have to structure your html to use dojo within your projects.
+
+For further documentation go to:
+
+http://code.google.com/p/dojango/

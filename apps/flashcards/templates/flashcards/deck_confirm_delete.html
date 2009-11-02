@@ -1,0 +1,32 @@
+
+
+<div dojoType="dijit.form.Form" jsId="deckDeleteForm" encType="multipart/form-data" action="" method="">
+	<script type="dojo/connect" event="onSubmit" args="evt">
+		evt.preventDefault();
+
+		//alert(factAddForm.attr('value'));
+		var xhrArgs = {
+			url: 'flashcards/decks/{{ deck.id }}/delete',
+			content: '',
+			handleAs: 'text',
+            load: function(data) {
+                ajaxLink('{{ post_delete_redirect }}', '{{ container_id }}');
+            },
+            error: function(error){
+            	alert('Error: '+error);
+            }
+        }
+		//Call the asynchronous xhrPost
+        dojo.xhrPost(xhrArgs); //var deferred =
+	</script>
+	
+	Really delete {{ deck.name }}?<br>
+	<br>
+	<button dojoType="dijit.form.Button" type="submit">Ok</button>
+	<button dojoType="dijit.form.Button" jsId="deckDeleteCancelButton">
+		Cancel
+		<script type="dojo/connect" event="onClick" args="evt">
+			ajaxLink('flashcards/decks', '{{ container_id }}');
+		</script>
+	</button>
+</div>

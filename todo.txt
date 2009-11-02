@@ -1,0 +1,8 @@
+manabi todo
+
+disable controls after each review
+
+
+
+IDEAS:
+mark a word 'completely learned and memorized!' when interval reaches 120 - age of user. Haha!
