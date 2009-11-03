@@ -35,6 +35,8 @@ urlpatterns = patterns('flashcards',
 
 
     #card reviewing
+    (r'^rest/cards_for_review/due_count$', 'views.cards_due_count'),
+    (r'^rest/cards_for_review/new_count$', 'views.cards_new_count'),
     (r'^rest/cards_for_review$', 'views.next_cards_for_review'),
     
 

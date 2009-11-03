@@ -39,10 +39,10 @@ class FieldContentForm(ModelForm):
         cleaned_data = self.cleaned_data
         contents = cleaned_data.get('contents') or ''
         field_type = cleaned_data.get('field_type')#FieldType.objects.get(id=field_type_id)
-        #field_type_id = field_type.id
         blank = field_type.blank
         unique = field_type.unique
         error_list = []
+
         if not field_type.multi_line and '\n' in contents:
             msg = u'This is a single-line field.'
             error_list.append(msg)
@@ -57,11 +57,11 @@ class FieldContentForm(ModelForm):
         elif field_type: #TODO why check if field_type?
             if contents.strip(): #if it's blank, don't bother checking if it's unique
                 if unique: #TODO can a field be blank and unique? probably yes, since blank is like null
-                    #owner_id = FactType.objects.get(id=Field.objects.get(id=field_id).fact_type).owner #todo: this is a mess/could break easily
-                    other_field_contents = FieldContent.objects.filter(field_type=field_type, contents__exact=contents)
+                    #dirty hack to get this deck's owner
+                    owner = Deck.objects.get(id=self.data['fact-deck'])
+                    other_field_contents = FieldContent.objects.filter(fact__deck__owner=owner, field_type=field_type, contents__exact=contents)
                     if cleaned_data.get('id'): #exclude the existing field content if this is an update
                         other_field_contents = other_field_contents.exclude(id=cleaned_data.get('id'))
-                        #other_field_contents = other_field_contents.exclude(id=cleaned_data.get('id').id)
                     if other_field_contents.count() > 0:
                         msg = u'This field must be unique for all facts.'
                         error_list.append(msg)
@@ -74,6 +74,15 @@ class FieldContentForm(ModelForm):
             else:
                 self._errors['contents'] = ErrorList(error_list)
         return cleaned_data
+
+    #def __init__(self, *args, **kwargs):
+    #    #self.queryset = Author.objects.filter(name__startswith='O')
+    #    import pdb;pdb.set_trace() #FIXME #fact_deck=
+    #    super(FieldContentForm, self).__init__(*args, **kwargs)
+    #
+    #    #self.fields['user'].queryset = user
+    
+
     class Meta:
         model = FieldContent
         exclude = ('fact',)

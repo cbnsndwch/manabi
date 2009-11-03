@@ -4,7 +4,7 @@ from django.forms import ModelForm
 from django.forms.util import ErrorList
 from dbtemplates.models import Template
 
-from facts import Fact, FactType
+from facts import Fact, FactType, SharedFact
 
 OPTIONAL_CHARACTER_RESTRICTIONS = (
     ('num','Numeric',),
@@ -53,20 +53,35 @@ class FieldType(models.Model):
         app_label = 'flashcards'
 
 
-class FieldContent(models.Model):
-    contents = models.CharField(max_length=500, blank=True) #used as a description for media, too
-    fact = models.ForeignKey(Fact)
+class AbstractFieldContent(models.Model):
     field_type = models.ForeignKey(FieldType)
 
+    contents = models.CharField(max_length=500, blank=True) #used as a description for media, too
+    
     media_uri = models.URLField(blank=True)
     media_file = models.FileField(upload_to='/card_media/', null=True, blank=True) #TODO upload to user directory, using .storage
-    
 
     def __unicode__(self):
         return self.contents
 
     class Meta:
-        unique_together = (('fact', 'field_type'), ) #one field content per field per fact
+        app_label = 'flashcards'
+        abstract = True
+
+
+class SharedFieldContent(AbstractFieldContent):
+    fact = models.ForeignKey(SharedFact)
+
+    class Meta:
+        #TODO unique_together = (('fact', 'field_type'), ) #one field content per field per fact
+        app_label = 'flashcards'
+    
+
+class FieldContent(AbstractFieldContent):
+    fact = models.ForeignKey(Fact)
+
+    class Meta:
+        #TODO unique_together = (('fact', 'field_type'), ) #one field content per field per fact
         app_label = 'flashcards'
 
 

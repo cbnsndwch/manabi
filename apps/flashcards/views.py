@@ -192,7 +192,7 @@ def rest_fields(request, fact_type_id):
 def rest_fact_types(request):
   method = _request_type(request)
   if method == 'GET':
-    fact_types = FactType.objects.filter(owner=request.user)
+    fact_types = FactType.objects.all()#SOMEDAY filter(deck__owner=request.user)
     return to_dojo_data(fact_types)
 
 
@@ -305,7 +305,7 @@ def _fact_update(request, fact_id):
 
   #override the submitted deck ID with the ID from the URL, since this is a RESTful interface
   post_data = request.POST.copy()
-  
+
   #todo: refactor this into model code
   
   fact = Fact.objects.get(id=fact_id)
@@ -464,6 +464,7 @@ def next_cards_for_review(request):
 
         # format into json object
         formatted_cards = []
+        reviewed_at = datetime.datetime.utcnow()
         for card in next_cards:
             field_contents = dict((field_content.field_type_id, field_content.contents,) for field_content in card.fact.fieldcontent_set.all())
             card_context = {'fields': field_contents}
@@ -472,14 +473,28 @@ def next_cards_for_review(request):
                 'id': card.id,
                 'front': render_to_string(card.template.front_template_name, card_context),
                 'back': render_to_string(card.template.back_template_name, card_context),
-                'next_due_at_per_grade': {
-                    3: 2.1, #FIXME replace with actual values
-                    4: 3.3,
-                    5: 4.5 },
+                'next_due_at_per_grade': 
+                    dict(
+                        (grade, card._next_due_at(grade, reviewed_at, card._next_ease_factor(grade)),)
+                        for grade in [GRADE_NONE, GRADE_HARD, GRADE_GOOD, GRADE_EASY,]
+                    )
             })
 
         return {'success': True, 'cards': formatted_cards}
 
+@json_response
+@login_required
+def cards_due_count(request):
+    if request.method == 'GET':
+        count = Card.objects.cards_due_count(request.user)
+        return count
+
+@json_response
+@login_required
+def cards_new_count(request):
+    if request.method == 'GET':
+        count = Card.objects.cards_new_count(request.user)
+        return count
 
 def _rest_review_card(request, card_id):
     '''

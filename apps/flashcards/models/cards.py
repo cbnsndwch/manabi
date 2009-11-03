@@ -5,9 +5,11 @@ from django.forms.util import ErrorList
 from dbtemplates.models import Template
 from itertools import chain
 
+import random
+
 import datetime
 
-from facts import Fact, FactType
+from facts import Fact, FactType, SharedFact
 from cardtemplates import CardTemplate
 
 from django.template.loader import render_to_string
@@ -31,13 +33,13 @@ GRADE_EASY = 5
 #MAX_EASE_FACTOR_STEP = 0.1
 
 #these are the precomputed values, so that we can modify them independently later to test their effectiveness:
-EASE_FACTOR_MODIFIERS = {GRADE_HARD: -0.1401, GRADE_GOOD: 0.0, GRADE_EASY: 0.1}
+EASE_FACTOR_MODIFIERS = {GRADE_NONE: -0.3, GRADE_HARD: -0.1401, GRADE_GOOD: 0.0, GRADE_EASY: 0.1} #FIXME accurate grade_none value
 
 MINIMUM_EASE_FACTOR = 1.3
 
-YOUNG_FAILURE_INTERVAL = (1.0 / (24 * 60)) * 10 #10 mins, expressed in days
+YOUNG_FAILURE_INTERVAL = (1.0 / (24.0 * 60.0)) * 10.0 #10 mins, expressed in days
 #MATURE_FAILURE_INTERVAL = (1.0 / (24 * 60)) * 10 #10 mins, expressed in days
-MATURE_FAILURE_INTERVAL = 1 #1 day#(1.0 / (24 * 60)) * 10 #10 mins, expressed in days
+MATURE_FAILURE_INTERVAL = 1.0 #1 day#(1.0 / (24 * 60)) * 10 #10 mins, expressed in days
 #TODO MATURE_FAILURE_INTERVAL should not be a constant value, but dependent on other factors of a given card
 #TODO 'tomorrow' should also be dependent on the current time, instead of just 1 day from now
 
@@ -71,10 +73,10 @@ class CardManager(models.Manager):
 
     def of_user(self, user):
         #TODO this is probably really slow
-        return self.filter(fact__fact_type__owner=user)
+        return self.filter(fact__deck__owner=user)
 
-    def new_cards(self):
-        return self.filter(due_at__isnull=True)
+    def new_cards(self, user):
+        return self.filter(fact__deck__owner=user, due_at__isnull=True)
 
     def failed_cards(self):
         failed_cards = self.filter(last_review_grade=GRADE_NONE)
@@ -82,13 +84,21 @@ class CardManager(models.Manager):
     def mature_cards(self):
         return self.filter(interval__gt=MATURE_INTERVAL_MIN)
 
-    def due_cards(self):
+    def new_cards_count(self, user):
+        new_cards_count = len(self.new_cards(user)) #TODO refactor, make this faster (use aggregate)
+        return new_cards_count
+
+    def due_cards_count(self, user):
+        due_cards_count = len(self.due_cards(user)) #TODO refactor, make this faster (use aggregate)
+        return due_cards_count
+
+    def due_cards(self, user):
         #TODO Define an ordering
         # possible orderings:
         #   due date
         #   priorities, then due date
         #   taking maturity levels into account
-        due_cards = self.filter(due_at__lt=datetime.datetime.now())#FIXME
+        due_cards = self.filter(fact__deck__owner=user, due_at__lt=datetime.datetime.utcnow())#FIXME
         ordered_cards = due_cards.order_by('-interval')
         return ordered_cards
 
@@ -103,27 +113,14 @@ class CardManager(models.Manager):
             user_cards = user_cards.exclude(id__in=excluded_ids)
 
         #due cards
-        due_cards = user_cards.filter(due_at__lt=datetime.datetime.now()).order_by('-interval')
+        due_cards = user_cards.filter(due_at__lt=datetime.datetime.utcnow()).order_by('-interval')
 
         #followed by failed, not due
         failed_not_due_cards = user_cards.filter(last_review_grade=GRADE_NONE).order_by('due_at')
 
         #FIXME add new cards into the mix
-
         #for now, we'll add new ones to the end
         new_cards = user_cards.filter(due_at__isnull=True).order_by('new_card_ordinal')
-
-        #combine
-        #cards = due_cards[:count].values()
-        #if len(cards) < count:
-        #    cards_left = count - len(cards)
-        #    cards.extend(failed_not_due_cards[:cards_left])
-        #    if len(cards) < count:
-        #        cards_left = count - len(cards)
-        #        cards.extend(new_cards[:cards_left])
-
-        #return cards
-
 
         card_queries = []
         cards_left = count
@@ -141,12 +138,38 @@ class CardManager(models.Manager):
 MAX_NEW_CARD_ORDINAL = 10000000
                       #4294967295
 
-class Card(models.Model):
+
+class AbstractCard(models.Model):
+    template = models.ForeignKey(CardTemplate)
+
+    #TODO how to have defaults without null (gives a 'may not be NULL' error)
+    priority = models.IntegerField(default=0, null=True, blank=True) #negatives for lower priority, positives for higher
+    
+    leech = models.BooleanField() #TODO add leech handling
+    
+    active = models.BooleanField() #True when the card is removed from the Fact. This way, we can keep card statistics if enabled later
+    suspended = models.BooleanField() #Not used right now. 'active' is more like a deletion, this is lighter
+
+    new_card_ordinal = models.PositiveIntegerField(null=True, blank=True)
+
+    class Meta:
+        app_label = 'flashcards'
+        abstract = True
+    
+
+class SharedCard(AbstractCard):
+    fact = models.ForeignKey(SharedFact)
+    
+    class Meta:
+        unique_together = (('fact', 'template'), )
+        app_label = 'flashcards'
+
+
+class Card(AbstractCard):
     #manager
     objects = CardManager()
 
     fact = models.ForeignKey(Fact)
-    template = models.ForeignKey(CardTemplate)
     
     synchronized_with = models.ForeignKey('self', null=True, blank=True) #for owner cards, part of synchronized decks, not used yet
 
@@ -158,17 +181,9 @@ class Card(models.Model):
     last_interval = models.FloatField(null=True, blank=True)
     last_due_at = models.DateTimeField(null=True, blank=True)
 
+    last_reviewed_at = models.DateTimeField(null=True, blank=True)
     last_review_grade = models.PositiveIntegerField(null=True, blank=True)
    
-    #TODO how to have defaults without null (gives a 'may not be NULL' error)
-    priority = models.IntegerField(default=0, null=True, blank=True) #negatives for lower priority, positives for higher
-    
-    leech = models.BooleanField() #TODO add leech handling
-    
-    active = models.BooleanField() #True when the card is removed from the Fact. This way, we can keep card statistics if enabled later
-    suspended = models.BooleanField() #Not used right now. 'active' is more like a deletion, this is lighter
-
-    new_card_ordinal = models.PositiveIntegerField(null=True, blank=True)
     
     class Meta:
         unique_together = (('fact', 'template'), )
@@ -183,6 +198,11 @@ class Card(models.Model):
         return '{0} | {1}'.format(front, back)
 
 
+    def save(self):
+        self.new_card_ordinal = random.randrange(0, MAX_NEW_CARD_ORDINAL)
+        super(Card, self).save()
+
+
     def is_new(self):
         ''''Returns True if this is a new card.'''
         return self.due_at is None
@@ -194,7 +214,7 @@ class Card(models.Model):
 
     def is_due(self):
         '''Returns True if this card's due date is in the past.'''
-        return self.due_at < datetime.datetime.now()
+        return self.due_at < datetime.datetime.utcnow()
 
 
     def _next_interval(self, grade):
@@ -202,6 +222,9 @@ class Card(models.Model):
         if self.interval is None: #self.is_new(): #TODO verify this is a good approach
             #get this card's deck, which has the initial interval durations
             #(initial intervals are configured at the deck level)
+            interval = self.fact.deck.schedulingoptions.initial_interval(grade)
+        elif self.last_review_grade == GRADE_NONE: #card was already failing
+            #TODO treat mature failed cards differently
             interval = self.fact.deck.schedulingoptions.initial_interval(grade)
         else:
             if grade == GRADE_NONE:
@@ -218,6 +241,9 @@ class Card(models.Model):
             else:
                 interval = self.interval * self.ease_factor
 
+                if grade == GRADE_EASY:
+                    interval += interval * GRADE_EASY_BONUS_FACTOR
+                    
         return interval
    
 
@@ -227,16 +253,27 @@ class Card(models.Model):
             #FIXME card.deck. how 2 average???
             ease_factor = DEFAULT_EASE_FACTOR #temp solution
         else:
-            ease_factor = self.ease_factor + EASE_FACTOR_MODIFIERS[grade]        
+            #if grade == GRADE_NONE:
+            if self.last_review_grade == GRADE_NONE:
+                #if this was already a failed card, don't continue to make ease factor harder, (for young cards only?)
+                ease_factor = self.ease_factor
+            else:
+                ease_factor = self.ease_factor + EASE_FACTOR_MODIFIERS[grade]
+
             if ease_factor < MINIMUM_EASE_FACTOR:
                 ease_factor = MINIMUM_EASE_FACTOR
 
         return ease_factor
 
 
-    def _update_statistics(self, grade):
-        #TODO update CardHistory and CardStatistics
-        pass
+    def _update_statistics(self, grade, reviewed_at):
+        #TODO update CardStatistics
+        card_history_item = CardHistory(card=self, response=grade, reviewed_at=reviewed_at)
+        card_history_item.save()
+
+
+    def _next_due_at(self, grade, reviewed_at, interval):
+        return reviewed_at + datetime.timedelta(days=self.interval)
 
     
     def review(self, grade):
@@ -252,7 +289,7 @@ class Card(models.Model):
         #        #failure on a young or new card
         #        #reset the interval
         #        self.interval = YOUNG_FAILURE_INTERVAL
-        #    self.due_at = datetime.datetime.now() + self.interval
+        #    self.due_at = datetime.datetime.utcnow() + self.interval
         #else:
 
         #adjust interval
@@ -260,15 +297,16 @@ class Card(models.Model):
         self.interval = self._next_interval(grade)
         self.last_interval = last_interval
 
+        reviewed_at = datetime.datetime.utcnow()
+    
         #determine next due date
         self.last_due_at = self.due_at
-        self.due_at = datetime.datetime.now() + datetime.timedelta(days=self.interval)
+        self.due_at = self._next_due_at(grade, reviewed_at, self.interval)
         
         #adjust ease factor
-        if grade != GRADE_NONE:
-            last_ease_factor = self.ease_factor
-            self.ease_factor = self._next_ease_factor(grade)
-            self.last_ease_factor = last_ease_factor
+        last_ease_factor = self.ease_factor
+        self.ease_factor = self._next_ease_factor(grade)
+        self.last_ease_factor = last_ease_factor
 
         #update this card's statistics
         self._update_statistics(grade)
@@ -288,10 +326,11 @@ class Card(models.Model):
 #  pass
 
 
-class CardStatistics(Card):
-    review_count = models.PositiveIntegerField(default=0, editable=False)
+class CardStatistics(models.Model):
+    card = models.ForeignKey(Card)
+
     success_count = models.PositiveIntegerField(default=0, editable=False)
-    #TODO python-only 'failure_count' field
+    failure_count = models.PositiveIntegerField(default=0, editable=False)
 
     #TODO review stats depending on how card was rated, and how mature it is
 
@@ -309,7 +348,6 @@ class CardStatistics(Card):
     total_review_time = models.FloatField(default=0) #s
     first_reviewed_at = models.DateTimeField()
     first_success_at = models.DateTimeField()
-    last_reviewed_at = models.DateTimeField()
     
     
     #these take into account short-term memory effects

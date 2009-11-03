@@ -9,22 +9,43 @@ import random
 import cards
 
 
+class AbstractDeck(models.Model):
+    name = models.CharField(max_length=100)
+    description = models.TextField(max_length=2000, blank=True)
 
-class Deck(models.Model):
-    owner = models.ForeignKey(User)
-    name = models.CharField(max_length=50)
-    description = models.TextField(blank=True)
-    
     priority = models.IntegerField(default=0, blank=True)
+
+    class Meta:
+        app_label = 'flashcards'
+        abstract = True
+
+
+class SharedDeck(AbstractDeck):
+    creator = models.ForeignKey(User)
+
+    downloads = models.PositiveIntegerField(default=0, blank=True)
     
     def __unicode__(self):
         return self.name
     
     class Meta:
         app_label = 'flashcards'
-        unique_together = (('owner', 'name'), )
+        #TODO unique_together = (('creator', 'name'), )
     
-    ##GRADE GETTER FOR EASE
+
+class Deck(AbstractDeck):
+    owner = models.ForeignKey(User)
+    
+    def __unicode__(self):
+        return self.name
+    
+    class Meta:
+        app_label = 'flashcards'
+        #TODO unique_together = (('owner', 'name'), )
+    
+    def average_ease_factor(self):
+        return 2.5 #FIXME
+
 
 
 class SchedulingOptions(models.Model):

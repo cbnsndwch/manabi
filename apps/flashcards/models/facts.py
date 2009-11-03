@@ -4,12 +4,12 @@ from django.forms import ModelForm
 from django.forms.util import ErrorList
 from dbtemplates.models import Template
 
-from decks import Deck
+from decks import Deck, SharedDeck
 
 
 class FactType(models.Model):
     name = models.CharField(max_length=50)
-    owner = models.ForeignKey(User)
+    #owner = models.ForeignKey(User)
     active = models.BooleanField(default=True, blank=True)
     
     minimum_card_space = models.FloatField(default=60, help_text="Duration expressed in seconds.") #separate the cards of this fact initially
@@ -22,13 +22,13 @@ class FactType(models.Model):
         return self.name
     
     class Meta:
-        unique_together = (('owner', 'name'), )
+        #unique_together = (('owner', 'name'), )
         app_label = 'flashcards'
 
 
-class Fact(models.Model):
+class AbstractFact(models.Model):
     fact_type = models.ForeignKey(FactType)
-    deck = models.ForeignKey(Deck)
+    
     active = models.BooleanField(default=True, blank=True)
     
     priority = models.IntegerField(default=0, null=True, blank=True) #TODO how to reconcile with card priorities?
@@ -37,6 +37,21 @@ class Fact(models.Model):
     
     created_at = models.DateTimeField(auto_now_add=True, editable=False)
     modified_at = models.DateTimeField(auto_now=True, editable=False)
+
+    class Meta:
+        app_label = 'flashcards'
+        abstract = True
+
+
+class SharedFact(AbstractFact):
+    deck = models.ForeignKey(SharedDeck)
+    
+    class Meta:
+        app_label = 'flashcards'
+
+
+class Fact(AbstractFact):
+    deck = models.ForeignKey(Deck)
 
     class Meta:
         app_label = 'flashcards'
