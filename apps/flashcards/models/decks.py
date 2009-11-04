@@ -88,5 +88,59 @@ class SchedulingOptions(models.Model):
         return self._generate_interval(min, max)
 
        
-       
+
+
+
+def share_deck(deck):
+    '''Creates a SharedDeck containing all the facts and cards and their contents, given a user's Deck.''' 
+    
+    #copy the deck
+    shared_deck = SharedDeck(
+        name=deck.name,
+        description=deck.description,
+        priority=deck.priority,
+        creator=deck.owner)
+    shared_deck.save()
+
+    #copy the facts
+    shared_fact_map = {}
+    shared_field_content_map = {}
+    for fact in deck.fact_set.all():
+        shared_fact = SharedFact(
+            deck=shared_deck,
+            fact_type=fact.fact_type,
+            active=fact.active, #TODO should it be here?
+            priority=fact.priority,
+            notes=fact.notes)
+
+        shared_fact.save()
+        shared_fact_map[shared_fact] = fact
+
+        #copy the field contents for this fact
+        for field_content in fact.fieldcontent_set.all():
+            shared_field_content = SharedFieldContent(
+                fact=shared_fact,
+                field_type=field_content.field_type,
+                contents=field_content.content,
+                media_url=field_content.media_url,
+                media_file=field_content.media_file)
+
+            shared_field_content.save()
+                                                      
+        #copy the cards
+        for card in fact.card_set.all():
+            shared_card = SharedCard(
+                fact=shared_fact,
+                template=card.template,
+                priority=card.priority,
+                leech=card.leech,
+                active=card.active,
+                suspended=card.suspended,
+                new_card_ordinal=card.new_card_ordinal)
+
+            shared_card.save()
+
+
+
+
 
