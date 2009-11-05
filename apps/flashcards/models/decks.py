@@ -87,7 +87,6 @@ class SchedulingOptions(models.Model):
         
         return self._generate_interval(min, max)
 
-       
 
 
 
@@ -103,8 +102,7 @@ def share_deck(deck):
     shared_deck.save()
 
     #copy the facts
-    shared_fact_map = {}
-    shared_field_content_map = {}
+    #shared_fact_map = {}
     for fact in deck.fact_set.all():
         shared_fact = SharedFact(
             deck=shared_deck,
@@ -114,7 +112,7 @@ def share_deck(deck):
             notes=fact.notes)
 
         shared_fact.save()
-        shared_fact_map[shared_fact] = fact
+        #shared_fact_map[shared_fact] = fact
 
         #copy the field contents for this fact
         for field_content in fact.fieldcontent_set.all():
@@ -140,7 +138,60 @@ def share_deck(deck):
 
             shared_card.save()
 
+    #done!
 
 
+def download_shared_deck(user, shared_deck):
+    '''Copies a shared deck and all its contents to a user's own deck library.'''
+    
+    #copy the deck
+    deck = Deck(
+        name=shared_deck.name,
+        description=shared_deck.description,
+        priority=shared_deck.priority,
+        owner=shared_deck.owner)
+    deck.save()
 
+    #create default deck scheduling options
+    scheduling_options = SchedulingOptions(deck=deck)
+    scheduling_options.save()
+
+    #copy the facts
+    #fact_map = {}
+    for shared_fact in shared_deck.fact_set.all():
+        fact = Fact(
+            deck=deck,
+            fact_type=shared_fact.fact_type,
+            active=shared_fact.active, #TODO should it be here?
+            priority=shared_fact.priority,
+            notes=shared_fact.notes)
+
+        fact.save()
+        #fact_map[fact] = shared_fact
+
+        #copy the field contents for this fact
+        for shared_field_content in shared_fact.fieldcontent_set.all():
+            field_content = FieldContent(
+                fact=fact,
+                field_type=shared_field_content.field_type,
+                contents=shared_field_content.content,
+                media_url=shared_field_content.media_url,
+                media_file=shared_field_content.media_file)
+
+            field_content.save()
+                                                      
+        #copy the cards
+        for shared_card in shared_fact.card_set.all():
+            card = Card(
+                fact=fact,
+                template=shared_card.template,
+                priority=shared_card.priority,
+                leech=shared_card.leech,
+                active=shared_card.active,
+                suspended=shared_card.suspended,
+                new_card_ordinal=shared_card.new_card_ordinal)
+
+            card.save()
+
+    #done!
 
