@@ -1,4 +1,4 @@
-from flashcards.models import Deck, FactType, Fact, CardTemplate, FieldType, FieldContent, Card
+from flashcards.models import FactType, Fact, Deck, CardTemplate, FieldType, FieldContent, Card, SharedDeck
 from flashcards.forms import DeckForm, FactForm, FieldContentForm, CardTemplateForm, FactTypeForm, CardForm
 from django.http import HttpResponseRedirect, HttpResponse
 from django.shortcuts import render_to_response
@@ -10,6 +10,8 @@ from dojango.decorators import json_response
 from dojango.util import to_dojo_data, json_decode, json_encode
 from django.template import RequestContext, loader
 from django.contrib.auth.decorators import login_required
+
+from flashcards.models.decks import download_shared_deck, share_deck
 
 from django.template.loader import render_to_string
 
@@ -118,8 +120,37 @@ def deck_create(request, post_save_redirect='/flashcards/decks'):
                                                           'post_save_redirect': post_save_redirect}) #todo:post/pre redirs
 
 
+#shared decks
+
+@login_required
+def shared_deck_list(request):
+  shared_decks = SharedDeck.objects.all()
+  return object_list(request, queryset=shared_decks, extra_context={'container_id': 'deckDialog'}, template_object_name='shared_deck')
 
 
+@login_required
+def shared_deck_download(request, shared_deck_id, post_download_redirect='/flashcards/decks'): #todo: pass post_*_redirect from urls.py
+  obj = SharedDeck.objects.get(id=shared_deck_id)
+  if request.method == 'POST':
+    download_shared_deck(request.user, obj)
+    return HttpResponse(json_encode({'success':True}), mimetype='text/javascript')
+  else:
+    return render_to_response('flashcards/shareddeck_download_form.html', {'shared_deck': obj,
+                                                                            'post_download_redirect': post_download_redirect,
+                                                                            'container_id': 'deckDialog'})
+
+@login_required
+def deck_share(request, deck_id, post_redirect='/flashcards/shared_decks'): #todo: pass post_*_redirect from urls.py
+  obj = Deck.objects.get(id=deck_id)
+  if obj.owner.id != request.user.id: #and not request.User.is_staff():
+    raise forms.ValidationError('You do not have permission to access this flashcard deck.')
+  if request.method == 'POST':
+    share_deck(obj)
+    return HttpResponse(json_encode({'success':True}), mimetype='text/javascript')
+  else:
+    return render_to_response('flashcards/deck_share_form.html', {'deck': obj,
+                                                                  'post_redirect': post_redirect,
+                                                                  'container_id': 'deckDialog'})
 
 #REST views
 

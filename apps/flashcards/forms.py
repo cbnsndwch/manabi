@@ -19,7 +19,7 @@ class CardForm(ModelForm):
 class DeckForm(ModelForm):
     class Meta:
         model = Deck
-        exclude = ('owner', )
+        exclude = ('owner', 'description', 'priority',)
         
 class FactTypeForm(ModelForm):
     class Meta:

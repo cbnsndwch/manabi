@@ -4,7 +4,7 @@ from django.forms import ModelForm
 from django.forms.util import ErrorList
 from dbtemplates.models import Template
 
-from decks import Deck, SharedDeck
+#from decks import Deck, SharedDeck
 
 
 class FactType(models.Model):
@@ -44,14 +44,14 @@ class AbstractFact(models.Model):
 
 
 class SharedFact(AbstractFact):
-    deck = models.ForeignKey(SharedDeck)
+    deck = models.ForeignKey('SharedDeck')#SharedDeck)
     
     class Meta:
         app_label = 'flashcards'
 
 
 class Fact(AbstractFact):
-    deck = models.ForeignKey(Deck)
+    deck = models.ForeignKey('Deck')#Deck)
 
     class Meta:
         app_label = 'flashcards'

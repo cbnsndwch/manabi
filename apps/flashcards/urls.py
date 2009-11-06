@@ -16,6 +16,13 @@ urlpatterns = patterns('flashcards',
     (r'^decks/create$', 'views.deck_create'),
     (r'^decks/(\w+)/create$', 'views.deck_create'),
     (r'^decks/(\w+)/delete$', 'views.deck_delete'),
+
+    #shared decks
+    #(r'^shared_decks$', 'views.shared_deck_list'),
+    (r'^shared_decks/(\w+)/download$', 'views.shared_deck_download'),
+    (r'^decks/(\w+)/share$', 'views.deck_share'),
+    (r'^shared_decks$', 'views.shared_deck_list'),
+
     
     #REST
     (r'^rest$', 'views.rest_entry_point'),

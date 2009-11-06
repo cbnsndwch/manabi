@@ -6,8 +6,11 @@ from dbtemplates.models import Template
 
 import random
 
+from fields import FieldContent, SharedFieldContent
 import cards
-
+from facts import Fact, SharedFact
+#import fields
+#import facts
 
 class AbstractDeck(models.Model):
     name = models.CharField(max_length=100)
@@ -119,15 +122,15 @@ def share_deck(deck):
             shared_field_content = SharedFieldContent(
                 fact=shared_fact,
                 field_type=field_content.field_type,
-                contents=field_content.content,
-                media_url=field_content.media_url,
+                contents=field_content.contents,
+                media_uri=field_content.media_uri,
                 media_file=field_content.media_file)
 
             shared_field_content.save()
                                                       
         #copy the cards
         for card in fact.card_set.all():
-            shared_card = SharedCard(
+            shared_card = cards.SharedCard(
                 fact=shared_fact,
                 template=card.template,
                 priority=card.priority,
@@ -149,7 +152,7 @@ def download_shared_deck(user, shared_deck):
         name=shared_deck.name,
         description=shared_deck.description,
         priority=shared_deck.priority,
-        owner=shared_deck.owner)
+        owner=shared_deck.creator)
     deck.save()
 
     #create default deck scheduling options
@@ -158,7 +161,7 @@ def download_shared_deck(user, shared_deck):
 
     #copy the facts
     #fact_map = {}
-    for shared_fact in shared_deck.fact_set.all():
+    for shared_fact in shared_deck.sharedfact_set.all():
         fact = Fact(
             deck=deck,
             fact_type=shared_fact.fact_type,
@@ -170,19 +173,19 @@ def download_shared_deck(user, shared_deck):
         #fact_map[fact] = shared_fact
 
         #copy the field contents for this fact
-        for shared_field_content in shared_fact.fieldcontent_set.all():
+        for shared_field_content in shared_fact.sharedfieldcontent_set.all():
             field_content = FieldContent(
                 fact=fact,
                 field_type=shared_field_content.field_type,
-                contents=shared_field_content.content,
-                media_url=shared_field_content.media_url,
+                contents=shared_field_content.contents,
+                media_uri=shared_field_content.media_uri,
                 media_file=shared_field_content.media_file)
 
             field_content.save()
                                                       
         #copy the cards
-        for shared_card in shared_fact.card_set.all():
-            card = Card(
+        for shared_card in shared_fact.sharedcard_set.all():
+            card = cards.Card(
                 fact=fact,
                 template=shared_card.template,
                 priority=shared_card.priority,
