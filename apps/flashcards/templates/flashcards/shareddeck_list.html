@@ -1,0 +1,11 @@
+<strong>Shared Decks</strong>
+
+<table cellspacing=2 cellpadding=2 width=200>
+{% for shared_deck in shared_deck_list %}
+	<tr>
+		<td>{{ shared_deck.name }}</td>
+		<td><a href="#" onClick="ajaxLink('/flashcards/shared_decks/{{ shared_deck.id }}/download', '{{ container_id }}');">download</a></td>
+	</tr>
+{% endfor %}
+</table>
+

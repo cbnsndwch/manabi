@@ -1,0 +1,33 @@
+
+
+<div dojoType="dijit.form.Form" jsId="deckShareForm" id="deckShareForm" encType="multipart/form-data" action="" method="">
+	<script type="dojo/connect" event="onSubmit" args="evt">
+		evt.preventDefault();
+
+		var xhrArgs = {
+			url: '/flashcards/decks/{{ deck.id }}/share',
+			handleAs: 'text',
+            load: function(data) {
+              ajaxLink('{{ post_redirect }}', '{{ container_id }}');
+            },
+            error: function(error){
+            	alert('Error: '+error);
+            }
+        }
+		//Call the asynchronous xhrPost
+        dojo.xhrPost(xhrArgs); //var deferred =
+	</script>
+
+    <em>{{ deck.name }}</em><br>
+    Share this deck?<br>
+    Everything in it will be made available to all other users.<br>
+	<button dojoType="dijit.form.Button" type="submit">Share</button>
+	<button dojoType="dijit.form.Button" jsId="shareDeckCancelButton">
+		Cancel
+		<script type="dojo/connect" event="onClick" args="evt">
+			ajaxLink('/flashcards/decks', '{{ container_id }}');
+		</script>
+	</button>
+</div>
+
+
