@@ -84,11 +84,11 @@ class CardManager(models.Manager):
     def mature_cards(self):
         return self.filter(interval__gt=MATURE_INTERVAL_MIN)
 
-    def new_cards_count(self, user):
+    def cards_new_count(self, user):
         new_cards_count = len(self.new_cards(user)) #TODO refactor, make this faster (use aggregate)
         return new_cards_count
 
-    def due_cards_count(self, user):
+    def cards_due_count(self, user):
         due_cards_count = len(self.due_cards(user)) #TODO refactor, make this faster (use aggregate)
         return due_cards_count
 
@@ -273,7 +273,7 @@ class Card(AbstractCard):
 
 
     def _next_due_at(self, grade, reviewed_at, interval):
-        return reviewed_at + datetime.timedelta(days=self.interval)
+        return reviewed_at + datetime.timedelta(days=interval)
 
     
     def review(self, grade):

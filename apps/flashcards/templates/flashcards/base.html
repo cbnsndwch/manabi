@@ -1,5 +1,8 @@
 <h2>Flashcards</h2>
 
+Sorry for the rudimentary user interface - it will be overhauled once the functionality is more complete.<br>
+<br>
+
 
 <div dojoType="dijit.Declaration" widgetClass="DropDownMultiSelect" defaults="{ inputId: 'declaredDropDownMultiSelectInputC' }">
   <div dojoType="dijit.form.DropDownButton"  dojoAttachPoint="dropDownButton">
@@ -75,9 +78,9 @@
             });
         });
 	</script>
-</button>
-
-
+</button> Add new flashcards.
+<br>
+<br>
 
 <div dojoType="dijit.Dialog" jsId="factAddDialog" id="factAddDialog" title="Add Flashcards">
     <div dojoType="dijit.form.Form" jsId="factAddForm" encType="multipart/form-data" action="" method="">
@@ -127,7 +130,9 @@
         deckDialog.show();
         decksButton.cancel();
     </script>
-</button>
+</button> Manage your decks, or download a shared deck.
+<br>
+<br>
 <div dojoType="dijit.Dialog" jsId="deckDialog" id="deckDialog" title="Decks">
     
 </div>
@@ -322,14 +327,14 @@ Facts
     factsDialog.show();
 
 </script>
-</button>
+</button> View or edit existing flashcard facts.
+<br>
+<br>
 <div dojoType="dijit.Dialog" jsId="factsDialog" id="factsDialog" title="Facts">
     <div dojoType="dijit.layout.TabContainer" jsId="factTypesTabContainer" doLayout="false">
 
     </div>
 </div>
-
-
 
 {% include 'flashcards/reviews.html' %}
 

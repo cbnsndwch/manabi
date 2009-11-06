@@ -1,4 +1,4 @@
-from flashcards.models import FactType, Fact, Deck, CardTemplate, FieldType, FieldContent, Card, SharedDeck
+from flashcards.models import FactType, Fact, Deck, CardTemplate, FieldType, FieldContent, Card, SharedDeck, GRADE_NONE, GRADE_HARD, GRADE_GOOD, GRADE_EASY
 from flashcards.forms import DeckForm, FactForm, FieldContentForm, CardTemplateForm, FactTypeForm, CardForm
 from django.http import HttpResponseRedirect, HttpResponse
 from django.shortcuts import render_to_response
@@ -15,6 +15,7 @@ from flashcards.models.decks import download_shared_deck, share_deck
 
 from django.template.loader import render_to_string
 
+import datetime
 
 from django.db import transaction
 
@@ -518,14 +519,14 @@ def next_cards_for_review(request):
 def cards_due_count(request):
     if request.method == 'GET':
         count = Card.objects.cards_due_count(request.user)
-        return count
+        return {'cards_due_count': count}
 
 @json_response
 @login_required
 def cards_new_count(request):
     if request.method == 'GET':
         count = Card.objects.cards_new_count(request.user)
-        return count
+        return {'cards_new_count': count}
 
 def _rest_review_card(request, card_id):
     '''

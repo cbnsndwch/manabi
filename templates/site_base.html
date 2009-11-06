@@ -19,7 +19,7 @@
     {% endif %}
 {% endblock %}
 
-{% block logo_link_image %}<a href="{% url home %}"><img src="{{ MEDIA_URL }}pinax/images/logo.png" alt="Pinax"/></a>{% endblock %}
+{% block logo_link_image %}<div style="font-size:46px;position:relative;padding-top:20px;padding-left:20px"><a style="color:white" href="{% url home %}">manabi</a></div>{% endblock %}
 
 {% block right_tabs %}
     {% if user.is_authenticated %}
@@ -33,8 +33,8 @@
 {% block footer %}
 <div class="legal">
     {% trans "&copy; Alex Ehlke 2009 " %}
-    - <a href="{% url about %}">{% trans "About" %}</a>
+{% comment %}    - <a href="{% url about %}">{% trans "About" %}</a>
     - <a href="{% url terms %}">{% trans "Terms of Service" %}</a>
-    - <a href="{% url privacy %}">{% trans "Privacy Policy" %}</a>
+    - <a href="{% url privacy %}">{% trans "Privacy Policy" %}</a> {% endcomment %}
 </div>
 {% endblock %}
