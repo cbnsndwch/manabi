@@ -181,7 +181,7 @@ dojo.addOnLoad(function() {
             handleAs: 'json',
             load: dojo.hitch(null, function(due_count_def, data) {
                 if (data.success) {
-                    due_count_def.callback(data.due_cards_count);
+                    due_count_def.callback(data.cards_due_count);
                 } else {
                     //TODO error handling (do a failure callback)
                 }
@@ -202,7 +202,7 @@ dojo.addOnLoad(function() {
             handleAs: 'json',
             load: dojo.hitch(null, function(new_count_def, data) {
                 if (data.success) {
-                    new_count_def.callback(data.new_cards_count);
+                    new_count_def.callback(data.cards_new_count);
                 } else {
                     //TODO error handling (do a failure callback)
                 }
@@ -274,11 +274,11 @@ reviews_ui.showReviewOptions = function() {
 
     //show the due count
     reviews.dueCardsCount().addCallback(function(count) {
-        dojo.byId('reviews_dueCount').innerHTML = count;
+        dojo.byId('reviews_cardsDueCount').innerHTML = count;
     });
     //show the new count
     reviews.newCardsCount().addCallback(function(count) {
-        dojo.byId('reviews_newCount').innerHTML = count;
+        dojo.byId('reviews_cardsNewCount').innerHTML = count;
     });
 
 }
