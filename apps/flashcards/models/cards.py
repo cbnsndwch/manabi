@@ -217,7 +217,7 @@ class Card(AbstractCard):
         return self.due_at < datetime.datetime.utcnow()
 
 
-    def _next_interval(self, grade):
+    def _next_interval(self, grade, ease_factor):
         '''Returns an interval, measured in days.'''
         if self.interval is None: #self.is_new(): #TODO verify this is a good approach
             #get this card's deck, which has the initial interval durations
@@ -239,7 +239,7 @@ class Card(AbstractCard):
                     #reset the interval
                     interval = YOUNG_FAILURE_INTERVAL
             else:
-                interval = self.interval * self.ease_factor
+                interval = self.interval * ease_factor
 
                 if grade == GRADE_EASY:
                     interval += interval * GRADE_EASY_BONUS_FACTOR
@@ -251,7 +251,7 @@ class Card(AbstractCard):
         if self.ease_factor is None:#self.is_new() or self: #TODO verify this is a good approach
             #default to the average for this deck
             #FIXME card.deck. how 2 average???
-            ease_factor = DEFAULT_EASE_FACTOR #temp solution
+            ease_factor = DEFAULT_EASE_FACTOR + EASE_FACTOR_MODIFIERS[grade] #temp solution
         else:
             #if grade == GRADE_NONE:
             if self.last_review_grade == GRADE_NONE:
@@ -260,8 +260,8 @@ class Card(AbstractCard):
             else:
                 ease_factor = self.ease_factor + EASE_FACTOR_MODIFIERS[grade]
 
-            if ease_factor < MINIMUM_EASE_FACTOR:
-                ease_factor = MINIMUM_EASE_FACTOR
+        if ease_factor < MINIMUM_EASE_FACTOR:
+            ease_factor = MINIMUM_EASE_FACTOR
 
         return ease_factor
 
@@ -292,24 +292,24 @@ class Card(AbstractCard):
         #    self.due_at = datetime.datetime.utcnow() + self.interval
         #else:
 
-        #adjust interval
-        last_interval = self.interval
-        self.interval = self._next_interval(grade)
-        self.last_interval = last_interval
-
         reviewed_at = datetime.datetime.utcnow()
-    
-        #determine next due date
-        self.last_due_at = self.due_at
-        self.due_at = self._next_due_at(grade, reviewed_at, self.interval)
-        
+
         #adjust ease factor
         last_ease_factor = self.ease_factor
         self.ease_factor = self._next_ease_factor(grade)
         self.last_ease_factor = last_ease_factor
 
+        #adjust interval
+        last_interval = self.interval
+        self.interval = self._next_interval(grade, self.ease_factor)
+        self.last_interval = last_interval
+    
+        #determine next due date
+        self.last_due_at = self.due_at
+        self.due_at = self._next_due_at(grade, reviewed_at, self.interval)
+
         #update this card's statistics
-        self._update_statistics(grade)
+        self._update_statistics(grade, reviewed_at)
 
         self.last_review_grade = grade
 

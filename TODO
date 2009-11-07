@@ -1,8 +1,9 @@
 manabi notes
 
 
-
+---------------------
 TODO:
+---------------------
 space cards from same fact.
 give a negative bonus when reviewing cards from the same fact without waiting for delay.
 
@@ -14,8 +15,17 @@ ajax error handling
 
 change deck for fact in fact editor
 
+allow selecting multiple facts
+
+
+---------------------
 BUGS:
--delete facts associated with deck when deleting deck
+---------------------
+last card, if you fail it, it still shows the grade buttons
+
+don't allow deleting last deck!
+
+delete facts associated with deck when deleting deck
 
 clear card edit view when deleting a card
 
@@ -35,8 +45,9 @@ for that specific deck it's being inserted into, i guess.
 
 double import (see: sys.modules) http://pastebin.com/m30b7c28f 676 721
 
-
+----------------------
 IDEAS:
+----------------------
 mark a word 'completely learned and memorized!' when interval reaches 120 - age of user. Haha!
 'view newly learned cards from this session' after session ends
 
@@ -44,7 +55,7 @@ only constrain unique deck names when creating a new deck, not downloading (for 
 
 
 SOMEDAY TODO:
-
+only show the loader spinner on the inside of a dialog, not including its titlepane
 
 
 OTHER NOTES

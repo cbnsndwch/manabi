@@ -1,4 +1,4 @@
-from flashcards.models import FactType, Fact, Deck, CardTemplate, FieldType, FieldContent, Card, SharedDeck, GRADE_NONE, GRADE_HARD, GRADE_GOOD, GRADE_EASY
+from flashcards.models import FactType, Fact, Deck, CardTemplate, FieldType, FieldContent, Card, SharedDeck, GRADE_NONE, GRADE_HARD, GRADE_GOOD, GRADE_EASY, SchedulingOptions
 from flashcards.forms import DeckForm, FactForm, FieldContentForm, CardTemplateForm, FactTypeForm, CardForm
 from django.http import HttpResponseRedirect, HttpResponse
 from django.shortcuts import render_to_response
@@ -112,6 +112,8 @@ def deck_create(request, post_save_redirect='/flashcards/decks'):
       new_deck = deck_form.save(commit=False)
       new_deck.owner = request.user
       new_deck.save()
+      scheduling_options = SchedulingOptions(deck=new_deck)
+      scheduling_options.save()
       #request.user.message_set.create(message=ugettext("The %(verbose_name)s was created successfully.") % {"verbose_name": model._meta.verbose_name})
       return HttpResponse(json_encode({'success':True}), mimetype='text/javascript')#HttpResponseRedirect(post_save_redirect)
   else:
@@ -487,7 +489,7 @@ def next_cards_for_review(request):
         count = int(request.GET.get('count', 5))
 
         try:
-            excluded_card_ids = [int(e) for e in request.GET.get('excluded_ids', '').split('+')]
+            excluded_card_ids = [int(e) for e in request.GET.get('excluded_cards', '').split()]
         except ValueError:
             excluded_card_ids = []
 
@@ -501,15 +503,17 @@ def next_cards_for_review(request):
             field_contents = dict((field_content.field_type_id, field_content.contents,) for field_content in card.fact.fieldcontent_set.all())
             card_context = {'fields': field_contents}
             #front = render_to_string(card.template.front_template_name, 
+            due_times = {}
+            for grade in [GRADE_NONE, GRADE_HARD, GRADE_GOOD, GRADE_EASY,]:
+                due_at = card._next_due_at(grade, reviewed_at, card._next_interval(grade, card._next_ease_factor(grade)))
+                duration = due_at - reviewed_at
+                days = duration.days + (duration.seconds / 86400.0)
+                due_times[grade] = days
             formatted_cards.append({
                 'id': card.id,
                 'front': render_to_string(card.template.front_template_name, card_context),
                 'back': render_to_string(card.template.back_template_name, card_context),
-                'next_due_at_per_grade': 
-                    dict(
-                        (grade, card._next_due_at(grade, reviewed_at, card._next_ease_factor(grade)),)
-                        for grade in [GRADE_NONE, GRADE_HARD, GRADE_GOOD, GRADE_EASY,]
-                    )
+                'next_due_at_per_grade': due_times
             })
 
         return {'success': True, 'cards': formatted_cards}

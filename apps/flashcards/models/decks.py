@@ -55,8 +55,8 @@ class SchedulingOptions(models.Model):
     deck = models.OneToOneField(Deck)
 
     #TODO make a custom 'range' field type
-    unknown_interval_min = models.FloatField(default=0.333)
-    unknown_interval_max = models.FloatField(default=0.5)
+    unknown_interval_min = models.FloatField(default=0.006944) #10 mins #TODO is this right? 0.333)
+    unknown_interval_max = models.FloatField(default=0.006944) #0.5)
     hard_interval_min = models.FloatField(default=0.333)
     hard_interval_max = models.FloatField(default=0.5)
     medium_interval_min = models.FloatField(default=3.0)

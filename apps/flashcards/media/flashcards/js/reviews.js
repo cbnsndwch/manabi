@@ -316,7 +316,6 @@ reviews_ui.displayCard = function(card) {
     reviews_cardBack.attr('content', card.back);
     reviews_cardBack.domNode.style.display = 'none';
     dojo.byId('reviews_gradeButtons').style.visibility = 'hidden';
-
     reviews_showCardBackButton.focus();
 }
 
