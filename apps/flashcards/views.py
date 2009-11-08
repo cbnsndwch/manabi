@@ -215,7 +215,7 @@ def rest_fields(request, fact_type_id):
   if method == 'GET':
     try:
       fact_type = FactType.objects.get(id=fact_type_id) #todo: error handling
-      ret = fact_type.fieldtype_set.all()
+      ret = fact_type.fieldtype_set.all().order_by('ordinal')
     except FactType.DoesNotExist:
       ret = []
     return to_dojo_data(ret)
