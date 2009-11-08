@@ -281,7 +281,7 @@ def rest_facts(request): #todo:refactor into facts (no???)
         #facts = Fact.objects.filter(fact_type=FactType.objects.get(id=fact_type_id))
         #ret = to_dojo_data(facts.fieldcontent_set)
         fact_type = FactType.objects.get(id=fact_type_id)
-        facts = fact_type.fact_set.all()
+        facts = fact_type.fact_set.filter(deck__owner=request.user)
         if not facts:
           ret = {}
         else:
