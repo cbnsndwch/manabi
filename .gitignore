@@ -3,6 +3,8 @@
 *.swp
 settings.py
 dev.db
+fabfile.py
+workon_manabi.sh
 *.bak
 *.tar.gz
 deploy
