@@ -1,2 +1,9 @@
 *.prc
 *.pyc
+*.swp
+settings.py
+dev.db
+*.bak
+*.tar.gz
+deploy
+.DS_Store

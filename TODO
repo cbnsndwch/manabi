@@ -57,6 +57,7 @@ only constrain unique deck names when creating a new deck, not downloading (for 
 SOMEDAY TODO:
 only show the loader spinner on the inside of a dialog, not including its titlepane
 
+mincho vs gothic fonts for kanji, maybe on mouse hover or something (useful for learning)
 
 OTHER NOTES
 comment tags:
