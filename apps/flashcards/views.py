@@ -96,7 +96,7 @@ def deck_delete(request, deck_id, post_delete_redirect='/flashcards/decks'): #to
   if obj.owner.id != request.user.id: #and not request.User.is_staff():
     raise forms.ValidationError('You do not have permission to access this flashcard deck.')
   if request.method == 'POST':
-    obj.delete()
+    obj.delete_cascading()
     #request.user.message_set.create(message=ugettext("The %(verbose_name)s was deleted.") % {"verbose_name": model._meta.verbose_name})
     return HttpResponse(json_encode({'success':True}), mimetype='text/javascript')
   else:

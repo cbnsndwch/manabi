@@ -6,7 +6,7 @@
 {% for deck in deck_list %}
 	<tr>
 		<td>{{ deck.name }}</td>
-		<td><a href="#" onClick="ajaxLink('/flashcards/decks/{{ deck.id }}/update', '{{ container_id }}');">edit</a></td>
+		<td><a href="#" onClick="ajaxLink('/flashcards/decks/{{ deck.id }}/update', '{{ container_id }}');">rename</a></td>
 		<td><a href="#" onClick="ajaxLink('/flashcards/decks/{{ deck.id }}/share', '{{ container_id }}');">share</a></td>
 		<td><a href="#" onClick="ajaxLink('/flashcards/decks/{{ deck.id }}/delete', '{{ container_id }}');">delete</a></td>
 	</tr>

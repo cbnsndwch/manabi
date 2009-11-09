@@ -5,6 +5,7 @@ from django.forms.util import ErrorList
 from dbtemplates.models import Template
 
 import random
+from django.db import transaction
 
 from fields import FieldContent, SharedFieldContent
 import cards
@@ -34,6 +35,8 @@ class SharedDeck(AbstractDeck):
     class Meta:
         app_label = 'flashcards'
         #TODO unique_together = (('creator', 'name'), )
+
+    #FIXME delete cascading
     
 
 class Deck(AbstractDeck):
@@ -48,6 +51,16 @@ class Deck(AbstractDeck):
     
     def average_ease_factor(self):
         return 2.5 #FIXME
+    
+    @transaction.commit_on_success    
+    def delete_cascading(self):
+        for fact in self.fact_set.all():
+            for card in fact.card_set.all():
+                card.delete()
+            fact.delete()
+        self.schedulingoptions.delete()
+        self.delete()
+
 
 
 

@@ -1,6 +1,5 @@
 Sorry for the rudimentary user interface - it's just temporary. I'm focusing on functionality before I work on better usability.
 <br>
-<br>
 
 <h2>Flashcards</h2>
 
@@ -27,8 +26,8 @@ Sorry for the rudimentary user interface - it's just temporary. I'm focusing on 
 
 
 
-<button dojoType="dojox.form.BusyButton" jsId="addFlashcardsButton" busyLabel="Add Flashcards">
-    Add Flashcards
+<button dojoType="dojox.form.BusyButton" jsId="addFlashcardsButton" busyLabel="Add Facts">
+    Add Facts
 	<script type="dojo/connect" event="onClick" args="evt">
 	  //TODO get the URIs from the REST entry point
         function fetchStoreDeferred(dataStore, onItemCallback) {
@@ -81,11 +80,11 @@ Sorry for the rudimentary user interface - it's just temporary. I'm focusing on 
             });
         });
 	</script>
-</button> Add new flashcards.
+</button> Add new facts. Flashcards are generated from each fact.
 <br>
 <br>
 
-<div dojoType="dijit.Dialog" jsId="factAddDialog" id="factAddDialog" title="Add Flashcards">
+<div dojoType="dijit.Dialog" jsId="factAddDialog" id="factAddDialog" title="Add Facts">
 	<script type="dojo/connect" event="onClose" args="evt">
         fact_add_ui.unsetKeyboardShortcuts();
     </script>
