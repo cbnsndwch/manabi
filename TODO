@@ -13,10 +13,13 @@ allow selecting multiple facts
 
 make field requirements dependent on which cards are to be generated
 
+limit the number of '2 cards created for...' messages shown
 
 ---------------------
 TODO (low priority):
 ---------------------
+resend grade xhrposts upon error. warn user when offline too
+
 ajax error handling
 
 change deck for fact in fact editor

@@ -116,7 +116,10 @@ dojo.addOnLoad(function() {
             //prefetch more cards if the buffer runs low
             if (reviews.cards.length <= reviews.card_buffer_count) {
                 if (!reviews.empty_prefetch_producer) {
-                    reviews.prefetchCards(reviews.card_buffer_count);
+                    var prefetch_cards_def = reviews.prefetchCards(reviews.card_buffer_count);
+                    prefetch_cards_def.addCallback(dojo.hitch(function(next_card_def) {
+                        next_card_def.callback(reviews._nextCard());
+                    }, null, next_card_def));            
                 }
             }
 
@@ -124,9 +127,13 @@ dojo.addOnLoad(function() {
             if (!reviews.empty_prefetch_producer) {
                 //out of cards, need to fetch more
                 var prefetch_def = reviews.prefetchCards(reviews.card_buffer_count * 2);
-                prefetch_def.addCallback(dojo.hitch(function(next_card_def) {
+                prefetch_def.addCallback(dojo.hitch(null, function(next_card_def) {
+                if (!reviews.empty_prefetch_producer) {
                     next_card_def.callback(reviews._nextCard());
-                }, null, next_card_def));
+                } else {
+                    next_card_def.callback(null);
+                }
+                }, next_card_def));
             } else {
                 next_card_def.callback(null);
             }
@@ -298,6 +305,8 @@ reviews_ui.openDialog = function() {
 }
 
 reviews_ui.endSession = function() {
+    reviews_ui.unsetCardBackKeyboardShortcuts();
+    reviews_ui.unsetCardFrontKeyboardShortcuts();
     dojo.byId('reviews_reviewScreen').style.display = 'none';
     dojo.byId('reviews_reviewEndScreen').style.display = '';
     reviews.endSession();
@@ -311,12 +320,15 @@ reviews_ui.displayNextIntervals = function(card) {
 }
 
 reviews_ui.displayCard = function(card) {
+    reviews_ui.unsetCardBackKeyboardShortcuts();
     reviews_cardFront.attr('content', card.front);
     dojo.byId('reviews_showCardBack').style.display = '';
     reviews_cardBack.attr('content', card.back);
     reviews_cardBack.domNode.style.display = 'none';
     dojo.byId('reviews_gradeButtons').style.visibility = 'hidden';
+    reviews_ui.review_dialog._position(); //recenter dialog
     reviews_showCardBackButton.focus();
+    reviews_ui.setCardFrontKeyboardShortcuts();
 }
 
 reviews_ui.goToNextCard = function() {
@@ -333,17 +345,19 @@ reviews_ui.goToNextCard = function() {
 }
 
 reviews_ui.showCardBack = function(card) {
+    reviews_ui.unsetCardFrontKeyboardShortcuts();
     dojo.byId('reviews_showCardBack').style.display = 'none';
     reviews_cardBack.domNode.style.display = '';
     reviews_ui.displayNextIntervals(card);
     dojo.byId('reviews_gradeButtons').style.visibility = '';
+    reviews_ui.review_dialog.domNode.focus();
+    reviews_ui.setCardBackKeyboardShortcuts();
 }
 
 reviews_ui.reviewCard = function(card, grade) {
     var review_def = reviews.reviewCard(card, grade);
     review_def.addCallback(function(data) {
         //FIXME anything go here?
-        
     });
     reviews_ui.goToNextCard();
 }
@@ -353,4 +367,46 @@ reviews_ui.displayNextCard = function() {
 }
 
 
+reviews_ui.card_front_keyboard_shortcut_connection = null;
+reviews_ui.card_back_keyboard_shortcut_connection = null;
 
+reviews_ui.setCardBackKeyboardShortcuts = function() {
+  reviews_ui.card_back_keyboard_shortcut_connection = dojo.connect(reviews_ui.review_dialog, 'onKeyPress', function(e) {
+    switch(e.charOrCode) {
+        case '1':
+            reviews_ui.reviewCard(reviews.current_card, reviews.grades.GRADE_NONE);
+            break;
+        case '2':
+            reviews_ui.reviewCard(reviews.current_card, reviews.grades.GRADE_HARD);
+            break;
+        case '3':
+            reviews_ui.reviewCard(reviews.current_card, reviews.grades.GRADE_GOOD);
+            break;
+        case '4':
+            reviews_ui.reviewCard(reviews.current_card, reviews.grades.GRADE_EASY);
+            break;
+    }
+  });
+};
+
+reviews_ui.setCardFrontKeyboardShortcuts = function() {
+  reviews_ui.card_front_keyboard_shortcut_connection = dojo.connect(reviews_ui.review_dialog, 'onKeyPress', function(e) {
+    var k = dojo.keys;
+    switch(e.charOrCode) {
+        case k.ENTER:
+        case ' ':
+            reviews_ui.showCardBack(reviews.current_card);
+            dojo.stopEvent(e);
+            break;
+        default:
+    }
+  });
+};
+
+reviews_ui.unsetCardFrontKeyboardShortcuts = function() {
+    dojo.disconnect(reviews_ui.card_front_keyboard_shortcut_connection);
+};
+
+reviews_ui.unsetCardBackKeyboardShortcuts = function() {
+    dojo.disconnect(reviews_ui.card_back_keyboard_shortcut_connection);
+};

@@ -40,11 +40,11 @@
                         next_card_def.addCallback(function(next_card) {
 
                             if (next_card) {
-                                //show the card
-                                reviews_ui.displayCard(next_card);
-
                                 //show the review screen
                                 dojo.byId('reviews_reviewScreen').style.display = '';
+
+                                //show the card
+                                reviews_ui.displayCard(next_card);
                             } else {
                                 //no cards are due
                                 reviews_ui.showNoCardsDue();
@@ -56,11 +56,11 @@
         </div>
     </div>
 
-    <div id="reviews_reviewScreen" style="display:none">
+    <div id="reviews_reviewScreen" style="display:none;">
         <div style="text-align: center">
-            <div style="font-size:18px" dojoType="dijit.layout.ContentPane" jsId="reviews_cardFront" id="reviews_cardFront"></div>
+            <div style="font-size:32px; padding:20px;" dojoType="dijit.layout.ContentPane" jsId="reviews_cardFront" id="reviews_cardFront"></div>
             <hr>
-            <div id="reviews_showCardBack" style="text-align: center">
+            <div id="reviews_showCardBack" style="text-align: center;">
                 <button dojoType="dijit.form.Button" jsId="reviews_showCardBackButton" type="button">
                     Show Answer
                     <script type="dojo/method" event="onClick" args="evt">
@@ -68,7 +68,7 @@
                     </script>
                 </button>
             </div>
-            <div style="font-size:22px" dojoType="dijit.layout.ContentPane" jsId="reviews_cardBack" id="reviews_cardBack"></div>
+            <div style="font-size:32px; padding:20px;" dojoType="dijit.layout.ContentPane" jsId="reviews_cardBack" id="reviews_cardBack"></div>
         </div>
         <div id="reviews_gradeButtons" style="margin-top:8px">
             <table>

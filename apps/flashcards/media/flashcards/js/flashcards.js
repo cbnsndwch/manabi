@@ -24,6 +24,13 @@
   // I wrote it while I was still learning JS and Dojo. I think my later output is much
   // cleaner. I'll try to fix this stuff up soon though before it bites me back.
 
+  //general utility methods
+  //TODO move this to its own file
+  var manabi_utils = {};
+  manabi_utils.isCopyKey = function(e) {
+    return (e.metaKey || e.ctrlKey);
+  }
+
 
   //TODO all this code and globals really need to be encapsulated
   //this is a start on encapsulating new stuff I add:
@@ -32,18 +39,14 @@
 
   fact_add_ui.keyboard_shortcut_connection = null;
 
-  
-
   fact_add_ui.setKeyboardShortcuts = function() {
-    console.log('set shortcuts');
-    fact_add_ui.keyboard_shortcut_connection = dojo.connect(factAddDialog, 'onkeypress', function(e) {
+    fact_add_ui.keyboard_shortcut_connection = dojo.connect(factAddDialog, 'onKeyPress', function(e) {
         var k = dojo.keys;
-        console.log(dojo.isCopyKey(e));
-        if (dojo.isCopyKey(e)) {
+
+        if (manabi_utils.isCopyKey(e)) {
             //meta (on mac) or ctrl (on PC) is pressed
             switch(e.charOrCode) {
                 case k.ENTER:
-                    console.log('m-enter');
                     //submit form
                     dojo.stopEvent(e);
                     fact_add_ui.factAddFormSubmit();

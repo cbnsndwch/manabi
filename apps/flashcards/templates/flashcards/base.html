@@ -76,6 +76,8 @@ Sorry for the rudimentary user interface - it's just temporary. I'm focusing on 
                 addFlashcardsButton.cancel();
                 
                 factAddDialog.show();
+
+                fact_add_ui.setKeyboardShortcuts();
             });
         });
 	</script>
@@ -84,6 +86,9 @@ Sorry for the rudimentary user interface - it's just temporary. I'm focusing on 
 <br>
 
 <div dojoType="dijit.Dialog" jsId="factAddDialog" id="factAddDialog" title="Add Flashcards">
+	<script type="dojo/connect" event="onClose" args="evt">
+        fact_add_ui.unsetKeyboardShortcuts();
+    </script>
     <div dojoType="dijit.form.Form" jsId="factAddForm" encType="multipart/form-data" action="" method="">
         
         <div>
