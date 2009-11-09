@@ -34,6 +34,8 @@ BUGS:
 ---------------------
 don't allow deleting last deck!
 
+'card' admin shows bad unicode data - crashes admin interface
+
 delete facts associated with deck when deleting deck
 
 clear card edit view when deleting a card
