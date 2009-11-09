@@ -163,15 +163,15 @@
                       fieldContentHeaderHTML += ' (required)';
                   }
                   dojo.place(fieldContentHeaderHTML, domNode, 'last');
-                  dojo.place('<div id="id_field_content-'+tempFieldCounter+'-contents-errors" class="field_content_error" />', domNode, 'last');
+                  dojo.place('<div id="id_field_content-'+tempFieldCounter+'-content-errors" class="field_content_error" />', domNode, 'last');
                   //console.log(factFieldValues);
                   //console.log('id'+fieldsStore.getValue(item, 'id'));
                   //console.log(factFieldValues['id'+fieldsStore.getValue(item, 'id')][0]);
                   var fieldTextarea = new dijit.form.SimpleTextarea({
-                      name: 'field_content-'+tempFieldCounter+'-contents', //fieldsStore.getValue(item, 'name'),
+                      name: 'field_content-'+tempFieldCounter+'-content', //fieldsStore.getValue(item, 'name'),
                       class: 'field_content',
-                      id: formPrefix+'id_field_content-'+tempFieldCounter+'-contents',
-                      jsId: formPrefix+'id_field_content_'+tempFieldCounter+'_contents',
+                      id: formPrefix+'id_field_content-'+tempFieldCounter+'-content',
+                      jsId: formPrefix+'id_field_content_'+tempFieldCounter+'_content',
                       value: factFieldValues['id'+fieldsStore.getValue(item, 'id')][0],//"",
                       style: "width:300px;",
                       rows: '2'
@@ -247,11 +247,11 @@
                       fieldContentHeaderHTML += ' (required)';
                   }
                   dojo.place(fieldContentHeaderHTML, 'factFields', 'last');
-                  dojo.place('<div id="id_field_content-'+tempFieldCounter+'-contents-errors" class="field_content_error" />', 'factFields', 'last');
+                  dojo.place('<div id="id_field_content-'+tempFieldCounter+'-content-errors" class="field_content_error" />', 'factFields', 'last');
                   var fieldTextarea = new dijit.form.SimpleTextarea({
-                      name: 'field_content-'+tempFieldCounter+'-contents', //fieldsStore.getValue(item, 'name'),
-                      id: 'id_field_content-'+tempFieldCounter+'-contents',
-                      jsId: 'id_field_content_'+tempFieldCounter+'_contents',
+                      name: 'field_content-'+tempFieldCounter+'-content', //fieldsStore.getValue(item, 'name'),
+                      id: 'id_field_content-'+tempFieldCounter+'-content',
+                      jsId: 'id_field_content_'+tempFieldCounter+'_content',
                       value: "",
                       style: "width:300px;",
                       rows: '2'
@@ -295,22 +295,22 @@
   fact_add_ui.factAddFormSubmit = function() {
     var cardTemplatesInput = dijit.byId('cardTemplatesInput');
     factFormSubmit(function(data, tempCardCounter){
-    //dojo.place('Added '+tempCardCounter.toString()+' cards for '+factAddFormValue['field_content-0-contents']+'<br>','factAddFormResults', 'last');
+    //dojo.place('Added '+tempCardCounter.toString()+' cards for '+factAddFormValue['field_content-0-content']+'<br>','factAddFormResults', 'last');
       if (dojo.trim(factAddFormResults.containerNode.innerHTML) == '') {
           factAddFormResults.containerNode.innerHTML = '';
       }
-      //factAddFormResults.containerNode.innerHTML += 'Added '+tempCardCounter.toString()+' cards for '+dijit.byId('id_field_content-0-contents').attr('value')+'<br>';
-      appendLineToAddedCardHistory(factAddFormResults.containerNode, 'Added '+tempCardCounter.toString()+' cards for '+dijit.byId('id_field_content-0-contents').attr('value'));
+      //factAddFormResults.containerNode.innerHTML += 'Added '+tempCardCounter.toString()+' cards for '+dijit.byId('id_field_content-0-content').attr('value')+'<br>';
+      appendLineToAddedCardHistory(factAddFormResults.containerNode, 'Added '+tempCardCounter.toString()+' cards for '+dijit.byId('id_field_content-0-content').attr('value'));
       resetFactAddForm();
       factAddDialogStandby.hide();
     }, function(data, tempCardCounter) {
       //show field_content errors
       fieldContentErrors = data.errors.field_content;//[errors][field_content];
       dojo.forEach(fieldContentErrors, function(errorMsg, idx) {
-          if ('contents' in errorMsg) {
-              dojo.byId('id_field_content-'+idx+'-contents-errors').innerHTML = '<font color="red"><i>'+errorMsg.contents.join('<br>')+'</i></font>';
+          if ('content' in errorMsg) {
+              dojo.byId('id_field_content-'+idx+'-content-errors').innerHTML = '<font color="red"><i>'+errorMsg.content.join('<br>')+'</i></font>';
           } else {
-              dojo.empty(dojo.byId('id_field_content-'+idx+'-contents-errors'));
+              dojo.empty(dojo.byId('id_field_content-'+idx+'-content-errors'));
           }
       });
       //dojo.forEach(data.errors.card)

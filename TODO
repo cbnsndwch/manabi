@@ -7,15 +7,23 @@ TODO:
 space cards from same fact.
 give a negative bonus when reviewing cards from the same fact without waiting for delay.
 
-disable controls after each review
+bonus for late review
 
-bonus for late review<D-]>
+allow selecting multiple facts
 
+make field requirements dependent on which cards are to be generated
+
+
+---------------------
+TODO (low priority):
+---------------------
 ajax error handling
 
 change deck for fact in fact editor
 
-allow selecting multiple facts
+disable controls after each review
+
+confirm close of add flashcard dialog if there is unsaved input
 
 
 ---------------------

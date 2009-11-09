@@ -37,28 +37,28 @@ class FactForm(ModelForm):
 class FieldContentForm(ModelForm):
     def clean(self): #TODO if any(self.errors):return NO:thats just for formsets
         cleaned_data = self.cleaned_data
-        contents = cleaned_data.get('contents') or ''
+        content = cleaned_data.get('content') or ''
         field_type = cleaned_data.get('field_type')#FieldType.objects.get(id=field_type_id)
         blank = field_type.blank
         unique = field_type.unique
         error_list = []
 
-        if not field_type.multi_line and '\n' in contents:
+        if not field_type.multi_line and '\n' in content:
             msg = u'This is a single-line field.'
             error_list.append(msg)
-            if 'contents' in cleaned_data:
-              del cleaned_data['contents'] #TODO why do I do this?
-        if not blank and not contents.strip():#contents.strip() == '':
+            if 'content' in cleaned_data:
+              del cleaned_data['content'] #TODO why do I do this?
+        if not blank and not content.strip():#content.strip() == '':
             msg = u'This field is required.'
-            #self._errors['contents'] = ErrorList([msg])
+            #self._errors['content'] = ErrorList([msg])
             error_list.append(msg)
-            if 'contents' in cleaned_data:
-                del cleaned_data['contents']
+            if 'content' in cleaned_data:
+                del cleaned_data['content']
         elif field_type: #TODO why check if field_type?
-            if contents.strip(): #if it's blank, don't bother checking if it's unique
+            if content.strip(): #if it's blank, don't bother checking if it's unique
                 if unique: #TODO can a field be blank and unique? probably yes, since blank is like null
                     #dirty hack to get this deck's owner
-                    other_field_contents = FieldContent.objects.filter(field_type=field_type, contents__exact=contents)
+                    other_field_contents = FieldContent.objects.filter(field_type=field_type, content__exact=content)
                     if cleaned_data.get('id'): #exclude the existing field content if this is an update
                         #this is an update form (the FieldContent object already exists)
                         other_field_contents = other_field_contents.exclude(id=cleaned_data.get('id').id)
@@ -69,14 +69,14 @@ class FieldContentForm(ModelForm):
                     if other_field_contents.count() > 0:
                         msg = u'This field must be unique for all facts.'
                         error_list.append(msg)
-                        if 'contents' in cleaned_data:
-                            del cleaned_data['contents']
+                        if 'content' in cleaned_data:
+                            del cleaned_data['content']
         if error_list:
-            if 'contents' in self._errors:
+            if 'content' in self._errors:
                 for error_item in error_list:
-                    self._errors['contents'].append(error_item)
+                    self._errors['content'].append(error_item)
             else:
-                self._errors['contents'] = ErrorList(error_list)
+                self._errors['content'] = ErrorList(error_list)
         return cleaned_data
 
     #def __init__(self, *args, **kwargs):

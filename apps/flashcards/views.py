@@ -295,7 +295,7 @@ def rest_facts(request): #todo:refactor into facts (no???)
                 ident = key
               elif not name:
                 name = key
-              row[key]=field_content.contents#field_content.field_type.id] = field_content.contents
+              row[key]=field_content.content #field_content.field_type.id] = field_content.content
               row['{0}_field-content-id'.format(key)] = field_content.id
             if not name:
               name = ident
@@ -500,7 +500,7 @@ def next_cards_for_review(request):
         formatted_cards = []
         reviewed_at = datetime.datetime.utcnow()
         for card in next_cards:
-            field_contents = dict((field_content.field_type_id, field_content.contents,) for field_content in card.fact.fieldcontent_set.all())
+            field_contents = dict((field_content.field_type_id, field_content.content,) for field_content in card.fact.fieldcontent_set.all())
             card_context = {'fields': field_contents}
             #front = render_to_string(card.template.front_template_name, 
             due_times = {}

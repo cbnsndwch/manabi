@@ -27,7 +27,7 @@ Sorry for the rudimentary user interface - it's just temporary. I'm focusing on 
 
 
 
-<button dojoType="dojox.form.BusyButton" jsId="addFlashcardsButton" busyLabel="Loading...">
+<button dojoType="dojox.form.BusyButton" jsId="addFlashcardsButton" busyLabel="Add Flashcards">
     Add Flashcards
 	<script type="dojo/connect" event="onClick" args="evt">
 	  //TODO get the URIs from the REST entry point
@@ -108,7 +108,7 @@ Sorry for the rudimentary user interface - it's just temporary. I'm focusing on 
                 <button dojoType="dijit.form.Button" type="submit">
             	    Add
             	</button> <button dojoType="dijit.form.Button">
-            	    Cancel
+            	    Close
             	    <script type="dojo/connect" event="onClick" args="evt">
                         factAddDialog.hide();
                     </script>
@@ -124,7 +124,7 @@ Sorry for the rudimentary user interface - it's just temporary. I'm focusing on 
 
 
 
-<button dojoType="dojox.form.BusyButton" jsId="decksButton" busyLabel="Loading...">
+<button dojoType="dojox.form.BusyButton" jsId="decksButton" busyLabel="Decks">
     Decks
     <script type="dojo/connect" event="onClick" args="evt">
         deckDialog.attr('href', 'flashcards/decks');
@@ -139,7 +139,7 @@ Sorry for the rudimentary user interface - it's just temporary. I'm focusing on 
 </div>
 
 
-<button dojoType="dojox.form.BusyButton" jsId="factsButton" busyLabel="Loading...">
+<button dojoType="dojox.form.BusyButton" jsId="factsButton" busyLabel="Facts">
 Facts
 <script type="dojo/connect" event="onClick" args="evt">
     //factsDialog.attr('href', 'facts');
@@ -289,6 +289,7 @@ Facts
                     }, factsGrid)
                 }).placeAt(factsGridCP.containerNode, 'first');//TODO factsDialogWidgets.push(
                 
+                factsDialog._position(); //TODO move this elsewhere - only needs to be called once
                 factsGridFactEditorCP.placeAt(factsGridCP.attr('id'), 'last'); //FIXME does this even get placed?
                 dojo.place('<hr>', factsGridCP.attr('id'), 'last');
                 factsGrid.startup();

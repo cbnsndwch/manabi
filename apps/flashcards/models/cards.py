@@ -147,8 +147,8 @@ class AbstractCard(models.Model):
     
     leech = models.BooleanField() #TODO add leech handling
     
-    active = models.BooleanField() #True when the card is removed from the Fact. This way, we can keep card statistics if enabled later
-    suspended = models.BooleanField() #Not used right now. 'active' is more like a deletion, this is lighter
+    active = models.BooleanField(default=True) #False when the card is removed from the Fact. This way, we can keep card statistics if enabled later
+    suspended = models.BooleanField(default=False) #Not used right now. 'active' is more like a deletion, this is lighter
 
     new_card_ordinal = models.PositiveIntegerField(null=True, blank=True)
 
@@ -183,7 +183,7 @@ class Card(AbstractCard):
 
     last_reviewed_at = models.DateTimeField(null=True, blank=True)
     last_review_grade = models.PositiveIntegerField(null=True, blank=True)
-   
+    
     
     class Meta:
         unique_together = (('fact', 'template'), )
@@ -191,8 +191,8 @@ class Card(AbstractCard):
 
 
     def __unicode__(self):
-        field_contents = dict((field_content.field_type_id, field_content.contents,) for field_content in self.fact.fieldcontent_set.all())
-        card_context = {'fields': field_contents}
+        field_content = dict((field_content.field_type_id, field_content.content,) for field_content in self.fact.fieldcontent_set.all())
+        card_context = {'fields': field_content}
         front = render_to_string(self.template.front_template_name, card_context)
         back = render_to_string(self.template.back_template_name, card_context)
         return '{0} | {1}'.format(front, back)
@@ -337,6 +337,8 @@ class CardStatistics(models.Model):
     #apparently needed for synchronization/import purposes
     yes_count = models.PositiveIntegerField(default=0, editable=False)
     no_count = models.PositiveIntegerField(default=0, editable=False)
+
+    average_thinking_time = models.PositiveIntegerField(null=True, editable=False)
 
     #initial_ease 
     

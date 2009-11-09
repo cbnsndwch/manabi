@@ -8,11 +8,16 @@ from facts import FactType
 
 
 class CardTemplate(models.Model):
-    name = models.CharField(max_length=50)
     fact_type = models.ForeignKey(FactType)
+
+    name = models.CharField(max_length=50)
+    description = models.TextField(max_length=200, blank=True)
     
     front_template_name = models.CharField(max_length=50)
     back_template_name = models.CharField(max_length=50) #TODO use a template marker for 'answer' fields to be typed in, optionally
+
+    front_prompt = models.CharField(max_length=200, blank=True)
+    back_prompt = models.CharField(max_length=200, blank=True)
     
     generate_by_default = models.BooleanField(default=True)
     ordinal = models.IntegerField(null=True, blank=True)

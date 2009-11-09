@@ -122,7 +122,7 @@ def share_deck(deck):
             shared_field_content = SharedFieldContent(
                 fact=shared_fact,
                 field_type=field_content.field_type,
-                contents=field_content.contents,
+                content=field_content.content,
                 media_uri=field_content.media_uri,
                 media_file=field_content.media_file)
 
@@ -177,7 +177,7 @@ def download_shared_deck(user, shared_deck):
             field_content = FieldContent(
                 fact=fact,
                 field_type=shared_field_content.field_type,
-                contents=shared_field_content.contents,
+                content=shared_field_content.content,
                 media_uri=shared_field_content.media_uri,
                 media_file=shared_field_content.media_file)
 
