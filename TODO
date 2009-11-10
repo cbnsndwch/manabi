@@ -28,6 +28,11 @@ disable controls after each review
 
 confirm close of add flashcard dialog if there is unsaved input
 
+show a tooltip for fact field input when creating a new fact. inside, list any matching facts from one's own 
+account, or from any shared decks (or from anyone else's account? with permissions..). upon clicking one, 
+fill in the current fact dialog with that card (but warn user that they'll lose what they're writing now? or 
+somehow save it.. allow 'back') and change the 'Add' button to say 'Update' if it's from user's existing 
+cards. Or, open a second add fact dialog, maybe. (How to implement 'back'?)
 
 ---------------------
 BUGS:
