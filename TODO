@@ -1,6 +1,9 @@
 manabi notes
 
 
+SUPER CRITICAL BUGS:
+can't add cards to a fact via Fact Add dialog! see error log, views.py:369 too
+
 ---------------------
 TODO:
 ---------------------
@@ -26,6 +29,8 @@ don't allow word wrapping in fact editor grid
 ---------------------
 TODO (low priority):
 ---------------------
+increase font size for fact add fields, especially japanese ones
+
 resend grade xhrposts upon error. warn user when offline too
 
 ajax error handling
@@ -76,11 +81,14 @@ mark a word 'completely learned and memorized!' when interval reaches 120 - age 
 
 only constrain unique deck names when creating a new deck, not downloading (for now - makes things easier)
 
-
+---------------------
 SOMEDAY TODO:
+---------------------
 only show the loader spinner on the inside of a dialog, not including its titlepane
 
 mincho vs gothic fonts for kanji, maybe on mouse hover or something (useful for learning)
+
+inflection (like in Genki)
 
 
 
@@ -101,3 +109,10 @@ comment tags:
 #FIXME
 #SOMEDAY
 #IDEA
+
+
+-----------------------
+stuff for yoshimura sensei:
+make sure there arent bad production cards
+and make sure no cards are in the wrong deck ;)
+what to do about singular kanji without vocab? how to select vocab, what to show, etc (from textbook)
