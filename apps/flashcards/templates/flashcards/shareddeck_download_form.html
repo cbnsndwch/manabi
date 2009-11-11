@@ -1,11 +1,12 @@
 
 
-<div dojoType="dijit.form.Form" jsId="sharedDeckDownloadForm" id="sharedDeckDownloadForm" encType="multipart/form-data" action="" method="">
+<div dojoType="dijit.form.Form" jsId="sharedDeckDownloadForm" encType="multipart/form-data" action="" method="">
 	<script type="dojo/connect" event="onSubmit" args="evt">
 		evt.preventDefault();
 
 		var xhrArgs = {
 			url: '/flashcards/shared_decks/{{ shared_deck.id }}/download',
+            content: '',
 			handleAs: 'json',
             load: function(data) {
               ajaxLink('{{ post_save_redirect }}', '{{ container_id }}');
