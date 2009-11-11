@@ -195,7 +195,7 @@ class Card(AbstractCard):
         card_context = {'fields': field_content}
         front = render_to_string(self.template.front_template_name, card_context)
         back = render_to_string(self.template.back_template_name, card_context)
-        return '{0} | {1}'.format(front, back)
+        return u'{0} | {1}'.format(front, back)
 
 
     def save(self):
