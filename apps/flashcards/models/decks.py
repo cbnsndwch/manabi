@@ -165,7 +165,7 @@ def download_shared_deck(user, shared_deck):
         name=shared_deck.name,
         description=shared_deck.description,
         priority=shared_deck.priority,
-        owner=shared_deck.creator)
+        owner=user)
     deck.save()
 
     #create default deck scheduling options

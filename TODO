@@ -50,6 +50,8 @@ cards. Or, open a second add fact dialog, maybe. (How to implement 'back'?)
 ---------------------
 BUGS:
 ---------------------
+restart fcgi gracefully!
+
 facts submitted twice (or at least twiced logged) when using cmd-enter to submit add fact dialog
 
 don't allow deleting last deck!
