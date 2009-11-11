@@ -15,6 +15,14 @@ make field requirements dependent on which cards are to be generated
 
 limit the number of '2 cards created for...' messages shown
 
+truncate deck names for Add Facts dialog (cut out the middle since the end often has something like the chapter)
+
+somehow shorten the card templates button in Add Facts if it gets too long
+
+tags (should have stuff like kaiwa 1 for textbook facts)
+
+don't allow word wrapping in fact editor grid
+
 ---------------------
 TODO (low priority):
 ---------------------
@@ -37,6 +45,8 @@ cards. Or, open a second add fact dialog, maybe. (How to implement 'back'?)
 ---------------------
 BUGS:
 ---------------------
+facts submitted twice (or at least twiced logged) when using cmd-enter to submit add fact dialog
+
 don't allow deleting last deck!
 
 'card' admin shows bad unicode data - crashes admin interface
@@ -56,6 +66,8 @@ for that specific deck it's being inserted into, i guess.
 
 double import (see: sys.modules) http://pastebin.com/m30b7c28f 676 721
 
+grid column alignment is off when updating a fact (changed the cards..)
+
 ----------------------
 IDEAS:
 ----------------------
@@ -69,6 +81,19 @@ SOMEDAY TODO:
 only show the loader spinner on the inside of a dialog, not including its titlepane
 
 mincho vs gothic fonts for kanji, maybe on mouse hover or something (useful for learning)
+
+
+
+---------------------
+Stuff to consider:
+---------------------
+should 'reading' be left blank when the expression has no kanji?
+
+a database of known textbooks. special fields that only activate per textbook (or special models)
+intermediate japanese textbook cards could use bunpou note references - what else?
+
+field for word type - verb, na-adj, etc
+
 
 OTHER NOTES
 comment tags:
