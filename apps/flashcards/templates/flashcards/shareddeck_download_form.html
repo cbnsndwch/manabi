@@ -6,7 +6,7 @@
 
 		var xhrArgs = {
 			url: '/flashcards/shared_decks/{{ shared_deck.id }}/download',
-			handleAs: 'text',
+			handleAs: 'json',
             load: function(data) {
               ajaxLink('{{ post_save_redirect }}', '{{ container_id }}');
             },

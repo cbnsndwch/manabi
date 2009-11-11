@@ -24,11 +24,14 @@ somehow shorten the card templates button in Add Facts if it gets too long
 
 tags (should have stuff like kaiwa 1 for textbook facts)
 
-don't allow word wrapping in fact editor grid
+take the fact creation datetime into account when scheduling reviews (but not including downloaded shared deck facts)
+
 
 ---------------------
 TODO (low priority):
 ---------------------
+don't allow word wrapping in fact editor grid
+
 increase font size for fact add fields, especially japanese ones
 
 resend grade xhrposts upon error. warn user when offline too
@@ -47,10 +50,14 @@ fill in the current fact dialog with that card (but warn user that they'll lose 
 somehow save it.. allow 'back') and change the 'Add' button to say 'Update' if it's from user's existing 
 cards. Or, open a second add fact dialog, maybe. (How to implement 'back'?)
 
+sort facts with case insensitivity
+
 ---------------------
 BUGS:
 ---------------------
 restart fcgi gracefully!
+
+new card count should be cleared each time the review dialog is opened - it has the old value for a second
 
 facts submitted twice (or at least twiced logged) when using cmd-enter to submit add fact dialog
 
