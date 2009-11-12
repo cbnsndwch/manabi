@@ -7,6 +7,8 @@ can't add cards to a fact via Fact Add dialog! see error log, views.py:369 too
 ---------------------
 TODO:
 ---------------------
+disable form submission buttons while they're being processed, after clicked - 
+
 space cards from same fact.
 give a negative bonus when reviewing cards from the same fact without waiting for delay.
 
@@ -56,6 +58,8 @@ sort facts with case insensitivity
 BUGS:
 ---------------------
 restart fcgi gracefully!
+
+deselect fact from grid after updating it (maybe? confusing since the form disappears but it's still selected)
 
 new card count should be cleared each time the review dialog is opened - it has the old value for a second
 
@@ -118,6 +122,20 @@ comment tags:
 #FIXME
 #SOMEDAY
 #IDEA
+
+
+
+-----------------------
+Sites for inspiration:
+
+Language study:
+lingq.com
+readthekanji.com
+edufire.com
+livemocha.com
+lang8.com
+palabea.net
+
 
 
 -----------------------

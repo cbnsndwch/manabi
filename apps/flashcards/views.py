@@ -358,15 +358,16 @@ def _fact_update(request, fact_id):
       field_content = field_content_form.save()
 
     #disable any existing cards that weren't selected in the update, or enable if selected and create if needed
-    card_form_template_ids = [card_form.cleaned_data['template'].id for card_form in card_formset.forms]
+    card_form_template_ids = dict((card_form.cleaned_data['template'].id, card_form) for card_form in card_formset.forms)
     for card_template in fact.fact_type.cardtemplate_set.all():
-      if card_template.id in card_form_template_ids:
-        try: 
+      if card_template.id in card_form_template_ids.keys():
+        try:
           card = fact.card_set.get(template=card_template)
           card.active = True
           card.save()
         except Card.DoesNotExist:
-          card_form = card_formset.get_queryset().get(template=card_template)
+          #card_form = card_formset.get_queryset().get(template=card_template)
+          card_form = card_form_template_ids[card_template.id]
           new_card = card_form.save(commit=False)
           new_card.fact = fact
           new_card.active = True
