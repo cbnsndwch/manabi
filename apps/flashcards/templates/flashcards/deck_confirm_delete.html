@@ -1,8 +1,11 @@
 
+<div jsId="sharedDeckDeleteStandby" target="{{ container_id }}" dojoType="dojox.widget.Standby"></div>
 
 <div dojoType="dijit.form.Form" jsId="deckDeleteForm" encType="multipart/form-data" action="" method="">
 	<script type="dojo/connect" event="onSubmit" args="evt">
 		evt.preventDefault();
+
+        sharedDeckDeleteStandby.show();
 
 		//alert(factAddForm.attr('value'));
 		var xhrArgs = {
@@ -17,7 +20,10 @@
             }
         }
 		//Call the asynchronous xhrPost
-        dojo.xhrPost(xhrArgs); //var deferred =
+        var def = dojo.xhrPost(xhrArgs); //var deferred =
+        def.addCallback(function() {
+            sharedDeckDeleteStandby.hide();
+        });
 	</script>
 	
 	Really delete {{ deck.name }}?<br>

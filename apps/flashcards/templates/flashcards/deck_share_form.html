@@ -1,8 +1,11 @@
 
+<div jsId="deckShareStandby" target="{{ container_id }}" dojoType="dojox.widget.Standby"></div>
 
 <div dojoType="dijit.form.Form" jsId="deckShareForm" id="deckShareForm" encType="multipart/form-data" action="" method="">
 	<script type="dojo/connect" event="onSubmit" args="evt">
 		evt.preventDefault();
+
+        deckShareStandby.show();
 
 		var xhrArgs = {
 			url: '/flashcards/decks/{{ deck.id }}/share',
@@ -15,7 +18,10 @@
             }
         }
 		//Call the asynchronous xhrPost
-        dojo.xhrPost(xhrArgs); //var deferred =
+        var def = dojo.xhrPost(xhrArgs); //var deferred =
+        def.addCallback(function() {
+            deckShareStandby.hide();
+        });
 	</script>
 
     <em>{{ deck.name }}</em><br>
