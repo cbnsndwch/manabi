@@ -2,7 +2,7 @@ from flashcards.models import Deck, FactType, Fact, CardTemplate, FieldType, Car
 from django.contrib import admin
 
 
-class CardAdmin(admn.ModelAdmin):
+class CardAdmin(admin.ModelAdmin):
     exclude = ('synchronized_with',)
 
 
