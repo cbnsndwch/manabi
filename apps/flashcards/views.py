@@ -16,6 +16,7 @@ from flashcards.models.decks import download_shared_deck, share_deck
 from django.template.loader import render_to_string
 
 import datetime
+import string
 
 from django.db import transaction
 
@@ -488,13 +489,14 @@ def _facts_create(request):
 def next_cards_for_review(request):
     if request.method == 'GET':
         count = int(request.GET.get('count', 5))
+        session_start = string.lower(request.GET.get('session_start', 'false')) == 'true'
 
         try:
             excluded_card_ids = [int(e) for e in request.GET.get('excluded_cards', '').split()]
         except ValueError:
             excluded_card_ids = []
 
-        next_cards = Card.objects.next_cards(request.user, count, excluded_card_ids)#[:count]
+        next_cards = Card.objects.next_cards(request.user, count, excluded_card_ids, session_start)#[:count]
         #FIXME need to account for 0 cards returned 
 
         # format into json object

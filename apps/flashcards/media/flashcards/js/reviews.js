@@ -23,7 +23,7 @@ dojo.addOnLoad(function() {
     reviews.session_over_def = null; //subscribe to this to know when the session is over,
                                      //particularly because the time/card limit ran out
 
-    reviews.prefetchCards = function(count) {
+    reviews.prefetchCards = function(count, session_start) {
         //get next cards from server, discounting those currently enqueued/pending
         //Returns a deferred.
 
@@ -44,6 +44,9 @@ dojo.addOnLoad(function() {
 
         var url = '/flashcards/rest/cards_for_review';
         url += '?count='+count;
+        if (session_start) {
+            url += '&session_start=True';
+        }
         if (excluded_ids.length > 0) {
             url += '&excluded_cards='+excluded_ids.join('+');
         }
@@ -85,7 +88,7 @@ dojo.addOnLoad(function() {
         reviews.empty_prefetch_producer = false;
 
         //TODO cleanup beforehand? precautionary..
-        return reviews.prefetchCards(reviews.card_buffer_count * 2);
+        return reviews.prefetchCards(reviews.card_buffer_count * 2, true);
     }
 
     reviews.endSession = function() {
@@ -116,7 +119,7 @@ dojo.addOnLoad(function() {
             //prefetch more cards if the buffer runs low
             if (reviews.cards.length <= reviews.card_buffer_count) {
                 if (!reviews.empty_prefetch_producer) {
-                    var prefetch_cards_def = reviews.prefetchCards(reviews.card_buffer_count);
+                    var prefetch_cards_def = reviews.prefetchCards(reviews.card_buffer_count, false);
                     prefetch_cards_def.addCallback(dojo.hitch(function(next_card_def) {
                         next_card_def.callback(reviews._nextCard());
                     }, null, next_card_def));            
@@ -126,7 +129,7 @@ dojo.addOnLoad(function() {
         } else {
             if (!reviews.empty_prefetch_producer) {
                 //out of cards, need to fetch more
-                var prefetch_def = reviews.prefetchCards(reviews.card_buffer_count * 2);
+                var prefetch_def = reviews.prefetchCards(reviews.card_buffer_count * 2, false);
                 prefetch_def.addCallback(dojo.hitch(null, function(next_card_def) {
                 if (!reviews.empty_prefetch_producer) {
                     next_card_def.callback(reviews._nextCard());

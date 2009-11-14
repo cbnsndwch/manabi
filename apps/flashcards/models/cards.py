@@ -102,36 +102,43 @@ class CardManager(models.Manager):
         ordered_cards = due_cards.order_by('-interval')
         return ordered_cards
 
-    def next_cards(self, user, count, excluded_ids):
+    def next_cards(self, user, count, excluded_ids, session_start):
         '''
         Returns {count} cards to be reviewed, in order.
         The return format is a list of dictionaries.
         '''
+        card_queries = []
+
         user_cards = self.of_user(user)
+
 
         if excluded_ids:
             user_cards = user_cards.exclude(id__in=excluded_ids)
 
         #due cards
         due_cards = user_cards.filter(due_at__lt=datetime.datetime.utcnow()).order_by('-interval')
+        card_queries.append(due_cards)
 
-        #followed by failed, not due
+        #followed by failed, not due, but not if this isn't the start of a review session
+        #FIXME decide what to do with this #if session_start:
         failed_not_due_cards = user_cards.filter(last_review_grade=GRADE_NONE).order_by('due_at')
+        card_queries.append(failed_not_due_cards)
 
         #FIXME add new cards into the mix
         #for now, we'll add new ones to the end
         new_cards = user_cards.filter(due_at__isnull=True).order_by('new_card_ordinal')
+        card_queries.append(new_cards)
 
-        card_queries = []
+        card_queries_ret = []
         cards_left = count
-        for card_query in [due_cards, failed_not_due_cards, new_cards]:
+        for card_query in card_queries:
             if cards_left > 0:
                 card_query_limited = card_query[:cards_left]
                 if len(card_query_limited) > 0:
-                    card_queries.append(card_query_limited)
+                    card_queries_ret.append(card_query_limited)
                     cards_left -= len(card_query_limited)
 
-        return chain(*card_queries) #chain(due_cards, failed_not_due_cards, new_cards)
+        return chain(*card_queries_ret) #chain(due_cards, failed_not_due_cards, new_cards)
 
 
 #used for randomizing new card insertion
