@@ -108,6 +108,7 @@ class CardManager(models.Manager):
         The return format is a list of dictionaries.
         '''
         card_queries = []
+        now = datetime.datetime.utcnow()
 
         user_cards = self.of_user(user)
 
@@ -116,12 +117,12 @@ class CardManager(models.Manager):
             user_cards = user_cards.exclude(id__in=excluded_ids)
 
         #due cards
-        due_cards = user_cards.filter(due_at__lt=datetime.datetime.utcnow()).order_by('-interval')
+        due_cards = user_cards.filter(due_at__lte=now).order_by('-interval')
         card_queries.append(due_cards)
 
         #followed by failed, not due, but not if this isn't the start of a review session
         #FIXME decide what to do with this #if session_start:
-        failed_not_due_cards = user_cards.filter(last_review_grade=GRADE_NONE).order_by('due_at')
+        failed_not_due_cards = user_cards.filter(last_review_grade=GRADE_NONE, due_at__gt=now).order_by('due_at')
         card_queries.append(failed_not_due_cards)
 
         #FIXME add new cards into the mix

@@ -2,12 +2,12 @@ manabi notes
 
 
 SUPER CRITICAL BUGS:
-can't add cards to a fact via Fact Add dialog! see error log, views.py:369 too
+none for now
 
 ---------------------
 TODO:
 ---------------------
-disable form submission buttons while they're being processed, after clicked - 
+-disable form submission buttons while they're being processed, after clicked - 
 
 space cards from same fact.
 give a negative bonus when reviewing cards from the same fact without waiting for delay.
@@ -32,6 +32,8 @@ select last-used deck in fact add dialog (and last used model, cards etc) - (per
 
 see my 'sansou / mountain cottage card [=yama no bessou]' - kanji from that is useless since it's given.
 so, we need a separate field for synonym!
+
+furigana support
 
 ---------------------
 TODO (low priority):
@@ -61,9 +63,9 @@ sort facts with case insensitivity
 ---------------------
 BUGS:
 ---------------------
-first card review (press 1 for grade) doesn't get saved!
+first card review (press 1 for grade) doesn't get saved! (?)
 
-for some reason the fact editor is showing 2 identical fact types
+for some reason the fact editor is showing 2 identical fact types, sometimes
 
 grid selection moves around when refreshing after updating fact
 
@@ -76,8 +78,6 @@ new card count should be cleared each time the review dialog is opened - it has 
 facts submitted twice (or at least twiced logged) when using cmd-enter to submit add fact dialog
 
 don't allow deleting last deck!
-
-'card' admin shows bad unicode data - crashes admin interface
 
 delete facts associated with deck when deleting deck
 
