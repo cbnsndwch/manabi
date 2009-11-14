@@ -61,6 +61,8 @@ sort facts with case insensitivity
 ---------------------
 BUGS:
 ---------------------
+first card review (press 1 for grade) doesn't get saved!
+
 for some reason the fact editor is showing 2 identical fact types
 
 grid selection moves around when refreshing after updating fact
