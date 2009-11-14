@@ -18,8 +18,6 @@ allow selecting multiple facts
 
 make field requirements dependent on which cards are to be generated
 
-limit the number of '2 cards created for...' messages shown
-
 truncate deck names for Add Facts dialog (cut out the middle since the end often has something like the chapter)
 
 somehow shorten the card templates button in Add Facts if it gets too long
@@ -27,8 +25,6 @@ somehow shorten the card templates button in Add Facts if it gets too long
 tags (should have stuff like kaiwa 1 for textbook facts)
 
 take the fact creation datetime into account when scheduling reviews (but not including downloaded shared deck facts)
-
-select last-used deck in fact add dialog (and last used model, cards etc) - (per session or not?)
 
 see my 'sansou / mountain cottage card [=yama no bessou]' - kanji from that is useless since it's given.
 so, we need a separate field for synonym!
@@ -38,6 +34,10 @@ furigana support
 ---------------------
 TODO (low priority):
 ---------------------
+review only certain decks or certain tags
+
+select last-used deck in fact add dialog (and last used model, cards etc) - (per session or not?)
+
 don't allow word wrapping in fact editor grid
 
 increase font size for fact add fields, especially japanese ones
@@ -63,8 +63,6 @@ sort facts with case insensitivity
 ---------------------
 BUGS:
 ---------------------
-first card review (press 1 for grade) doesn't get saved! (?)
-
 for some reason the fact editor is showing 2 identical fact types, sometimes
 
 grid selection moves around when refreshing after updating fact
@@ -91,8 +89,6 @@ card won't show.
 fieldcontent.contents uniqueness should be enforced on a per-deck level, so that downloading decks is fine,
 but creating a new non-unique card currently is not allowed - it should be allowed as long as it is unique 
 for that specific deck it's being inserted into, i guess.
-
-double import (see: sys.modules) http://pastebin.com/m30b7c28f 676 721
 
 grid column alignment is off when updating a fact (changed the cards..)
 
@@ -124,6 +120,14 @@ a database of known textbooks. special fields that only activate per textbook (o
 intermediate japanese textbook cards could use bunpou note references - what else?
 
 field for word type - verb, na-adj, etc
+
+
+---------------------
+Scheduling ideas:
+---------------------
+scenario: reviewing a card that was failed just a few minutes ago.
+the meaning of 'too easy' for example really changes here. With new cards, the grades show how well you already 
+knew the card. But for a recently failed card, 'too easy' is kind of expected
 
 
 OTHER NOTES
