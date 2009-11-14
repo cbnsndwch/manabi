@@ -106,6 +106,7 @@ class SchedulingOptions(models.Model):
 
 
 
+@transaction.commit_on_success    
 def share_deck(deck):
     '''Creates a SharedDeck containing all the facts and cards and their contents, given a user's Deck.''' 
     
@@ -157,6 +158,7 @@ def share_deck(deck):
     #done!
 
 
+@transaction.commit_on_success    
 def download_shared_deck(user, shared_deck):
     '''Copies a shared deck and all its contents to a user's own deck library.'''
     
