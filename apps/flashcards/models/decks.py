@@ -143,13 +143,13 @@ def share_deck(deck):
             shared_field_content.save()
                                                       
         #copy the cards
-        for card in fact.card_set.all():
+        for card in fact.card_set.filter(active=True):
             shared_card = cards.SharedCard(
                 fact=shared_fact,
                 template=card.template,
                 priority=card.priority,
                 leech=card.leech,
-                active=card.active,
+                active=True,#card.active,
                 suspended=card.suspended,
                 new_card_ordinal=card.new_card_ordinal)
 
@@ -199,13 +199,13 @@ def download_shared_deck(user, shared_deck):
             field_content.save()
                                                       
         #copy the cards
-        for shared_card in shared_fact.sharedcard_set.all():
+        for shared_card in shared_fact.sharedcard_set.filter(active=True):
             card = cards.Card(
                 fact=fact,
                 template=shared_card.template,
                 priority=shared_card.priority,
                 leech=shared_card.leech,
-                active=shared_card.active,
+                active=True,# shared_card.active,
                 suspended=shared_card.suspended,
                 new_card_ordinal=shared_card.new_card_ordinal)
 

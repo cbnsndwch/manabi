@@ -1,8 +1,11 @@
 
+<div jsId="sharedDeckDownloadStandby" target="{{ container_id }}" dojoType="dojox.widget.Standby"></div>
 
 <div dojoType="dijit.form.Form" jsId="sharedDeckDownloadForm" encType="multipart/form-data" action="" method="">
 	<script type="dojo/connect" event="onSubmit" args="evt">
 		evt.preventDefault();
+
+        sharedDeckDownloadStandby.show();
 
 		var xhrArgs = {
 			url: '/flashcards/shared_decks/{{ shared_deck.id }}/download',
@@ -16,12 +19,17 @@
             }
         }
 		//Call the asynchronous xhrPost
-        dojo.xhrPost(xhrArgs); //var deferred =
+        var def = dojo.xhrPost(xhrArgs); //var deferred =
+        def.addCallback(function() {
+            sharedDeckDownloadStandby.hide();
+        });
 	</script>
 
     <em>{{ shared_deck.name }}</em><br>
     Download this deck?<br>
-	<button dojoType="dijit.form.Button" type="submit">Ok</button>
+    <button dojoType="dijit.form.Button" type="submit">
+        Ok
+    </button>
 	<button dojoType="dijit.form.Button" jsId="sharedDeckDownloadCancelButton">
 		Cancel
 		<script type="dojo/connect" event="onClick" args="evt">
