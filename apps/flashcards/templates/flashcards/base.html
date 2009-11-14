@@ -168,7 +168,7 @@ Facts
         
         var factsGridFactEditorCP = new dijit.layout.ContentPane({
                     style: 'height:200px;',
-                    class: 'factEditorForm'
+                    'class': 'factEditorForm'
             }, document.createElement('div'));
         factsGridFactEditorCP.placeAt(gridCpId, 'last');
         factsGridFactEditorCP.startup();
@@ -271,7 +271,7 @@ Facts
                 //add 'delete fact' button on top of grid
                 var deleteFactButton = new dijit.form.Button({
                     label: 'Delete',
-                    class: 'deleteFactButton',
+                    'class': 'deleteFactButton',
                     iconClass: 'dijitEditorIcon dijitEditorIconDelete',
                     disabled: true,
                     onClick: dojo.hitch(null, function(factsGrid) {

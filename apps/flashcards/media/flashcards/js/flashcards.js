@@ -172,7 +172,7 @@
                   //console.log(factFieldValues['id'+fieldsStore.getValue(item, 'id')][0]);
                   var fieldTextarea = new dijit.form.SimpleTextarea({
                       name: 'field_content-'+tempFieldCounter+'-content', //fieldsStore.getValue(item, 'name'),
-                      class: 'field_content',
+                      'class': 'field_content',
                       id: formPrefix+'id_field_content-'+tempFieldCounter+'-content',
                       jsId: formPrefix+'id_field_content_'+tempFieldCounter+'_content',
                       value: factFieldValues['id'+fieldsStore.getValue(item, 'id')][0],//"",
