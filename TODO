@@ -73,8 +73,6 @@ deselect fact from grid after updating it (maybe? confusing since the form disap
 
 new card count should be cleared each time the review dialog is opened - it has the old value for a second
 
-facts submitted twice (or at least twiced logged) when using cmd-enter to submit add fact dialog
-
 don't allow deleting last deck!
 
 delete facts associated with deck when deleting deck
