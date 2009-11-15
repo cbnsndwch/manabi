@@ -63,6 +63,8 @@ sort facts with case insensitivity
 ---------------------
 BUGS:
 ---------------------
+cmd-enter might break when the cards dropdown is open
+
 for some reason the fact editor is showing 2 identical fact types, sometimes
 
 grid selection moves around when refreshing after updating fact

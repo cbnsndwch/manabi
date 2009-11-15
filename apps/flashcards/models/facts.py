@@ -56,3 +56,10 @@ class Fact(AbstractFact):
     class Meta:
         app_label = 'flashcards'
 
+    def __unicode__(self):
+        name = ''
+        field_content_contents = []
+        for field_content in self.fieldcontent_set():
+            field_content_contents.append(field_content.content)
+        returen field_content_contents.join(' - ')
+
