@@ -61,5 +61,5 @@ class Fact(AbstractFact):
         field_content_contents = []
         for field_content in self.fieldcontent_set():
             field_content_contents.append(field_content.content)
-        returen field_content_contents.join(' - ')
+        return field_content_contents.join(' - ')
 
