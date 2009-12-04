@@ -5,7 +5,8 @@
 {% load ifsetting_tag %}
 
 {% block extra_head_base %}
-    <link rel="stylesheet" href="{{ MEDIA_URL }}css/site_tabs.css" />
+    <link rel="stylesheet" href="{{ MEDIA_URL }}static/css/site_tabs.css" />
+    <link rel="stylesheet" href="{{ MEDIA_URL }}static/css/misc.css" />
     {% block extra_head %}{% endblock %}
 {% endblock %}
 
@@ -19,7 +20,13 @@
     {% endif %}
 {% endblock %}
 
-{% block logo_link_image %}<div style="font-size:46px;position:relative;padding-top:20px;padding-left:20px"><a style="color:white" href="{% url home %}">manabi</a></div>{% endblock %}
+{% block logo_link_image %}
+<div style="font-size:40px;position:relative;text-decoration:none;padding-top:20px;padding-left:20px;line-height:50px">
+    <a style="color:white;text-decoration:none;display:block;font-weight:500" href="{% url home %}">
+        m a n a b i
+    </a>
+</div>
+{% endblock %}
 
 {% block right_tabs %}
     {% if user.is_authenticated %}
@@ -28,6 +35,18 @@
             <li id="tab_notices"><a href="{% url notification_notices %}">{% trans "Notices" %}{% if notice_unseen_count %} ({{ notice_unseen_count }}){% endif %}</a></li>
         {% endspaceless %}</ul>
     {% endif %}
+{% endblock %}
+
+{% block body %}
+    <div class="sidebar" id="sidebar">
+        {% include 'sidebar.html' %}
+    </div>
+    <div class="body_contents">
+        <div dojoType="dijit.layout.ContentPane" jsId="body_pane" class="body_contents">
+            {% block body_contents %}
+            {% endblock %}
+        </div>
+    </div>
 {% endblock %}
 
 {% block footer %}

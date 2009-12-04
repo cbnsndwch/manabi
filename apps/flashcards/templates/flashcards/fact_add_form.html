@@ -1,0 +1,35 @@
+
+<div dojoType="dijit.form.Form" jsId="cards_factAddForm" encType="multipart/form-data" action="" method="">
+    
+    <div>
+        <span>
+            Deck: <input name="fact-deck" jsId="cards_deckInput" dojoType="dojox.form.DropDownSelect"></input>
+            {% comment %}Model: <input name="fact-fact_type" jsId="cards_factTypeInput" dojoType="dojox.form.DropDownSelect"></input>{% endcomment %}
+        </span>
+    </div>
+    <br>
+    <div>
+        Cards: 
+        <div dojoType="DropDownMultiSelect" id="cards_cardTemplatesInputButton" inputId="cardTemplatesInput" style="display:inline"></div>
+        <div id="cards_cardTemplatesHiddenInput">
+        </div>
+    </div>
+    <br>
+    <div id="cards_factFields">
+    </div>
+    <br>
+    <div>
+        <span>
+            <button dojoType="dijit.form.Button" type="submit">
+                Add
+                </button>{% comment %} <button dojoType="dijit.form.Button">
+                Close
+                <script type="dojo/connect" event="onClick" args="evt">
+                    //factAddDialog.hide();
+                </script>
+            </button>{% endcomment %}
+        </span>
+    </div>
+    <div jsId="cards_factAddFormResults" dojoType="dijit.layout.ContentPane"></div>
+</div>
+
