@@ -1,27 +1,54 @@
+<div dojoType="dojo.data.ItemFileReadStore" 
+    jsId="decksStore" 
+    url="/flashcards/rest/decks">
+</div>
 
-<div dojoType="dijit.form.Form" jsId="cards_factAddForm" encType="multipart/form-data" action="" method="">
-    
-    <div>
-        <span>
-            Deck: <input name="fact-deck" jsId="cards_deckInput" dojoType="dojox.form.DropDownSelect"></input>
-            {% comment %}Model: <input name="fact-fact_type" jsId="cards_factTypeInput" dojoType="dojox.form.DropDownSelect"></input>{% endcomment %}
-        </span>
+<div dojoType="dijit.form.Form" jsId="factAddForm" encType="multipart/form-data" action="" method="">
+    <div style="float:right;">
+        <div><strong>Cards:</strong></div><div>
+        <select multiple="true" dojoType="dojox.form.CheckedMultiSelect" 
+            jsId="cardTemplatesInput" style="height:76px;">
+            {% for card_template in fact_add_form.card_templates %}
+                <option value="{{ card_template.id }}"{% if card_template.generate_by_default %} selected="selected"{% endif %}>
+                    {{ card_template.name }}
+                </option>
+            {% endfor %}
+        </select>
     </div>
-    <br>
+    </div>
     <div>
-        Cards: 
-        <div dojoType="DropDownMultiSelect" id="cards_cardTemplatesInputButton" inputId="cardTemplatesInput" style="display:inline"></div>
-        <div id="cards_cardTemplatesHiddenInput">
+        <div>
+            <strong>Deck:</strong></div><div>
+            <input name="fact-deck" jsId="deckInput" 
+                dojoType="dijit.form.Select" store="decksStore">
+            </input>
+            {% comment %}Model: <input name="fact-fact_type" jsId="factTypeInput" dojoType="dojox.form.DropDownSelect"></input>{% endcomment %}
         </div>
     </div>
-    <br>
-    <div id="cards_factFields">
+    <br><br><br><br>
+    <div id="factFields">
+        {% for field_type in fact_add_form.field_types %}
+            <div>
+                <strong>{{ field_type.name }}:</strong>{% if not field_type.blank %} <em>(required)</em>{% endif %}
+                <div id="id_field_content-{{ forloop.counter0 }}-content-errors" class="field_content_error"></div>
+                <textarea id="form_{{ fact_type.id }}-id_field_content_{{ forloop.counter0 }}_content" 
+                    name="field_content-{{ forloop.counter0 }}-content" 
+                    dojoType="dijit.form.SimpleTextarea" 
+                    rows="2" style="width:300px;" class="field_content"></textarea>
+                <input dojoType="dijit.form.TextBox" 
+                    name="field_content-{{ forloop.counter0 }}-field_type" 
+                    id="id_field_content-{{ forloop.counter0 }}-field_type" 
+                    value="{{ field_type.id }}" 
+                    type="hidden"></input>
+            </div>
+        {% endfor %}
+
     </div>
     <br>
     <div>
         <span>
             <button dojoType="dijit.form.Button" type="submit">
-                Add
+                Add Flashcards
                 </button>{% comment %} <button dojoType="dijit.form.Button">
                 Close
                 <script type="dojo/connect" event="onClick" args="evt">
@@ -30,6 +57,5 @@
             </button>{% endcomment %}
         </span>
     </div>
-    <div jsId="cards_factAddFormResults" dojoType="dijit.layout.ContentPane"></div>
+    <div jsId="factAddFormResults" dojoType="dijit.layout.ContentPane"></div>
 </div>
-

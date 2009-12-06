@@ -6,11 +6,17 @@
         <div style="margin-left:auto; margin-right:auto;width:100%;text-align:center;">
             <button dojoType="dijit.form.Button" type="button">
                 <div style="width:248px; height:24px; line-height:24px;"><span style="font-size:14px">Begin Review</span></div>
-            </button>
-            <button dojoType="dijit.form.Button" type="button">
-                <div style="width:248px; height:24px; line-height:24px;"><span style="font-size:14px">Create Flashcards</span></div>
-            </button>
-            <a>Edit Flashcards</a><br>
+            </button><br>
+            <button dojoType="dijit.form.DropDownButton" type="button">
+                <span style="font-size:14px"><div style="width:232px; height:24px; line-height:24px;">Create Flashcards</div></span>
+                <div dojoType="dijit.TooltipDialog">
+                    {% include "flashcards/fact_add_form.html" %}
+                </div>
+            </button><br><br>
+            <a href="flashcards/facts" onclick="manabi_ui.xhrLink(this.href);return false;">
+                Edit Flashcards
+            </a>
+            <br>
             <a>Decks</a><br>
         </div>
     </div>
@@ -21,12 +27,14 @@
         <span class="sidebar_box_title">Dictionary</span>
     </div>
     <div class="sidebar_box_contents">
-        blah<br>
-        blah<br>
-        blah<br>
-        blah<br>
-        blah<br>
-        blah<br>
+        filler<br>
+        filler<br>
+        filler<br>
+        filler<br>
+        filler<br>
+        filler<br>
+        filler<br>
+        filler<br>
         coming soon...
     </div>
 </div>

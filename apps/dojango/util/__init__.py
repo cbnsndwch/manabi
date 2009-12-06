@@ -209,7 +209,7 @@ def to_json_response(data, func_name=None, use_iframe=False):
     ret['If-Modified-Since'] = str(datetime.datetime.now())
     return ret
 
-def to_dojo_data(items, identifier='id', num_rows=None):
+def to_dojo_data(items, identifier='id', label=None, num_rows=None):
     """Return the data as the dojo.data API defines.
     The dojo.data API expects the data like so:
     {identifier:"whatever",
@@ -222,6 +222,8 @@ def to_dojo_data(items, identifier='id', num_rows=None):
     ret = {'items':items}
     if identifier:
         ret['identifier'] = identifier
+    if label:
+        ret['label'] = label
     if num_rows:
         ret['numRows'] = num_rows
     return ret

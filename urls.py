@@ -16,9 +16,10 @@ else:
 
 
 urlpatterns = patterns('',
-    url(r'^$', direct_to_template, {
-        "template": "homepage.html",
-    }, name="home"),
+    #url(r'^$', direct_to_template, {
+    #    "template": "homepage.html",
+    #}, name="home"),
+    url(r'^$', 'views.index', name='home'),
     
     url(r'^admin/invite_user/$', 'signup_codes.views.admin_invite_user', name="admin_invite_user"),
     url(r'^account/signup/$', signup_view, name="acct_signup"),

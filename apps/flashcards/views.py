@@ -24,7 +24,7 @@ from django.views.generic.list_detail import object_list
 from django.views.generic.create_update import update_object, delete_object, create_object
 
 
-# todo:
+#todo:
 # respond with a better failure message if an xhr request is made from an unauthenticated user
 
 
@@ -65,6 +65,14 @@ def _request_type(request):
 
 
 #HTML views
+
+@login_required
+def facts_editor(request):
+    return render_to_response('flashcards/facts_editor.html')
+
+
+
+
 #CRUD forms
 #TODO refactor into HTML/AJAX CRUD pattern
 @login_required
@@ -171,7 +179,7 @@ def rest_decks(request):
       ret = Deck.objects.filter(owner=request.user)
     except Deck.DoesNotExist:
       ret = []
-    return to_dojo_data(ret)
+    return to_dojo_data(ret, label='name')
     
 
 @login_required

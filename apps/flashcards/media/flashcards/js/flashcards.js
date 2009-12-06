@@ -19,6 +19,8 @@
   dojo.require("dojo.data.ItemFileWriteStore");
   dojo.require("dijit.form.NumberSpinner");
   dojo.require("dijit.layout.BorderContainer");
+  dojo.require("dijit.TooltipDialog");
+  dojo.require("dijit.form.Select");
   
 
   // If you're reading this code, please be warned that this section is quite messy.
