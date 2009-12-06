@@ -1,3 +1,4 @@
+{% load xhrlinks %}
 <div class="sidebar_box">
     <div class="sidebar_box_header">
         <span class="sidebar_box_title">Flashcards</span>
@@ -13,11 +14,10 @@
                     {% include "flashcards/fact_add_form.html" %}
                 </div>
             </button><br><br>
-            <a href="flashcards/facts" onclick="manabi_ui.xhrLink(this.href);return false;">
-                Edit Flashcards
-            </a>
+            {% xhrlink "flashcards/facts" "Edit Flashcards" %}
             <br>
-            <a>Decks</a><br>
+            {% xhrlink 'flashcards/decks' 'Decks' %}
+            <br>
         </div>
     </div>
 </div>

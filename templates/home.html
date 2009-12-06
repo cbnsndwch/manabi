@@ -1,0 +1,26 @@
+{% load i18n %}
+{% load openid_tags %}
+{% load ifsetting_tag %}
+
+<span style="font-size:42px;position:relative;top:8px;color:#8A0808">学び</span>
+<h1>Welcome</h1>
+
+{% if user.is_authenticated %}
+  <p>
+    {% include 'flashcards/base.html' %}
+  </p>
+{% endif %}
+<br /> 
+{% if user.is_authenticated %}
+    {% comment %}{% url what_next as what_next_url %}
+    <p class="what_next">{% blocktrans %}Wondering <a href="{{ what_next_url }}">What Next</a>?{% endblocktrans %}</p>
+    {% endcomment %}
+{% else %}
+    {% url acct_login as login_url %}
+    {% ifsetting ACCOUNT_OPEN_SIGNUP %}
+        {% url acct_signup as signup_url %}
+        <p>{% blocktrans %}You can <a href="{{ signup_url }}">Sign up</a> and <a href="{{ login_url }}">Log in</a> to try out the site.{% endblocktrans %}</p>
+    {% else %}
+        <p>{% blocktrans %}You can <a href="{{ login_url }}">Log in</a> to try out the site.{% endblocktrans %}</p>
+    {% endifsetting %}
+{% endif %}

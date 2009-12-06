@@ -23,7 +23,7 @@
 
 {% block logo_link_image %}
 <div style="font-size:40px;position:relative;text-decoration:none;padding-top:20px;padding-left:20px;line-height:50px">
-    <a style="color:white;text-decoration:none;display:block;font-weight:500" href="{% url home %}">
+    <a style="color:white;text-decoration:none;display:block;font-weight:500" href="{% url home_inline %}" onclick="manabi_ui.xhrLink(this.href);return false;">
         m a n a b i
     </a>
 </div>
@@ -45,7 +45,7 @@
         </div>
     {% endif %}
     <div class="body_contents">
-        <div dojoType="dijit.layout.ContentPane" jsId="body_pane" class="body_contents">
+        <div dojoType="dijit.layout.ContentPane" jsId="body_pane" class="body_contents" href="home">
             {% block body_contents %}
             {% endblock %}
         </div>
