@@ -1,4 +1,3 @@
-{% load xhrlinks %}
 <div class="sidebar_box">
     <div class="sidebar_box_header">
         <span class="sidebar_box_title">Flashcards</span>
@@ -14,10 +13,13 @@
                     {% include "flashcards/fact_add_form.html" %}
                 </div>
             </button><br><br>
-            {% xhrlink "flashcards/facts" "Edit Flashcards" %}
+            <a href="flashcards/facts" class="xhr_link">
+                Edit Flashcards
+            </a>
             <br>
-            {% xhrlink 'flashcards/decks' 'Decks' %}
-            <br>
+            <a href="flashcards/decks" class="xhr_link">
+                Decks
+            </a>
         </div>
     </div>
 </div>

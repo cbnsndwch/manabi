@@ -63,7 +63,8 @@ border-top:0px;
     overflow: hidden;
 }
 #footer {
-    width: 90%;
+    padding-left: 20px;
+    margin-left: 0px;
 }
 
 #body_contents h1 {

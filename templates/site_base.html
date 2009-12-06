@@ -23,7 +23,7 @@
 
 {% block logo_link_image %}
 <div style="font-size:40px;position:relative;text-decoration:none;padding-top:20px;padding-left:20px;line-height:50px">
-    <a style="color:white;text-decoration:none;display:block;font-weight:500" href="{% url home_inline %}" onclick="manabi_ui.xhrLink(this.href);return false;">
+    <a style="color:white;text-decoration:none;display:block;font-weight:500;margin-right:160px;" href="{% url home_inline %}" onclick="manabi_ui.xhrLink(this.href);return false;">
         m a n a b i
     </a>
 </div>
@@ -44,18 +44,22 @@
             {% include 'sidebar.html' %}
         </div>
     {% endif %}
+    
     <div id="body_contents">
-        <div dojoType="dijit.layout.ContentPane" jsId="body_pane" class="body_contents" href="home">
+        <div dojoType="dijit.layout.ContentPane" jsId="body_pane" href="home">
             {% block body_contents %}
             {% endblock %}
         </div>
     </div>
+
+    <div jsId="manabi_standby" target="body_contents" dojoType="dojox.widget.Standby"></div>
 {% endblock %}
 
 {% block footer %}
-<hr />
 <div class="legal">
-    {% trans "&copy; Alex Ehlke 2009 " %}
+    {% trans "&copy; Alex Ehlke 2009" %}{% if user.is_authenticated %}. 
+    contact me: jehlke <span style="color:lightgray">(at)</span> student <span style="color:lightgray">(dot)</span> umass <span style="color:lightgray">(dot)</span> edu
+    {% endif %}
 {% comment %}    - <a href="{% url about %}">{% trans "About" %}</a>
     - <a href="{% url terms %}">{% trans "Terms of Service" %}</a>
     - <a href="{% url privacy %}">{% trans "Privacy Policy" %}</a> {% endcomment %}

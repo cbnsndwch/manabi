@@ -1,27 +1,14 @@
 
-<div jsId="deckShareStandby" target="{{ container_id }}" dojoType="dojox.widget.Standby"></div>
+<h1>Share Deck</h1>
 
 <div dojoType="dijit.form.Form" jsId="deckShareForm" id="deckShareForm" encType="multipart/form-data" action="" method="">
 	<script type="dojo/connect" event="onSubmit" args="evt">
 		evt.preventDefault();
 
-        deckShareStandby.show();
-
-		var xhrArgs = {
-			url: '/flashcards/decks/{{ deck.id }}/share',
-			handleAs: 'text',
-            load: function(data) {
-              ajaxLink('{{ post_redirect }}', '{{ container_id }}');
-            },
-            error: function(error){
-            	alert('Error: '+error);
-            }
-        }
-		//Call the asynchronous xhrPost
-        var def = dojo.xhrPost(xhrArgs); //var deferred =
-        def.addCallback(function() {
-            deckShareStandby.hide();
-        });
+        manabi_ui.xhrPost(
+            '/flashcards/decks/{{ deck.id }}/share',
+            dojo.byId('deckShareForm'),
+            '{{ post_redirect }}');
 	</script>
 
     <em>{{ deck.name }}</em><br>
@@ -31,7 +18,7 @@
 	<button dojoType="dijit.form.Button" jsId="shareDeckCancelButton">
 		Cancel
 		<script type="dojo/connect" event="onClick" args="evt">
-			ajaxLink('/flashcards/decks', '{{ container_id }}');
+            manabi_ui.xhrLink('/flashcards/decks');
 		</script>
 	</button>
 </div>

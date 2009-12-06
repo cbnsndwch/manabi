@@ -1,29 +1,14 @@
 
-<div jsId="sharedDeckDeleteStandby" target="{{ container_id }}" dojoType="dojox.widget.Standby"></div>
+<h1>Delete Deck</h1>
 
 <div dojoType="dijit.form.Form" jsId="deckDeleteForm" encType="multipart/form-data" action="" method="">
 	<script type="dojo/connect" event="onSubmit" args="evt">
 		evt.preventDefault();
 
-        sharedDeckDeleteStandby.show();
-
-		//alert(factAddForm.attr('value'));
-		var xhrArgs = {
-			url: 'flashcards/decks/{{ deck.id }}/delete',
-			content: '',
-			handleAs: 'text',
-            load: function(data) {
-                ajaxLink('{{ post_delete_redirect }}', '{{ container_id }}');
-            },
-            error: function(error){
-            	alert('Error: '+error);
-            }
-        }
-		//Call the asynchronous xhrPost
-        var def = dojo.xhrPost(xhrArgs); //var deferred =
-        def.addCallback(function() {
-            sharedDeckDeleteStandby.hide();
-        });
+        manabi_ui.xhrPost(
+            '/flashcards/decks/{{ deck.id }}/delete',
+            dojo.byId('deckDeleteForm'),
+            '{{ post_delete_redirect }}');
 	</script>
 	
 	Really delete {{ deck.name }}?<br>
@@ -32,7 +17,7 @@
 	<button dojoType="dijit.form.Button" jsId="deckDeleteCancelButton">
 		Cancel
 		<script type="dojo/connect" event="onClick" args="evt">
-			ajaxLink('flashcards/decks', '{{ container_id }}');
+            manabi_ui.xhrLink('flashcards/decks');
 		</script>
 	</button>
 </div>

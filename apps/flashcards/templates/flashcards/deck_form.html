@@ -1,36 +1,29 @@
 
+<h1>Create New Deck</h1>
 
 <div dojoType="dijit.form.Form" jsId="deckForm" id="deckForm" encType="multipart/form-data" action="" method="">
 	<script type="dojo/connect" event="onSubmit" args="evt">
 		evt.preventDefault();
 
-		//alert(factAddForm.attr('value'));
-		var xhrArgs = {
-{% if deck %}
-			url: '/flashcards/decks/{{ deck.id }}/update',
-{% else %}
-			url: '/flashcards/decks/create',
-{% endif %}
-			form: dojo.byId('deckForm'),
-			handleAs: 'text',
-            load: function(data) {
-              ajaxLink('{{ post_save_redirect }}', '{{ container_id }}');
-            },
-            error: function(error){
-            	alert('Error: '+error);
-            }
-        }
-		//Call the asynchronous xhrPost
-        dojo.xhrPost(xhrArgs); //var deferred =
+        manabi_ui.xhrPost(
+            {% if deck %}
+                '/flashcards/decks/{{ deck.id }}/update',
+            {% else %}
+                '/flashcards/decks/create',
+            {% endif %}
+            dojo.byId('deckForm'), 
+            '{{ post_save_redirect }}');
 	</script>
-	
+
+    <p>
 	{{ form.as_table }}
-	
+    </p>
+
 	<button dojoType="dijit.form.Button" type="submit">Ok</button>
 	<button dojoType="dijit.form.Button" jsId="deckDeleteCancelButton">
 		Cancel
 		<script type="dojo/connect" event="onClick" args="evt">
-			ajaxLink('/flashcards/decks', '{{ container_id }}');
+            manabi_ui.xhrLink('/flashcards/decks');
 		</script>
 	</button>
 </div>
