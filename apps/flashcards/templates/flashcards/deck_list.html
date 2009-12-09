@@ -1,17 +1,20 @@
+{% extends 'body_pane_base.html' %}
 {% load xhrlinks %}
 
+{% block content %}
 <h1>Decks</h1>
 
 <table cellspacing=2 cellpadding="2" width=500>
 {% for deck in deck_list %}
 	<tr>
 		<td width="350">{{ deck.name }}</td>
-        <td><span><a href="/flashcards/decks/{{ deck.id }}/update" {% xhrlink_onclick %}>rename</a> 
-        <a href="/flashcards/decks/{{ deck.id }}/share" {% xhrlink_onclick %}>share</a> 
-        <a href="/flashcards/decks/{{ deck.id }}/delete" {% xhrlink_onclick %}>delete</a></span></td>
+        <td><span><a href="/flashcards/decks/{{ deck.id }}/update" class="xhr_link">rename</a> 
+        <a href="/flashcards/decks/{{ deck.id }}/share" class="xhr_link">share</a> 
+        <a href="/flashcards/decks/{{ deck.id }}/delete" class="xhr_link">delete</a></span></td>
 	</tr>
 {% endfor %}
 </table>
 <br>
-<a href="/flashcards/decks/create" {% xhrlink_onclick %}>Create New Deck</a><br>
-<a href="/flashcards/shared_decks" {% xhrlink_onclick %}>Download Shared Deck</a>
+<a href="/flashcards/decks/create" class="xhr_link">Create New Deck</a><br>
+<a href="/flashcards/shared_decks" class="xhr_link">Download Shared Deck</a>
+{% endblock %}

@@ -6,6 +6,12 @@ dojo.addOnLoad(function() {
 
     //make all the links ajaxy
     manabi_ui.convertLinksToXhr(dojo.body());
+
+    /*body_pane.onDownloadEnd(function(data) {
+        console.log('1');
+        manabi_ui.convertLinksToXhr(body_pane.domNode);
+        console.log('1');
+    });*/
 });
 
 manabi_ui.xhrLink = function(href) { //, target_pane) {
@@ -17,6 +23,7 @@ manabi_ui.xhrLink = function(href) { //, target_pane) {
     //TODO scroll to top when page loads?
     //TODO error page too (onDownloadError)
 }
+
 
 
 
@@ -45,7 +52,7 @@ manabi_ui.convertLinksToXhr = function(container_node) {
     dojo.query('.xhr_link', dojo.byId(container_node)).forEach(
         function(node) {
             dojo.connect(node, 'onclick', dojo.hitch(node, function(evt) {
-                evt.preventDefault();
+                dojo.stopEvent(evt);
                 manabi_ui.xhrLink(this.href);
             }));
         }

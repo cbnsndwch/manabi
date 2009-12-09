@@ -1,6 +1,13 @@
 manabi notes
 
 
+~new stuff~
+-----------
+fact update doesn't work with choosing a different deck (i think)
+gotta truncate deck names when displayed
+update deck store when creating a deck
+
+
 SUPER CRITICAL BUGS:
 none for now
 
