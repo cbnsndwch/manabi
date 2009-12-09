@@ -78,6 +78,21 @@ def facts_editor(request):
     return render_to_response('flashcards/facts_editor.html', context)
 
 
+@login_required
+def fact_update(request, fact_id):
+    if request.method == 'GET':
+        fact = Fact.objects.get(id=fact_id) #TODO validation
+        fact_type = FactType.objects.get(id=1) #assume japanese for now
+        decks = Deck.objects.filter(owner=request.user)
+        card_templates = []
+        activated_card_templates = [e.template for e in fact.card_set.filter(active=True)]
+        for card_template in fact_type.cardtemplate_set.all():
+            #TODO only send the id(uri)/name/status
+            #card_templates.append({'card_template': card_template, 'activated_for_fact': (card_template in activated_card_templates)})
+            card_template.activated_for_fact = (card_template in activated_card_templates)
+            card_templates.append(card_template)
+        context = {'fact': fact, 'card_templates': card_templates, 'decks': decks}
+        return render_to_response('flashcards/fact_form.html', context)
 
 
 #CRUD forms

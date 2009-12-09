@@ -24,6 +24,7 @@ urlpatterns = patterns('flashcards',
     (r'^shared_decks$', 'views.shared_deck_list'),
 
     (r'^facts$', 'views.facts_editor'),
+    (r'^facts/(\w+)/update', 'views.fact_update'),
     
     #REST
     (r'^rest$', 'views.rest_entry_point'),

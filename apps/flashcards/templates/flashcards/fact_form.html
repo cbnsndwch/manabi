@@ -1,16 +1,38 @@
+
+<div style="width:308px; float:left; padding-right: 20px;">
     <div dojoType="dijit.form.Form" jsId="cards_factForm" encType="multipart/form-data" action="" method="">
         <script type="dojo/connect" event="onSubmit" args="evt">
             evt.preventDefault();
             var success_callback = function(data, card_counter) {
+                //update the grid item via the grid's store, to update the display (though the change has already gone to the server)
+                grid_item = cards_factsGrid.getItem(fact_ui.selected_fact_row_index);
+                dojo.query('.cards_fieldContent', cards_factForm.domNode).forEach(function(field_content_item) {
+                    field_content_type_item = dijit.getEnclosingWidget(field_content_item.nextElementSibling);
+                    field_content_item = dijit.getEnclosingWidget(field_content_item);
+                    cards_factsGrid.store.setValue(grid_item, 
+                        'id' + field_content_type_item.attr('value'), 
+                        field_content_item.attr('value'));
+                });
+                cards_factsGrid.store.save(); //TODO handle errors
+                fact_ui.hideFactEditForm();
             };
-            fact_ui.submitFactForm(cards_factForm, success_callback, fact_ui.selected_fact_id);
+            selected_fact_id = cards_factForm.attr('value')['fact-id'];
+            fact_ui.submitFactForm(cards_factForm, success_callback, selected_fact_id);
         </script>
 
+        <input dojoType="dijit.form.TextBox" 
+            name="_method" 
+            value="PUT" 
+            type="hidden"></input>
+        <input dojoType="dijit.form.TextBox" 
+            name="fact-id" 
+            value="{{ fact.id }}" 
+            type="hidden"></input>
         <div style="float:right;">
             <div><strong>Cards:</strong></div><div>
             <select class="cards_cardTemplates" multiple="true" dojoType="dojox.form.CheckedMultiSelect" style="height:76px;">
                 {% for card_template in card_templates %}
-                    <option value="{{ card_template.id }}"{% if card_template.generate_by_default %} selected="selected"{% endif %}>
+                    <option value="{{ card_template.id }}"{% if card_template.activated_for_fact %} selected="selected"{% endif %}>
                         {{ card_template.name }}
                     </option>
                 {% endfor %}
@@ -20,27 +42,38 @@
         <div>
             <div>
                 <strong>Deck:</strong></div><div>
-                <input name="fact-deck" 
-                    dojoType="dijit.form.Select" store="cards_decksStore">
-                </input>
+                <select name="fact-deck" dojoType="dijit.form.Select">
+                    {% for deck in decks %}
+                        <option value="{{ deck.id }}"{% ifequal deck.id fact.deck.id %} selected="selected"{% endifequal %}>
+                            {{ deck.name }}
+                        </option>
+                    {% endfor %}
+                </select>
             </div>
         </div>
         <br><br><br><br>
         <div class="cards_factFields">
-            {% for field_type in field_types %}
-                <div>
-                    <strong>{{ field_type.name }}:</strong>{% if not field_type.blank %} <em>(required)</em>{% endif %}
-                    <div class="field_content_error"></div>
-                    <textarea  
-                        name="field_content-{{ forloop.counter0 }}-content" 
-                        class="cards_fieldContent"
-                        dojoType="dijit.form.SimpleTextarea" 
-                        rows="2" style="width:300px;" class="field_content"></textarea>
-                    <input dojoType="dijit.form.TextBox" 
-                        name="field_content-{{ forloop.counter0 }}-field_type" 
-                        value="{{ field_type.id }}" 
-                        type="hidden"></input>
-                </div>
+            {% for field_content in fact.fieldcontent_set.all %}
+                {% with field_content.field_type as field_type %}
+                    <div>
+                        <strong>{{ field_type.name }}:</strong>{% if not field_type.blank %} <em>(required)</em>{% endif %}
+                        <div class="field_content_error"></div>
+                        <textarea  
+                            name="field_content-{{ forloop.counter0 }}-content" 
+                            class="cards_fieldContent" 
+                            dojoType="dijit.form.SimpleTextarea" 
+                            rows="2" style="width:300px;" class="field_content">{{ field_content.content }}</textarea>
+                        <input dojoType="dijit.form.TextBox" 
+                            name="field_content-{{ forloop.counter0 }}-field_type" 
+                            class="cards_fieldContentType" 
+                            value="{{ field_type.id }}" 
+                            type="hidden"></input>
+                        <input dojoType="dijit.form.TextBox" 
+                            name="field_content-{{ forloop.counter0 }}-id" 
+                            value="{{ field_content.id }}" 
+                            type="hidden"></input>
+                    </div>
+                {% endwith %}
             {% endfor %}
 
         </div>
@@ -49,15 +82,38 @@
             <span>
                 <button dojoType="dijit.form.Button" type="submit">
                     Update
-                    </button>
-                    <button dojoType="dijit.form.Button">
+                </button>
+                <button dojoType="dijit.form.Button">
                     Cancel
                     <script type="dojo/connect" event="onClick" args="evt">
-                        //factAddDialog.hide();
+                        fact_ui.hideFactEditForm();
                     </script>
                 </button>
             </span>
         </div>
     </div>
+</div>
 
-
+<div style="">
+    <button dojoType="dijit.form.Button" iconClass="dijitEditorIcon dijitEditorIconDelete">
+        Delete
+        <script type="dojo/connect" event="onClick" args="evt">
+            var delete_response = window.confirm('Really delete this fact?');
+            if (delete_response) {
+                grid_item = cards_factsGrid.selection.getSelected()[0];
+                fact_id = grid_item['fact-id'][0]; //TODO allow multiple selections
+                var deferred = dojo.xhrPost({
+                    url: '/flashcards/rest/facts/' + fact_id,
+                    handleAs: 'text',
+                    content: { _method: 'DELETE' },
+                    load: function(data) {
+                        //remove the deleted row from the grid store
+                        cards_factsGrid.store.deleteItem(grid_item);
+                        cards_factsGrid.store.save(); //FIXME handle error?
+                        fact_ui.hideFactEditForm();
+                      } //FIXME handle error - if fails, don't remove from store'
+                });
+            }
+        </script>            
+    </button>
+</div>

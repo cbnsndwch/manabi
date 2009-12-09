@@ -346,8 +346,28 @@
     //the new class for fact editing
     fact_ui = {};
 
-    fact_ui.showFactEditForm = function(fact_id) {
-        
+    dojo.addOnLoad(function() {
+        fact_ui.facts_grid_normal_height = '300px'; //TODO figure out how to make the height as tall as window
+        fact_ui.facts_grid_minimized_height = '145px';
+    });
+    
+
+    fact_ui.showFactEditForm = function(fact_id, row_index) {
+        fact_ui.selected_fact_row_index = row_index;
+
+        cards_factsGrid.domNode.style.height = fact_ui.facts_grid_minimized_height;
+        cards_factsGrid.resize();
+        cards_factsGrid.scrollToRow(row_index); //TODO this can be a little awkward, moving too often
+        cards_factEditorContainer.attr('href', 'flashcards/facts/' + fact_id + '/update');
+        cards_factEditorContainer.domNode.style.display = '';
+    }
+
+    fact_ui.hideFactEditForm = function() {
+        cards_factEditorContainer.domNode.style.display = 'none';
+        cards_factEditorContainer.attr('content', '');
+        //re-expand the facts grid
+        cards_factsGrid.domNode.style.height = fact_ui.facts_grid_normal_height;
+        cards_factsGrid.resize();
     }
 
     fact_ui.submitFactForm = function(fact_form, submit_success_callback, fact_id) {
@@ -356,12 +376,12 @@
         //TODO return a deferred instead of taking in success/error callbacks
 
         //disable the submit button while processing
-        submit_button = dijit.byId(dojo.query('button[type=submit]', fact_form.domNode)[0].id);
+        submit_button = dijit.getEnclosingWidget(dojo.query('button[type=submit]', fact_form.domNode)[0])
         submit_button.attr('disabled', true);
 
         form_values = fact_form.attr('value');
 
-        var card_templates_input = dijit.byId(dojo.query('.cards_cardTemplates', fact_form.domNode)[0].id);
+        var card_templates_input = dijit.getEnclosingWidget(dojo.query('.cards_cardTemplates', fact_form.domNode)[0]);
         var card_templates = card_templates_input.attr('value');
         var card_counter = 0;
         dojo.forEach(card_templates, function(val) {

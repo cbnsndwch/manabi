@@ -21,85 +21,19 @@
     url="/flashcards/rest/fact_types/1/fields">
 </div>
 <table dojoType="dojox.grid.DataGrid" store="cards_factStore" query="{ }"
-    clientSort="true" style="width: 100%; height: 160px;" 
+    clientSort="true" style="width: 100%; height: 300px;" jsId="cards_factsGrid"
     selectionMode="single" rowSelector="false" structure="cards_factStoreLayout">
     <script type="dojo/connect" event="onRowClick" args="evt">
-        //        fact_ui.selected_fact_id = ;//TODO
-        //console.log(evt);
-        selected_fact_id = this.getItem(evt.rowIndex)['fact-id'];
-        fact_ui.showFactEditForm(selected_fact_id);
+        row_index = evt.rowIndex;
+        selected_fact_id = this.getItem(row_index)['fact-id'];
+        fact_ui.showFactEditForm(selected_fact_id, row_index);
     </script>
 </table>
 
 <hr>
 
-<div id="cards_factEditorContainer" style="width:308px; display: none;">
-
-    <div dojoType="dojo.data.ItemFileReadStore" jsId="cards_decksStore"
-        url="/flashcards/rest/decks">
-    </div>
-
-    <div dojoType="dijit.form.Form" jsId="cards_factForm" encType="multipart/form-data" action="" method="">
-        <script type="dojo/connect" event="onSubmit" args="evt">
-            evt.preventDefault();
-            var success_callback = function(data, card_counter) {
-            };
-            fact_ui.submitFactForm(cards_factForm, success_callback, fact_ui.selected_fact_id);
-        </script>
-
-        <div style="float:right;">
-            <div><strong>Cards:</strong></div><div>
-            <select class="cards_cardTemplates" multiple="true" dojoType="dojox.form.CheckedMultiSelect" style="height:76px;">
-                {% for card_template in card_templates %}
-                    <option value="{{ card_template.id }}"{% if card_template.generate_by_default %} selected="selected"{% endif %}>
-                        {{ card_template.name }}
-                    </option>
-                {% endfor %}
-            </select>
-            </div>
-        </div>
-        <div>
-            <div>
-                <strong>Deck:</strong></div><div>
-                <input name="fact-deck" 
-                    dojoType="dijit.form.Select" store="cards_decksStore">
-                </input>
-            </div>
-        </div>
-        <br><br><br><br>
-        <div class="cards_factFields">
-            {% for field_type in field_types %}
-                <div>
-                    <strong>{{ field_type.name }}:</strong>{% if not field_type.blank %} <em>(required)</em>{% endif %}
-                    <div class="field_content_error"></div>
-                    <textarea  
-                        name="field_content-{{ forloop.counter0 }}-content" 
-                        class="cards_fieldContent"
-                        dojoType="dijit.form.SimpleTextarea" 
-                        rows="2" style="width:300px;" class="field_content"></textarea>
-                    <input dojoType="dijit.form.TextBox" 
-                        name="field_content-{{ forloop.counter0 }}-field_type" 
-                        value="{{ field_type.id }}" 
-                        type="hidden"></input>
-                </div>
-            {% endfor %}
-
-        </div>
-        <br>
-        <div>
-            <span>
-                <button dojoType="dijit.form.Button" type="submit">
-                    Update
-                    </button>
-                    <button dojoType="dijit.form.Button">
-                    Cancel
-                    <script type="dojo/connect" event="onClick" args="evt">
-                        //factAddDialog.hide();
-                    </script>
-                </button>
-            </span>
-        </div>
-    </div>
-
+<div dojoType="dijit.layout.ContentPane" jsId="cards_factEditorContainer" 
+    style="display: none;">
 </div>
+
 
