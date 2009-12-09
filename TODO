@@ -6,7 +6,10 @@ manabi notes
 fact update doesn't work with choosing a different deck (i think)
 gotta truncate deck names when displayed
 update deck store when creating a deck
+when not signed in, bugs! (click title)
+resize grid when window is resized!!! otherwise scrollbars get lost
 
+should all those connects be disconnected somehow?
 
 SUPER CRITICAL BUGS:
 none for now
