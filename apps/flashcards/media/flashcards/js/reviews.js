@@ -277,10 +277,10 @@ reviews_ui.showNoCardsDue = function() {
 }
 
 reviews_ui.showReviewOptions = function() {
-    dojo.byId('reviews_beginReview').style.display = '';
+    /*dojo.byId('reviews_beginReview').style.display = '';
     dojo.byId('reviews_reviewOptions').style.display = '';
     dojo.byId('reviews_noCardsDue').style.display = 'none';
-    dojo.byId('reviews_reviewEndScreen').style.display = 'none';
+    dojo.byId('reviews_reviewEndScreen').style.display = 'none';*/
 
     //show the due count
     reviews.dueCardsCount().addCallback(function(count) {
@@ -302,16 +302,19 @@ reviews_ui.openDialog = function() {
     //show the options screen
     dojo.byId('reviews_reviewOptions').style.display = '';
     //hide the review screen
-    dojo.byId('reviews_reviewScreen').style.display = 'none';
-    dojo.byId('reviews_reviewEndScreen').style.display = 'none';
+    /*dojo.byId('reviews_reviewScreen').style.display = 'none';
+    dojo.byId('reviews_reviewEndScreen').style.display = 'none';*/
     reviews_ui.review_dialog.show();
 }
 
 reviews_ui.endSession = function() {
     reviews_ui.unsetCardBackKeyboardShortcuts();
     reviews_ui.unsetCardFrontKeyboardShortcuts();
-    dojo.byId('reviews_reviewScreen').style.display = 'none';
-    dojo.byId('reviews_reviewEndScreen').style.display = '';
+    /*dojo.byId('reviews_reviewScreen').style.display = 'none';
+    dojo.byId('reviews_reviewEndScreen').style.display = '';*/
+    dojo.byId('reviews_fullscreenContainer').style.display = 'none';
+    //TODO fade out, less harsh
+    //TODO show review session results
     reviews.endSession();
 }
 
@@ -367,6 +370,18 @@ reviews_ui.reviewCard = function(card, grade) {
 
 
 reviews_ui.displayNextCard = function() {
+}
+
+
+reviews_ui.showReviewScreen = function() {
+    //show the fullscreen reviews div
+    dojo.byId('reviews_fullscreenContainer').style.display = '';
+
+    //show the review screen and hide the end of review screen
+    dojo.byId('reviews_reviewScreen').style.display = '';
+    dojo.byId('reviews_reviewEndScreen').style.display = 'none';
+
+
 }
 
 

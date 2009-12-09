@@ -1,3 +1,88 @@
+<div class="fullscreen" id="reviews_fullscreenContainer" style="display:none">
+    <div class="fullscreen_toolbar">
+        <button dojoType="dijit.form.Button" type="button">
+            Exit Review
+            <script type="dojo/method" event="onClick" args="evt">
+                reviews_ui.endSession();
+            </script>
+        </button>
+    </div>
+    <div class="fullscreen_content">
+        <div id="reviews_reviewScreen">
+
+            <div style="text-align: center">
+                <div class="flashcard_container">
+                    <div style="font-size:32px; padding:20px;" dojoType="dijit.layout.ContentPane" jsId="reviews_cardFront" id="reviews_cardFront"></div>
+                </div>
+                <hr>
+                <div class="flashcard_container">
+                    <div id="reviews_showCardBack" style="text-align: center;">
+                        <button dojoType="dijit.form.Button" jsId="reviews_showCardBackButton" type="button">
+                            <div style="width:300px; height:26px; line-height:26px">
+                                Show Answer
+                            </div>
+                            <script type="dojo/method" event="onClick" args="evt">
+                                reviews_ui.showCardBack(reviews.current_card);
+                            </script>
+                        </button>
+                    </div>
+                    <div style="font-size:32px; padding:20px;" dojoType="dijit.layout.ContentPane" jsId="reviews_cardBack" id="reviews_cardBack"></div>
+                </div>
+            </div>
+            <div id="reviews_gradeButtons" style="margin-top:8px;">
+                <table style="margin:0px auto;">
+                <tr>
+                <td>
+                <button dojoType="dijit.form.Button" type="button">
+                    Wrong
+                    <script type="dojo/method" event="onClick" args="evt">
+                        reviews_ui.reviewCard(reviews.current_card, reviews.grades.GRADE_NONE);
+                    </script>
+                </button>
+                </td>
+                <td>
+                <button dojoType="dijit.form.Button" type="button">
+                    Hard
+                    <script type="dojo/method" event="onClick" args="evt">
+                        reviews_ui.reviewCard(reviews.current_card, reviews.grades.GRADE_HARD);
+                    </script>
+                </button>
+                </td>
+                <td>
+                <button dojoType="dijit.form.Button" type="button">
+                    Good
+                    <script type="dojo/method" event="onClick" args="evt">
+                        reviews_ui.reviewCard(reviews.current_card, reviews.grades.GRADE_GOOD);
+                    </script>
+                </button>
+                </td>
+                <td>
+                <button dojoType="dijit.form.Button" type="button">
+                    Too Easy
+                    <script type="dojo/method" event="onClick" args="evt">
+                        reviews_ui.reviewCard(reviews.current_card, reviews.grades.GRADE_EASY);
+                    </script>
+                </button>
+                </td>
+                </tr>
+                <tr>
+                    <td id="reviews_gradeNoneInterval" style="color:gray;font-size:10px;text-align:center;"></td>
+                    <td id="reviews_gradeHardInterval" style="color:gray;font-size:10px;text-align:center;"></td>
+                    <td id="reviews_gradeGoodInterval" style="color:gray;font-size:10px;text-align:center;"></td>
+                    <td id="reviews_gradeEasyInterval" style="color:gray;font-size:10px;text-align:center;"></td>
+                </tr>
+                </table>
+            </div>
+        </div>
+
+        <div id="reviews_reviewEndScreen" style="display: none">
+            <strong>Congratulations.</strong>
+            You are done with this review session.
+        </div>
+    </div>
+</div>
+
+
 <div dojoType="dijit.Dialog" jsId="reviews_reviewDialog" id="reviews_reviewDialog" title="Flashcard Review">
 	<script type="dojo/connect" event="onCancel" args="evt">
         reviews.endSession();
@@ -22,12 +107,13 @@
             Would you like to <u>review cards early</u>, or <u>learn new cards</u>?<br>
             <span style="color:gray">(early review still under development)</span>
         </div>
-        <div id="reviews_beginReview" style="display: none">
+        <div id="reviews_beginReview">
             <button dojoType="dijit.form.Button" type="button">
                 Begin Review
                 <script type="dojo/method" event="onClick" args="evt">
                     //hide this options screen
-                    dojo.byId('reviews_reviewOptions').style.display = 'none';//({display: 'none'});
+                    //dojo.byId('reviews_reviewOptions').style.display = 'none';//({display: 'none'});
+
                     //TODO add a loading screen
 
                     //start a review session with the server
@@ -40,8 +126,9 @@
                         next_card_def.addCallback(function(next_card) {
 
                             if (next_card) {
-                                //show the review screen
-                                dojo.byId('reviews_reviewScreen').style.display = '';
+                                //hide this dialog and show the review screen
+                                reviews_reviewDialog.hide();
+                                reviews_ui.showReviewScreen();
 
                                 //show the card
                                 reviews_ui.displayCard(next_card);
@@ -56,76 +143,14 @@
         </div>
     </div>
 
-    <div id="reviews_reviewScreen" style="display:none;">
-        <div style="text-align: center">
-            <div style="font-size:32px; padding:20px;" dojoType="dijit.layout.ContentPane" jsId="reviews_cardFront" id="reviews_cardFront"></div>
-            <hr>
-            <div id="reviews_showCardBack" style="text-align: center;">
-                <button dojoType="dijit.form.Button" jsId="reviews_showCardBackButton" type="button">
-                    Show Answer
-                    <script type="dojo/method" event="onClick" args="evt">
-                        reviews_ui.showCardBack(reviews.current_card);
-                    </script>
-                </button>
-            </div>
-            <div style="font-size:32px; padding:20px;" dojoType="dijit.layout.ContentPane" jsId="reviews_cardBack" id="reviews_cardBack"></div>
-        </div>
-        <div id="reviews_gradeButtons" style="margin-top:8px;">
-            <table style="margin:0px auto;">
-            <tr>
-            <td>
-            <button dojoType="dijit.form.Button" type="button">
-                Wrong
-                <script type="dojo/method" event="onClick" args="evt">
-                    reviews_ui.reviewCard(reviews.current_card, reviews.grades.GRADE_NONE);
-                </script>
-            </button>
-            </td>
-            <td>
-            <button dojoType="dijit.form.Button" type="button">
-                Hard
-                <script type="dojo/method" event="onClick" args="evt">
-                    reviews_ui.reviewCard(reviews.current_card, reviews.grades.GRADE_HARD);
-                </script>
-            </button>
-            </td>
-            <td>
-            <button dojoType="dijit.form.Button" type="button">
-                Good
-                <script type="dojo/method" event="onClick" args="evt">
-                    reviews_ui.reviewCard(reviews.current_card, reviews.grades.GRADE_GOOD);
-                </script>
-            </button>
-            </td>
-            <td>
-            <button dojoType="dijit.form.Button" type="button">
-                Too Easy
-                <script type="dojo/method" event="onClick" args="evt">
-                    reviews_ui.reviewCard(reviews.current_card, reviews.grades.GRADE_EASY);
-                </script>
-            </button>
-            </td>
-            </tr>
-            <tr>
-                <td id="reviews_gradeNoneInterval" style="color:gray;font-size:10px;text-align:center;"></td>
-                <td id="reviews_gradeHardInterval" style="color:gray;font-size:10px;text-align:center;"></td>
-                <td id="reviews_gradeGoodInterval" style="color:gray;font-size:10px;text-align:center;"></td>
-                <td id="reviews_gradeEasyInterval" style="color:gray;font-size:10px;text-align:center;"></td>
-            </tr>
-            </table>
-        </div>
     </div>
 
-    <div id="reviews_reviewEndScreen" style="display: none">
-        <strong>Congratulations.</strong>
-        You are done with this review session.
-    </div>
 
 
 </div>
 
 
-
+{% comment %}
 <button dojoType="dojox.form.BusyButton" jsId="reviews_openDialogButton" busyLabel="Loading...">
     Review Flashcards
 	<script type="dojo/connect" event="onClick" args="evt">
@@ -149,3 +174,4 @@ This flashcard software uses the grades that you give each card to determine whe
 <br>
 <br>
 <em>Hint:</em> You can press 1-4 on your keyboard to grade cards instead of clicking the buttons (1=wrong, 2=hard, 3=good, 4=too easy). You can also show the flashcard answer by pressing the spacebar.
+{% endcomment %}

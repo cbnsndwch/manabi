@@ -5,15 +5,26 @@
 <span style="font-size:42px;position:relative;color:#8A0808">学び</span>
 <h1>Welcome</h1>
 
-{% if user.is_authenticated %}
-  <p>
-    {% include 'flashcards/base.html' %}
-  </p>
-{% endif %}
+<strong>Japanese 497B Students:</strong><br>
+Thanks for joining my site. I hope that it will help you learn vocab and kanji from your class and, 
+more importantly, retain your memory of them.<br>
+<br>
+To get started, click the 'Decks' button below and then the 'Download shared decks' link. I've already created 
+and shared decks for your textbook, so you can download them there by clicking 'Download' for each chapter. Then you 
+can start reviewing the flashcards by clicking the 'Review Flashcards' button below. When a flashcard is displayed, 
+try to think of the answer, and click the 'Show Answer' button to see it. Then rate yourself for how well you 
+recalled the answer by selecting one of the grade buttons. See the explanation below for what each review grade 
+means.
+
 <br /> 
+{% comment %}
+Sorry for the rudimentary user interface - it's just temporary. I'm focusing on functionality before I work on better usability. Email me if you have any problems, questions or suggestions: jehlke <span style="color:gray">(at)</span> student <span style="color:gray">(dot)</span> umass <span style="color:gray">(dot)</span> edu
+{% endcomment %}
+
 {% if user.is_authenticated %}
-    {% comment %}{% url what_next as what_next_url %}
-    <p class="what_next">{% blocktrans %}Wondering <a href="{{ what_next_url }}">What Next</a>?{% endblocktrans %}</p>
+    {% comment %}
+        {% url what_next as what_next_url %}
+        <p class="what_next">{% blocktrans %}Wondering <a href="{{ what_next_url }}">What Next</a>?{% endblocktrans %}</p>
     {% endcomment %}
 {% else %}
     {% url acct_login as login_url %}

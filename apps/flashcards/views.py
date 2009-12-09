@@ -68,7 +68,14 @@ def _request_type(request):
 
 @login_required
 def facts_editor(request):
-    return render_to_response('flashcards/facts_editor.html')
+    #assume Japanese for now (model 1)
+    #get the fieldtypes for Japanese
+    
+    fact_type = FactType.objects.get(id=1)
+    field_types = fact_type.fieldtype_set.all().order_by('ordinal')
+    card_templates = fact_type.cardtemplate_set.all()
+    context = {'field_types': field_types, 'card_templates': card_templates}
+    return render_to_response('flashcards/facts_editor.html', context)
 
 
 

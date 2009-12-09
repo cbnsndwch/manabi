@@ -1,44 +1,3 @@
-<h1>Flashcard Editor</h1>
-
-<script type="text/javascript">
-        //defaultCell: { width: 8, editable: false, type: dojox.grid.cells._Widget },
-    var cards_factStoreLayout = [
-        [
-            {% for field_type in field_types %}
-                 { field: 'id{{ field_type.id }}',
-                   name: '{{ field_type.name }}',
-                   width: 'auto' }{% if not forloop.last %},{% endif %}
-            {% endfor %}
-        ]
-    ];
-</script>
-
-<div dojoType="dojo.data.ItemFileWriteStore" jsId="cards_factStore" 
-    url="/flashcards/rest/facts?fact_type=1">
-</div>
-
-<div dojoType="dojo.data.ItemFileReadStore" jsId="cards_fieldTypeStore" 
-    url="/flashcards/rest/fact_types/1/fields">
-</div>
-<table dojoType="dojox.grid.DataGrid" store="cards_factStore" query="{ }"
-    clientSort="true" style="width: 100%; height: 160px;" 
-    selectionMode="single" rowSelector="false" structure="cards_factStoreLayout">
-    <script type="dojo/connect" event="onRowClick" args="evt">
-        //        fact_ui.selected_fact_id = ;//TODO
-        //console.log(evt);
-        selected_fact_id = this.getItem(evt.rowIndex)['fact-id'];
-        fact_ui.showFactEditForm(selected_fact_id);
-    </script>
-</table>
-
-<hr>
-
-<div id="cards_factEditorContainer" style="width:308px; display: none;">
-
-    <div dojoType="dojo.data.ItemFileReadStore" jsId="cards_decksStore"
-        url="/flashcards/rest/decks">
-    </div>
-
     <div dojoType="dijit.form.Form" jsId="cards_factForm" encType="multipart/form-data" action="" method="">
         <script type="dojo/connect" event="onSubmit" args="evt">
             evt.preventDefault();
@@ -101,5 +60,4 @@
         </div>
     </div>
 
-</div>
 

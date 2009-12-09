@@ -1,3 +1,5 @@
+<div jsId="factAddDialogStandby" target="sidebar" dojoType="dojox.widget.Standby"></div>
+
 <div class="sidebar_box">
     <div class="sidebar_box_header">
         <span class="sidebar_box_title">Flashcards</span>
@@ -5,11 +7,14 @@
     <div class="sidebar_box_contents" style="font-size:14px">
         <div style="margin-left:auto; margin-right:auto;width:100%;text-align:center;">
             <button dojoType="dijit.form.Button" type="button">
-                <div style="width:248px; height:24px; line-height:24px;"><span style="font-size:14px">Begin Review</span></div>
+                <div style="width:240px; height:20px; line-height:20px;"><span style="font-size:14px">Start Reviewing</span></div>
+                <script type="dojo/method" event="onClick" args="evt">
+                    reviews_ui.openDialog();
+                </script>
             </button><br>
             <button dojoType="dijit.form.DropDownButton" type="button">
-                <span style="font-size:14px"><div style="width:232px; height:24px; line-height:24px;">Create Flashcards</div></span>
-                <div dojoType="dijit.TooltipDialog">
+                <span style="font-size:14px"><div style="width:224px; height:20px; line-height:20px;">Create Flashcards</div></span>
+                <div dojoType="dijit.TooltipDialog" jsId="factAddDialog">
                     {% include "flashcards/fact_add_form.html" %}
                 </div>
             </button><br><br>
