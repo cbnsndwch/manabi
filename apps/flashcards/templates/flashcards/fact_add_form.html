@@ -6,7 +6,16 @@
 
 <div id="factAddFormWrapper">
     <div dojoType="dijit.form.Form" jsId="factAddForm" encType="multipart/form-data" action="" method="">
-        <div style="float:right;">
+        <div>
+            <div>
+                <strong>Deck:</strong><br>
+                <input name="fact-deck" jsId="deckInput" 
+                    dojoType="dijit.form.Select" store="decksStore">
+                </input>
+                {% comment %}Model: <input name="fact-fact_type" jsId="factTypeInput" dojoType="dojox.form.DropDownSelect"></input>{% endcomment %}
+            </div>
+        </div>
+        <div>
             <div><strong>Cards:</strong></div><div>
             <select multiple="true" dojoType="dojox.form.CheckedMultiSelect" 
                 jsId="cardTemplatesInput" style="height:76px;">
@@ -18,16 +27,6 @@
             </select>
             </div>
         </div>
-        <div>
-            <div>
-                <strong>Deck:</strong></div><div>
-                <input name="fact-deck" jsId="deckInput" 
-                    dojoType="dijit.form.Select" store="decksStore">
-                </input>
-                {% comment %}Model: <input name="fact-fact_type" jsId="factTypeInput" dojoType="dojox.form.DropDownSelect"></input>{% endcomment %}
-            </div>
-        </div>
-        <br><br><br><br>
         <div id="factFields">
             {% for field_type in fact_add_form.field_types %}
                 <div>

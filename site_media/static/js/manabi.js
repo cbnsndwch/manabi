@@ -25,6 +25,12 @@ manabi_ui.xhrLink = function(href) { //, target_pane) {
 }
 
 
+/*manabi_ui.truncateSelectDisplayOnChange = function(select_widget) {
+    dojo.connect(select_widget, select_widget, 'onChange', function() {
+        this._setDisplay('uhhmm');
+    }
+}*/
+
 
 
 manabi_ui.xhrPost = function(url, form, post_redirect_url) {

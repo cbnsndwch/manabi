@@ -9,6 +9,8 @@ update deck store when creating a deck
 when not signed in, bugs! (click title)
 resize grid when window is resized!!! otherwise scrollbars get lost
 
+make card template widget demand at least 1 checkmark at all times
+
 should all those connects be disconnected somehow?
 
 SUPER CRITICAL BUGS:
