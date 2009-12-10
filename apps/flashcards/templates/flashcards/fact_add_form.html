@@ -1,17 +1,18 @@
 {% comment %}Update this to use the standard fact_form.html, need to update the js to use the new names mostly{% endcomment %}
 
 <div dojoType="dojo.data.ItemFileReadStore" jsId="decksStore" 
-    url="/flashcards/rest/decks">
+    url="/flashcards/rest/decks" clearOnClose="true">
 </div>
 
 <div id="factAddFormWrapper">
     <div dojoType="dijit.form.Form" jsId="factAddForm" encType="multipart/form-data" action="" method="">
         <div>
             <div>
-                <strong>Deck:</strong><br>
+                <strong>Deck:</strong>
+                <div id="deckInputContainer">
                 <input name="fact-deck" jsId="deckInput" 
-                    dojoType="dijit.form.Select" store="decksStore">
-                </input>
+                    dojoType="dijit.form.Select">
+                    </input></div>
                 {% comment %}Model: <input name="fact-fact_type" jsId="factTypeInput" dojoType="dojox.form.DropDownSelect"></input>{% endcomment %}
             </div>
         </div>

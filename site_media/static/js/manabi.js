@@ -52,6 +52,7 @@ manabi_ui.xhrPost = function(url, form, post_redirect_url) {
     def.addCallback(function() {
         manabi_standby.hide();
     });
+    return def;
 }
 
 manabi_ui.convertLinksToXhr = function(container_node) {
@@ -63,4 +64,20 @@ manabi_ui.convertLinksToXhr = function(container_node) {
             }));
         }
     );
+}
+
+
+//a hack since dijit.form.Select isnt fully data-aware
+dojo.addOnLoad(function(){manabi_ui.refreshDeckInput()});
+manabi_ui.refreshDeckInput = function() {
+    //dojo.byId('deckInputContainer').empty();
+    //deckInput.destroy();
+    deckInput.removeOption(deckInput.getOptions())
+    deckInput.reset();
+    decksStore.close();
+    decksStore.fetch({
+        onItem: function(item) {
+            deckInput.addOption({value: decksStore.getValue(item, 'id'), label: decksStore.getValue(item, 'name')});
+        }
+        });
 }

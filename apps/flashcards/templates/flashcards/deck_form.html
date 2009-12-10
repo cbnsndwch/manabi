@@ -5,7 +5,7 @@
 	<script type="dojo/connect" event="onSubmit" args="evt">
 		evt.preventDefault();
 
-        manabi_ui.xhrPost(
+        var def = manabi_ui.xhrPost(
             {% if deck %}
                 '/flashcards/decks/{{ deck.id }}/update',
             {% else %}
@@ -13,6 +13,9 @@
             {% endif %}
             dojo.byId('deckForm'), 
             '{{ post_save_redirect }}');
+        def.addCallback(function() {
+            manabi_ui.refreshDeckInput();
+        });
 	</script>
 
     <p>

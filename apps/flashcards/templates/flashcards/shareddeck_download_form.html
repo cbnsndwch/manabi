@@ -8,10 +8,13 @@
 	<script type="dojo/connect" event="onSubmit" args="evt">
 		evt.preventDefault();
 
-        manabi_ui.xhrPost(
+        var def = manabi_ui.xhrPost(
             '/flashcards/shared_decks/{{ shared_deck.id }}/download',
             dojo.byId('sharedDeckDownloadForm'),
             '{{ post_download_redirect }}');
+        def.addCallback(function() {
+            manabi_ui.refreshDeckInput();
+        });
 	</script>
 
     <em>{{ shared_deck.name }}</em><br>
