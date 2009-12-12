@@ -558,6 +558,7 @@ def next_cards_for_review(request):
                 due_times[grade] = days
             formatted_cards.append({
                 'id': card.id,
+                'fact_id': card.fact.id,
                 'front': render_to_string(card.template.front_template_name, card_context),
                 'back': render_to_string(card.template.back_template_name, card_context),
                 'next_due_at_per_grade': due_times
@@ -617,6 +618,7 @@ def rest_card(request, card_id): #todo:refactor into facts (no???)
           due_times[grade] = days
       formatted_card = {
           'id': card.id,
+          'fact_id': card.fact.id,
           'front': render_to_string(card.template.front_template_name, card_context),
           'back': render_to_string(card.template.back_template_name, card_context),
           'next_due_at_per_grade': due_times
