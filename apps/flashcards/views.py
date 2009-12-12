@@ -381,10 +381,17 @@ def _fact_update(request, fact_id):
   FieldContentFormset = modelformset_factory(FieldContent, form=FieldContentForm)
   field_content_formset = FieldContentFormset(post_data, prefix='field_content', queryset=fact.fieldcontent_set.get_query_set())
 
+
   #fact_form = FactForm(post_data, prefix='fact', instance=fact) #this isn't updated
   if card_formset.is_valid() and field_content_formset.is_valid(): #and fact_form.is_valid():
     #fact = fact_form.save() #TODO needed in future?
     
+    #update the fact's assigned deck
+    #FIXME catch error if does not exist
+    deck_id = int(post_data['fact-deck'])
+    fact.deck = Deck.objects.get(id=deck_id)
+    fact.save()
+
     for field_content_form in field_content_formset.forms:
       field_content = field_content_form.save()
 
@@ -415,11 +422,11 @@ def _fact_update(request, fact_id):
     ret['success'] = True
 
   else:
-    print field_content_formset.errors
     ret['success'] = False
     ret['errors'] = {'card': card_formset.errors,
                      'field_content': field_content_formset.errors,
-                     'fact': [fact_form.errors]}
+                     }
+                     #'fact': [fact_form.errors]}
   return ret
 
 

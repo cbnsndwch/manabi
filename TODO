@@ -3,24 +3,26 @@ manabi notes
 
 ~new stuff~
 -----------
-fact update doesn't work with choosing a different deck (i think)
 gotta truncate deck names when displayed
-update deck store when creating a deck
 when not signed in, bugs! (click title)
 resize grid when window is resized!!! otherwise scrollbars get lost
 
-make card template widget demand at least 1 checkmark at all times
+make card template widget demand at least 1 checkmark at all times (really?)
 
 should all those connects be disconnected somehow?
 
+
 SUPER CRITICAL BUGS:
+--------------------
 none for now
+
 
 ---------------------
 TODO:
 ---------------------
 card 5176 has a no good fact
 
+update fact grid when a card is added
 
 -disable form submission buttons while they're being processed, after clicked - 
 
@@ -34,8 +36,6 @@ allow selecting multiple facts
 make field requirements dependent on which cards are to be generated
 
 truncate deck names for Add Facts dialog (cut out the middle since the end often has something like the chapter)
-
-somehow shorten the card templates button in Add Facts if it gets too long
 
 tags (should have stuff like kaiwa 1 for textbook facts)
 

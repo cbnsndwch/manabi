@@ -1,5 +1,5 @@
 
-<div style="width:308px; float:left; padding-right: 20px;">
+<div style="width:388px; float:left; padding-right: 20px;">
     <div dojoType="dijit.form.Form" jsId="cards_factForm" encType="multipart/form-data" action="" method="">
         <script type="dojo/connect" event="onSubmit" args="evt">
             evt.preventDefault();
@@ -28,17 +28,6 @@
             name="fact-id" 
             value="{{ fact.id }}" 
             type="hidden"></input>
-        <div style="float:right;">
-            <div><strong>Cards:</strong></div><div>
-            <select class="cards_cardTemplates" multiple="true" dojoType="dojox.form.CheckedMultiSelect" style="height:76px;">
-                {% for card_template in card_templates %}
-                    <option value="{{ card_template.id }}"{% if card_template.activated_for_fact %} selected="selected"{% endif %}>
-                        {{ card_template.name }}
-                    </option>
-                {% endfor %}
-            </select>
-            </div>
-        </div>
         <div>
             <div>
                 <strong>Deck:</strong></div><div>
@@ -51,7 +40,19 @@
                 </select>
             </div>
         </div>
-        <br><br><br><br>
+        <br>
+        <div>
+            <div><strong>Cards:</strong></div><div>
+            <select class="cards_cardTemplates" multiple="true" dojoType="dojox.form.CheckedMultiSelect" style="height:76px;">
+                {% for card_template in card_templates %}
+                    <option value="{{ card_template.id }}"{% if card_template.activated_for_fact %} selected="selected"{% endif %}>
+                        {{ card_template.name }}
+                    </option>
+                {% endfor %}
+            </select>
+            </div>
+        </div>
+        <br>
         <div class="cards_factFields">
             {% for field_content in fact.fieldcontent_set.all %}
                 {% with field_content.field_type as field_type %}
@@ -62,7 +63,7 @@
                             name="field_content-{{ forloop.counter0 }}-content" 
                             class="cards_fieldContent" 
                             dojoType="dijit.form.SimpleTextarea" 
-                            rows="2" style="width:300px;" class="field_content">{{ field_content.content }}</textarea>
+                            rows="2" style="width:400px;" class="field_content">{{ field_content.content }}</textarea>
                         <input dojoType="dijit.form.TextBox" 
                             name="field_content-{{ forloop.counter0 }}-field_type" 
                             class="cards_fieldContentType" 

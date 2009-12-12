@@ -42,6 +42,9 @@
         //enable the fact editing buttons
         cards_deleteButton.attr('disabled', false);
     </script>
+    <script type="dojo/connect" event="onRowClick" args="evt">
+        //TODO edit row
+    </script>
 </table>
 <div style="position:relative; left:-2px; margin-top:3px;">
     <button jsId="cards_deleteButton" dojoType="dijit.form.Button" iconClass="dijitEditorIcon dijitEditorIconDelete" disabled="true">
