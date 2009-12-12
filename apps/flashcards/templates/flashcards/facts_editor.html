@@ -4,12 +4,26 @@
     //defaultCell: { width: 8, editable: false, type: dojox.grid.cells._Widget },
 
     var cards_editRow = function(row_index) {
-        selected_fact_id = this.getItem(row_index)['fact-id'];
-        fact_ui.showFactEditForm(selected_fact_id, row_index);
+        var selected_fact_id = cards_factsGrid.getItem(row_index)['fact-id'];
+        var success_callback = dojo.hitch(null, function(selected_fact_row_index, data, card_counter) {
+            fact_ui.hideFactEditForm();
+            //update the grid item via the grid's store, to update the display (though the change has already gone to the server)
+            grid_item = cards_factsGrid.getItem(selected_fact_row_index);
+            dojo.query('.cards_fieldContent', cards_factForm.domNode).forEach(function(field_content_item) {
+                field_content_type_item = dijit.getEnclosingWidget(field_content_item.nextElementSibling);
+                field_content_item = dijit.getEnclosingWidget(field_content_item);
+                cards_factsGrid.store.setValue(grid_item, 
+                    'id' + field_content_type_item.attr('value'), 
+                    field_content_item.attr('value'));
+            });
+            cards_factsGrid.store.save(); //TODO handle errors
+        }, row_index);
+    
+        fact_ui.showFactEditForm(selected_fact_id, success_callback);
     }
 
     var cards_formatCardActions = function(item, row_index) {
-        return '<span class="fakeLink" onclick="fact_ui.showFactEditForm('+item+','+row_index+')">Edit</span>';
+        return '<span class="fakeLink" onclick="cards_editRow('+row_index+')">Edit</span>';
         //return "<button>edit</button>";
         //return "<u><font color="blue">edit</font></u>";
     }
@@ -27,12 +41,46 @@
 </script>
 
 <div dojoType="dojo.data.ItemFileWriteStore" jsId="cards_factStore" 
-    url="/flashcards/rest/facts?fact_type=1">
+    url="/flashcards/rest/facts.json?fact_type=1" clearOnClose="true">
 </div>
-
 <div dojoType="dojo.data.ItemFileReadStore" jsId="cards_fieldTypeStore" 
     url="/flashcards/rest/fact_types/1/fields">
 </div>
+
+
+<div dojoType="dijit.form.Form" jsId="deckDeleteForm" encType="multipart/form-data" action="" method="">
+	<script type="dojo/connect" event="onSubmit" args="evt">
+		evt.preventDefault();
+        var cards_factSearchField = dijit.byId('cards_factSearchField');
+        var search_query = cards_factSearchField.attr('value');
+        if (search_query.trim()) {
+            var store = cards_factsGrid.store;
+            store.close();
+            //FIXME hack until we find a cleaner way to do this
+            store.url = '/flashcards/rest/facts.json?fact_type=1&search='+encodeURIComponent(search_query);
+            store.fetch();
+            cards_factsGrid.sort(); //forces a refresh
+            cards_clearFactSearchButton.domNode.style.visibility='';
+        } else {
+            fact_ui.clearFactSearch();
+        }
+    </script>
+    {% spaceless %}
+    <input type="text" dojoType="dijit.form.TextBox" id="cards_factSearchField">
+    <button dojoType="dijit.form.Button" type="submit">
+        Search
+    </button>
+    <button dojoType="dijit.form.Button" type="button" style="visibility: hidden;" jsId="cards_clearFactSearchButton">
+        Clear Search
+        <script type="dojo/connect" event="onClick" args="evt">
+            fact_ui.clearFactSearch();
+        </script>
+    </button>
+    {% endspaceless %}
+</div>
+
+</input>
+
 <table dojoType="dojox.grid.DataGrid" store="cards_factStore" query="{ }"
     clientSort="true" style="width: 100%; height: 300px;" jsId="cards_factsGrid"
     selectionMode="single" rowSelector="false" structure="cards_factStoreLayout">
@@ -72,9 +120,5 @@
 
 
 
-<div dojoType="dijit.Dialog" jsId="cards_factEditorContainer" title="Edit Flashcard" modal="true">
-    {% comment %}    <div dojoType="dijit.layout.ContentPane" jsId="cards_factEditorContainer" style="display: none;">
-    </div>{% endcomment %}
-</div>
 
 

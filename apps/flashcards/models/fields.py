@@ -4,7 +4,7 @@ from django.forms import ModelForm
 from django.forms.util import ErrorList
 from dbtemplates.models import Template
 
-from facts import Fact, FactType, SharedFact
+#from facts import Fact, FactType, SharedFact
 
 OPTIONAL_CHARACTER_RESTRICTIONS = (
     ('num','Numeric',),
@@ -29,7 +29,7 @@ OPTIONAL_MEDIA_TYPE_RESTRICTIONS = (
 
 class FieldType(models.Model):
     name = models.CharField(max_length=50)
-    fact_type = models.ForeignKey(FactType)
+    fact_type = models.ForeignKey('FactType')
 
     kanji_reading = models.ForeignKey('self', blank=True, null=True)
     
@@ -78,7 +78,7 @@ class AbstractFieldContent(models.Model):
 
 
 class SharedFieldContent(AbstractFieldContent):
-    fact = models.ForeignKey(SharedFact)
+    fact = models.ForeignKey('SharedFact')
 
     class Meta:
         #TODO unique_together = (('fact', 'field_type'), ) #one field content per field per fact
@@ -86,7 +86,7 @@ class SharedFieldContent(AbstractFieldContent):
     
 
 class FieldContent(AbstractFieldContent):
-    fact = models.ForeignKey(Fact)
+    fact = models.ForeignKey('Fact')
 
     class Meta:
         #TODO unique_together = (('fact', 'field_type'), ) #one field content per field per fact

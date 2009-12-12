@@ -1,7 +1,10 @@
+apps/dojango/media/dojo
 *.prc
 *.swo
 *.pyc
 *.swp
+*.swn
+*.swm
 settings.py
 dev.db
 fabfile.py

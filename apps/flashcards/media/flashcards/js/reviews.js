@@ -99,6 +99,20 @@ dojo.addOnLoad(function() {
         reviews.empty_prefetch_producer = false;
     }
 
+    reviews.reload_current_card = function() {
+        //TODO refresh the card inside reviews.cards, instead of just setting current_cards
+        var xhr_args = {
+            url: 'flashcards/rest/cards/'+reviews.current_card.id,
+            handleAs: 'json',
+            load: function(data) {
+                if (data.success) {
+                    reviews.current_card = data.card;
+                }
+            }
+        };
+        return dojo.xhrGet(xhr_args);
+    }
+
     reviews._nextCard = function() {
         //assumes we already have a non-empty card queue, and returns the next card.
         card = reviews.cards.shift();
@@ -312,6 +326,10 @@ reviews_ui.endSession = function() {
     reviews_ui.unsetCardFrontKeyboardShortcuts();
     /*dojo.byId('reviews_reviewScreen').style.display = 'none';
     dojo.byId('reviews_reviewEndScreen').style.display = '';*/
+
+    //show the page behind this
+    dojo.byId('body_contents').style.display = '';
+
     dojo.byId('reviews_fullscreenContainer').style.display = 'none';
     //TODO fade out, less harsh
     //TODO show review session results
@@ -325,7 +343,8 @@ reviews_ui.displayNextIntervals = function(card) {
     dojo.byId('reviews_gradeEasyInterval').innerHTML = reviews_ui.humanizedInterval(card.next_due_at_per_grade['5']);
 }
 
-reviews_ui.displayCard = function(card) {
+reviews_ui.displayCard = function(card, show_card_back) {
+    reviews_ui.card_back_visible = false;
     reviews_ui.unsetCardBackKeyboardShortcuts();
     reviews_cardFront.attr('content', card.front);
     dojo.byId('reviews_showCardBack').style.display = '';
@@ -335,6 +354,9 @@ reviews_ui.displayCard = function(card) {
     reviews_ui.review_dialog._position(); //recenter dialog
     reviews_showCardBackButton.focus();
     reviews_ui.setCardFrontKeyboardShortcuts();
+    if (show_card_back) {
+        reviews_ui.showCardBack(card);
+    }
 }
 
 reviews_ui.goToNextCard = function() {
@@ -351,6 +373,7 @@ reviews_ui.goToNextCard = function() {
 }
 
 reviews_ui.showCardBack = function(card) {
+    reviews_ui.card_back_visible = true;
     reviews_ui.unsetCardFrontKeyboardShortcuts();
     dojo.byId('reviews_showCardBack').style.display = 'none';
     reviews_cardBack.domNode.style.display = '';
@@ -376,6 +399,9 @@ reviews_ui.displayNextCard = function() {
 reviews_ui.showReviewScreen = function() {
     //show the fullscreen reviews div
     dojo.byId('reviews_fullscreenContainer').style.display = '';
+
+    //hide the page behind this
+    dojo.byId('body_contents').style.display = 'none';
 
     //show the review screen and hide the end of review screen
     dojo.byId('reviews_reviewScreen').style.display = '';

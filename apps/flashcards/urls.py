@@ -33,7 +33,7 @@ urlpatterns = patterns('flashcards',
     (r'^rest/fact_types$', 'views.rest_fact_types'),
     (r'^rest/fact_types/(\w+)/card_templates$', 'views.rest_card_templates'),
     (r'^rest/fact_types/(\w+)/fields$', 'views.rest_fields'),
-    (r'^rest/facts$', 'views.rest_facts'),
+    (r'^rest/facts.json$', 'views.rest_facts'),
     (r'^rest/facts/(\w+)$', 'views.rest_fact'),
     (r'^rest/facts/(\w+)/card_templates$', 'views.rest_card_templates_for_fact'), #TODO should be a query on /card_templates instead? ?fact=1&activated=true
     (r'^rest/cards$', 'views.rest_cards'),

@@ -1,14 +1,19 @@
+{% extends 'body_pane_base.html' %}
 
+{% block content %}
 <h1>Delete Deck</h1>
 
 <div dojoType="dijit.form.Form" jsId="deckDeleteForm" encType="multipart/form-data" action="" method="">
 	<script type="dojo/connect" event="onSubmit" args="evt">
 		evt.preventDefault();
 
-        manabi_ui.xhrPost(
+        var def = manabi_ui.xhrPost(
             '/flashcards/decks/{{ deck.id }}/delete',
             dojo.byId('deckDeleteForm'),
             '{{ post_delete_redirect }}');
+        def.addCallback(function() {
+            manabi_ui.refreshDeckInput();
+        });
 	</script>
 	
 	Really delete {{ deck.name }}?<br>
@@ -21,3 +26,4 @@
 		</script>
 	</button>
 </div>
+{% endblock %}

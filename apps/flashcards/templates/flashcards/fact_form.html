@@ -3,21 +3,8 @@
     <div dojoType="dijit.form.Form" jsId="cards_factForm" encType="multipart/form-data" action="" method="">
         <script type="dojo/connect" event="onSubmit" args="evt">
             evt.preventDefault();
-            var success_callback = function(data, card_counter) {
-                //update the grid item via the grid's store, to update the display (though the change has already gone to the server)
-                grid_item = cards_factsGrid.getItem(fact_ui.selected_fact_row_index);
-                dojo.query('.cards_fieldContent', cards_factForm.domNode).forEach(function(field_content_item) {
-                    field_content_type_item = dijit.getEnclosingWidget(field_content_item.nextElementSibling);
-                    field_content_item = dijit.getEnclosingWidget(field_content_item);
-                    cards_factsGrid.store.setValue(grid_item, 
-                        'id' + field_content_type_item.attr('value'), 
-                        field_content_item.attr('value'));
-                });
-                cards_factsGrid.store.save(); //TODO handle errors
-                fact_ui.hideFactEditForm();
-            };
             selected_fact_id = cards_factForm.attr('value')['fact-id'];
-            fact_ui.submitFactForm(cards_factForm, success_callback, selected_fact_id);
+            fact_ui.submitFactForm(cards_factForm, selected_fact_id);
         </script>
 
         <input dojoType="dijit.form.TextBox" 

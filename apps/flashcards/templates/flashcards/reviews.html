@@ -6,6 +6,20 @@
                 reviews_ui.endSession();
             </script>
         </button>
+        <button dojoType="dijit.form.Button" type="button">
+            Edit Flashcard
+            <script type="dojo/method" event="onClick" args="evt">
+                var success_callback = function(selected_fact_row_index, data, card_counter) {
+                    fact_ui.hideFactEditForm();
+                    var def = reviews.reload_current_card();
+                    def.addCallback(function() {
+                        reviews_ui.displayCard(reviews.current_card, reviews_ui.card_back_visible);
+                    });
+                };
+                
+                fact_ui.showFactEditForm(reviews.current_card.id, success_callback);
+            </script>
+        </button>
     </div>
     <div class="fullscreen_content">
         <div id="reviews_reviewScreen">
@@ -142,10 +156,6 @@
             </button>
         </div>
     </div>
-
-    </div>
-
-
 
 </div>
 

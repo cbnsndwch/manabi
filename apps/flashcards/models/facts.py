@@ -4,6 +4,9 @@ from django.forms import ModelForm
 from django.forms.util import ErrorList
 from dbtemplates.models import Template
 
+from fields import FieldContent
+#import fields
+
 #from decks import Deck, SharedDeck
 
 
@@ -24,6 +27,18 @@ class FactType(models.Model):
     class Meta:
         #unique_together = (('owner', 'name'), )
         app_label = 'flashcards'
+
+
+
+class FactManager(models.Manager):
+    def search(self, user, fact_type, query):
+        '''
+        Returns facts which have FieldContents containing the query.
+        query is a substring
+        '''
+        #TODO or is in_bulk() faster?
+        query = query.strip()
+        return Fact.objects.filter(id__in=set(field_content.fact_id for field_content in FieldContent.objects.filter(content__icontains=query, fact__deck__owner=user, fact__fact_type=fact_type).all()))
 
 
 class AbstractFact(models.Model):
@@ -51,15 +66,17 @@ class SharedFact(AbstractFact):
 
 
 class Fact(AbstractFact):
+    #manager
+    objects = FactManager()
+
     deck = models.ForeignKey('Deck')#Deck)
 
     class Meta:
         app_label = 'flashcards'
 
     def __unicode__(self):
-        name = ''
         field_content_contents = []
-        for field_content in self.fieldcontent_set():
+        for field_content in self.fieldcontent_set.all():
             field_content_contents.append(field_content.content)
-        return field_content_contents.join(' - ')
+        return u' - '.join(field_content_contents)
 

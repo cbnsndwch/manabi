@@ -312,7 +312,14 @@ def rest_facts(request): #todo:refactor into facts (no???)
         #facts = Fact.objects.filter(fact_type=FactType.objects.get(id=fact_type_id))
         #ret = to_dojo_data(facts.fieldcontent_set)
         fact_type = FactType.objects.get(id=fact_type_id)
-        facts = fact_type.fact_set.filter(deck__owner=request.user)
+
+        #is the user searching his facts?
+        if 'search' in request.GET and request.GET['search'].strip():
+            search_query = request.GET['search']
+            facts = Fact.objects.search(request.user, fact_type, search_query)
+        else:
+            facts = fact_type.fact_set.filter(deck__owner=request.user)
+
         if not facts:
           ret = {}
         else:
@@ -596,7 +603,27 @@ def rest_card(request, card_id): #todo:refactor into facts (no???)
     ret = {}
     try:
       card = Card.objects.get(id=int(card_id))
-      return to_dojo_data(card)
+
+      #TODO refactor the below into a model - it's not DRY
+      reviewed_at = datetime.datetime.utcnow()
+
+      field_contents = dict((field_content.field_type_id, field_content.content,) for field_content in card.fact.fieldcontent_set.all())
+      card_context = {'fields': field_contents}
+      due_times = {}
+      for grade in [GRADE_NONE, GRADE_HARD, GRADE_GOOD, GRADE_EASY,]:
+          due_at = card._next_due_at(grade, reviewed_at, card._next_interval(grade, card._next_ease_factor(grade)))
+          duration = due_at - reviewed_at
+          days = duration.days + (duration.seconds / 86400.0)
+          due_times[grade] = days
+      formatted_card = {
+          'id': card.id,
+          'front': render_to_string(card.template.front_template_name, card_context),
+          'back': render_to_string(card.template.back_template_name, card_context),
+          'next_due_at_per_grade': due_times
+      }
+
+      return {'success': True, 'card': formatted_card}
+      #return to_dojo_data(formatted_card)
     except Card.DoesNotExist:
       return {'success': False}
   elif method == 'POST':

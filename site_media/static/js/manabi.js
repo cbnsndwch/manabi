@@ -81,3 +81,15 @@ manabi_ui.refreshDeckInput = function() {
         }
         });
 }
+
+
+
+//add trim() to string objects
+if(typeof(String.prototype.trim) === "undefined")
+{
+    String.prototype.trim = function() 
+    {
+        return String(this).replace(/^\s+|\s+$/g, '');
+    };
+}
+

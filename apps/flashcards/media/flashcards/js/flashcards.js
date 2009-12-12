@@ -353,8 +353,9 @@
     });
     
 
-    fact_ui.showFactEditForm = function(fact_id, row_index) {
-        fact_ui.selected_fact_row_index = row_index;
+    fact_ui.showFactEditForm = function(fact_id, submit_success_callback) {
+        //fact_ui.selected_fact_row_index = row_index;
+        fact_ui._submit_success_callback = submit_success_callback;
 
         //cards_factsGrid.domNode.style.height = fact_ui.facts_grid_minimized_height;
         //cards_factsGrid.resize();
@@ -374,7 +375,7 @@
         cards_factEditorContainer.hide();
     }
 
-    fact_ui.submitFactForm = function(fact_form, submit_success_callback, fact_id) {
+    fact_ui.submitFactForm = function(fact_form, fact_id) {
         //factForm must be a dijit form
         //fact_id is optional - if specified, it means we're updating a fact
         //TODO return a deferred instead of taking in success/error callbacks
@@ -425,7 +426,8 @@
             handleAs: 'json',
             load: function(data){
                 if (data.success) {
-                    submit_success_callback(data, card_counter);
+                    console.log(fact_ui._submit_success_callback);
+                    fact_ui._submit_success_callback(data, card_counter);
                 } else {
                     submit_error_callback(data, card_counter);
                 }
@@ -439,5 +441,17 @@
         dojo.xhrPost(xhrArgs); //var deferred = 
         //dojo.place('Added '+tempCardCounter.toString()+' cards for '+'what'+'<br>','factAddFormResults', 'last');
         
+    }
+    
+    fact_ui.clearFactSearch = function() {
+            var cards_factSearchField = dijit.byId('cards_factSearchField');
+            cards_factSearchField.attr('value', '');
+            cards_clearFactSearchButton.domNode.style.visibility='hidden';
+            var store = cards_factsGrid.store;
+            store.close();
+            //FIXME hack until we find a cleaner way to do this
+            store.url = '/flashcards/rest/facts.json?fact_type=1';
+            store.fetch();
+            cards_factsGrid.sort(); //forces a refresh
     }
 
