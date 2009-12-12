@@ -1,10 +1,10 @@
   dojo.require("dijit.Dialog");
   dojo.require("dijit.form.TextBox");
   dojo.require("dijit.form.Button");
-  dojo.require("dijit.form.FilteringSelect");
+  //dojo.require("dijit.form.FilteringSelect");
   dojo.require("dojo.data.ItemFileReadStore");
   dojo.require("dijit.form.MultiSelect");
-  dojo.require("dojox.form.DropDownSelect");
+  //dojo.require("dojox.form.DropDownSelect");
   dojo.require("dijit.form.Textarea");
   dojo.require("dijit.form.SimpleTextarea");
   dojo.require("dojo.DeferredList");
@@ -14,14 +14,15 @@
   dojo.require("dojox.form.BusyButton");
   dojo.require("dojox.widget.Standby");
   dojo.require("dojox.grid.DataGrid");
-  dojo.require("dijit.layout.TabContainer");
+  //dojo.require("dijit.layout.TabContainer");
   dojo.require("dijit.Declaration");
   dojo.require("dojo.data.ItemFileWriteStore");
   dojo.require("dijit.form.NumberSpinner");
-  dojo.require("dijit.layout.BorderContainer");
+  //dojo.require("dijit.layout.BorderContainer");
   dojo.require("dijit.TooltipDialog");
   dojo.require("dijit.form.Select");
-  dojo.require("dojox.grid.EnhancedGrid");
+  //dojo.require("dojox.grid.EnhancedGrid");
+  dojo.require("dojox.layout.FloatingPane"); 
   
 
   // If you're reading this code, please be warned that this section is quite messy.
@@ -355,19 +356,22 @@
     fact_ui.showFactEditForm = function(fact_id, row_index) {
         fact_ui.selected_fact_row_index = row_index;
 
-        cards_factsGrid.domNode.style.height = fact_ui.facts_grid_minimized_height;
-        cards_factsGrid.resize();
-        cards_factsGrid.scrollToRow(row_index); //TODO this can be a little awkward, moving too often
+        //cards_factsGrid.domNode.style.height = fact_ui.facts_grid_minimized_height;
+        //cards_factsGrid.resize();
+        //cards_factsGrid.scrollToRow(row_index); //TODO this can be a little awkward, moving too often
         cards_factEditorContainer.attr('href', 'flashcards/facts/' + fact_id + '/update');
-        cards_factEditorContainer.domNode.style.display = '';
+        //cards_factEditorContainer.domNode.style.display = '';
+        cards_factEditorContainer.show();
+        dojo.query('.dijitDialogCloseIcon',cards_factEditorContainer.domNode)[0].style.visibility='hidden';
     }
 
     fact_ui.hideFactEditForm = function() {
-        cards_factEditorContainer.domNode.style.display = 'none';
-        cards_factEditorContainer.attr('content', '');
+        //cards_factEditorContainer.domNode.style.display = 'none';
+        //cards_factEditorContainer.attr('content', '');
         //re-expand the facts grid
-        cards_factsGrid.domNode.style.height = fact_ui.facts_grid_normal_height;
-        cards_factsGrid.resize();
+        //cards_factsGrid.domNode.style.height = fact_ui.facts_grid_normal_height;
+        //cards_factsGrid.resize();
+        cards_factEditorContainer.hide();
     }
 
     fact_ui.submitFactForm = function(fact_form, submit_success_callback, fact_id) {

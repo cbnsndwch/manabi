@@ -133,9 +133,11 @@ div.flashcard_container {
 
 
 
-
-/* grid modifications */
-.dojoxGridCellFocus {
-	border: 0px; /*1px dashed blue;*/
+/* looks like a link, but isn't */
+.fakeLink {
+    text-decoration: underline;
+    color: blue;
 }
-
+.fakeLink:hover {
+    cursor: pointer;
+}

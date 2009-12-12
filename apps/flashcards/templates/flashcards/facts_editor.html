@@ -1,14 +1,27 @@
 <h1>Flashcard Editor</h1>
 
 <script type="text/javascript">
-        //defaultCell: { width: 8, editable: false, type: dojox.grid.cells._Widget },
+    //defaultCell: { width: 8, editable: false, type: dojox.grid.cells._Widget },
+
+    var cards_editRow = function(row_index) {
+        selected_fact_id = this.getItem(row_index)['fact-id'];
+        fact_ui.showFactEditForm(selected_fact_id, row_index);
+    }
+
+    var cards_formatCardActions = function(item, row_index) {
+        return '<span class="fakeLink" onclick="fact_ui.showFactEditForm('+item+','+row_index+')">Edit</span>';
+        //return "<button>edit</button>";
+        //return "<u><font color="blue">edit</font></u>";
+    }
+
     var cards_factStoreLayout = [
         [
             {% for field_type in field_types %}
                  { field: 'id{{ field_type.id }}',
                    name: '{{ field_type.name }}',
-                   width: 'auto' }{% if not forloop.last %},{% endif %}
+                   width: 'auto' },{% comment %}{% if not forloop.last %},{% endif %}{% endcomment %}
             {% endfor %}
+            { field: 'fact-id', name: ' ', formatter: cards_formatCardActions, width: '22px' }
         ]
     ];
 </script>
@@ -24,16 +37,41 @@
     clientSort="true" style="width: 100%; height: 300px;" jsId="cards_factsGrid"
     selectionMode="single" rowSelector="false" structure="cards_factStoreLayout">
     <script type="dojo/connect" event="onRowClick" args="evt">
-        row_index = evt.rowIndex;
-        selected_fact_id = this.getItem(row_index)['fact-id'];
-        fact_ui.showFactEditForm(selected_fact_id, row_index);
+        var row_index = evt.rowIndex;
+
+        //enable the fact editing buttons
+        cards_deleteButton.attr('disabled', false);
     </script>
 </table>
+<div style="position:relative; left:-2px; margin-top:3px;">
+    <button jsId="cards_deleteButton" dojoType="dijit.form.Button" iconClass="dijitEditorIcon dijitEditorIconDelete" disabled="true">
+        Delete
+        <script type="dojo/connect" event="onClick" args="evt">
+            var delete_response = window.confirm('Really delete this flashcard?');
+            if (delete_response) {
+                grid_item = cards_factsGrid.selection.getSelected()[0];
+                fact_id = grid_item['fact-id'][0]; //TODO allow multiple selections
+                var deferred = dojo.xhrPost({
+                    url: '/flashcards/rest/facts/' + fact_id,
+                    handleAs: 'text',
+                    content: { _method: 'DELETE' },
+                    load: function(data) {
+                        //remove the deleted row from the grid store
+                        cards_factsGrid.store.deleteItem(grid_item);
+                        cards_factsGrid.store.save(); //FIXME handle error?
+                        //cards_deleteButton.attr('disabled', true);
+                      } //FIXME handle error - if fails, don't remove from store'
+                });
+            }
+        </script>            
+    </button>
+</div>
 
-<hr>
 
-<div dojoType="dijit.layout.ContentPane" jsId="cards_factEditorContainer" 
-    style="display: none;">
+
+<div dojoType="dijit.Dialog" jsId="cards_factEditorContainer" title="Edit Flashcard" modal="true">
+    {% comment %}    <div dojoType="dijit.layout.ContentPane" jsId="cards_factEditorContainer" style="display: none;">
+    </div>{% endcomment %}
 </div>
 
 

@@ -78,7 +78,7 @@
 
         </div>
         <br>
-        <div>
+        <div style="padding-bottom: 10px">
             <span>
                 <button dojoType="dijit.form.Button" type="submit">
                     Update
@@ -94,26 +94,5 @@
     </div>
 </div>
 
-<div style="">
-    <button dojoType="dijit.form.Button" iconClass="dijitEditorIcon dijitEditorIconDelete">
-        Delete
-        <script type="dojo/connect" event="onClick" args="evt">
-            var delete_response = window.confirm('Really delete this fact?');
-            if (delete_response) {
-                grid_item = cards_factsGrid.selection.getSelected()[0];
-                fact_id = grid_item['fact-id'][0]; //TODO allow multiple selections
-                var deferred = dojo.xhrPost({
-                    url: '/flashcards/rest/facts/' + fact_id,
-                    handleAs: 'text',
-                    content: { _method: 'DELETE' },
-                    load: function(data) {
-                        //remove the deleted row from the grid store
-                        cards_factsGrid.store.deleteItem(grid_item);
-                        cards_factsGrid.store.save(); //FIXME handle error?
-                        fact_ui.hideFactEditForm();
-                      } //FIXME handle error - if fails, don't remove from store'
-                });
-            }
-        </script>            
-    </button>
-</div>
+{% comment %}
+{% endcomment %}
