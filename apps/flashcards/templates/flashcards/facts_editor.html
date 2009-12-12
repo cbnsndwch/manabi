@@ -41,7 +41,7 @@
 </script>
 
 <div dojoType="dojo.data.ItemFileWriteStore" jsId="cards_factStore" 
-    url="/flashcards/rest/facts.json?fact_type=1" clearOnClose="true">
+    url="/flashcards/rest/facts?fact_type=1" clearOnClose="true">
 </div>
 <div dojoType="dojo.data.ItemFileReadStore" jsId="cards_fieldTypeStore" 
     url="/flashcards/rest/fact_types/1/fields">
@@ -57,7 +57,7 @@
             var store = cards_factsGrid.store;
             store.close();
             //FIXME hack until we find a cleaner way to do this
-            store.url = '/flashcards/rest/facts.json?fact_type=1&search='+encodeURIComponent(search_query);
+            store.url = '/flashcards/rest/facts?fact_type=1&search='+encodeURIComponent(search_query);
             store.fetch();
             cards_factsGrid.sort(); //forces a refresh
             cards_clearFactSearchButton.domNode.style.visibility='';
@@ -82,7 +82,7 @@
 </input>
 
 <table dojoType="dojox.grid.DataGrid" store="cards_factStore" query="{ }"
-    clientSort="true" style="width: 100%; height: 300px;" jsId="cards_factsGrid"
+    clientSort="true" style="width: 100%; height: 350px;" jsId="cards_factsGrid"
     selectionMode="single" rowSelector="false" structure="cards_factStoreLayout">
     <script type="dojo/connect" event="onRowClick" args="evt">
         var row_index = evt.rowIndex;

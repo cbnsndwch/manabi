@@ -21,6 +21,8 @@ none for now
 ---------------------
 TODO:
 ---------------------
+store and remember last deck when creating cards, between sessions
+
 card 5176 has a no good fact
 
 update fact grid when a card is added
@@ -50,6 +52,10 @@ furigana support
 ---------------------
 TODO (low priority):
 ---------------------
+form validation error reporting for tags
+
+delete globally unused tags once removed from an object
+
 use named URLs
 
 review only certain decks or certain tags
@@ -81,6 +87,8 @@ sort facts with case insensitivity
 ---------------------
 BUGS:
 ---------------------
+if user has no cards, give the user a message if he tries to start reviewing cards about how to create cards
+
 cmd-enter might break when the cards dropdown is open
 
 for some reason the fact editor is showing 2 identical fact types, sometimes

@@ -15,6 +15,8 @@ from flashcards.models.decks import download_shared_deck, share_deck
 
 from django.template.loader import render_to_string
 
+import usertagging
+
 import datetime
 import string
 
@@ -82,6 +84,7 @@ def facts_editor(request):
 def fact_update(request, fact_id):
     if request.method == 'GET':
         fact = Fact.objects.get(id=fact_id) #TODO validation
+        fact.edit_string_for_tags = usertagging.utils.edit_string_for_tags(fact.tags)
         fact_type = FactType.objects.get(id=1) #assume japanese for now
         decks = Deck.objects.filter(owner=request.user)
         card_templates = []
@@ -100,7 +103,10 @@ def fact_update(request, fact_id):
 @login_required
 def deck_list(request):
   decks = Deck.objects.filter(owner=request.user)
-  return object_list(request, queryset=decks, extra_context={'container_id': 'deckDialog'}, template_object_name='deck')
+  context = {'container_id': 'deckDialog'}
+  context['only_one_deck_exists'] = (len(decks) == 1)
+
+  return object_list(request, queryset=decks, extra_context=context, template_object_name='deck')
 
 @login_required
 def deck_update(request, deck_id):
@@ -127,6 +133,10 @@ def deck_delete(request, deck_id, post_delete_redirect='/flashcards/decks'): #to
   if obj.owner.id != request.user.id: #and not request.User.is_staff():
     raise forms.ValidationError('You do not have permission to access this flashcard deck.')
   if request.method == 'POST':
+    #don't allow the last deck to be deleted
+    if len(Deck.objects.filter(owner=request.user)) == 1:
+        return HttpResponse(json_encode({'success':False}, mimetype='text/javascript')) #TODO error message
+
     obj.delete_cascading()
     #request.user.message_set.create(message=ugettext("The %(verbose_name)s was deleted.") % {"verbose_name": model._meta.verbose_name})
     return HttpResponse(json_encode({'success':True}), mimetype='text/javascript')
@@ -143,6 +153,8 @@ def deck_create(request, post_save_redirect='/flashcards/decks'):
       new_deck = deck_form.save(commit=False)
       new_deck.owner = request.user
       new_deck.save()
+      new_deck.tags = deck_form.cleaned_data['tags']
+
       scheduling_options = SchedulingOptions(deck=new_deck)
       scheduling_options.save()
       #request.user.message_set.create(message=ugettext("The %(verbose_name)s was created successfully.") % {"verbose_name": model._meta.verbose_name})
@@ -381,6 +393,7 @@ def _fact_update(request, fact_id):
   #todo: refactor this into model code
   
   fact = Fact.objects.get(id=fact_id)
+  fact_form = FactForm(post_data, prefix='fact', instance=fact)
   
   CardFormset = modelformset_factory(Card, exclude=('fact', 'ease_factor', )) #TODO make from CardForm
   card_formset = CardFormset(post_data, prefix='card', queryset=fact.card_set.get_query_set())
@@ -390,14 +403,14 @@ def _fact_update(request, fact_id):
 
 
   #fact_form = FactForm(post_data, prefix='fact', instance=fact) #this isn't updated
-  if card_formset.is_valid() and field_content_formset.is_valid(): #and fact_form.is_valid():
-    #fact = fact_form.save() #TODO needed in future?
+  if card_formset.is_valid() and field_content_formset.is_valid() and fact_form.is_valid():
+    fact = fact_form.save() #TODO needed in future?
     
     #update the fact's assigned deck
     #FIXME catch error if does not exist
-    deck_id = int(post_data['fact-deck'])
-    fact.deck = Deck.objects.get(id=deck_id)
-    fact.save()
+    #deck_id = int(post_data['fact-deck'])
+    #fact.deck = Deck.objects.get(id=deck_id)
+    #fact.save()
 
     for field_content_form in field_content_formset.forms:
       field_content = field_content_form.save()
@@ -465,8 +478,8 @@ def _facts_create(request):
   fact_form = FactForm(post_data, prefix='fact')
   
   if card_formset.is_valid() and field_content_formset.is_valid() and fact_form.is_valid():
-    new_fact = fact_form.save()
-      
+    new_fact = fact_form.save() #TODO automate the tag saving in forms.py
+
     for field_content_form in field_content_formset.forms:
       new_field_content = field_content_form.save(commit=False)
       new_field_content.fact = new_fact

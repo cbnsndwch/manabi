@@ -17,7 +17,7 @@
             type="hidden"></input>
         <div>
             <div>
-                <strong>Deck:</strong></div><div>
+                <strong>Deck:</strong>
                 <select name="fact-deck" dojoType="dijit.form.Select">
                     {% for deck in decks %}
                         <option value="{{ deck.id }}"{% ifequal deck.id fact.deck.id %} selected="selected"{% endifequal %}>
@@ -29,7 +29,7 @@
         </div>
         <br>
         <div>
-            <div><strong>Cards:</strong></div><div>
+            <div><strong>Cards:</strong>
             <select class="cards_cardTemplates" multiple="true" dojoType="dojox.form.CheckedMultiSelect" style="height:76px;">
                 {% for card_template in card_templates %}
                     <option value="{{ card_template.id }}"{% if card_template.activated_for_fact %} selected="selected"{% endif %}>
@@ -64,6 +64,12 @@
                 {% endwith %}
             {% endfor %}
 
+        </div>
+        <br>
+        <div>
+            <strong>Tags:</strong> <input name="fact-tags" type="text" dojoType="dijit.form.TextBox" 
+                                    class="cards_tagsInput" style="width:343px" 
+                                    value="{{ fact.edit_string_for_tags }}">
         </div>
         <br>
         <div style="padding-bottom: 10px">

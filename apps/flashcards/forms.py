@@ -5,11 +5,14 @@ from django.forms.util import ErrorList
 from dbtemplates.models import Template
 from django.db.models.signals import post_save  
 
+import usertagging
+
 
 from models import Card, CardHistory, Fact, FactType, FieldType, FieldContent, Deck, CardTemplate
 
 #Forms
 #todo:row-level authentication (subclassing formset)
+
 
 class CardForm(ModelForm):
     class Meta:
@@ -17,6 +20,25 @@ class CardForm(ModelForm):
         exclude = ('fact', 'ease_factor', )
         
 class DeckForm(ModelForm):
+    tags = usertagging.forms.TagField()
+
+    def __init__(self, *args, **kwargs):
+        #self.queryset = Author.objects.filter(name__startswith='O')
+        super(DeckForm, self).__init__(*args, **kwargs)
+        if self.initial['id']: #deck object already exists
+            deck = Deck.objects.get(id=self.initial['id'])
+            self.initial['tags'] = usertagging.utils.edit_string_for_tags(deck.tags)
+    
+        #self.fields['user'].queryset = user
+
+    def save(self, force_insert=False, force_update=False, commit=True):
+        m = super(DeckForm, self).save(commit=False)
+        # do custom stuff
+        if commit:
+            m.save()
+            m.tags = self.cleaned_data['tags']
+        return m
+    
     class Meta:
         model = Deck
         exclude = ('owner', 'description', 'priority',)
@@ -30,6 +52,16 @@ class CardTemplateForm(ModelForm):
         model = CardTemplate
         
 class FactForm(ModelForm):
+    tags = usertagging.forms.TagField()
+
+    def save(self, force_insert=False, force_update=False, commit=True):
+        m = super(FactForm, self).save(commit=False)
+        # do custom stuff
+        if commit:
+            m.save()
+            m.tags = self.cleaned_data['tags']
+        return m
+
     class Meta:
         model = Fact
 

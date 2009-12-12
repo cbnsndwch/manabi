@@ -5,6 +5,9 @@ apps/dojango/media/dojo
 *.swp
 *.swn
 *.swm
+*.svn
+.svn
+*svn-base
 settings.py
 dev.db
 fabfile.py

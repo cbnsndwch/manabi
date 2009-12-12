@@ -10,7 +10,9 @@
 		<td width="350">{{ deck.name }}</td>
         <td><span><a href="/flashcards/decks/{{ deck.id }}/update" class="xhr_link">rename</a> 
         <a href="/flashcards/decks/{{ deck.id }}/share" class="xhr_link">share</a> 
-        <a href="/flashcards/decks/{{ deck.id }}/delete" class="xhr_link">delete</a></span></td>
+        {% if not only_one_deck_exists %}
+            <a href="/flashcards/decks/{{ deck.id }}/delete" class="xhr_link">delete</a></span></td>
+        {% endif %}
 	</tr>
 {% endfor %}
 </table>

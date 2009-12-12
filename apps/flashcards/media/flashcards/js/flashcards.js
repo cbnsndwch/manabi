@@ -127,8 +127,8 @@
   
   function resetFactAddForm() {
       //factAddForm.reset(); //don't reset everything... just the field contents
-      dojo.query('textarea',factAddDialog.domNode).forEach(function(node, index, arr){
-              node.value=''; });
+      dojo.query('textarea, input',factAddDialog.domNode).forEach(function(node, index, arr){
+              node.value=''; }); //TODO clear via dijit, not dom
 
       //destroy any error messages
       dojo.query('#factFields > .field_content_error').empty();
@@ -450,7 +450,7 @@
             var store = cards_factsGrid.store;
             store.close();
             //FIXME hack until we find a cleaner way to do this
-            store.url = '/flashcards/rest/facts.json?fact_type=1';
+            store.url = '/flashcards/rest/facts?fact_type=1';
             store.fetch();
             cards_factsGrid.sort(); //forces a refresh
     }

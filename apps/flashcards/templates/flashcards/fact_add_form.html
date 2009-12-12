@@ -9,15 +9,16 @@
         <div>
             <div>
                 <strong>Deck:</strong>
-                <div id="deckInputContainer">
+                <span id="deckInputContainer">
                 <input name="fact-deck" jsId="deckInput" 
                     dojoType="dijit.form.Select">
-                    </input></div>
+                    </input></span>
                 {% comment %}Model: <input name="fact-fact_type" jsId="factTypeInput" dojoType="dojox.form.DropDownSelect"></input>{% endcomment %}
             </div>
         </div>
+        <br>
         <div>
-            <div><strong>Cards:</strong></div><div>
+            <div><strong>Cards:</strong>
             <select multiple="true" dojoType="dojox.form.CheckedMultiSelect" 
                 jsId="cardTemplatesInput" style="height:76px;">
                 {% for card_template in fact_add_form.card_templates %}
@@ -28,6 +29,7 @@
             </select>
             </div>
         </div>
+        <br>
         <div id="factFields">
             {% for field_type in fact_add_form.field_types %}
                 <div>
@@ -45,6 +47,10 @@
                 </div>
             {% endfor %}
 
+        </div>
+        <br>
+        <div>
+            <strong>Tags:</strong> <input type="text" name="fact-tags" dojoType="dijit.form.TextBox" id="cardTagsInput" style="width:362px">
         </div>
         <br>
         <div>

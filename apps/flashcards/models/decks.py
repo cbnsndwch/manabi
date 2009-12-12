@@ -13,6 +13,9 @@ from facts import Fact, SharedFact
 #import fields
 #import facts
 
+import usertagging
+
+
 class AbstractDeck(models.Model):
     name = models.CharField(max_length=100)
     description = models.TextField(max_length=2000, blank=True)
@@ -38,6 +41,8 @@ class SharedDeck(AbstractDeck):
 
     #FIXME delete cascading
     
+usertagging.register(SharedDeck)
+
 
 class Deck(AbstractDeck):
     owner = models.ForeignKey(User)
@@ -61,6 +66,7 @@ class Deck(AbstractDeck):
         self.schedulingoptions.delete()
         self.delete()
 
+usertagging.register(Deck)
 
 
 

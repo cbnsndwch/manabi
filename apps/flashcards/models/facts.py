@@ -9,6 +9,8 @@ from fields import FieldContent
 
 #from decks import Deck, SharedDeck
 
+import usertagging
+
 
 class FactType(models.Model):
     name = models.CharField(max_length=50)
@@ -58,18 +60,25 @@ class AbstractFact(models.Model):
         abstract = True
 
 
+
 class SharedFact(AbstractFact):
-    deck = models.ForeignKey('SharedDeck')#SharedDeck)
+    deck = models.ForeignKey('SharedDeck')
     
     class Meta:
         app_label = 'flashcards'
+
+usertagging.register(SharedFact)
 
 
 class Fact(AbstractFact):
     #manager
     objects = FactManager()
 
-    deck = models.ForeignKey('Deck')#Deck)
+    deck = models.ForeignKey('Deck')
+
+    @property
+    def owner(self):
+        return self.deck.owner
 
     class Meta:
         app_label = 'flashcards'
@@ -79,4 +88,6 @@ class Fact(AbstractFact):
         for field_content in self.fieldcontent_set.all():
             field_content_contents.append(field_content.content)
         return u' - '.join(field_content_contents)
+
+usertagging.register(Fact)
 
