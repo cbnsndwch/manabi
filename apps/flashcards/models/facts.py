@@ -33,23 +33,27 @@ class FactType(models.Model):
 
 
 class FactManager(models.Manager):
-    def search(self, user, fact_type, query):
+    def all_tags_per_user(self, user):
+        user_facts = self.filter(deck__owner=user).all()
+        return usertagging.models.Tag.objects.usage_for_queryset(user_facts)
+    
+    def search(self, fact_type, query, query_set=None):
         '''
         Returns facts which have FieldContents containing the query.
         query is a substring
         '''
         #TODO or is in_bulk() faster?
         query = query.strip()
-        return Fact.objects.filter(id__in=set(field_content.fact_id for field_content in FieldContent.objects.filter(content__icontains=query, fact__deck__owner=user, fact__fact_type=fact_type).all()))
+        if not query_set:
+            query_set = self.all()
+        return query_set.filter(id__in=set(field_content.fact_id for field_content in FieldContent.objects.filter(content__icontains=query, fact__fact_type=fact_type).all()))
 
 
 class AbstractFact(models.Model):
     fact_type = models.ForeignKey(FactType)
     
     active = models.BooleanField(default=True, blank=True)
-    
     priority = models.IntegerField(default=0, null=True, blank=True) #TODO how to reconcile with card priorities?
-    
     notes = models.CharField(max_length=1000, blank=True)
     
     created_at = models.DateTimeField(auto_now_add=True, editable=False)

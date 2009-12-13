@@ -34,6 +34,7 @@ urlpatterns = patterns('flashcards',
     (r'^rest/fact_types/(\w+)/card_templates$', 'views.rest_card_templates'),
     (r'^rest/fact_types/(\w+)/fields$', 'views.rest_fields'),
     (r'^rest/facts$', 'views.rest_facts'),
+    (r'^rest/facts/tags$', 'views.rest_facts_tags'),
     (r'^rest/facts/(\w+)$', 'views.rest_fact'),
     (r'^rest/facts/(\w+)/card_templates$', 'views.rest_card_templates_for_fact'), #TODO should be a query on /card_templates instead? ?fact=1&activated=true
     (r'^rest/cards$', 'views.rest_cards'),
@@ -49,23 +50,7 @@ urlpatterns = patterns('flashcards',
     (r'^rest/cards_for_review$', 'views.next_cards_for_review'),
     
 
-    #(r'^$', 'views.base'),
-    #(r'^decks$', 'views.deck_list'),
-    #(r'^decks/(\w+)/update$', 'views.deck_update'),
-    #(r'^decks/(\w+)/delete$', 'views.deck_delete'),
-    #(r'^decks/create$', 'views.deck_create'),
-    #(r'^ajax/fact_types$', 'views.fact_types'),
-    #(r'^ajax/decks$', 'views.decks'),
-    #(r'^ajax/decks/(\w+)/facts$', 'views.facts'),
-    #(r'^ajax/fact_types/(\w+)/card_templates$', 'views.card_templates'),
-    #(r'^ajax/fact_types/(\w+)/facts$', 'views.facts_of_type'),
-    #(r'^ajax/fact_types/(\w+)/fields$', 'views.fields'),
-    #(r'^ajax/fact_types/(\w+)/fields$', 'views.fields'),
-    
     #url(r'^$', direct_to_template, {"template": "flashcards/base.html"}, name="flashcards"),
-    #(r'^test/$', 'views.test'),
-    #(r'^test/countries/$', 'views.test_countries'),
-    #(r'^test/states/$', 'views.test_states'),
 )
 
 #if settings.DEBUG:

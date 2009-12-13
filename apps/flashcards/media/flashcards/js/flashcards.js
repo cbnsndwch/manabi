@@ -21,10 +21,9 @@
   //dojo.require("dijit.layout.BorderContainer");
   dojo.require("dijit.TooltipDialog");
   dojo.require("dijit.form.Select");
+  dojo.require("dijit.form.FilteringSelect");
   //dojo.require("dojox.grid.EnhancedGrid");
-  dojo.require("dojox.layout.FloatingPane"); 
-  dojo.require("dojox.form.ListInput");
-  dojo.require("dojox.validate.regexp");
+  //dojo.require("dojox.layout.FloatingPane"); 
   
 
   // If you're reading this code, please be warned that this section is quite messy.
@@ -113,6 +112,13 @@
           load: function(data){
               if (data.success) {
                   submitSuccessCallback(data, tempCardCounter);
+                  //if the fact editing grid is open, update it
+                  if (cards_factsGrid) {
+                      var store = cards_factsGrid.store;
+                      store.close();
+                      store.fetch();
+                      cards_factsGrid.sort();
+                  }
               } else {
                   submitErrorCallback(data, tempCardCounter);
               }
@@ -129,7 +135,7 @@
   
   function resetFactAddForm() {
       //factAddForm.reset(); //don't reset everything... just the field contents
-      dojo.query('textarea, input',factAddDialog.domNode).forEach(function(node, index, arr){
+      dojo.query('textarea, input[name=fact-tags]',factAddDialog.domNode).forEach(function(node, index, arr){
               node.value=''; }); //TODO clear via dijit, not dom
 
       //destroy any error messages
@@ -220,78 +226,6 @@
   }
   
   
-  //create field inputs, and refresh card templates
-  //TODO redundant code refactor
-  function createFieldInputs(evt, cardTemplatesOnCompleteCallback, factFieldsOnCompleteCallback) { //todo:refactor into 2 meths
-      if (evt) {
-          //add card template options
-          var cardTemplatesStore = new dojo.data.ItemFileReadStore({url: '/flashcards/rest/fact_types/'+evt+'/card_templates', jsId:'cardTemplatesStore'});
-          var cardTemplatesInput = dijit.byId('cardTemplatesInput');
-          cardTemplatesInput.removeOption(cardTemplatesInput.getOptions());
-
-          dojo.query('div#factFields >').forEach(function(node, index, arr) {
-              if (dijit.byId(node.id)) {
-                  dijit.byId(node.id).destroy();
-              }
-          });
-          dojo.empty('factFields');
-          
-          var cardTemplateCounter = 0;
-          cardTemplatesStore.fetch({
-              onItem: function(item){
-                 if (cardTemplatesStore.getValue(item, 'generate_by_default')) {
-                     cardTemplatesInput.addOption({value: cardTemplatesStore.getValue(item, 'id')+"", label: cardTemplatesStore.getValue(item, 'name'), selected: 'selected'});
-                 } else {
-                     cardTemplatesInput.addOption({value: cardTemplatesStore.getValue(item, 'id')+"", label: cardTemplatesStore.getValue(item, 'name')});
-                 }
-                 //dojo.place('<input type="hidden" name="card_template-'+cardTemplateCounter+'-id" id="id_card_template-'+cardTemplateCounter+'-id" />', 'cardTemplatesHiddenInput', 'last');
-              }, //Todo:select defaults (must be at least 1)
-              onComplete: function(items) {
-                  //todo:select the defaults.
-                  cardTemplatesOnCompleteCallback(items);
-              }
-          });
-          
-          //add FieldContent textboxes (based on Fields)
-          var fieldsStore = new dojo.data.ItemFileReadStore({url:'/flashcards/rest/fact_types/'+evt+'/fields', jsId:'fieldsStore', clearOnClose:true}); //todo:try with marked up one instead
-          var fieldCounter = 0;
-          fieldsStore.fetch({
-              onItem: function(item) {
-                  var tempFieldCounter = fieldCounter++; 
-                  var fieldContentHeaderHTML = '<div><strong>'+fieldsStore.getValue(item, 'name')+':</strong>';
-                  if (!fieldsStore.getValue(item, 'blank')) {
-                      fieldContentHeaderHTML += ' (required)';
-                  }
-                  dojo.place(fieldContentHeaderHTML, 'factFields', 'last');
-                  dojo.place('<div id="id_field_content-'+tempFieldCounter+'-content-errors" class="field_content_error" />', 'factFields', 'last');
-                  var fieldTextarea = new dijit.form.SimpleTextarea({
-                      name: 'field_content-'+tempFieldCounter+'-content', //fieldsStore.getValue(item, 'name'),
-                      id: 'id_field_content-'+tempFieldCounter+'-content',
-                      jsId: 'id_field_content_'+tempFieldCounter+'_content',
-                      value: "",
-                      style: "width:300px;",
-                      rows: '2'
-                  }).placeAt('factFields', 'last');
-                  
-                  //dojo.place('<input type="hidden" dojoType="dijit.form.TextBox" name="field_content-'+tempFieldCounter+'-field" id="id_field_content-'+tempFieldCounter+'id" value="'+fieldsStore.getValue(item, 'id')+'" />', 'factFields', 'last');
-                  new dijit.form.TextBox({
-                      name: 'field_content-'+tempFieldCounter+'-field_type',
-                      id: 'id_field_content-'+tempFieldCounter+'-field_type',
-                      jsId: 'id_field_content_'+tempFieldCounter+'_field_type',
-                      value: fieldsStore.getValue(item, 'id'),
-                      type: 'hidden'
-                  }).placeAt('factFields', 'last');
-
-                  dojo.place('</div>', 'factFields', 'last');
-                  //dijit.byId(nodeName).addOption({value : dataStore.getValue(item, 'id'), label: dataStore.getValue(item, 'name')});
-              },
-              onComplete: function(items) {
-                  fieldContentInputCount = fieldCounter;
-                  factFieldsOnCompleteCallback(items);
-              }
-          });
-      }
-  }
   var factTypeInputOnChangeHandle = null;
   var lastCardTemplatesInputValue = null;
   var fieldContentInputCount = 3;//FIXME this is a terrible legacy hack... (was null;)
@@ -420,6 +354,7 @@
                 }
             });
         }
+                    console.log('-');
         var xhrArgs = {
             url: fact_id ? 
                      '/flashcards/rest/facts/'+fact_id : 
@@ -427,9 +362,11 @@
             content: form_values,
             handleAs: 'json',
             load: function(data){
+                    console.log('0');
                 if (data.success) {
-                    console.log(fact_ui._submit_success_callback);
+                    console.log('0');
                     fact_ui._submit_success_callback(data, card_counter);
+
                 } else {
                     submit_error_callback(data, card_counter);
                 }
@@ -447,13 +384,36 @@
     
     fact_ui.clearFactSearch = function() {
             var cards_factSearchField = dijit.byId('cards_factSearchField');
+            fact_ui.current_search_url_parameter = '';
             cards_factSearchField.attr('value', '');
             cards_clearFactSearchButton.domNode.style.visibility='hidden';
             var store = cards_factsGrid.store;
             store.close();
             //FIXME hack until we find a cleaner way to do this
             store.url = '/flashcards/rest/facts?fact_type=1';
+            if (fact_ui.current_tag_filter_list.length) {
+                var encoded_tag_list = dojo.map(fact_ui.current_tag_filter_list, function(item) { return encodeURIComponent(item) }).join(',');
+                store.url += '&tags=' + encoded_tag_list; //TODO refactor, abstract redundancy
+            }
             store.fetch();
             cards_factsGrid.sort(); //forces a refresh
     }
+    fact_ui.clearTagFilters = function() {
+            var cards_factFilterByTagInput = dijit.byId('cards_factFilterByTagInput');
+            fact_ui.current_tag_filter_list = Array();
+            cards_factFilterByTagInput.reset();
+            cards_clearTagFiltersButton.domNode.style.visibility='hidden';
+            var store = cards_factsGrid.store;
+            store.close();
+            //FIXME hack until we find a cleaner way to do this
+            store.url = '/flashcards/rest/facts?fact_type=1';
+            if (fact_ui.current_search_url_parameter) {
+                store.url += '&' + fact_ui.current_search_url_parameter;
+            }
+            store.fetch();
+            cards_factsGrid.sort(); //forces a refresh
+    }
+
+    //fact_ui.addTagFilterDiv = function(container_node) {
+    //    container_node.
 

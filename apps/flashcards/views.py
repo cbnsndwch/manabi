@@ -30,26 +30,6 @@ from django.views.generic.create_update import update_object, delete_object, cre
 # respond with a better failure message if an xhr request is made from an unauthenticated user
 
 
-#@login_required
-#def base(request):
-#    fact_types = FactType.objects.all()
-#    card_templates = CardTemplate.objects.all()
-#    fields = FieldType.objects.all()
-#    fact_form = FactForm(instance=Fact())
-#    fact_type_form = FactTypeForm(instance=FactType())
-#    card_template_form = CardTemplateForm(instance=CardTemplate())
-#    fact_type_formset = modelformset_factory(FactType)
-#    field_content_forms = [FieldContentForm(prefix=str(x), instance=FieldContent()) for x in range(0,3)]
-#    return render_to_response('flashcards/base.html',
-#                              {'fact_form': fact_form,
-#                               'field_content_forms': field_content_forms,
-#                               #'fact_type_form': fact_type_form,
-#                               'card_template_form': card_template_form,
-#                               'fact_types': fact_types,
-#                               'fact_type_formset': fact_type_formset,
-#                               'card_templates': card_templates},
-#                               context_instance=RequestContext(request))
-
 #def _validate_deck_ownership(user, deck_id):
 
 #TODO refactor into other module and into middleware or decorator
@@ -314,6 +294,15 @@ def rest_card_templates_for_fact(request, fact_id):
 
 @login_required
 @json_response
+def rest_facts_tags(request):
+  if request.method == 'GET':
+      tags = Fact.objects.all_tags_per_user(request.user)
+      tags = [{'name': tag.name, 'id': tag.id} for tag in tags]
+      return to_dojo_data(tags)
+
+
+@login_required
+@json_response
 def rest_facts(request): #todo:refactor into facts (no???)
   method = _request_type(request)
   if method == 'GET':
@@ -325,12 +314,19 @@ def rest_facts(request): #todo:refactor into facts (no???)
         #ret = to_dojo_data(facts.fieldcontent_set)
         fact_type = FactType.objects.get(id=fact_type_id)
 
+        user_facts = fact_type.fact_set.filter(deck__owner=request.user)
+        facts = user_facts
+
+        #filtering by tags
+        if 'tags' in request.GET:
+            tag_ids = [int(tag_id) for tag_id in request.GET['tags'].split(',')]
+            tags = usertagging.models.Tag.objects.filter(id__in=tag_ids)
+            facts = usertagging.models.TaggedItem.objects.get_by_model(user_facts, tags)
+
         #is the user searching his facts?
         if 'search' in request.GET and request.GET['search'].strip():
             search_query = request.GET['search']
-            facts = Fact.objects.search(request.user, fact_type, search_query)
-        else:
-            facts = fact_type.fact_set.filter(deck__owner=request.user)
+            facts = Fact.objects.search(fact_type, search_query, query_set=facts)
 
         if not facts:
           ret = {}
@@ -349,6 +345,7 @@ def rest_facts(request): #todo:refactor into facts (no???)
               row['{0}_field-content-id'.format(key)] = field_content.id
             if not name:
               name = ident
+
             preret.append(row)
           ret=to_dojo_data(preret)
           ret['identifier'] = 'fact-id'#ident
@@ -501,27 +498,6 @@ def _facts_create(request):
 
 
   
-                
-        
-
-
-#def add_fact(request):
-#    pass
-#    if request.method == "POST":
-#        pform = PollForm(request.POST, instance=Poll())
-#        cforms = [ChoiceForm(request.POST, prefix=str(x), instance=Choice()) for x in range(0,3)]
-#        if pform.is_valid() and all([cf.is_valid() for cf in cforms]):
-#            new_poll = pform.save()
-#            for cf in cforms:
-#                new_choice = cf.save(commit=False)
-#                new_choice.poll = new_poll
-#                new_choice.save()
-#            return HttpResponseRedirect('/polls/add/')
-#    else:
-#        pform = PollForm(instance=Poll())
-#        cforms = [ChoiceForm(prefix=str(x), instance=Choice()) for x in range(0,3)]
-#    return render_to_response('add_poll.html', {'poll_form': pform, 'choice_forms': cforms})
-
 
 
 

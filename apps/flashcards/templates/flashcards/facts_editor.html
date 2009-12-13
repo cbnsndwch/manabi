@@ -38,6 +38,9 @@
             { field: 'fact-id', name: ' ', formatter: cards_formatCardActions, width: '22px' }
         ]
     ];
+
+    fact_ui.current_search_url_parameter = '';
+    fact_ui.current_tag_filter_list = Array();
 </script>
 
 <div dojoType="dojo.data.ItemFileWriteStore" jsId="cards_factStore" 
@@ -48,7 +51,10 @@
 </div>
 
 
-<div dojoType="dijit.form.Form" jsId="deckDeleteForm" encType="multipart/form-data" action="" method="">
+    <div dojoType="dojo.data.ItemFileReadStore" jsId="cards_factsTagsStore" 
+        url="flashcards/rest/facts/tags">
+    </div>
+<div dojoType="dijit.form.Form" encType="multipart/form-data" action="" method="" style="display:inline;">
 	<script type="dojo/connect" event="onSubmit" args="evt">
 		evt.preventDefault();
         var cards_factSearchField = dijit.byId('cards_factSearchField');
@@ -57,7 +63,12 @@
             var store = cards_factsGrid.store;
             store.close();
             //FIXME hack until we find a cleaner way to do this
-            store.url = '/flashcards/rest/facts?fact_type=1&search='+encodeURIComponent(search_query);
+            fact_ui.current_search_url_parameter = 'fact_type=1&search='+encodeURIComponent(search_query);
+            store.url = '/flashcards/rest/facts?' + fact_ui.current_search_url_parameter;
+            if (fact_ui.current_tag_filter_list.length) {
+                var encoded_tag_list = dojo.map(fact_ui.current_tag_filter_list, function(item) { return encodeURIComponent(item) }).join(',');
+                store.url += '&tags=' + encoded_tag_list; //TODO refactor, abstract redundancy
+            }
             store.fetch();
             cards_factsGrid.sort(); //forces a refresh
             cards_clearFactSearchButton.domNode.style.visibility='';
@@ -77,7 +88,40 @@
         </script>
     </button>
     {% endspaceless %}
-    Filter by tags:
+</div>
+<div dojoType="dijit.form.Form" encType="multipart/form-data" action="" method="" style="display:inline;">
+	<script type="dojo/connect" event="onSubmit" args="evt">
+        evt.preventDefault();
+        //add to filter tag list
+        fact_ui.current_tag_filter_list = Array(); //temp until multi filters are added
+        fact_ui.current_tag_filter_list.push(dijit.byId('cards_factFilterByTagInput').attr('value'));
+        //filter grid results
+        var store = cards_factsGrid.store;
+        store.close();
+        //FIXME hack until we find a cleaner way to do this
+        var encoded_tag_list = dojo.map(fact_ui.current_tag_filter_list, function(item) { return encodeURIComponent(item) }).join(',');
+        store.url = '/flashcards/rest/facts?fact_type=1&tags=' + encoded_tag_list;
+        if (fact_ui.current_search_url_parameter) {
+            store.url += '&' + fact_ui.current_search_url_parameter;
+        }
+        store.fetch();
+        cards_factsGrid.sort(); //forces a refresh
+        //add closable tag div
+        //TODO implement this
+        //for now, we'll only allow 1 tag filter at a time
+        cards_clearTagFiltersButton.domNode.style.visibility='';
+    </script>
+    Filter by tag: <input dojoType="dijit.form.FilteringSelect" store="cards_factsTagsStore"
+                        searchAttr="name" name="fact_tag" id="cards_factFilterByTagInput">
+    <button dojoType="dijit.form.Button" type="submit">
+        Add Filter
+    </button>
+    <button dojoType="dijit.form.Button" type="button" style="visibility: hidden;" jsId="cards_clearTagFiltersButton">
+        Clear Filter
+        <script type="dojo/connect" event="onClick" args="evt">
+            fact_ui.clearTagFilters();
+        </script>
+    </button>
 </div>
 
 

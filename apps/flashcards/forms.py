@@ -24,7 +24,7 @@ class DeckForm(ModelForm):
 
     def __init__(self, *args, **kwargs):
         super(DeckForm, self).__init__(*args, **kwargs)
-        if self.initial['id']: #deck object already exists
+        if 'id' in self.initial and self.initial['id']: #deck object already exists
             deck = Deck.objects.get(id=self.initial['id'])
             self.initial['tags'] = usertagging.utils.edit_string_for_tags(deck.tags)
     
@@ -49,7 +49,7 @@ class CardTemplateForm(ModelForm):
         model = CardTemplate
         
 class FactForm(ModelForm):
-    tags = usertagging.forms.TagField()
+    tags = usertagging.forms.TagField(required=False)
 
     def save(self, force_insert=False, force_update=False, commit=True):
         m = super(FactForm, self).save(commit=False)

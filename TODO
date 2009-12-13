@@ -21,11 +21,8 @@ none for now
 ---------------------
 TODO:
 ---------------------
-store and remember last deck when creating cards, between sessions
 
 card 5176 has a no good fact
-
-update fact grid when a card is added
 
 -disable form submission buttons while they're being processed, after clicked - 
 
@@ -48,7 +45,6 @@ see my 'sansou / mountain cottage card [=yama no bessou]' - kanji from that is u
 so, we need a separate field for synonym! (OR just a notes field, which is only shown in the answer,
 or maybe both a question note field and an answer note field. these could be in the hidden 'extra fields')
 
-have some hidden 'extra fields' which will be left blank for most cards, to avoid cluttering the dialogs
 
 furigana support
 
@@ -64,6 +60,7 @@ use named URLs
 review only certain decks or certain tags
 
 select last-used deck in fact add dialog (and last used model, cards etc) - (per session or not?)
+store and remember last deck when creating cards, between sessions
 
 don't allow word wrapping in fact editor grid
 
@@ -76,8 +73,6 @@ ajax error handling
 change deck for fact in fact editor
 
 disable controls after each review
-
-confirm close of add flashcard dialog if there is unsaved input
 
 show a tooltip for fact field input when creating a new fact. inside, list any matching facts from one's own 
 account, or from any shared decks (or from anyone else's account? with permissions..). upon clicking one, 
@@ -126,6 +121,8 @@ mark a word 'completely learned and memorized!' when interval reaches 120 - age 
 'view newly learned cards from this session' after session ends
 
 only constrain unique deck names when creating a new deck, not downloading (for now - makes things easier)
+
+have some hidden 'extra fields' which will be left blank for most cards, to avoid cluttering the dialogs
 
 ---------------------
 SOMEDAY TODO:
