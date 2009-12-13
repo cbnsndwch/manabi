@@ -23,6 +23,8 @@
   dojo.require("dijit.form.Select");
   //dojo.require("dojox.grid.EnhancedGrid");
   dojo.require("dojox.layout.FloatingPane"); 
+  dojo.require("dojox.form.ListInput");
+  dojo.require("dojox.validate.regexp");
   
 
   // If you're reading this code, please be warned that this section is quite messy.

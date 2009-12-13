@@ -45,7 +45,10 @@ tags (should have stuff like kaiwa 1 for textbook facts)
 take the fact creation datetime into account when scheduling reviews (but not including downloaded shared deck facts)
 
 see my 'sansou / mountain cottage card [=yama no bessou]' - kanji from that is useless since it's given.
-so, we need a separate field for synonym!
+so, we need a separate field for synonym! (OR just a notes field, which is only shown in the answer,
+or maybe both a question note field and an answer note field. these could be in the hidden 'extra fields')
+
+have some hidden 'extra fields' which will be left blank for most cards, to avoid cluttering the dialogs
 
 furigana support
 
@@ -87,13 +90,13 @@ sort facts with case insensitivity
 ---------------------
 BUGS:
 ---------------------
+http://121.1.196.96/2h/review.png what was that about...
+
 if user has no cards, give the user a message if he tries to start reviewing cards about how to create cards
 
 cmd-enter might break when the cards dropdown is open
 
 for some reason the fact editor is showing 2 identical fact types, sometimes
-
-grid selection moves around when refreshing after updating fact
 
 restart fcgi gracefully!
 
@@ -101,9 +104,7 @@ deselect fact from grid after updating it (maybe? confusing since the form disap
 
 new card count should be cleared each time the review dialog is opened - it has the old value for a second
 
-don't allow deleting last deck!
-
-delete facts associated with deck when deleting deck
+-delete facts associated with deck when deleting deck
 
 clear card edit view when deleting a card
 

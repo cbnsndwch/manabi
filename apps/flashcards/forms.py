@@ -23,14 +23,11 @@ class DeckForm(ModelForm):
     tags = usertagging.forms.TagField()
 
     def __init__(self, *args, **kwargs):
-        #self.queryset = Author.objects.filter(name__startswith='O')
         super(DeckForm, self).__init__(*args, **kwargs)
         if self.initial['id']: #deck object already exists
             deck = Deck.objects.get(id=self.initial['id'])
             self.initial['tags'] = usertagging.utils.edit_string_for_tags(deck.tags)
     
-        #self.fields['user'].queryset = user
-
     def save(self, force_insert=False, force_update=False, commit=True):
         m = super(DeckForm, self).save(commit=False)
         # do custom stuff
@@ -111,13 +108,6 @@ class FieldContentForm(ModelForm):
                 self._errors['content'] = ErrorList(error_list)
         return cleaned_data
 
-    #def __init__(self, *args, **kwargs):
-    #    #self.queryset = Author.objects.filter(name__startswith='O')
-    #    import pdb;pdb.set_trace() #FIXME #fact_deck=
-    #    super(FieldContentForm, self).__init__(*args, **kwargs)
-    #
-    #    #self.fields['user'].queryset = user
-    
 
     class Meta:
         model = FieldContent
