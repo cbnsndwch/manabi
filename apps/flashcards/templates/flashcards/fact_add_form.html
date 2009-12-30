@@ -11,7 +11,7 @@
                 <strong>Deck:</strong>
                 <span id="deckInputContainer">
                 <input name="fact-deck" jsId="deckInput" 
-                    dojoType="dijit.form.Select">
+                    dojoType="dijit.form.Select" tabIndex="49">
                     </input></span>
                 {% comment %}Model: <input name="fact-fact_type" jsId="factTypeInput" dojoType="dojox.form.DropDownSelect"></input>{% endcomment %}
             </div>
@@ -38,7 +38,8 @@
                     <textarea id="id_field_content-{{ forloop.counter0 }}-content" 
                         name="field_content-{{ forloop.counter0 }}-content" 
                         dojoType="dijit.form.SimpleTextarea" 
-                        rows="2" style="width:400px;" class="field_content"></textarea>
+                        rows="2" style="width:400px;" class="field_content"
+                        tabIndex="5{{ forloop.counter }}"></textarea>
                     <input dojoType="dijit.form.TextBox" 
                         name="field_content-{{ forloop.counter0 }}-field_type" 
                         id="id_field_content-{{ forloop.counter0 }}-field_type" 
@@ -48,14 +49,20 @@
             {% endfor %}
 
         </div>
+        <span class="fakeLink" onclick="fact_ui.generateReading(dijit.byId('id_field_content-0-content').attr('value'),'id_field_content-2-content')">Generate Reading</span>
+
+        <br>
         <br>
         <div>
-            <strong>Tags:</strong> <input type="text" name="fact-tags" dojoType="dijit.form.TextBox" id="cardTagsInput" style="width:362px">
+            <strong>Tags:</strong> 
+            <input type="text" name="fact-tags" dojoType="dijit.form.TextBox" 
+            id="cardTagsInput" style="width:362px" tabIndex="58">
         </div>
         <br>
         <div>
             <span>
-                <button dojoType="dijit.form.Button" type="submit" jsId="factAddFormSubmitButton">
+                <button dojoType="dijit.form.Button" type="submit" 
+                    jsId="factAddFormSubmitButton" tabIndex="59">
                     Add Flashcards
                     </button>{% comment %} <button dojoType="dijit.form.Button">
                     Close

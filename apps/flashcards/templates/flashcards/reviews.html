@@ -1,4 +1,4 @@
-<div class="fullscreen" id="reviews_fullscreenContainer" style="display:none">
+<div class="fullscreen" id="reviews_fullscreenContainer" style="display:none" dojoType="dijit.layout.ContentPane">
     <div class="fullscreen_toolbar">
         <button dojoType="dijit.form.Button" type="button">
             Exit Review
@@ -101,7 +101,10 @@
 	<script type="dojo/connect" event="onCancel" args="evt">
         reviews.endSession();
 	</script>
-
+	<script type="dojo/connect" event="onLoad" args="evt">
+        //FIXME this isn't working - do it programmatically
+        //reviews_reviewDialog.refocus = true;
+	</script>
 
     <div id="reviews_reviewOptions">
         <strong>Review Options</strong>
@@ -141,6 +144,7 @@
 
                             if (next_card) {
                                 //hide this dialog and show the review screen
+                                reviews_reviewDialog.refocus = false;
                                 reviews_reviewDialog.hide();
                                 reviews_ui.showReviewScreen();
 
@@ -159,17 +163,3 @@
 
 </div>
 
-
-{% comment %}
-<button dojoType="dojox.form.BusyButton" jsId="reviews_openDialogButton" busyLabel="Loading...">
-    Review Flashcards
-	<script type="dojo/connect" event="onClick" args="evt">
-        this.cancel();
-        reviews_ui.openDialog();
-	</script>
-</button> Begin reviewing your flashcards.
-
-<br>
-<br>
-<br>
-{% endcomment %}

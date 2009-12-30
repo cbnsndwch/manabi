@@ -33,9 +33,6 @@
   //general utility methods
   //TODO move this to its own file
   var manabi_utils = {};
-  manabi_utils.isCopyKey = function(e) {
-    return (e.metaKey || e.ctrlKey);
-  }
 
 
   //TODO all this code and globals really need to be encapsulated
@@ -49,7 +46,7 @@
     fact_add_ui.keyboard_shortcut_connection = dojo.connect(factAddDialog, 'onKeyPress', function(e) {
         var k = dojo.keys;
 
-        if (manabi_utils.isCopyKey(e)) {
+        if (dojo.isCopyKey(e)) {
             //meta (on mac) or ctrl (on PC) is pressed
             switch(e.charOrCode) {
                 case k.ENTER:
@@ -397,7 +394,7 @@
             }
             store.fetch();
             cards_factsGrid.sort(); //forces a refresh
-    }
+    };
     fact_ui.clearTagFilters = function() {
             var cards_factFilterByTagInput = dijit.byId('cards_factFilterByTagInput');
             fact_ui.current_tag_filter_list = Array();
@@ -412,8 +409,36 @@
             }
             store.fetch();
             cards_factsGrid.sort(); //forces a refresh
-    }
+    };
 
     //fact_ui.addTagFilterDiv = function(container_node) {
     //    container_node.
+
+    fact_ui._generateReading = function(expression) {
+        //outputs the reading for expression to the reading_field
+        //var expression = expression_field.attr('value');
+        var ret_def = new dojo.Deferred();
+        var xhr_args = {
+            url: 'flashcards/rest/generate_reading',
+            content: {expression: expression},
+            handleAs: 'json',
+            headers: { "Content-Type": "application/x-www-form-urlencoded; charset=utf-8" },
+            load: dojo.hitch(null, function(success_def, data) {
+                if (data.success) {
+                    success_def.callback(data.reading);
+                } else {
+                    success_def.errback(data); //FIXME errback?
+                }
+            }, ret_def)
+        };
+        dojo.xhrPost(xhr_args);
+        return ret_def;
+    };
+
+    fact_ui.generateReading = function(expression, reading_field) {
+        var def = fact_ui._generateReading(expression);
+        def.addCallback(dojo.hitch(null, function(reading_field, reading) {
+            reading_field.attr('value', reading);
+        }, dijit.byId(reading_field)));
+    }
 

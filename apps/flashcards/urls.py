@@ -28,6 +28,7 @@ urlpatterns = patterns('flashcards',
     
     #REST
     (r'^rest$', 'views.rest_entry_point'),
+    (r'^rest/generate_reading$', 'views.rest_generate_reading'),
     (r'^rest/decks$', 'views.rest_decks'),
     (r'^rest/decks/(\w+)$', 'views.rest_deck'),
     (r'^rest/fact_types$', 'views.rest_fact_types'),

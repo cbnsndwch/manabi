@@ -14,7 +14,6 @@ import usertagging
 
 class FactType(models.Model):
     name = models.CharField(max_length=50)
-    #owner = models.ForeignKey(User)
     active = models.BooleanField(default=True, blank=True)
     
     minimum_card_space = models.FloatField(default=60, help_text="Duration expressed in seconds.") #separate the cards of this fact initially

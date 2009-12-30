@@ -14,12 +14,12 @@ class Command(BaseCommand):
         #Japanese model
         japanese_fact_type = FactType(name='Expression')
         japanese_fact_type.save()
-        expression_field = FieldType(name='Expression', fact_type=japanese_fact_type, unique=True, blank=False, ordinal=0)
-        expression_field.save()
-        meaning_field = FieldType(name='Meaning', fact_type=japanese_fact_type, unique=True, blank=False, ordinal=1)
+        meaning_field = FieldType(name='Meaning', fact_type=japanese_fact_type, unique=True, blank=False, ordinal=2)
         meaning_field.save()
-        reading_field = FieldType(name='Reading', fact_type=japanese_fact_type, unique=False, blank=True, ordinal=2)
+        reading_field = FieldType(name='Reading', fact_type=japanese_fact_type, unique=False, blank=True, ordinal=1)
         reading_field.save()
+        expression_field = FieldType(name='Expression', fact_type=japanese_fact_type, kanji_reading=reading_field, unique=True, blank=False, ordinal=0)
+        expression_field.save()
 
         # templates
         # production:

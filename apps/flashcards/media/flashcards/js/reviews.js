@@ -242,10 +242,15 @@ dojo.addOnLoad(function() {
 
 
 
+
+
+// user interface
+
 reviews_ui = {}
 
 dojo.addOnLoad(function() {
-    reviews_ui.review_dialog = dijit.byId('reviews_reviewDialog');
+    reviews_ui.review_options_dialog = dijit.byId('reviews_reviewDialog');
+    reviews_ui.review_dialog = dijit.byId('reviews_fullscreenContainer');
 });
 
 reviews_ui.humanizedInterval = function(interval) {
@@ -316,16 +321,12 @@ reviews_ui.openDialog = function() {
     //show the options screen
     dojo.byId('reviews_reviewOptions').style.display = '';
     //hide the review screen
-    /*dojo.byId('reviews_reviewScreen').style.display = 'none';
-    dojo.byId('reviews_reviewEndScreen').style.display = 'none';*/
-    reviews_ui.review_dialog.show();
+    reviews_ui.review_options_dialog.show();
 }
 
 reviews_ui.endSession = function() {
     reviews_ui.unsetCardBackKeyboardShortcuts();
     reviews_ui.unsetCardFrontKeyboardShortcuts();
-    /*dojo.byId('reviews_reviewScreen').style.display = 'none';
-    dojo.byId('reviews_reviewEndScreen').style.display = '';*/
 
     //show the page behind this
     dojo.byId('body_contents').style.display = '';
@@ -351,8 +352,8 @@ reviews_ui.displayCard = function(card, show_card_back) {
     reviews_cardBack.attr('content', card.back);
     reviews_cardBack.domNode.style.display = 'none';
     dojo.byId('reviews_gradeButtons').style.visibility = 'hidden';
-    reviews_ui.review_dialog._position(); //recenter dialog
-    reviews_showCardBackButton.focus();
+    //reviews_ui.review_dialog._position(); //recenter dialog
+    //reviews_showCardBackButton.focus();
     reviews_ui.setCardFrontKeyboardShortcuts();
     if (show_card_back) {
         reviews_ui.showCardBack(card);
@@ -398,7 +399,7 @@ reviews_ui.displayNextCard = function() {
 
 reviews_ui.showReviewScreen = function() {
     //show the fullscreen reviews div
-    dojo.byId('reviews_fullscreenContainer').style.display = '';
+    dijit.byId('reviews_fullscreenContainer').domNode.style.display = '';
 
     //hide the page behind this
     dojo.byId('body_contents').style.display = 'none';
@@ -407,7 +408,7 @@ reviews_ui.showReviewScreen = function() {
     dojo.byId('reviews_reviewScreen').style.display = '';
     dojo.byId('reviews_reviewEndScreen').style.display = 'none';
 
-
+    dijit.byId('reviews_fullscreenContainer').domNode.focus();
 }
 
 
@@ -415,8 +416,10 @@ reviews_ui.card_front_keyboard_shortcut_connection = null;
 reviews_ui.card_back_keyboard_shortcut_connection = null;
 
 reviews_ui.setCardBackKeyboardShortcuts = function() {
-  reviews_ui.card_back_keyboard_shortcut_connection = dojo.connect(reviews_ui.review_dialog, 'onKeyPress', function(e) {
+  //reviews_ui.card_back_keyboard_shortcut_connection = dojo.connect(reviews_ui.review_dialog, 'onKeyPress', function(e) {
+  reviews_ui.card_back_keyboard_shortcut_connection = dojo.connect(window, 'onkeypress', function(e) {
     switch(e.charOrCode) {
+        case '0':
         case '1':
             reviews_ui.reviewCard(reviews.current_card, reviews.grades.GRADE_NONE);
             break;
@@ -434,7 +437,8 @@ reviews_ui.setCardBackKeyboardShortcuts = function() {
 };
 
 reviews_ui.setCardFrontKeyboardShortcuts = function() {
-  reviews_ui.card_front_keyboard_shortcut_connection = dojo.connect(reviews_ui.review_dialog, 'onKeyPress', function(e) {
+  //reviews_ui.card_front_keyboard_shortcut_connection = dojo.connect(reviews_ui.review_dialog, 'onKeyPress', function(e) {
+  reviews_ui.card_front_keyboard_shortcut_connection = dojo.connect(window, 'onkeypress', function(e) {
     var k = dojo.keys;
     switch(e.charOrCode) {
         case k.ENTER:
@@ -442,7 +446,7 @@ reviews_ui.setCardFrontKeyboardShortcuts = function() {
             reviews_ui.showCardBack(reviews.current_card);
             dojo.stopEvent(e);
             break;
-        default:
+        //default:
     }
   });
 };
