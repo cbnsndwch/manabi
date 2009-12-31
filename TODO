@@ -29,7 +29,9 @@ update tag list after updating fact in fact editor
 ---------------------
 TODO:
 ---------------------
-filter fact editor grid by deck
+move 'All decks' grid option above grid
+
+-filter fact editor grid by deck
 
 -disable form submission buttons while they're being processed, after clicked - 
 
@@ -97,6 +99,8 @@ sort facts with case insensitivity
 ---------------------
 BUGS:
 ---------------------
+grid styling - sort a column, arrow doesnt appear
+
 require , for tag deliminator - prevents bug of having 1 tag called "section 1" becoming 2 tags
 
 disable cancel button when submit is clicked

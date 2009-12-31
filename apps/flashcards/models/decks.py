@@ -46,11 +46,24 @@ class DeckManager(models.Manager):
         return deck_values
             
 
+class Textbook(models.Model):
+    name = models.CharField(max_length=100)
+    edition = models.CharField(max_length=50, blank=True)
+    description = models.TextField(max_length=2000, blank=True)
+    url = models.URLField(blank=True) #TODO amazon referrals
+
+    class Meta:
+        app_label = 'flashcards'
+
+    def __unicode__(self):
+        return self.name
 
 
 class AbstractDeck(models.Model):
     name = models.CharField(max_length=100)
     description = models.TextField(max_length=2000, blank=True)
+
+    textbook_source = models.ForeignKey(Textbook, blank=True)
 
     priority = models.IntegerField(default=0, blank=True)
 
