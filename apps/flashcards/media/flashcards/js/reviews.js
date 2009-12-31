@@ -50,6 +50,9 @@ dojo.addOnLoad(function() {
         if (excluded_ids.length > 0) {
             url += '&excluded_cards='+excluded_ids.join('+');
         }
+        if (reviews.session_deck_id != '-1') {
+            url += '&deck='+reviews.session_deck_id;
+        }
 
         xhr_args = {
             url: url,//'/flashcards/rest/cards_for_review', //TODO don't hardcode these URLs
@@ -76,9 +79,11 @@ dojo.addOnLoad(function() {
         return dojo.xhrGet(xhr_args);
     }
 
-    reviews.startSession = function(session_new_card_limit, session_card_limit, session_time_limit) {
+    reviews.startSession = function(deck_id, session_new_card_limit, session_card_limit, session_time_limit) {
+        //Use deck_id = -1 for all decks
         //Always call this before doing anything else.
         //Returns a deferred.
+        reviews.session_deck_id = deck_id;
         reviews.session_new_card_limit = session_new_card_limit;
         reviews.session_card_limit = session_card_limit;
         reviews.session_time_limit = session_time_limit;
@@ -513,13 +518,18 @@ reviews_ui.submitReviewOptionsDialog = function() {
 
     //TODO add a loading screen
 
+
+
+    var decks_grid_item = reviews_decksGrid.selection.getSelected()[0];
+    var deck_id = decks_grid_item['id'][0]; //TODO allow multiple selections
+    
     //start a review session with the server
-    var session_def = reviews.startSession(20); //FIXME use the user-defined session limits
+    var session_def = reviews.startSession(deck_id, 20); //FIXME use the user-defined session limits
 
     //wait for the first cards to be returned from the server
     session_def.addCallback(function() {
         //show the first card
-        next_card_def = reviews.nextCard();
+        var next_card_def = reviews.nextCard();
         next_card_def.addCallback(function(next_card) {
 
             if (next_card) {

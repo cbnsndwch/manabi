@@ -111,7 +111,7 @@
               if (data.success) {
                   submitSuccessCallback(data, tempCardCounter);
                   //if the fact editing grid is open, update it
-                  if (cards_factsGrid) {
+                  if (typeof cards_factsGrid != 'undefined') {
                       var store = cards_factsGrid.store;
                       store.close();
                       store.fetch();

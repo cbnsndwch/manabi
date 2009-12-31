@@ -15,10 +15,11 @@
             <div dojoType="dijit.form.Button" type="button" disabled="false">
                 <div style="width:240px; height:20px; line-height:20px;"><span style="font-size:14px">Start Reviewing</span></div>
                 <script type="dojo/connect" event="onClick" args="evt">
-                    //reset the deck selection
-                    reviews_decksGrid.selection.setSelected(0, true);
-                    
                     reviews_ui.openDialog();
+
+                    //reset the deck selection
+                    reviews_decksGrid.selection.setSelected(reviews_decksGrid.selection.selectedIndex, false);
+                    reviews_decksGrid.selection.setSelected(0, true);
                 </script>
             </div><br><br>
             <a href="flashcards/facts" class="xhr_link">

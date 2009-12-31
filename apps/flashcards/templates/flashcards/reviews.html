@@ -16,6 +16,13 @@
                     var def = reviews.reload_current_card();
                     def.addCallback(function() {
                         reviews_ui.displayCard(reviews.current_card, reviews_ui.card_back_visible);
+                        //if the fact editing grid is open, update it
+                        if (typeof cards_factsGrid != 'undefined') {
+                            var store = cards_factsGrid.store;
+                            store.close();
+                            store.fetch();
+                            cards_factsGrid.sort();
+                        }
                     });
                     reviews_ui.setKeyboardShortcuts();
                 };

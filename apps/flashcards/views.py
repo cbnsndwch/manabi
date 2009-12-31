@@ -622,6 +622,17 @@ def _facts_create(request):
 def next_cards_for_review(request):
     if request.method == 'GET':
         count = int(request.GET.get('count', 5))
+
+        deck_id = int(request.GET.get('deck', -1))
+        if deck_id != -1:
+            try:
+                deck = Deck.objects.get(id=deck_id)
+            except Deck.DoesNotExist:
+                deck = None #TODO return error instead
+        else:
+            deck = None
+
+
         session_start = string.lower(request.GET.get('session_start', 'false')) == 'true'
 
         try:
@@ -629,7 +640,7 @@ def next_cards_for_review(request):
         except ValueError:
             excluded_card_ids = []
 
-        next_cards = Card.objects.next_cards(request.user, count, excluded_card_ids, session_start)#[:count]
+        next_cards = Card.objects.next_cards(request.user, count, excluded_card_ids, session_start, deck=deck)#[:count]
         #FIXME need to account for 0 cards returned 
 
         # format into json object
