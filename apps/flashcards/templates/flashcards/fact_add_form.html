@@ -8,27 +8,23 @@
 <div id="factAddFormWrapper">
     <div dojoType="dijit.form.Form" jsId="factAddForm" encType="multipart/form-data" action="" method="">
         <div>
-            <div>
-                <strong>Deck:</strong>
-                <span id="deckInputContainer">
-                <input name="fact-deck" jsId="deckInput" 
-                    dojoType="dijit.form.Select" tabIndex="49">
-                    </input></span>
-                {% comment %}Model: <input name="fact-fact_type" jsId="factTypeInput" dojoType="dojox.form.DropDownSelect"></input>{% endcomment %}
-            </div>
+            <strong>Deck:</strong>
+            <span id="deckInputContainer">
+            <input name="fact-deck" jsId="deckInput" 
+                dojoType="dijit.form.Select" tabIndex="49">
+                </input></span>
+            {% comment %}Model: <input name="fact-fact_type" jsId="factTypeInput" dojoType="dojox.form.DropDownSelect"></input>{% endcomment %}
         </div>
         <br>
-        <div>
-            <div><strong style="vertical-align:top">Cards:</strong>
-            <select multiple="true" dojoType="dojox.form.CheckedMultiSelect" 
-                jsId="cardTemplatesInput" style="height:76px;">
-                {% for card_template in fact_add_form.card_templates %}
-                    <option value="{{ card_template.id }}"{% if card_template.generate_by_default %} selected="selected"{% endif %}>
-                        {{ card_template.name }}
-                    </option>
-                {% endfor %}
-            </select>
-            </div>
+        <div><strong style="vertical-align:top">Cards:</strong>
+        <select multiple="true" dojoType="dojox.form.CheckedMultiSelect" 
+            jsId="cardTemplatesInput" style="height:76px;">
+            {% for card_template in fact_add_form.card_templates %}
+                <option value="{{ card_template.id }}"{% if card_template.generate_by_default %} selected="selected"{% endif %}>
+                    {{ card_template.name }}
+                </option>
+            {% endfor %}
+        </select>
         </div>
         <br>
         <div id="factFields">

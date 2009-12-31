@@ -67,19 +67,43 @@ manabi_ui.convertLinksToXhr = function(container_node) {
 }
 
 
+manabi_ui.refreshSelectInput = function(input_id, options) {
+    select = dijit.byId(input_id);
+    select.removeOption(select.getOptions());
+    select.reset();
+    options.forEach(function(option) {
+        select.addOption(option);
+    });
+};
+
+manabi_ui._getOptionsFromStore = function(store) {
+    options = new Array();
+    store.close();
+    store.fetch({
+        onItem: function(item) {
+            options.push({value: store.getValue(item, 'id'), label: store.getValue(item, 'name')});
+        }
+    });
+    return options;
+}
+
+
 //a hack since dijit.form.Select isnt fully data-aware
 dojo.addOnLoad(function(){manabi_ui.refreshDeckInput()});
 manabi_ui.refreshDeckInput = function() {
     //dojo.byId('deckInputContainer').empty();
     //deckInput.destroy();
-    deckInput.removeOption(deckInput.getOptions())
-    deckInput.reset();
-    decksStore.close();
-    decksStore.fetch({
-        onItem: function(item) {
-            deckInput.addOption({value: decksStore.getValue(item, 'id'), label: decksStore.getValue(item, 'name')});
-        }
-        });
+
+    options = manabi_ui._getOptionsFromStore(decksStore);
+    manabi_ui.refreshSelectInput(deckInput, options);
+    if (typeof cards_deckFilterInput != 'undefined') {
+        options.unshift({value: '-1', label: 'All decks'});
+        manabi_ui.refreshSelectInput(cards_deckFilterInput, options);
+    }
+
+    reviews_decksStore.close();
+    reviews_decksStore.fetch();
+    reviews_decksGrid.sort();
 }
 
 

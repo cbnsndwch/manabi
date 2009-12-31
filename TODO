@@ -18,6 +18,10 @@ SUPER CRITICAL BUGS:
 --------------------
 disable keyboard shortcuts when editing a card during review
 
+sometimes deck list in review options breaks (hides itself) after editing a fact, changing its deck
+
+update tag list after updating fact in fact editor
+
 
 -none for now
 
@@ -25,9 +29,7 @@ disable keyboard shortcuts when editing a card during review
 ---------------------
 TODO:
 ---------------------
-failed but not yet due cards aren't given at the start of the review (if that's all that's left,
-it says that no cards are due and won't begin review)
-
+filter fact editor grid by deck
 
 -disable form submission buttons while they're being processed, after clicked - 
 
@@ -43,7 +45,7 @@ make field requirements dependent on which cards are to be generated
 
 truncate deck names for Add Facts dialog (cut out the middle since the end often has something like the chapter)
 
-tags (should have stuff like kaiwa 1 for textbook facts)
+-tags (should have stuff like kaiwa 1 for textbook facts)
 
 take the fact creation datetime into account when scheduling reviews (but not including downloaded shared deck facts)
 
@@ -78,13 +80,11 @@ increase font size for fact add fields, especially japanese ones
 
 resend grade xhrposts upon error. warn user when offline too
 
--?-card 5176 has a no good fact
-
 ajax error handling
 
-change deck for fact in fact editor
+-change deck for fact in fact editor
 
-disable controls after each review
+-disable controls after each review
 
 show a tooltip for fact field input when creating a new fact. inside, list any matching facts from one's own 
 account, or from any shared decks (or from anyone else's account? with permissions..). upon clicking one, 
@@ -97,7 +97,13 @@ sort facts with case insensitivity
 ---------------------
 BUGS:
 ---------------------
-http://121.1.196.96/2h/review.png what was that about...
+require , for tag deliminator - prevents bug of having 1 tag called "section 1" becoming 2 tags
+
+disable cancel button when submit is clicked
+
+-?-card 5176 has a no good fact
+
+http://121.1.196.96/2h/review.png what was that about... (I think it said no cards despite there being cards)
 
 if user has no cards, give the user a message if he tries to start reviewing cards about how to create cards
 
@@ -107,13 +113,11 @@ for some reason the fact editor is showing 2 identical fact types, sometimes
 
 restart fcgi gracefully!
 
-deselect fact from grid after updating it (maybe? confusing since the form disappears but it's still selected)
-
 new card count should be cleared each time the review dialog is opened - it has the old value for a second
 
 -delete facts associated with deck when deleting deck
 
-clear card edit view when deleting a card
+-clear card edit view when deleting a card
 
 -(?) theres a bug in this scenario: fail a card, request more cards from server before the card failure request is returned by the server.
 the failed card will be excluded. have to think about how to prevent this one.
@@ -192,7 +196,13 @@ http://maxvoltar.com/articles/1-day-with-the-magic-mouse
 
 
 -----------------------
+vim todo:
+shift-enter: insert linebreak below cursor, without moving cursor
+
+-----------------------
 stuff for yoshimura sensei:
 make sure there arent bad production cards
 and make sure no cards are in the wrong deck ;)
 what to do about singular kanji without vocab? how to select vocab, what to show, etc (from textbook)
+
+

@@ -20,7 +20,7 @@ class CardForm(ModelForm):
         exclude = ('fact', 'ease_factor', )
         
 class DeckForm(ModelForm):
-    tags = usertagging.forms.TagField()
+    tags = usertagging.forms.TagField(required=False)
 
     def __init__(self, *args, **kwargs):
         super(DeckForm, self).__init__(*args, **kwargs)

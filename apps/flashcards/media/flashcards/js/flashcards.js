@@ -379,37 +379,33 @@
         //dojo.place('Added '+tempCardCounter.toString()+' cards for '+'what'+'<br>','factAddFormResults', 'last');
         
     }
+
+    fact_ui.facts_url_query = {fact_type: 1};
     
+    fact_ui.clearFilter = function(filter_name) {
+        var store = cards_factsGrid.store;
+        store.close();
+        delete fact_ui.facts_url_query[filter_name];
+        store.url = '/flashcards/rest/facts?' + dojo.objectToQuery(fact_ui.facts_url_query);
+        store.fetch();
+        cards_factsGrid.sort(); //forces a refresh
+    };
+
+
     fact_ui.clearFactSearch = function() {
             var cards_factSearchField = dijit.byId('cards_factSearchField');
             fact_ui.current_search_url_parameter = '';
             cards_factSearchField.attr('value', '');
-            cards_clearFactSearchButton.domNode.style.visibility='hidden';
-            var store = cards_factsGrid.store;
-            store.close();
-            //FIXME hack until we find a cleaner way to do this
-            store.url = '/flashcards/rest/facts?fact_type=1';
-            if (fact_ui.current_tag_filter_list.length) {
-                var encoded_tag_list = dojo.map(fact_ui.current_tag_filter_list, function(item) { return encodeURIComponent(item) }).join(',');
-                store.url += '&tags=' + encoded_tag_list; //TODO refactor, abstract redundancy
-            }
-            store.fetch();
-            cards_factsGrid.sort(); //forces a refresh
+            cards_clearFactSearchButton.domNode.style.visibility = 'hidden';
+            fact_ui.clearFilter('search');
     };
+
     fact_ui.clearTagFilters = function() {
             var cards_factFilterByTagInput = dijit.byId('cards_factFilterByTagInput');
-            fact_ui.current_tag_filter_list = Array();
+            fact_ui.current_tag_filter_list = new Array();
             cards_factFilterByTagInput.reset();
-            cards_clearTagFiltersButton.domNode.style.visibility='hidden';
-            var store = cards_factsGrid.store;
-            store.close();
-            //FIXME hack until we find a cleaner way to do this
-            store.url = '/flashcards/rest/facts?fact_type=1';
-            if (fact_ui.current_search_url_parameter) {
-                store.url += '&' + fact_ui.current_search_url_parameter;
-            }
-            store.fetch();
-            cards_factsGrid.sort(); //forces a refresh
+            cards_clearTagFiltersButton.domNode.style.visibility = 'hidden';
+            fact_ui.clearFilter('tags');
     };
 
     //fact_ui.addTagFilterDiv = function(container_node) {

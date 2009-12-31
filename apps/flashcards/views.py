@@ -75,7 +75,10 @@ def facts_editor(request):
     fact_type = FactType.objects.get(id=1)
     field_types = fact_type.fieldtype_set.all().order_by('ordinal')
     card_templates = fact_type.cardtemplate_set.all()
-    context = {'field_types': field_types, 'card_templates': card_templates}
+    decks = Deck.objects.filter(owner=request.user)
+    context = {'field_types': field_types,
+               'card_templates': card_templates,
+               'decks': decks}
     return render_to_response('flashcards/facts_editor.html', context)
 
 
@@ -152,12 +155,15 @@ def deck_create(request, post_save_redirect='/flashcards/decks'):
       new_deck = deck_form.save(commit=False)
       new_deck.owner = request.user
       new_deck.save()
-      new_deck.tags = deck_form.cleaned_data['tags']
+      if 'tags' in deck_form.cleaned_data:
+        new_deck.tags = deck_form.cleaned_data['tags']
 
       scheduling_options = SchedulingOptions(deck=new_deck)
       scheduling_options.save()
       #request.user.message_set.create(message=ugettext("The %(verbose_name)s was created successfully.") % {"verbose_name": model._meta.verbose_name})
       return HttpResponse(json_encode({'success':True}), mimetype='text/javascript')#HttpResponseRedirect(post_save_redirect)
+    else:
+      return HttpResponse(json_encode({'success':False}), mimetype='text/javascript')
   else:
     deck_form = DeckForm()
   return render_to_response('flashcards/deck_form.html', {'form': deck_form,
@@ -398,7 +404,17 @@ def rest_facts(request): #todo:refactor into facts (no???)
         #ret = to_dojo_data(facts.fieldcontent_set)
         fact_type = FactType.objects.get(id=fact_type_id)
 
-        user_facts = fact_type.fact_set.filter(deck__owner=request.user)
+
+        #filtering by deck
+        if 'deck' in request.GET:
+            try:
+                deck = Deck.objects.get(id=request.GET['deck'])
+            except Deck.DoesNotExist:
+                ret = {}
+            user_facts = fact_type.fact_set.filter(deck=deck)
+        else:
+            user_facts = fact_type.fact_set.filter(deck__owner=request.user)
+
         facts = user_facts
 
         #filtering by tags
