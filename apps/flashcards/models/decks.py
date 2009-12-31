@@ -15,6 +15,38 @@ from facts import Fact, SharedFact
 
 import usertagging
 
+class DeckManager(models.Manager):
+    def values_of_all_with_stats_and_totals(self, user, fields=None):
+        '''
+        Returns all decks of a user (as a list of dictionaries), 
+        with stats for each deck, 
+        and an "All decks" item on top with totals
+        '''
+        decks = self.filter(owner=user).order_by('name').values() #TODO fields
+        if fields:
+            decks = decks.values(*fields)
+        deck_values = []
+        for deck in decks:
+            #add stats for each deck
+            deck_instance = Deck.objects.get(id=deck['id'])
+            for property in ['card_count', 'due_card_count', 'new_card_count']:
+                deck[property] = getattr(deck_instance, property)
+            deck_values.append(deck)
+
+        #add "All decks" top item with totals
+        #TODO optimize by keeping totals above
+        all_decks_option = {'id': -1, 
+                            'name': 'All decks',
+                            'card_count': len(cards.Card.objects.of_user(user)),
+                            'due_card_count': cards.Card.objects.cards_due_count(user),
+                            'new_card_count': cards.Card.objects.cards_new_count(user)}
+
+        deck_values.insert(0, all_decks_option)
+
+        return deck_values
+            
+
+
 
 class AbstractDeck(models.Model):
     name = models.CharField(max_length=100)
@@ -45,6 +77,9 @@ usertagging.register(SharedDeck)
 
 
 class Deck(AbstractDeck):
+    #manager
+    objects = DeckManager()
+
     owner = models.ForeignKey(User)
     
     def __unicode__(self):
@@ -54,6 +89,18 @@ class Deck(AbstractDeck):
         app_label = 'flashcards'
         #TODO unique_together = (('owner', 'name'), )
     
+    @property
+    def new_card_count(self):
+        return cards.Card.objects.cards_new_count(self.owner, deck=self)
+
+    @property
+    def due_card_count(self):
+        return cards.Card.objects.cards_due_count(self.owner, deck=self)
+
+    @property
+    def card_count(self):
+        return len(cards.Card.objects.of_user(self.owner))
+
     def average_ease_factor(self):
         return 2.5 #FIXME
     

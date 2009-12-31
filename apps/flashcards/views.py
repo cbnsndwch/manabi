@@ -254,6 +254,18 @@ def rest_generate_reading(request):
         
 
 
+@login_required
+@json_response
+def rest_decks_with_totals(request):
+  if request.method == "GET":
+    try:
+      #decks = Deck.objects.filter(owner=request.user).values() #TODO fields
+      decks = Deck.objects.values_of_all_with_stats_and_totals(request.user, 
+              fields=['id', 'name'])
+    except Deck.DoesNotExist:
+      decks = []
+    
+    return to_dojo_data(decks, label='name')
 
 @login_required
 @json_response

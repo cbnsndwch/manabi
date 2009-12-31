@@ -29,7 +29,7 @@
         </div>
         <br>
         <div>
-            <div><strong>Cards:</strong>
+            <div><strong style="vertical-align:top">Cards:</strong>
             <select class="cards_cardTemplates" multiple="true" dojoType="dojox.form.CheckedMultiSelect" style="height:76px;">
                 {% for card_template in card_templates %}
                     <option value="{{ card_template.id }}"{% if card_template.activated_for_fact %} selected="selected"{% endif %}>
@@ -50,7 +50,7 @@
                             name="field_content-{{ forloop.counter0 }}-content" 
                             class="cards_fieldContent" 
                             dojoType="dijit.form.SimpleTextarea" 
-                            rows="2" style="width:400px;" class="field_content">{{ field_content.content }}</textarea>
+                            rows="2" style="width:400px;">{{ field_content.content }}</textarea>
                         <input dojoType="dijit.form.TextBox" 
                             name="field_content-{{ forloop.counter0 }}-field_type" 
                             class="cards_fieldContentType" 
@@ -65,6 +65,8 @@
             {% endfor %}
 
         </div>
+        <span class="fakeLink" onclick="fact_ui.generateReading(dijit.getEnclosingWidget(dojo.query('.cards_fieldContent')[0]).attr('value'), dijit.getEnclosingWidget(dojo.query('.cards_fieldContent')[2]))">Generate Reading</span>
+
         <br>
         <div>
             <strong>Tags:</strong> <input name="fact-tags" type="text" dojoType="dijit.form.TextBox" 

@@ -11,7 +11,7 @@
   dojo.require("dojox.form.CheckedMultiSelect");
   dojo.require("dijit.form.Form");
   dojo.require("dijit.layout.ContentPane");
-  dojo.require("dojox.form.BusyButton");
+  //dojo.require("dojox.form.BusyButton");
   dojo.require("dojox.widget.Standby");
   dojo.require("dojox.grid.DataGrid");
   //dojo.require("dijit.layout.TabContainer");
@@ -21,6 +21,7 @@
   //dojo.require("dijit.layout.BorderContainer");
   dojo.require("dijit.TooltipDialog");
   dojo.require("dijit.form.Select");
+  dojo.require("dojox.grid._RadioSelector");
   dojo.require("dijit.form.FilteringSelect");
   //dojo.require("dojox.grid.EnhancedGrid");
   //dojo.require("dojox.layout.FloatingPane"); 
@@ -435,10 +436,30 @@
         return ret_def;
     };
 
-    fact_ui.generateReading = function(expression, reading_field) {
-        var def = fact_ui._generateReading(expression);
-        def.addCallback(dojo.hitch(null, function(reading_field, reading) {
-            reading_field.attr('value', reading);
-        }, dijit.byId(reading_field)));
+    fact_ui.generateReading = function(expression, reading_field, show_standby) {
+        if (expression.trim() != '') {
+            var def = fact_ui._generateReading(expression);
+
+            var standby = null;
+            if (show_standby) {
+                standby = new dojox.widget.Standby({
+                    target: dijit.byId(reading_field).domNode.id
+                });
+                dojo.body().appendChild(standby.domNode);
+                standby.startup();
+                standby.show();
+            }
+            dijit.byId(reading_field).attr('disabled', true);        
+            def.addCallback(dojo.hitch(null, function(reading_field, standby, reading) {
+                reading_field.attr('value', reading);
+                if (standby) {
+                    standby.hide();
+                    standby.destroy();
+                }
+                dijit.byId(reading_field).attr('disabled', false);            
+            }, dijit.byId(reading_field), standby));
+        } else {
+            dijit.byId(reading_field).attr('value', '');
+        }
     }
 

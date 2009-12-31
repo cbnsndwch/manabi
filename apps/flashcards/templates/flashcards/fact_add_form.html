@@ -4,6 +4,7 @@
     url="/flashcards/rest/decks" clearOnClose="true">
 </div>
 
+
 <div id="factAddFormWrapper">
     <div dojoType="dijit.form.Form" jsId="factAddForm" encType="multipart/form-data" action="" method="">
         <div>
@@ -18,7 +19,7 @@
         </div>
         <br>
         <div>
-            <div><strong>Cards:</strong>
+            <div><strong style="vertical-align:top">Cards:</strong>
             <select multiple="true" dojoType="dojox.form.CheckedMultiSelect" 
                 jsId="cardTemplatesInput" style="height:76px;">
                 {% for card_template in fact_add_form.card_templates %}
@@ -35,11 +36,22 @@
                 <div>
                     <strong>{{ field_type.name }}:</strong>{% if not field_type.blank %} <em>(required)</em>{% endif %}
                     <div id="id_field_content-{{ forloop.counter0 }}-content-errors" class="field_content_error"></div>
-                    <textarea id="id_field_content-{{ forloop.counter0 }}-content" 
+                    <div id="id_field_content-{{ forloop.counter0 }}-content" 
                         name="field_content-{{ forloop.counter0 }}-content" 
                         dojoType="dijit.form.SimpleTextarea" 
-                        rows="2" style="width:400px;" class="field_content"
-                        tabIndex="5{{ forloop.counter }}"></textarea>
+                        rows="2" style="width:400px;" class="field_content{% if field_type.kanji_reading %} kanji_field{% endif %}{% if field_type.fieldtype %} reading_field{% endif %}"
+                        tabIndex="5{{ forloop.counter }}">{% if field_type.kanji_reading %}{% spaceless %}
+                        {% endspaceless%}<script type="dojo/connect" event="onBlur" args="evt">
+                            //automatically generate this kanji field's reading
+                            //TODO unless the newly focused field is the reading field (how to detect new focus?)
+                            var reading_field_node = dojo.query('.reading_field', dojo.byId('factFields'))[0];
+                            if (reading_field_node) {
+                                fact_ui.generateReading(
+                                    this.attr('value'),
+                                    dijit.getEnclosingWidget(reading_field_node));
+                            }
+                        </script>{% spaceless %}
+                        {% endspaceless%}{% endif %}</div>
                     <input dojoType="dijit.form.TextBox" 
                         name="field_content-{{ forloop.counter0 }}-field_type" 
                         id="id_field_content-{{ forloop.counter0 }}-field_type" 

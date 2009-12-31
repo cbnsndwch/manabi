@@ -31,7 +31,7 @@ class FieldType(models.Model):
     name = models.CharField(max_length=50)
     fact_type = models.ForeignKey('FactType')
 
-    kanji_reading = models.ForeignKey('self', blank=True, null=True)
+    kanji_reading = models.OneToOneField('self', blank=True, null=True)
     
     unique = models.BooleanField(default=True)
     blank = models.BooleanField(default=False)

@@ -285,7 +285,7 @@ reviews_ui.humanizedInterval = function(interval) {
     }
     
     return ret;
-}
+};
 
 reviews_ui.showNoCardsDue = function() {
     dojo.byId('reviews_noCardsDue').style.display = '';
@@ -293,13 +293,13 @@ reviews_ui.showNoCardsDue = function() {
     dojo.byId('reviews_reviewOptions').style.display = '';
     dojo.byId('reviews_reviewScreen').style.display = 'none';
     dojo.byId('reviews_reviewEndScreen').style.display = 'none';
-}
+};
 
 reviews_ui.showReviewOptions = function() {
-    /*dojo.byId('reviews_beginReview').style.display = '';
+    dojo.byId('reviews_beginReview').style.display = '';
     dojo.byId('reviews_reviewOptions').style.display = '';
     dojo.byId('reviews_noCardsDue').style.display = 'none';
-    dojo.byId('reviews_reviewEndScreen').style.display = 'none';*/
+    dojo.byId('reviews_reviewEndScreen').style.display = 'none';
 
     //show the due count
     reviews.dueCardsCount().addCallback(function(count) {
@@ -310,19 +310,21 @@ reviews_ui.showReviewOptions = function() {
         dojo.byId('reviews_cardsNewCount').innerHTML = count;
     });
 
-}
+};
 
 reviews_ui.openDialog = function() {
     //TODO first check if there are any cards due (using default review options? or special request to server)
 
-    
     reviews_ui.showReviewOptions();
+
+    reviews_ui.review_options_dialog.tabStart = reviews_beginReviewButton;
 
     //show the options screen
     dojo.byId('reviews_reviewOptions').style.display = '';
     //hide the review screen
     reviews_ui.review_options_dialog.show();
-}
+
+};
 
 reviews_ui.endSession = function() {
     reviews_ui.unsetCardBackKeyboardShortcuts();
@@ -335,14 +337,14 @@ reviews_ui.endSession = function() {
     //TODO fade out, less harsh
     //TODO show review session results
     reviews.endSession();
-}
+};
 
 reviews_ui.displayNextIntervals = function(card) {
     dojo.byId('reviews_gradeNoneInterval').innerHTML = reviews_ui.humanizedInterval(card.next_due_at_per_grade['0']);
     dojo.byId('reviews_gradeHardInterval').innerHTML = reviews_ui.humanizedInterval(card.next_due_at_per_grade['3']);
     dojo.byId('reviews_gradeGoodInterval').innerHTML = reviews_ui.humanizedInterval(card.next_due_at_per_grade['4']);
     dojo.byId('reviews_gradeEasyInterval').innerHTML = reviews_ui.humanizedInterval(card.next_due_at_per_grade['5']);
-}
+};
 
 reviews_ui.displayCard = function(card, show_card_back) {
     reviews_ui.card_back_visible = false;
@@ -354,13 +356,23 @@ reviews_ui.displayCard = function(card, show_card_back) {
     dojo.byId('reviews_gradeButtons').style.visibility = 'hidden';
     //reviews_ui.review_dialog._position(); //recenter dialog
     //reviews_showCardBackButton.focus();
-    reviews_ui.setCardFrontKeyboardShortcuts();
     if (show_card_back) {
         reviews_ui.showCardBack(card);
+    } else {
+        reviews_ui.setCardFrontKeyboardShortcuts();
+        reviews_showCardBackButton.attr('disabled', false);
+        reviews_showCardBackButton.focus();
     }
-}
+};
 
 reviews_ui.goToNextCard = function() {
+    //disable the review buttons until the back is shown again
+    dojo.query('button', dojo.byId('reviews_gradeButtons')).forEach(function(node) {
+        dijit.getEnclosingWidget(node).attr('disabled', true);
+    });
+    //disable the card back button until the next card is ready
+    reviews_showCardBackButton.attr('disabled', true);
+    
     var next_card_def = reviews.nextCard();
     next_card_def.addCallback(function(next_card) {
         if (next_card) {
@@ -371,18 +383,25 @@ reviews_ui.goToNextCard = function() {
             reviews_ui.endSession();
         }
     });
-}
+};
 
 reviews_ui.showCardBack = function(card) {
+    reviews_showCardBackButton.attr('disabled', true);
     reviews_ui.card_back_visible = true;
     reviews_ui.unsetCardFrontKeyboardShortcuts();
+    
+    //enable the grade buttons
+    dojo.query('button', dojo.byId('reviews_gradeButtons')).forEach(function(node) {
+        dijit.getEnclosingWidget(node).attr('disabled', false);
+    });
+
     dojo.byId('reviews_showCardBack').style.display = 'none';
     reviews_cardBack.domNode.style.display = '';
     reviews_ui.displayNextIntervals(card);
     dojo.byId('reviews_gradeButtons').style.visibility = '';
     reviews_ui.review_dialog.domNode.focus();
     reviews_ui.setCardBackKeyboardShortcuts();
-}
+};
 
 reviews_ui.reviewCard = function(card, grade) {
     var review_def = reviews.reviewCard(card, grade);
@@ -390,11 +409,11 @@ reviews_ui.reviewCard = function(card, grade) {
         //FIXME anything go here?
     });
     reviews_ui.goToNextCard();
-}
+};
 
 
 reviews_ui.displayNextCard = function() {
-}
+};
 
 
 reviews_ui.showReviewScreen = function() {
@@ -409,7 +428,30 @@ reviews_ui.showReviewScreen = function() {
     dojo.byId('reviews_reviewEndScreen').style.display = 'none';
 
     dijit.byId('reviews_fullscreenContainer').domNode.focus();
-}
+};
+
+
+reviews_ui.isCardBackDisplayed = function() {
+    //Returns true if the card's back side is shown
+    return reviews_cardBack.domNode.style.display == '';
+};
+
+
+reviews_ui.unsetKeyboardShortcuts = function() {
+    //unsets the keyboard shortcuts, 
+    //no matter whether the card's front or back is currently displayed
+    reviews_ui.unsetCardFrontKeyboardShortcuts();
+    reviews_ui.unsetCardBackKeyboardShortcuts();
+};
+
+reviews_ui.setKeyboardShortcuts = function() {
+    reviews_ui.unsetKeyboardShortcuts();
+    if (reviews_ui.isCardBackDisplayed()) {
+        reviews_ui.setCardBackKeyboardShortcuts();
+    } else {
+        reviews_ui.setCardFrontKeyboardShortcuts();
+    }
+};
 
 
 reviews_ui.card_front_keyboard_shortcut_connection = null;
@@ -452,9 +494,56 @@ reviews_ui.setCardFrontKeyboardShortcuts = function() {
 };
 
 reviews_ui.unsetCardFrontKeyboardShortcuts = function() {
-    dojo.disconnect(reviews_ui.card_front_keyboard_shortcut_connection);
+    if (reviews_ui.card_front_keyboard_shortcut_connection) {
+        dojo.disconnect(reviews_ui.card_front_keyboard_shortcut_connection);
+    }
 };
 
 reviews_ui.unsetCardBackKeyboardShortcuts = function() {
-    dojo.disconnect(reviews_ui.card_back_keyboard_shortcut_connection);
+    if (reviews_ui.card_back_keyboard_shortcut_connection) {
+        dojo.disconnect(reviews_ui.card_back_keyboard_shortcut_connection);
+    }
 };
+
+
+
+reviews_ui.submitReviewOptionsDialog = function() {
+    //hide this options screen
+    //dojo.byId('reviews_reviewOptions').style.display = 'none';//({display: 'none'});
+
+    //TODO add a loading screen
+
+    //start a review session with the server
+    var session_def = reviews.startSession(20); //FIXME use the user-defined session limits
+
+    //wait for the first cards to be returned from the server
+    session_def.addCallback(function() {
+        //show the first card
+        next_card_def = reviews.nextCard();
+        next_card_def.addCallback(function(next_card) {
+
+            if (next_card) {
+                //hide this dialog and show the review screen
+                reviews_reviewDialog.refocus = false;
+                reviews_reviewDialog.hide();
+                reviews_ui.showReviewScreen();
+
+                //show the card
+                reviews_ui.displayCard(next_card);
+            } else {
+                //no cards are due
+                reviews_ui.showNoCardsDue();
+            }
+        });
+    });
+};
+
+
+var reviews_decksGridLayout = [{
+			type: "dojox.grid._RadioSelector"
+		},{ cells: [[
+			{name: 'Name', field: 'name', width: 'auto'},
+			//{name: 'Cards', field: 'card_count', width: 'auto'},
+			{name: 'Cards due', field: 'due_card_count', width: '58px'},
+			{name: 'New cards', field: 'new_card_count', width: '60px'},
+		]]}];

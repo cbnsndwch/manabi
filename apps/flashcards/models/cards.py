@@ -75,34 +75,42 @@ class CardManager(models.Manager):
         #TODO this is probably really slow
         return self.filter(fact__deck__owner=user)
 
-    def new_cards(self, user):
-        return self.filter(fact__deck__owner=user, due_at__isnull=True)
+    def new_cards(self, user, deck=None):
+        new_cards = self.filter(fact__deck__owner=user, due_at__isnull=True)
+        if deck:
+            new_cards = new_cards.filter(fact__deck=deck)
+        return new_cards
 
-    def failed_cards(self):
-        failed_cards = self.filter(last_review_grade=GRADE_NONE)
+    #def failed_cards(self):
+    #    failed_cards = self.filter(last_review_grade=GRADE_NONE)
 
-    def mature_cards(self):
-        return self.filter(interval__gt=MATURE_INTERVAL_MIN)
+    #def mature_cards(self):
+    #    return self.filter(interval__gt=MATURE_INTERVAL_MIN)
 
-    def cards_new_count(self, user):
-        new_cards_count = len(self.new_cards(user)) #TODO refactor, make this faster (use aggregate)
+    def cards_new_count(self, user, deck=None):
+        new_cards_count = len(self.new_cards(user, deck)) #TODO refactor, make this faster (use aggregate)
         return new_cards_count
 
-    def cards_due_count(self, user):
-        due_cards_count = len(self.due_cards(user)) #TODO refactor, make this faster (use aggregate)
+    def cards_due_count(self, user, deck=None):
+        due_cards_count = len(self.due_cards(user, deck)) #TODO refactor, make this faster (use aggregate)
         return due_cards_count
 
-    def due_cards(self, user):
+    def due_cards(self, user, deck=None):
         #TODO Define an ordering
         # possible orderings:
         #   due date
         #   priorities, then due date
         #   taking maturity levels into account
         due_cards = self.filter(fact__deck__owner=user, due_at__lt=datetime.datetime.utcnow())#FIXME
+
+        if deck:
+            due_cards = due_cards.filter(fact__deck=deck)
+
         ordered_cards = due_cards.order_by('-interval')
+
         return ordered_cards
 
-    def next_cards(self, user, count, excluded_ids, session_start):
+    def next_cards(self, user, count, excluded_ids, session_start, deck=None):
         '''
         Returns {count} cards to be reviewed, in order.
         The return format is a list of dictionaries.
@@ -134,6 +142,9 @@ class CardManager(models.Manager):
         cards_left = count
         for card_query in card_queries:
             if cards_left > 0:
+                if deck:
+                    card_query = card_query.filter(fact__deck=deck)
+
                 card_query_limited = card_query[:cards_left]
                 if len(card_query_limited) > 0:
                     card_queries_ret.append(card_query_limited)

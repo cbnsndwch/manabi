@@ -131,7 +131,12 @@ div.flashcard_container {
     padding-top: 20px;
 }
 
-
+.reviews_gradeButtonInner {
+    line-height: 24px;
+    height: 24px;
+    width: 50px;
+    display: block;
+}
 
 /* looks like a link, but isn't */
 .fakeLink {

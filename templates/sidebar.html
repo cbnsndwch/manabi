@@ -6,18 +6,21 @@
     </div>
     <div class="sidebar_box_contents" style="font-size:14px">
         <div style="margin-left:auto; margin-right:auto;width:100%;text-align:center;">
-            <button dojoType="dijit.form.DropDownButton" type="button">
+            <div dojoType="dijit.form.DropDownButton" type="button" disabled="false">
                 <span style="font-size:14px"><div style="width:224px; height:20px; line-height:20px;">Create Flashcards</div></span>
                 <div dojoType="dijit.TooltipDialog" jsId="factAddDialog">
                     {% include "flashcards/fact_add_form.html" %}
                 </div>
-            </button><br>
-            <button dojoType="dijit.form.Button" type="button">
+            </div><br>
+            <div dojoType="dijit.form.Button" type="button" disabled="false">
                 <div style="width:240px; height:20px; line-height:20px;"><span style="font-size:14px">Start Reviewing</span></div>
-                <script type="dojo/method" event="onClick" args="evt">
+                <script type="dojo/connect" event="onClick" args="evt">
+                    //reset the deck selection
+                    reviews_decksGrid.selection.setSelected(0, true);
+                    
                     reviews_ui.openDialog();
                 </script>
-            </button><br><br>
+            </div><br><br>
             <a href="flashcards/facts" class="xhr_link">
                 Edit Flashcards
             </a>

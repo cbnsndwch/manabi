@@ -1,25 +1,28 @@
 <div class="fullscreen" id="reviews_fullscreenContainer" style="display:none" dojoType="dijit.layout.ContentPane">
     <div class="fullscreen_toolbar">
-        <button dojoType="dijit.form.Button" type="button">
+        <div dojoType="dijit.form.Button" type="button">
             Exit Review
             <script type="dojo/method" event="onClick" args="evt">
                 reviews_ui.endSession();
             </script>
-        </button>
-        <button dojoType="dijit.form.Button" type="button">
+        </div>
+        <div dojoType="dijit.form.Button" type="button">
             Edit Flashcard
             <script type="dojo/method" event="onClick" args="evt">
+                reviews_ui.unsetKeyboardShortcuts();
+
                 var success_callback = function(selected_fact_row_index, data, card_counter) {
                     fact_ui.hideFactEditForm();
                     var def = reviews.reload_current_card();
                     def.addCallback(function() {
                         reviews_ui.displayCard(reviews.current_card, reviews_ui.card_back_visible);
                     });
+                    reviews_ui.setKeyboardShortcuts();
                 };
                 
                 fact_ui.showFactEditForm(reviews.current_card.fact_id, success_callback);
             </script>
-        </button>
+        </div>
     </div>
     <div class="fullscreen_content">
         <div id="reviews_reviewScreen">
@@ -32,13 +35,16 @@
                 <div class="flashcard_container">
                     <div id="reviews_showCardBack" style="text-align: center;">
                         <button dojoType="dijit.form.Button" jsId="reviews_showCardBackButton" type="button">
-                            <div style="width:300px; height:26px; line-height:26px">
+                            <div style="width:300px; height:46px; line-height:46px">
                                 Show Answer
                             </div>
-                            <script type="dojo/method" event="onClick" args="evt">
+                            <script type="dojo/connect" event="onClick" args="evt">
                                 reviews_ui.showCardBack(reviews.current_card);
                             </script>
                         </button>
+                        <div>
+                            <span style="color:gray">(click or press [SPACE])</span>
+                        </div>
                     </div>
                     <div style="font-size:32px; padding:20px;" dojoType="dijit.layout.ContentPane" jsId="reviews_cardBack" id="reviews_cardBack"></div>
                 </div>
@@ -47,33 +53,41 @@
                 <table style="margin:0px auto;">
                 <tr>
                 <td>
-                <button dojoType="dijit.form.Button" type="button" disabled="false">
-                    Wrong
-                    <script type="dojo/method" event="onClick" args="evt">
+                <button dojoType="dijit.form.Button" type="button" disabled="true">
+                    <span class="reviews_gradeButtonInner">
+                        Wrong
+                    </span>
+                    <script type="dojo/connect" event="onClick" args="evt">
                         reviews_ui.reviewCard(reviews.current_card, reviews.grades.GRADE_NONE);
                     </script>
                 </button>
                 </td>
                 <td>
-                <button dojoType="dijit.form.Button" type="button" disabled="false">
-                    Hard
-                    <script type="dojo/method" event="onClick" args="evt">
+                <button dojoType="dijit.form.Button" type="button" disabled="true">
+                    <span class="reviews_gradeButtonInner">
+                        Hard
+                    </span>
+                    <script type="dojo/connect" event="onClick" args="evt">
                         reviews_ui.reviewCard(reviews.current_card, reviews.grades.GRADE_HARD);
                     </script>
                 </button>
                 </td>
                 <td>
-                <button dojoType="dijit.form.Button" type="button" disabled="false">
-                    Good
-                    <script type="dojo/method" event="onClick" args="evt">
+                <button dojoType="dijit.form.Button" type="button" disabled="true">
+                    <span class="reviews_gradeButtonInner">
+                        Good
+                    </span>
+                    <script type="dojo/connect" event="onClick" args="evt">
                         reviews_ui.reviewCard(reviews.current_card, reviews.grades.GRADE_GOOD);
                     </script>
                 </button>
                 </td>
                 <td>
-                <button dojoType="dijit.form.Button" type="button" disabled="false">
-                    Too Easy
-                    <script type="dojo/method" event="onClick" args="evt">
+                <button dojoType="dijit.form.Button" type="button" disabled="true">
+                    <span class="reviews_gradeButtonInner">
+                        Too Easy
+                    </span>
+                    <script type="dojo/connect" event="onClick" args="evt">
                         reviews_ui.reviewCard(reviews.current_card, reviews.grades.GRADE_EASY);
                     </script>
                 </button>
@@ -97,6 +111,16 @@
 </div>
 
 
+
+
+
+
+
+<div dojoType="dojo.data.ItemFileReadStore" jsId="reviews_decksStore" 
+    url="/flashcards/rest/decks_with_totals" clearOnClose="true">
+</div>
+
+
 <div dojoType="dijit.Dialog" jsId="reviews_reviewDialog" id="reviews_reviewDialog" title="Flashcard Review">
 	<script type="dojo/connect" event="onCancel" args="evt">
         reviews.endSession();
@@ -105,14 +129,29 @@
         //FIXME this isn't working - do it programmatically
         //reviews_reviewDialog.refocus = true;
 	</script>
+	<script type="dojo/connect" event="onKeyPress" args="evt">
+        //submit the dialog if user presses Enter
+        var k = dojo.keys;
+        switch(evt.charOrCode) {
+            case k.ENTER:
+                reviews_ui.submitReviewOptionsDialog();
+                break;
+        }
+	</script>
 
     <div id="reviews_reviewOptions">
-        <strong>Review Options</strong>
-        <p>
+        <p style="display:none">
             Cards due: <span id="reviews_cardsDueCount"></span><br>
             New cards: <span id="reviews_cardsNewCount"></span>
         </p>
-        <hr>
+        
+        <strong style="font-size:120%">Study Options</strong><br><br>
+        <strong>Decks to review:</strong><br>
+        <div dojoType="dojox.grid.DataGrid" store="reviews_decksStore" 
+            clientSort="true" style="width: 450px;" autoHeight="6" jsId="reviews_decksGrid"
+            selectionMode="single" rowSelector="false"  
+            rowsPerPage="40" keepRows="200" structure="reviews_decksGridLayout"></div>
+        
         <p>
             <span style="color:gray">(study options under development)</span><br>
             New cards per day: ...<br>
@@ -125,37 +164,10 @@
             <span style="color:gray">(early review still under development)</span>
         </div>
         <div id="reviews_beginReview">
-            <button dojoType="dijit.form.Button" type="button">
+            <button dojoType="dijit.form.Button" type="button" jsId="reviews_beginReviewButton">
                 Begin Review
                 <script type="dojo/method" event="onClick" args="evt">
-                    //hide this options screen
-                    //dojo.byId('reviews_reviewOptions').style.display = 'none';//({display: 'none'});
-
-                    //TODO add a loading screen
-
-                    //start a review session with the server
-                    var session_def = reviews.startSession(20); //FIXME use the user-defined session limits
-
-                    //wait for the first cards to be returned from the server
-                    session_def.addCallback(function() {
-                        //show the first card
-                        next_card_def = reviews.nextCard();
-                        next_card_def.addCallback(function(next_card) {
-
-                            if (next_card) {
-                                //hide this dialog and show the review screen
-                                reviews_reviewDialog.refocus = false;
-                                reviews_reviewDialog.hide();
-                                reviews_ui.showReviewScreen();
-
-                                //show the card
-                                reviews_ui.displayCard(next_card);
-                            } else {
-                                //no cards are due
-                                reviews_ui.showNoCardsDue();
-                            }
-                        });
-                    });
+                    reviews_ui.submitReviewOptionsDialog();
                 </script>
             </button>
         </div>

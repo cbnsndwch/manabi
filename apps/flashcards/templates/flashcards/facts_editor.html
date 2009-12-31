@@ -9,10 +9,11 @@
 </div>
 <div dojoType="dojox.grid.formatterScopeObj" store="cards_factStore" jsId="myObject"></div> 
 
+<div dojoType="dojo.data.ItemFileReadStore" jsId="cards_factsTagsStore" 
+    url="flashcards/rest/facts/tags">
+</div>
 
-    <div dojoType="dojo.data.ItemFileReadStore" jsId="cards_factsTagsStore" 
-        url="flashcards/rest/facts/tags">
-    </div>
+
 <div dojoType="dijit.form.Form" encType="multipart/form-data" action="" method="" style="display:inline;">
 	<script type="dojo/connect" event="onSubmit" args="evt">
 		evt.preventDefault();
@@ -86,7 +87,8 @@
 
 <table dojoType="dojox.grid.DataGrid" store="cards_factStore" query="{ }"
     clientSort="true" style="width: 100%; height: 350px;" jsId="cards_factsGrid"
-    selectionMode="single" rowSelector="false" formatterScope="myObject">
+    selectionMode="single" rowSelector="false" formatterScope="myObject" 
+    rowsPerPage="40" keepRows="200">
     <script type="dojo/connect" event="onRowClick" args="evt">
         var row_index = evt.rowIndex;
 
