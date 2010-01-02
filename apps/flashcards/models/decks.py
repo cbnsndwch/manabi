@@ -55,6 +55,7 @@ class Textbook(models.Model):
     description = models.TextField(max_length=2000, blank=True)
     purchase_url = models.URLField(blank=True) #TODO amazon referrals
     isbn = models.CharField(max_length=20, blank=True)
+    cover_picture = models.FileField(upload_to='/textbook_media/', null=True, blank=True)
     #TODO student level field
 
     class Meta:
