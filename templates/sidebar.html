@@ -9,11 +9,17 @@
             <div dojoType="dijit.form.DropDownButton" type="button" disabled="false">
                 <span style="font-size:14px"><div style="width:224px; height:20px; line-height:20px;">Create Flashcards</div></span>
                 <div dojoType="dijit.TooltipDialog" jsId="factAddDialog">
+                    <script type="dojo/connect" event="onShow" args="evt">
+                        dojo.query('textarea', factAddDialog.domNode).forEach(function(node) {
+                            var widget = dijit.getEnclosingWidget(node);
+                            widget.resize();
+                        });
+                    </script>
                     {% include "flashcards/fact_add_form.html" %}
                 </div>
             </div><br>
             <div dojoType="dijit.form.Button" type="button" disabled="false">
-                <div style="width:240px; height:20px; line-height:20px;"><span style="font-size:14px">Start Reviewing</span></div>
+                <div style="width:240px; height:20px; line-height:20px;"><span style="font-size:14px">Start Learning</span></div>
                 <script type="dojo/connect" event="onClick" args="evt">
                     reviews_ui.openDialog();
 

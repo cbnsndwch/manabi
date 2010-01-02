@@ -22,8 +22,10 @@ sometimes deck list in review options breaks (hides itself) after editing a fact
 
 update tag list after updating fact in fact editor
 
+linebreaks break kana generation (\n becomes 'EOS')
 
--none for now
+need to clear errors upon each add fact form submission
+
 
 
 ---------------------
@@ -61,6 +63,8 @@ furigana support
 ---------------------
 TODO (low priority):
 ---------------------
+'no cards' message for empty facts editor
+
 disable the generate readings link while it's loading
 
 don't generate reading if the expression hasn't changed since the last generation

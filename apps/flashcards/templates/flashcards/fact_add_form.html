@@ -26,28 +26,34 @@
             {% endfor %}
         </select>
         </div>
-        <br>
         <div id="factFields">
             {% for field_type in fact_add_form.field_types %}
+                <br>
                 <div>
                     <strong>{{ field_type.name }}:</strong>{% if not field_type.blank %} <em>(required)</em>{% endif %}
                     <div id="id_field_content-{{ forloop.counter0 }}-content-errors" class="field_content_error"></div>
-                    <div id="id_field_content-{{ forloop.counter0 }}-content" 
+                    <textarea id="id_field_content-{{ forloop.counter0 }}-content" 
                         name="field_content-{{ forloop.counter0 }}-content" 
-                        dojoType="dijit.form.SimpleTextarea" 
-                        rows="2" style="width:400px;" class="field_content{% if field_type.kanji_reading %} kanji_field{% endif %}{% if field_type.fieldtype %} reading_field{% endif %}"
-                        tabIndex="5{{ forloop.counter }}">{% if field_type.kanji_reading %}{% spaceless %}
-                        {% endspaceless%}<script type="dojo/connect" event="onBlur" args="evt">
-                            //automatically generate this kanji field's reading
-                            //TODO unless the newly focused field is the reading field (how to detect new focus?)
-                            var reading_field_node = dojo.query('.reading_field', dojo.byId('factFields'))[0];
-                            if (reading_field_node) {
-                                fact_ui.generateReading(
-                                    this.attr('value'),
-                                    dijit.getEnclosingWidget(reading_field_node));
-                            }
-                        </script>{% spaceless %}
-                        {% endspaceless%}{% endif %}</div>
+                        dojoType="dijit.form.Textarea" 
+                        style="width:400px;" class="field_content{% if field_type.transliteration_field %} kanji_field{% endif %}{% if field_type.fieldtype %} reading_field{% endif %}"
+                        tabIndex="5{{ forloop.counter }}"></textarea>
+                    {% if field_type.transliteration_field %}
+                        <script type="text/javascript">
+                            dojo.addOnLoad(function() {
+                                var field_widget = dijit.byId('id_field_content-{{ forloop.counter0 }}-content');
+                                dojo.connect(field_widget, 'onBlur', function() {
+                                    //automatically generate this kanji field's reading
+                                    //TODO unless the newly focused field is the reading field (how to detect new focus?)
+                                    var reading_field_node = dojo.query('.reading_field', dojo.byId('factFields'))[0];
+                                    if (reading_field_node) {
+                                        fact_ui.generateReading(
+                                            this.attr('value'),
+                                            dijit.getEnclosingWidget(reading_field_node));
+                                    }
+                                });
+                            });
+                        </script>
+                    {% endif %}
                     <input dojoType="dijit.form.TextBox" 
                         name="field_content-{{ forloop.counter0 }}-field_type" 
                         id="id_field_content-{{ forloop.counter0 }}-field_type" 

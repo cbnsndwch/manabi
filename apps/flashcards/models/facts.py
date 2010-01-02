@@ -15,7 +15,12 @@ import usertagging
 class FactType(models.Model):
     name = models.CharField(max_length=50)
     active = models.BooleanField(default=True, blank=True)
-    
+
+    #e.g. for Example Sentences for Japanese facts
+    parent_fact_type = models.ForeignKey('self', blank=True, null=True, related_name='child_fact_types')
+    many_children_per_fact = models.NullBooleanField(blank=True, null=True)
+
+    #not used for child fact types
     minimum_card_space = models.FloatField(default=60, help_text="Duration expressed in seconds.") #separate the cards of this fact initially
     minimum_space_factor = models.FloatField(default=.1) #minimal interval multiplier between two cards of the same fact
     
@@ -23,7 +28,7 @@ class FactType(models.Model):
     modified_at = models.DateTimeField(auto_now=True, editable=False)
     
     def __unicode__(self):
-        return self.name
+        return parent_fact_type.name + ' - ' + self.name
     
     class Meta:
         #unique_together = (('owner', 'name'), )
@@ -63,10 +68,12 @@ class AbstractFact(models.Model):
         abstract = True
 
 
-
 class SharedFact(AbstractFact):
-    deck = models.ForeignKey('SharedDeck')
+    deck = models.ForeignKey('SharedDeck', blank=True, null=True)
     
+    #child facts (e.g. example sentences for a Japanese fact)
+    parent_fact = models.ForeignKey('self', blank=True, null=True, related_name='child_facts')
+
     class Meta:
         app_label = 'flashcards'
 
@@ -77,7 +84,10 @@ class Fact(AbstractFact):
     #manager
     objects = FactManager()
 
-    deck = models.ForeignKey('Deck')
+    deck = models.ForeignKey('Deck', blank=True, null=True)
+
+    #child facts (e.g. example sentences for a Japanese fact)
+    parent_fact = models.ForeignKey('self', blank=True, null=True, related_name='child_facts')
 
     @property
     def owner(self):

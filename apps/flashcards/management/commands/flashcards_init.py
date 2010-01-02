@@ -12,14 +12,28 @@ class Command(BaseCommand):
         from dbtemplates.models import Template
         
         #Japanese model
-        japanese_fact_type = FactType(name='Expression')
+        japanese_fact_type = FactType(name='Japanese')
         japanese_fact_type.save()
         meaning_field = FieldType(name='Meaning', fact_type=japanese_fact_type, unique=True, blank=False, ordinal=1)
         meaning_field.save()
         reading_field = FieldType(name='Reading', fact_type=japanese_fact_type, unique=False, blank=True, ordinal=2)
         reading_field.save()
-        expression_field = FieldType(name='Expression', fact_type=japanese_fact_type, kanji_reading=reading_field, unique=True, blank=False, ordinal=0)
+        expression_field = FieldType(name='Expression', fact_type=japanese_fact_type, transliteration_field=reading_field, unique=True, blank=False, ordinal=0)
         expression_field.save()
+
+        #sub-model for example sentences inside a fact
+        sub_japanese_fact_type = FactType(name='Example Sentence', parent_fact_type=japanese_fact_type, many_children_per_fact=True)
+        sub_japanese_fact_type.save()
+        sub_meaning_field = FieldType(name='Meaning', fact_type=sub_japanese_fact_type, unique=True, blank=False, ordinal=1)
+        sub_meaning_field.save()
+        sub_reading_field = FieldType(name='Reading', fact_type=sub_japanese_fact_type, unique=False, blank=True, ordinal=2)
+        sub_reading_field.save()
+        sub_expression_field = FieldType(name='Expression', fact_type=sub_japanese_fact_type, transliteration_field=sub_reading_field, unique=True, blank=False, ordinal=0)
+        sub_expression_field.save()
+        #sub_reading_field = FieldType(name='Source', fact_type=sub_japanese_fact_type, unique=False, blank=True, ordinal=2)
+        #sub_reading_field.save()
+        
+
 
         # templates
         # production:

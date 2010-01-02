@@ -27,17 +27,31 @@ OPTIONAL_MEDIA_TYPE_RESTRICTIONS = (
 )
 
 
+
+
 class FieldType(models.Model):
+    SENTENCE_GROUP = 1
+    GROUP_CHOICES = (
+        (SENTENCE_GROUP, 'Sentence Field Group'),
+    )
+
+    #fields
     name = models.CharField(max_length=50)
     fact_type = models.ForeignKey('FactType')
 
-    kanji_reading = models.OneToOneField('self', blank=True, null=True)
+    transliteration_field = models.OneToOneField('self', blank=True, null=True)
     
+    #constraints
     unique = models.BooleanField(default=True)
     blank = models.BooleanField(default=False)
     editable = models.BooleanField(default=True)
     ordinal = models.IntegerField(null=True, blank=True)
     multi_line = models.BooleanField(default=True, blank=True)
+
+    #this is used for (e.g.) example sentences
+    #group constraints apply only within each fact (e.g. unique for other fields of the same group)
+    #group = models.IntegerField(choices=GROUP_CHOICES, blank=True, null=True) #null group means top-level field for fact type
+
 
     language = models.CharField(max_length=3, choices=ISO_639_2_LANGUAGES, blank=True, null=True)
     character_restriction = models.CharField(max_length=3, choices=OPTIONAL_CHARACTER_RESTRICTIONS, blank=True, null=True)
@@ -64,7 +78,7 @@ class FieldType(models.Model):
 class AbstractFieldContent(models.Model):
     field_type = models.ForeignKey(FieldType)
 
-    content = models.CharField(max_length=500, blank=True) #used as a description for media, too
+    content = models.CharField(max_length=1000, blank=True) #used as a description for media, too
     
     media_uri = models.URLField(blank=True)
     media_file = models.FileField(upload_to='/card_media/', null=True, blank=True) #TODO upload to user directory, using .storage
