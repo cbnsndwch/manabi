@@ -35,9 +35,9 @@
                     <textarea id="id_field_content-{{ forloop.counter0 }}-content" 
                         name="field_content-{{ forloop.counter0 }}-content" 
                         dojoType="dijit.form.Textarea" 
-                        style="width:400px;" class="field_content{% if field_type.transliteration_field %} kanji_field{% endif %}{% if field_type.fieldtype %} reading_field{% endif %}"
+                        style="width:400px;" class="field_content{% if field_type.transliteration_field_type %} kanji_field{% endif %}{% if field_type.fieldtype %} reading_field{% endif %}"
                         tabIndex="5{{ forloop.counter }}"></textarea>
-                    {% if field_type.transliteration_field %}
+                    {% if field_type.transliteration_field_type %}
                         <script type="text/javascript">
                             dojo.addOnLoad(function() {
                                 var field_widget = dijit.byId('id_field_content-{{ forloop.counter0 }}-content');

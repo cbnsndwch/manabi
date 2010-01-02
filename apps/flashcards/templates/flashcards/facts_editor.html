@@ -112,7 +112,7 @@
 <table dojoType="dojox.grid.DataGrid" store="cards_factStore" query="{ }"
     clientSort="true" style="width: 100%;" autoHeight="11" jsId="cards_factsGrid"
     selectionMode="single" rowSelector="false" formatterScope="myObject" 
-    rowsPerPage="40" keepRows="200">
+    rowsPerPage="40" keepRows="200" noDataMessage="No flashcards to display.">
     <script type="dojo/connect" event="onRowClick" args="evt">
         var row_index = evt.rowIndex;
         //enable the fact editing buttons
@@ -132,7 +132,7 @@
 </table>
 <div style="position:relative; left:-2px; margin-top:3px;">
     <button jsId="cards_deleteButton" dojoType="dijit.form.Button" iconClass="dijitEditorIcon dijitEditorIconDelete" disabled="true">
-        Delete
+        Delete Flashcard
         <script type="dojo/connect" event="onClick" args="evt">
             var delete_response = window.confirm('Really delete this flashcard?');
             if (delete_response) {

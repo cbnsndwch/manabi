@@ -4,6 +4,8 @@ from django.forms import ModelForm
 from django.forms.util import ErrorList
 from dbtemplates.models import Template
 
+from utils.templatetags.japanese import strip_ruby_bottom, strip_ruby_text
+
 #from facts import Fact, FactType, SharedFact
 
 OPTIONAL_CHARACTER_RESTRICTIONS = (
@@ -33,7 +35,7 @@ class FieldType(models.Model):
     name = models.CharField(max_length=50)
     fact_type = models.ForeignKey('FactType')
 
-    transliteration_field = models.OneToOneField('self', blank=True, null=True)
+    transliteration_field_type = models.OneToOneField('self', blank=True, null=True)
     
     #constraints
     unique = models.BooleanField(default=True)
@@ -41,7 +43,6 @@ class FieldType(models.Model):
     editable = models.BooleanField(default=True)
     ordinal = models.IntegerField(null=True, blank=True)
     multi_line = models.BooleanField(default=True, blank=True)
-
 
     language = models.CharField(max_length=3, choices=ISO_639_2_LANGUAGES, blank=True, null=True)
     character_restriction = models.CharField(max_length=3, choices=OPTIONAL_CHARACTER_RESTRICTIONS, blank=True, null=True)
@@ -91,6 +92,46 @@ class SharedFieldContent(AbstractFieldContent):
 
 class FieldContent(AbstractFieldContent):
     fact = models.ForeignKey('Fact')
+    
+    @property
+    def transliteration_field_content(self):
+        '''
+        Returns the transliteration field for this field.
+        If one doesn't exist, returns None.
+        '''
+        if self.field_type.transliteration_field_type:
+            #this field is supposed to have a matching transliteration field
+            try:
+                return self.fact.fieldcontent_set.get(field_type=self.field_type.transliteration_field_type)
+            except self.DoesNotExist:
+                return None
+        else:
+            return None
+
+
+    def strip_ruby_text(self):
+        '''
+        Returns this field's content with any ruby text removed.
+        <ta|ta>beru becomes taberu
+        '''
+        return strip_ruby_text(self.content)
+
+    def strip_ruby_bottom(self):
+        '''
+        Returns this field's content, with just the ruby text instead of
+        what's beneath it, and the other text.
+        <TA|ta>beru becomes taberu
+        '''
+        return strip_ruby_bottom(self.content)
+
+
+    def has_identical_transliteration_field(self):
+        '''
+        Returns True if the corresponding transliteration field is 
+        identical, once any ruby text markup is removed.
+        '''
+        return self.content.strip() == self.transliteration_field_content.strip_ruby_text().strip()
+
 
     class Meta:
         #TODO unique_together = (('fact', 'field_type'), ) #one field content per field per fact

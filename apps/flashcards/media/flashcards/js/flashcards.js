@@ -56,16 +56,7 @@
                     fact_add_ui.factAddFormSubmit();
                     break;
             }
-
-        }/*
-        switch(e.charOrCode) {
-            case k.
-            case dojo.keys.LEFT:
-            case 'h':
-                 // go left
-            
-       }
-       dojo.stopEvent(e);*/
+        }
     });
   };
 
@@ -83,7 +74,6 @@
   function factFormSubmit(submitSuccessCallback, submitErrorCallback, _cardTemplatesInput, _factAddForm, factId, showStandby) {
       if (showStandby) {
           //factAddDialogStandby.attr('target', factAddFormDialog);
-          //factAddDialogStandby.show();console.log('1.75');
           factAddFormSubmitButton.attr('disabled', true);
       }
       var cardTemplatesValue = _cardTemplatesInput.attr('value');
@@ -137,7 +127,7 @@
               node.value=''; }); //TODO clear via dijit, not dom
 
       //destroy any error messages
-      dojo.query('#factFields > .field_content_error').empty();
+      dojo.query('.field_content_error', dojo.byId('#factFields')).empty();
 
       //focus the first text field
       dojo.query('textarea', factAddDialog.domNode)[0].focus();
@@ -184,9 +174,6 @@
                   }
                   dojo.place(fieldContentHeaderHTML, domNode, 'last');
                   dojo.place('<div id="id_field_content-'+tempFieldCounter+'-content-errors" class="field_content_error" />', domNode, 'last');
-                  //console.log(factFieldValues);
-                  //console.log('id'+fieldsStore.getValue(item, 'id'));
-                  //console.log(factFieldValues['id'+fieldsStore.getValue(item, 'id')][0]);
                   var fieldTextarea = new dijit.form.SimpleTextarea({
                       name: 'field_content-'+tempFieldCounter+'-content', //fieldsStore.getValue(item, 'name'),
                       'class': 'field_content',
@@ -257,7 +244,7 @@
       fieldContentErrors = data.errors.field_content;//[errors][field_content];
       dojo.forEach(fieldContentErrors, function(errorMsg, idx) {
           if ('content' in errorMsg) {
-              dojo.byId('id_field_content-'+idx+'-content-errors').innerHTML = '<font color="red"><i>'+errorMsg.content.join('<br>')+'</i></font>';
+              dojo.byId('id_field_content-'+idx+'-content-errors').innerHTML = '<font color="red"><em>'+errorMsg.content.join('<br>')+'</em></font>';
           } else {
               dojo.empty(dojo.byId('id_field_content-'+idx+'-content-errors'));
           }
@@ -352,7 +339,7 @@
                 }
             });
         }
-                    console.log('-');
+
         var xhrArgs = {
             url: fact_id ? 
                      '/flashcards/rest/facts/'+fact_id : 
@@ -360,9 +347,7 @@
             content: form_values,
             handleAs: 'json',
             load: function(data){
-                    console.log('0');
                 if (data.success) {
-                    console.log('0');
                     fact_ui._submit_success_callback(data, card_counter);
 
                 } else {

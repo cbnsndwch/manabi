@@ -23,8 +23,9 @@
                         if (typeof cards_factsGrid != 'undefined') {
                             var store = cards_factsGrid.store;
                             store.close();
-                            store.fetch();
-                            cards_factsGrid.sort();
+                            store.fetch({onComplete: function(){
+                                cards_factsGrid.sort();
+                            }});
                         }
                     });
                     reviews_ui.setKeyboardShortcuts();

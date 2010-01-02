@@ -18,6 +18,10 @@ class CardTemplate(models.Model):
 
     front_prompt = models.CharField(max_length=200, blank=True)
     back_prompt = models.CharField(max_length=200, blank=True)
+
+    #used for generating/enabling cards for a fact which is missing certain fields
+    #can show validation errors to the user based on this (e.g. "Enter a reading if you want to do kanji writing")
+    requisite_field_types = models.ManyToManyField('FieldType', blank=True)
     
     generate_by_default = models.BooleanField(default=True)
     ordinal = models.IntegerField(null=True, blank=True)

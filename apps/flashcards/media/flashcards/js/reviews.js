@@ -306,6 +306,10 @@ reviews_ui.showReviewOptions = function() {
     dojo.byId('reviews_noCardsDue').style.display = 'none';
     dojo.byId('reviews_reviewEndScreen').style.display = 'none';
 
+    //refresh the decks grid
+//    reviews_decksStore.close();
+//reviews_decksStore.fetch();
+
     //show the due count
     reviews.dueCardsCount().addCallback(function(count) {
         dojo.byId('reviews_cardsDueCount').innerHTML = count;
@@ -329,6 +333,17 @@ reviews_ui.openDialog = function() {
     //hide the review screen
     reviews_ui.review_options_dialog.show();
 
+    reviews_decksGrid.store.close();
+    reviews_decksGrid.store.fetch({
+        onComplete: function() {
+            reviews_decksGrid.sort();
+            reviews_decksGrid.resize();
+            
+            //reset the deck selection
+            reviews_decksGrid.selection.setSelected(reviews_decksGrid.selection.selectedIndex, false);
+            reviews_decksGrid.selection.setSelected(0, true);
+        }
+    });
 };
 
 reviews_ui.endSession = function() {

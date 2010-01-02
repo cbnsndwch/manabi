@@ -16,15 +16,10 @@ try using select_related to speed up the orm
 
 SUPER CRITICAL BUGS:
 --------------------
-disable keyboard shortcuts when editing a card during review
-
-sometimes deck list in review options breaks (hides itself) after editing a fact, changing its deck
+-sometimes deck list in review options breaks (hides itself) after editing a fact, changing its deck
 
 update tag list after updating fact in fact editor
 
-linebreaks break kana generation (\n becomes 'EOS')
-
-need to clear errors upon each add fact form submission
 
 
 
@@ -32,8 +27,6 @@ need to clear errors upon each add fact form submission
 TODO:
 ---------------------
 move 'All decks' grid option above grid
-
--filter fact editor grid by deck
 
 -disable form submission buttons while they're being processed, after clicked - 
 
@@ -47,8 +40,6 @@ allow selecting multiple facts
 
 make field requirements dependent on which cards are to be generated
 
-truncate deck names for Add Facts dialog (cut out the middle since the end often has something like the chapter)
-
 -tags (should have stuff like kaiwa 1 for textbook facts)
 
 take the fact creation datetime into account when scheduling reviews (but not including downloaded shared deck facts)
@@ -58,12 +49,12 @@ so, we need a separate field for synonym! (OR just a notes field, which is only 
 or maybe both a question note field and an answer note field. these could be in the hidden 'extra fields')
 
 
-furigana support
+-furigana support
 
 ---------------------
 TODO (low priority):
 ---------------------
-'no cards' message for empty facts editor
+-'no cards' message for empty facts editor
 
 disable the generate readings link while it's loading
 
@@ -84,11 +75,9 @@ don't allow word wrapping in fact editor grid
 
 increase font size for fact add fields, especially japanese ones
 
-resend grade xhrposts upon error. warn user when offline too
+resend grade xhrposts upon error. warn user when offline too - yet keep a queue
 
 ajax error handling
-
--change deck for fact in fact editor
 
 -disable controls after each review
 
@@ -103,6 +92,8 @@ sort facts with case insensitivity
 ---------------------
 BUGS:
 ---------------------
+split half-width characters out and don't send them to mecab, or keep track of them somehow - spaces between them collapse
+
 grid styling - sort a column, arrow doesnt appear
 
 require , for tag deliminator - prevents bug of having 1 tag called "section 1" becoming 2 tags

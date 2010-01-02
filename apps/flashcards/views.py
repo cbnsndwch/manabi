@@ -223,6 +223,12 @@ def rest_generate_reading(request):
             if line[0] == u',':
                 ret += u','
                 continue
+            elif line[:3] == u'EOS':
+                ret += u'\n'
+                continue
+            elif line[0].strip() == '':
+                ret += line[0]
+                continue
             fields = line.split(u',')
             word = fields[0].split()[0]
 
@@ -647,9 +653,8 @@ def next_cards_for_review(request):
         formatted_cards = []
         reviewed_at = datetime.datetime.utcnow()
         for card in next_cards:
-            field_contents = dict((field_content.field_type_id, field_content.content,) for field_content in card.fact.fieldcontent_set.all())
+            field_contents = dict((field_content.field_type_id, field_content) for field_content in card.fact.fieldcontent_set.all())
             card_context = {'fields': field_contents}
-            #front = render_to_string(card.template.front_template_name, 
             due_times = {}
             for grade in [GRADE_NONE, GRADE_HARD, GRADE_GOOD, GRADE_EASY,]:
                 due_at = card._next_due_at(grade, reviewed_at, card._next_interval(grade, card._next_ease_factor(grade)))

@@ -39,9 +39,9 @@
             </select>
             </div>
         </div>
-        <br>
         <div class="cards_factFields">
             {% for field_content in fact.fieldcontent_set.all %}
+                <br>
                 {% with field_content.field_type as field_type %}
                     <div>
                         <strong>{{ field_type.name }}:</strong>{% if not field_type.blank %} <em>(required)</em>{% endif %}
@@ -49,7 +49,7 @@
                         <textarea  
                             name="field_content-{{ forloop.counter0 }}-content" 
                             class="cards_fieldContent" 
-                            dojoType="dijit.form.SimpleTextarea" 
+                            dojoType="dijit.form.Textarea" 
                             rows="2" style="width:400px;">{{ field_content.content }}</textarea>
                         <input dojoType="dijit.form.TextBox" 
                             name="field_content-{{ forloop.counter0 }}-field_type" 

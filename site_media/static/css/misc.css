@@ -146,3 +146,80 @@ div.flashcard_container {
 .fakeLink:hover {
     cursor: pointer;
 }
+
+.field_content_error {
+    color: red;
+    font-style: italic;
+}
+
+.reviews_front_prompt {
+    color: gray;
+    font-size: 50%;
+    margin-bottom:0px;
+}
+
+
+/* furigana */
+/**************************************************************************************************************
+ *
+ * [Easy-Ruby CSS v2.1]
+ *
+ * Example    : <span class="ezRuby" title="[ruby text]"> [ruby base] </span> 
+ *
+ * CSS Author : BENIT
+ *
+ * OS : Windows Vista, XP, Mac OS X 10.5.7
+ *
+ * Browser : Windows  > Internet Explorer8
+ *           Windows  > Firefox3.0, 3.5_beta4
+ *           Windows  > Opera9.6, 10_beta
+ *           Windows  > Safari3.2.3, 4_beta
+ *           Mac OS X > Safari4_beta
+ *           Mac OS X > Firefox3.0
+ *           Mac OS X > Opera9.6, 10_beta
+ *
+ *           Not support [Windows  > IE6/7]
+ * 
+ * Last Updata > 2009-06/04
+ *
+ ***************************************************************************************************************/
+ 
+/* IE6,7 */
+.ezRuby{
+  border-bottom: 1px dotted #666666;
+  cursor: help;
+}
+
+/* Ruby Base */
+html>/* */body .ezRuby {
+  line-height: 1;
+  text-align: center;
+  white-space: nowrap;
+  vertical-align: baseline;
+  margin: 0;
+  padding: 0;
+  border: none;
+  display: inline-block;
+}
+
+/* Ruby Text */
+html>/* */body .ezRuby:before {
+  font-size: 0.64em;
+  font-weight: normal;
+  line-height: 1.2;
+  text-decoration: none;
+  display: block;
+  content: attr(title);
+}
+
+
+/* Adapt to your site's CSS */
+html>/* */body .ezRuby:hover{
+  color: #000000;
+  background-color: #FFFFCC;
+}
+
+html>/* */body .ezRuby:hover:before{
+  background-color: #FFCC66;
+}
+
