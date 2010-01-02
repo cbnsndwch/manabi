@@ -54,6 +54,8 @@ class Textbook(models.Model):
     edition = models.CharField(max_length=50, blank=True)
     description = models.TextField(max_length=2000, blank=True)
     purchase_url = models.URLField(blank=True) #TODO amazon referrals
+    isbn = models.CharField(max_length=20, blank=True)
+    #TODO student level field
 
     class Meta:
         app_label = 'flashcards'
@@ -237,7 +239,7 @@ def share_deck(deck):
 @transaction.commit_on_success    
 def download_shared_deck(user, shared_deck):
     '''Copies a shared deck and all its contents to a user's own deck library.'''
-    
+
     #copy the deck
     deck = Deck(
         name=shared_deck.name,

@@ -53,6 +53,9 @@ class FactManager(models.Manager):
         return query_set.filter(id__in=set(field_content.fact_id for field_content in FieldContent.objects.filter(content__icontains=query, fact__fact_type=fact_type).all()))
 
 
+#TODO citation/fact source class
+
+
 class AbstractFact(models.Model):
     fact_type = models.ForeignKey(FactType)
     

@@ -214,3 +214,8 @@ and make sure no cards are in the wrong deck ;)
 what to do about singular kanji without vocab? how to select vocab, what to show, etc (from textbook)
 
 
+
+-----------------------
+clarifying thoughts:
+meaning fields shouldn't need transliteration fields, since meaning should make sense to you.
+but still allow furigana in meaning fields

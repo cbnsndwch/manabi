@@ -30,12 +30,6 @@ OPTIONAL_MEDIA_TYPE_RESTRICTIONS = (
 
 
 class FieldType(models.Model):
-    SENTENCE_GROUP = 1
-    GROUP_CHOICES = (
-        (SENTENCE_GROUP, 'Sentence Field Group'),
-    )
-
-    #fields
     name = models.CharField(max_length=50)
     fact_type = models.ForeignKey('FactType')
 
@@ -47,10 +41,6 @@ class FieldType(models.Model):
     editable = models.BooleanField(default=True)
     ordinal = models.IntegerField(null=True, blank=True)
     multi_line = models.BooleanField(default=True, blank=True)
-
-    #this is used for (e.g.) example sentences
-    #group constraints apply only within each fact (e.g. unique for other fields of the same group)
-    #group = models.IntegerField(choices=GROUP_CHOICES, blank=True, null=True) #null group means top-level field for fact type
 
 
     language = models.CharField(max_length=3, choices=ISO_639_2_LANGUAGES, blank=True, null=True)
