@@ -8,6 +8,10 @@ from utils.templatetags.japanese import strip_ruby_bottom, strip_ruby_text
 
 #from facts import Fact, FactType, SharedFact
 
+import pickle
+
+import flashcards.partsofspeech
+
 OPTIONAL_CHARACTER_RESTRICTIONS = (
     ('num','Numeric',),
     ('knj','Kanji',),
@@ -29,8 +33,6 @@ OPTIONAL_MEDIA_TYPE_RESTRICTIONS = (
 )
 
 
-
-
 class FieldType(models.Model):
     name = models.CharField(max_length=50)
     fact_type = models.ForeignKey('FactType')
@@ -43,6 +45,9 @@ class FieldType(models.Model):
     editable = models.BooleanField(default=True)
     ordinal = models.IntegerField(null=True, blank=True)
     multi_line = models.BooleanField(default=True, blank=True)
+    choices = models.CharField(blank=True, max_length=1000, help_text='Use a pickled choices tuple. The "none" value is used to indicate no selection, so don\'t use it in the choices tuple.')
+
+    help_text = models.CharField(blank=True, max_length=500)
 
     language = models.CharField(max_length=3, choices=ISO_639_2_LANGUAGES, blank=True, null=True)
     character_restriction = models.CharField(max_length=3, choices=OPTIONAL_CHARACTER_RESTRICTIONS, blank=True, null=True)
@@ -51,13 +56,29 @@ class FieldType(models.Model):
     media_restriction = models.CharField(max_length=3, choices=OPTIONAL_MEDIA_TYPE_RESTRICTIONS, blank=True, null=True)
 
     hidden_when_editing = models.BooleanField(default=False) #hide this field when adding/editing a fact, unless the user wants to see extra, optional fields
-    hidden_when_reviewing = models.BooleanField(default=False) #hide this field during review, click to see it (like extra notes maybe)
+    #hidden_when_reviewing = models.BooleanField(default=False) #hide this field during review, click to see it (like extra notes maybe) #handle in templates
 
     active = models.BooleanField(default=True)
 
     created_at = models.DateTimeField(auto_now_add=True, editable=False)
     modified_at = models.DateTimeField(auto_now=True, editable=False)
     
+    def is_transliteration_field_type(self):
+        '''Returns whether this field type is the transliteration of another field.'''
+        try:
+            self.fact_type.fieldtype_set.get(transliteration_field_type=self)
+            return True
+        except FieldType.DoesNotExist:
+            return False
+
+    @property
+    def choices_as_tuple(self):
+        return pickle.loads(str(self.choices)) #it gets stored as unicode, but this breaks unpickling
+
+    @choices_as_tuple.setter
+    def choices_as_tuple(self, value):
+        self.choices = pickle.dumps(value)
+
     def __unicode__(self):
         return self.name
     

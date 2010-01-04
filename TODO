@@ -26,6 +26,12 @@ update tag list after updating fact in fact editor
 ---------------------
 TODO:
 ---------------------
+consolidate fact_add_form and fact_form
+
+fact type templating system for adding/editing form
+
+set deck select width instead of using an auto width (see dojocampus example)
+
 move 'All decks' grid option above grid
 
 -disable form submission buttons while they're being processed, after clicked - 
@@ -48,12 +54,19 @@ see my 'sansou / mountain cottage card [=yama no bessou]' - kanji from that is u
 so, we need a separate field for synonym! (OR just a notes field, which is only shown in the answer,
 or maybe both a question note field and an answer note field. these could be in the hidden 'extra fields')
 
+allow a language choice field for the user to select for every flashcard added, per field, optionally (like smart.fm)
+or default a 'meaning' field to the user's native language (since it'll either be that, or the same as the card's foreign language)
+or perhaps add a 'monolingual?' kind of bool field
 
 -furigana support
 
 ---------------------
 TODO (low priority):
 ---------------------
+add ability to have help text per each choice in a field
+
+use json instead of pickled tuples for flashcard choice fields
+
 -'no cards' message for empty facts editor
 
 disable the generate readings link while it's loading
@@ -128,6 +141,14 @@ but creating a new non-unique card currently is not allowed - it should be allow
 for that specific deck it's being inserted into, i guess.
 
 grid column alignment is off when updating a fact (changed the cards..)
+
+----------------------
+Longer Term To-Do
+----------------------
+Export (CSV, XML, Anki)
+Import (CSV, HTML tables, Anki, Mnemosyne)
+
+
 
 ----------------------
 IDEAS:

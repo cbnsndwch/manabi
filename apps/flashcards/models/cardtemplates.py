@@ -21,7 +21,7 @@ class CardTemplate(models.Model):
 
     #used for generating/enabling cards for a fact which is missing certain fields
     #can show validation errors to the user based on this (e.g. "Enter a reading if you want to do kanji writing")
-    requisite_field_types = models.ManyToManyField('FieldType', blank=True)
+    requisite_field_types = models.ManyToManyField('FieldType', blank=True) #TODO implement
     
     generate_by_default = models.BooleanField(default=True)
     ordinal = models.IntegerField(null=True, blank=True)

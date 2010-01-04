@@ -72,12 +72,17 @@ class FieldContentForm(ModelForm):
         unique = field_type.unique
         error_list = []
 
+        if field_type.choices:
+            if content == 'none':
+                #'none' indicates no selection for choice fields
+                content = ''
+                cleaned_data['content'] = ''
         if not field_type.multi_line and '\n' in content:
             msg = u'This is a single-line field.'
             error_list.append(msg)
             if 'content' in cleaned_data:
               del cleaned_data['content'] #TODO why do I do this?
-        if not blank and not content.strip():#content.strip() == '':
+        if not blank and not content.strip():
             msg = u'This field is required.'
             #self._errors['content'] = ErrorList([msg])
             error_list.append(msg)

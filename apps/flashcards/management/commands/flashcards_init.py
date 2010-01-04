@@ -29,6 +29,11 @@ class Command(BaseCommand):
         reading_field.save()
         expression_field = FieldType(name='Expression', fact_type=japanese_fact_type, transliteration_field_type=reading_field, unique=True, blank=False, ordinal=0)
         expression_field.save()
+        import flashcards.partsofspeech as partsofspeech
+        import pickle
+        part_of_speech_choices = pickle.dumps(partsofspeech.ALL_PART_OF_SPEECH_CHOICES)
+        pos_field = FieldType(name='Part of Speech', fact_type=japanese_fact_type, unique=False, blank=True, choices=part_of_speech_choices, ordinal=4)
+        pos_field.save()
 
         #sub-model for example sentences inside a fact
         sub_japanese_fact_type = FactType(name='Example Sentence', parent_fact_type=japanese_fact_type, many_children_per_fact=True)
