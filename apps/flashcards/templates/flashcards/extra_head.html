@@ -26,13 +26,19 @@
         var success_callback = dojo.hitch(null, function(selected_fact_row_index, data, card_counter) {
             fact_ui.hideFactEditForm();
             //update the grid item via the grid's store, to update the display (though the change has already gone to the server)
-            grid_item = cards_factsGrid.getItem(selected_fact_row_index);
+            var grid_item = cards_factsGrid.getItem(selected_fact_row_index);
             dojo.query('.cards_fieldContent', cards_factForm.domNode).forEach(function(field_content_item) {
-                field_content_type_item = dijit.getEnclosingWidget(field_content_item.nextElementSibling);
-                field_content_item = dijit.getEnclosingWidget(field_content_item);
+                var field_content_type_item = dijit.getEnclosingWidget(field_content_item.nextElementSibling);
+                var field_content_item = dijit.getEnclosingWidget(field_content_item);
+                var new_value = '';
+                if (field_content_item.attr('baseClass') == 'dijitSelect') {
+                    new_value = field_content_item.attr('displayedValue');
+                } else {
+                    new_value = field_content_item.attr('value');
+                }
                 cards_factsGrid.store.setValue(grid_item, 
                     'id' + field_content_type_item.attr('value'), 
-                    field_content_item.attr('value'));
+                    new_value);
             });
             cards_factsGrid.store.save(); //TODO handle errors
         }, row_index);

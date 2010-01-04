@@ -126,6 +126,12 @@
       dojo.query('textarea, input[name=fact-tags]',factAddDialog.domNode).forEach(function(node, index, arr){
               node.value=''; }); //TODO clear via dijit, not dom
 
+      //reset multi-choice fields
+      dojo.query('.dijitSelect', dojo.byId('#factFields')).forEach(function(node, index, arr) {
+              var widget = dijit.getEnclosingWidget(node);
+              widget.attr('value', 'none');
+      });
+
       //destroy any error messages
       dojo.query('.field_content_error', dojo.byId('#factFields')).empty();
 
@@ -213,7 +219,7 @@
   
   var factTypeInputOnChangeHandle = null;
   var lastCardTemplatesInputValue = null;
-  var fieldContentInputCount = 3;//FIXME this is a terrible legacy hack... (was null;)
+  var fieldContentInputCount = 4;//FIXME this is a terrible legacy hack... (was null;)
   
   function appendLineToAddedCardHistory(node, text) {
     //append a line, but if there are too many lines, delete the first line

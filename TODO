@@ -3,30 +3,30 @@ manabi notes
 
 ~new stuff~
 -----------
-gotta truncate deck names when displayed
-when not signed in, bugs! (click title)
 resize grid when window is resized!!! otherwise scrollbars get lost
 
 make card template widget demand at least 1 checkmark at all times (really?)
 
-should all those connects be disconnected somehow? (do they leak memory)
+should all those connects be disconnected somehow? particularly in body_pane (do they leak memory)
 
-try using select_related to speed up the orm
 
 
 SUPER CRITICAL BUGS:
 --------------------
--sometimes deck list in review options breaks (hides itself) after editing a fact, changing its deck
-
-update tag list after updating fact in fact editor
-
+when not signed in, bugs! (click title) (also, dojo errors)
 
 
 
 ---------------------
 TODO:
 ---------------------
+make fact form requirements dependent on cards selected
+
+example sentence UI
+
 consolidate fact_add_form and fact_form
+
+try using select_related to speed up the orm
 
 fact type templating system for adding/editing form
 
@@ -105,6 +105,8 @@ sort facts with case insensitivity
 ---------------------
 BUGS:
 ---------------------
+update tag list after updating fact in fact editor
+
 split half-width characters out and don't send them to mecab, or keep track of them somehow - spaces between them collapse
 
 grid styling - sort a column, arrow doesnt appear

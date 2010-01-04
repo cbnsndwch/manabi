@@ -55,7 +55,10 @@ class FieldType(models.Model):
     accepts_media = models.BooleanField(default=False, blank=True) #TODO only allow media without any text, right?
     media_restriction = models.CharField(max_length=3, choices=OPTIONAL_MEDIA_TYPE_RESTRICTIONS, blank=True, null=True)
 
-    hidden_when_editing = models.BooleanField(default=False) #hide this field when adding/editing a fact, unless the user wants to see extra, optional fields
+    hidden_in_form = models.BooleanField(default=False) #hide this field when adding/editing a fact, unless the user wants to see extra, optional fields
+    hidden_in_grid = models.BooleanField(default=False)
+    grid_column_width = models.CharField(blank=True, max_length=10)
+
     #hidden_when_reviewing = models.BooleanField(default=False) #hide this field during review, click to see it (like extra notes maybe) #handle in templates
 
     active = models.BooleanField(default=True)
@@ -95,6 +98,47 @@ class AbstractFieldContent(models.Model):
     media_uri = models.URLField(blank=True)
     media_file = models.FileField(upload_to='/card_media/', null=True, blank=True) #TODO upload to user directory, using .storage
 
+    @property
+    def human_readable_content(self):
+        '''
+        Returns content, but if this is a multi-choice field, 
+        returns the name of the choice rather than its value.
+
+        If this is a transliteration field, this returns 
+        the transliteration with the bottom part of any 
+        ruby text removed.
+        '''
+        if self.field_type.choices:
+            choices = dict(self.field_type.choices_as_tuple)
+            return choices.get(self.content) or ''
+        elif self.field_type.is_transliteration_field_type:
+            return self.strip_ruby_bottom()
+        else:
+            return self.content
+            
+    def strip_ruby_text(self):
+        '''
+        Returns this field's content with any ruby text removed.
+        <ta|ta>beru becomes taberu
+        '''
+        return strip_ruby_text(self.content)
+
+    def strip_ruby_bottom(self):
+        '''
+        Returns this field's content, with just the ruby text instead of
+        what's beneath it, and the other text.
+        <TA|ta>beru becomes taberu
+        '''
+        return strip_ruby_bottom(self.content)
+
+
+    def has_identical_transliteration_field(self):
+        '''
+        Returns True if the corresponding transliteration field is 
+        identical, once any ruby text markup is removed.
+        '''
+        return self.content.strip() == self.transliteration_field_content.strip_ruby_text().strip()
+
     def __unicode__(self):
         return self.content
 
@@ -130,28 +174,6 @@ class FieldContent(AbstractFieldContent):
             return None
 
 
-    def strip_ruby_text(self):
-        '''
-        Returns this field's content with any ruby text removed.
-        <ta|ta>beru becomes taberu
-        '''
-        return strip_ruby_text(self.content)
-
-    def strip_ruby_bottom(self):
-        '''
-        Returns this field's content, with just the ruby text instead of
-        what's beneath it, and the other text.
-        <TA|ta>beru becomes taberu
-        '''
-        return strip_ruby_bottom(self.content)
-
-
-    def has_identical_transliteration_field(self):
-        '''
-        Returns True if the corresponding transliteration field is 
-        identical, once any ruby text markup is removed.
-        '''
-        return self.content.strip() == self.transliteration_field_content.strip_ruby_text().strip()
 
 
     class Meta:

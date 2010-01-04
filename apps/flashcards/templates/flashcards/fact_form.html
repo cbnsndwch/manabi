@@ -45,12 +45,35 @@
                 {% with field_content.field_type as field_type %}
                     <div>
                         <strong>{{ field_type.name }}:</strong>{% if not field_type.blank %} <em>(required)</em>{% endif %}
-                        <div class="field_content_error"></div>
-                        <textarea  
-                            name="field_content-{{ forloop.counter0 }}-content" 
-                            class="cards_fieldContent" 
-                            dojoType="dijit.form.Textarea" 
-                            rows="2" style="width:400px;">{{ field_content.content }}</textarea>
+                        {% if field_type.choices %}
+                            <select 
+                                name="field_content-{{ forloop.counter0 }}-content"
+                                class="cards_fieldContent" 
+                                dojoType="dijit.form.Select"
+                                tabIndex="5{{ forloop.counter }}">
+                                <option value="none"{% ifequal field_content.content "" %}selected="selected"{% endifequal %}>
+                                     &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+                                </option>
+                                {% for choice_value, choice_name in field_type.choices_as_tuple %}
+                                <option value="{{ choice_value }}"
+                                    {% ifequal field_content.content choice_value %}selected="selected"{% endifequal %}>
+                                        {{ choice_name }}
+                                    </option>
+                                {% endfor %}
+                            </select>
+                        {% else %}
+                            <div class="field_content_error"></div>
+                            <textarea  
+                                name="field_content-{{ forloop.counter0 }}-content" 
+                                class="cards_fieldContent" 
+                                dojoType="dijit.form.Textarea" 
+                                rows="2" style="width:400px;">{{ field_content.content }}</textarea>
+                            {% if field_type.is_transliteration_field_type %}
+                                <br>
+                                <span class="fakeLink" 
+                                    onclick="fact_ui.generateReading(dijit.getEnclosingWidget(dojo.query('.cards_fieldContent')[0]).attr('value'), dijit.getEnclosingWidget(dojo.query('.cards_fieldContent')[2]))">Generate Reading</span>
+                            {% endif %}
+                        {% endif %}
                         <input dojoType="dijit.form.TextBox" 
                             name="field_content-{{ forloop.counter0 }}-field_type" 
                             class="cards_fieldContentType" 
@@ -65,9 +88,6 @@
             {% endfor %}
 
         </div>
-        <span class="fakeLink" onclick="fact_ui.generateReading(dijit.getEnclosingWidget(dojo.query('.cards_fieldContent')[0]).attr('value'), dijit.getEnclosingWidget(dojo.query('.cards_fieldContent')[2]))">Generate Reading</span>
-        <br>
-
         <br>
         <div>
             <strong>Tags:</strong> <input name="fact-tags" type="text" dojoType="dijit.form.TextBox" 

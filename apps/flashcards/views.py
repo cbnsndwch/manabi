@@ -447,7 +447,7 @@ def rest_facts(request): #todo:refactor into facts (no???)
                 ident = key
               elif not name:
                 name = key
-              row[key]=field_content.content #field_content.field_type.id] = field_content.content
+              row[key]=field_content.human_readable_content
               row['{0}_field-content-id'.format(key)] = field_content.id
             if not name:
               name = ident
