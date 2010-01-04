@@ -69,7 +69,6 @@
                                 dojoType="dijit.form.Textarea" 
                                 rows="2" style="width:400px;">{{ field_content.content }}</textarea>
                             {% if field_type.is_transliteration_field_type %}
-                                <br>
                                 <span class="fakeLink" 
                                     onclick="fact_ui.generateReading(dijit.getEnclosingWidget(dojo.query('.cards_fieldContent')[0]).attr('value'), dijit.getEnclosingWidget(dojo.query('.cards_fieldContent')[2]))">Generate Reading</span>
                             {% endif %}

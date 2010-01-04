@@ -14,6 +14,22 @@
                             var widget = dijit.getEnclosingWidget(node);
                             widget.resize();
                         });
+                        dojo.query('div.hidden_in_form', factAddDialog.domNode).forEach(function(node) {
+                            var to_hide = true;
+                            var text_nodes = dojo.query('textarea', node);
+                            if (text_nodes.length) {
+                                var widget = dijit.getEnclosingWidget(text_nodes[0]);
+                                
+                                if (widget.attr('value').trim() != '') {
+                                    to_hide = false;
+                                }
+                            }
+                            if (to_hide) {
+                                node.style.display = 'none';
+                                //unhide the 'Add ...' link, which shows this hidden field
+                                dojo.query(node).prev()[0].style.display = '';
+                            }
+                        });
                     </script>
                     {% include "flashcards/fact_add_form.html" %}
                 </div>
@@ -22,7 +38,6 @@
                 <div style="width:240px; height:20px; line-height:20px;"><span style="font-size:14px">Start Learning</span></div>
                 <script type="dojo/connect" event="onClick" args="evt">
                     reviews_ui.openDialog();
-
                 </script>
             </div><br><br>
             <a href="flashcards/facts" class="xhr_link">

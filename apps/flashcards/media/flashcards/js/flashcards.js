@@ -25,6 +25,8 @@
   dojo.require("dijit.form.FilteringSelect");
   //dojo.require("dojox.grid.EnhancedGrid");
   //dojo.require("dojox.layout.FloatingPane"); 
+  dojo.require("dojo.NodeList-traverse");
+  
   
 
   // If you're reading this code, please be warned that this section is quite messy.
@@ -132,6 +134,12 @@
               widget.attr('value', 'none');
       });
 
+      //reset hidden fields
+      dojo.query('.hiddenFieldLink', factAddDialog.domNode).forEach(function(node) {
+              node.style.display = '';
+              dojo.query(node).next()[0].style.display = 'none';
+      });
+
       //destroy any error messages
       dojo.query('.field_content_error', dojo.byId('#factFields')).empty();
 
@@ -219,7 +227,7 @@
   
   var factTypeInputOnChangeHandle = null;
   var lastCardTemplatesInputValue = null;
-  var fieldContentInputCount = 4;//FIXME this is a terrible legacy hack... (was null;)
+  var fieldContentInputCount = 5;//FIXME this is a terrible legacy hack... (was null;)
   
   function appendLineToAddedCardHistory(node, text) {
     //append a line, but if there are too many lines, delete the first line

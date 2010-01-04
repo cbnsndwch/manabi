@@ -83,7 +83,7 @@ class FieldType(models.Model):
         self.choices = pickle.dumps(value)
 
     def __unicode__(self):
-        return self.name
+        return self.fact_type.name + ': ' + self.name
     
     class Meta:
         unique_together = (('name', 'fact_type'), ('ordinal', 'fact_type'), )

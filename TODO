@@ -63,6 +63,11 @@ or perhaps add a 'monolingual?' kind of bool field
 ---------------------
 TODO (low priority):
 ---------------------
+respect hidden fields for fact update form - with the 'Add Foobar' link
+
+don't create blank fieldcontent objects. but add the missing ones to update forms, 
+and create them upon update (upon submission of the fact update form).
+
 add ability to have help text per each choice in a field
 
 use json instead of pickled tuples for flashcard choice fields

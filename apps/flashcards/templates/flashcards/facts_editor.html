@@ -124,7 +124,9 @@
     <thead>
         <tr>
             {% for field_type in field_types %}
-                <th width="auto" field="id{{ field_type.id}}">{{ field_type.name }}</th>
+                {% if not field_type.hidden_in_grid %}
+                <th width="{% if field_type.grid_column_width %}{{ field_type.grid_column_width }}{% else %}auto{% endif %}" field="id{{ field_type.id}}">{{ field_type.name }}</th>
+                {% endif %}
             {% endfor %}
             <th width="36px" field="fact-id" formatter="cards_formatCardActions">&nbsp;</th>
         </tr>

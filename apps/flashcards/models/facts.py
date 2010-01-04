@@ -28,7 +28,10 @@ class FactType(models.Model):
     modified_at = models.DateTimeField(auto_now=True, editable=False)
     
     def __unicode__(self):
-        return parent_fact_type.name + ' - ' + self.name
+        if self.parent_fact_type:
+            return self.parent_fact_type.name + ' - ' + self.name
+        else:
+            return self.name
     
     class Meta:
         #unique_together = (('owner', 'name'), )
@@ -95,6 +98,18 @@ class Fact(AbstractFact):
     @property
     def owner(self):
         return self.deck.owner
+
+    def fieldcontent_set_plus_blank_fields(self):
+        '''
+        Returns self.fieldcontent_set, but adds mock 
+        FieldContent objects for any FieldTypes of this 
+        fact's FactType which do not have corresponding 
+        FieldContent objects.
+        (e.g. a fact without a notes field, so that 
+        the notes field can be included in an update form.)
+        '''
+        #field_contents = self.fieldcontent_set.all()
+        #TODO add this
 
     class Meta:
         app_label = 'flashcards'

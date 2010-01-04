@@ -584,6 +584,7 @@ def _facts_create(request):
     new_fact = fact_form.save() #TODO automate the tag saving in forms.py
 
     for field_content_form in field_content_formset.forms:
+      #TODO don't create fieldcontent objects for optional fields which were left blank
       new_field_content = field_content_form.save(commit=False)
       new_field_content.fact = new_fact
       new_field_content.save()
