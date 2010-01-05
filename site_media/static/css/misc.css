@@ -132,9 +132,10 @@ div.flashcard_container {
 }
 
 .reviews_gradeButtonInner {
-    line-height: 24px;
-    height: 24px;
-    width: 50px;
+    line-height: 28px;
+    height: 28px;
+    width: 58px;
+    font-size:110%;
     display: block;
 }
 
@@ -153,6 +154,11 @@ div.flashcard_container {
 }
 
 .reviews_front_prompt {
+    color: gray;
+    font-size: 50%;
+    margin-bottom:0px;
+}
+.reviews_back_prompt {
     color: gray;
     font-size: 50%;
     margin-bottom:0px;

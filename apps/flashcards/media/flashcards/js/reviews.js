@@ -360,7 +360,10 @@ reviews_ui.endSession = function() {
 };
 
 reviews_ui.displayNextIntervals = function(card) {
-    dojo.byId('reviews_gradeNoneInterval').innerHTML = reviews_ui.humanizedInterval(card.next_due_at_per_grade['0']);
+    //dojo.byId('reviews_gradeNoneInterval').innerHTML = reviews_ui.humanizedInterval(card.next_due_at_per_grade['0']);
+    //show a special message for card failures
+    //FIXME but only for young card failures - mature cards should have an interval shown
+    dojo.byId('reviews_gradeNoneInterval').innerHTML = 'Review soon';
     dojo.byId('reviews_gradeHardInterval').innerHTML = reviews_ui.humanizedInterval(card.next_due_at_per_grade['3']);
     dojo.byId('reviews_gradeGoodInterval').innerHTML = reviews_ui.humanizedInterval(card.next_due_at_per_grade['4']);
     dojo.byId('reviews_gradeEasyInterval').innerHTML = reviews_ui.humanizedInterval(card.next_due_at_per_grade['5']);

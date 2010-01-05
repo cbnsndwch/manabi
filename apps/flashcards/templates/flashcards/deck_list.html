@@ -2,7 +2,7 @@
 {% load xhrlinks %}
 
 {% block content %}
-<h1>Decks</h1>
+<h1>My Decks</h1>
 
 <table cellspacing=2 cellpadding="2" width=500>
 {% for deck in deck_list %}
@@ -17,6 +17,8 @@
 {% endfor %}
 </table>
 <br>
+<br>
 <a href="/flashcards/decks/create" class="xhr_link">Create New Deck</a><br>
+<br>
 <a href="/flashcards/shared_decks" class="xhr_link">Download Shared Deck</a>
 {% endblock %}

@@ -20,6 +20,15 @@ when not signed in, bugs! (click title) (also, dojo errors)
 ---------------------
 TODO:
 ---------------------
+card review undo
+
+delay before the first time we focus the Show Back button, to avoid accidentally
+hitting enter twice in the study options dialog.
+
+put the card grade buttons on the bottom of the screen
+
+make english text in cards have a smaller font than japanese text
+
 make fact form requirements dependent on cards selected
 
 example sentence UI

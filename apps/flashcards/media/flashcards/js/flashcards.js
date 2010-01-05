@@ -26,6 +26,7 @@
   //dojo.require("dojox.grid.EnhancedGrid");
   //dojo.require("dojox.layout.FloatingPane"); 
   dojo.require("dojo.NodeList-traverse");
+  dojo.require("dijit.Tooltip");
   
   
 
