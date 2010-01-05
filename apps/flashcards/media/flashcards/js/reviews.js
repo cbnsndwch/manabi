@@ -1,6 +1,9 @@
 // flashcard reviewing
 
-reviews = {};
+
+
+
+var reviews = {};
 
 dojo.addOnLoad(function() {
 
@@ -10,18 +13,14 @@ dojo.addOnLoad(function() {
     //without a response yet.
     //It's a list of card IDs.
     reviews.cards_reviewed_pending = new Array(); 
-
     reviews.current_card = null;
-
     reviews.card_buffer_count = 5;
-
     reviews.grades = {GRADE_NONE: 0, GRADE_HARD: 3, GRADE_GOOD: 4, GRADE_EASY: 5}
-    
     reviews.empty_prefetch_producer = false;
     reviews.fails_since_prefetch_request = 0;
-
     reviews.session_over_def = null; //subscribe to this to know when the session is over,
                                      //particularly because the time/card limit ran out
+    reviews.session_timer_subscription_name = '/manabi/reviews/session_timer_tick';
 
     reviews.prefetchCards = function(count, session_start) {
         //get next cards from server, discounting those currently enqueued/pending
@@ -59,6 +58,12 @@ dojo.addOnLoad(function() {
             handleAs: 'json',
             load: function(data) {
                 if (data.success) {
+                    //start the session timer if it hasn't already been started
+                    if (reviews.session_timer != null) {
+                        if (!reviews.session_timer.isRunning) {
+                            reviews.session_timer.start()
+                        }
+                    }
                     if (data.cards.length > 0) {
                         reviews.cards = reviews.cards.concat(data.cards);
                     }
@@ -79,8 +84,39 @@ dojo.addOnLoad(function() {
         return dojo.xhrGet(xhr_args);
     }
 
+    reviews._start_session_timer = function() {
+        reviews.session_start_time = new Date();
+        reviews.session_timer = new dojox.timing.Timer();
+        reviews.session_timer.setInterval(1000); //in ms
+        reviews.session_timer.onTick = function() {
+            var time_now = new Date();
+            var elapsed = time_now - reviews.start_time; //in ms
+            var is_running = true;
+            //see if we're over the session time limit
+            if (reviews.session_time_limit * 60000 <= elapsed) {
+                is_running = false;
+                reviews.session_timer.stop();
+            }
+            dojo.publish(reviews.session_timer_subscription_name, [{
+                is_running: is_running,
+                time_elapsed: elapsed
+            }]);
+        };
+    }
+
+    reviews._stop_session_timer = function() {
+        reviews.session_end_time = new Date();
+        reviews.session_timer.stop();
+        reviews.session_timer = null;
+        dojo.publish(reviews.session_timer_subscription_name, [{
+            is_running: false,
+            time_elapsed: reviews.session_end_time - reviews.session_start_time
+        }]);
+    }
+
     reviews.startSession = function(deck_id, session_new_card_limit, session_card_limit, session_time_limit) {
         //Use deck_id = -1 for all decks
+        //session_time_limit is in minutes
         //Always call this before doing anything else.
         //Returns a deferred.
         reviews.session_deck_id = deck_id;
@@ -89,7 +125,10 @@ dojo.addOnLoad(function() {
         reviews.session_time_limit = session_time_limit;
         reviews.session_cards_reviewed_count = 0;
         reviews.session_over_def = new dojo.Deferred();
-        reviews.session_start_time = new Date();
+
+        //start session timer - a published event
+        reviews._start_session_timer();
+        
         reviews.empty_prefetch_producer = false;
 
         //TODO cleanup beforehand? precautionary..
@@ -97,7 +136,8 @@ dojo.addOnLoad(function() {
     }
 
     reviews.endSession = function() {
-        reviews.session_end_time = new Date();
+        reviews._stop_session_timer();
+
         //FIXME cleanup, especially once the dialog is closed prematurely, automatically
         reviews.cards = new Array();
         reviews.cards_reviewed_pending = new Array();
@@ -129,7 +169,7 @@ dojo.addOnLoad(function() {
     reviews.nextCard = function() {
         //Returns a deferred.
 
-        //TODO dont prefetch more cards if a prefetch is already in progress
+        //TODO -?-(done?)dont prefetch more cards if a prefetch is already in progress
         var next_card_def = new dojo.Deferred();
 
         if (reviews.cards.length > 0) {
@@ -243,335 +283,10 @@ dojo.addOnLoad(function() {
 
         return new_count_def;
     }
+
 });
 
 
 
 
 
-// user interface
-
-reviews_ui = {}
-
-dojo.addOnLoad(function() {
-    reviews_ui.review_options_dialog = dijit.byId('reviews_reviewDialog');
-    reviews_ui.review_dialog = dijit.byId('reviews_fullscreenContainer');
-});
-
-reviews_ui.humanizedInterval = function(interval) {
-    var ret = null;
-    var duration = null;
-
-    if ((interval * 24 * 60) < 1) {
-        //less than a minute
-        ret = 'Soon'
-    } else if ((interval * 24) < 1) {
-        //less than an hour: show minutes
-        duration = Math.round(interval * 24 * 60);
-        ret = duration + ' minute'
-    } else if (interval < 1) {
-        //less than a day: show hours
-        duration = Math.round(interval * 24);
-        if (duration == 24) {
-            duration = 1;
-            ret = '1 day';
-        } else {
-            ret = duration + ' hour';
-        }
-    } else {
-        //days
-        duration = Math.round(interval);
-        ret = duration + ' day'; //TODO how to round?
-    }
-
-    if (duration >= 2) {
-        //pluralize
-        ret += 's';
-    }
-    
-    return ret;
-};
-
-reviews_ui.showNoCardsDue = function() {
-    dojo.byId('reviews_noCardsDue').style.display = '';
-    dojo.byId('reviews_beginReview').style.display = 'none';
-    dojo.byId('reviews_reviewOptions').style.display = '';
-    dojo.byId('reviews_reviewScreen').style.display = 'none';
-    dojo.byId('reviews_reviewEndScreen').style.display = 'none';
-};
-
-reviews_ui.showReviewOptions = function() {
-    dojo.byId('reviews_beginReview').style.display = '';
-    dojo.byId('reviews_reviewOptions').style.display = '';
-    dojo.byId('reviews_noCardsDue').style.display = 'none';
-    dojo.byId('reviews_reviewEndScreen').style.display = 'none';
-
-    //refresh the decks grid
-//    reviews_decksStore.close();
-//reviews_decksStore.fetch();
-
-    //show the due count
-    reviews.dueCardsCount().addCallback(function(count) {
-        dojo.byId('reviews_cardsDueCount').innerHTML = count;
-    });
-    //show the new count
-    reviews.newCardsCount().addCallback(function(count) {
-        dojo.byId('reviews_cardsNewCount').innerHTML = count;
-    });
-
-};
-
-reviews_ui.openDialog = function() {
-    //TODO first check if there are any cards due (using default review options? or special request to server)
-
-    reviews_ui.showReviewOptions();
-
-    reviews_ui.review_options_dialog.tabStart = reviews_beginReviewButton;
-
-    //show the options screen
-    dojo.byId('reviews_reviewOptions').style.display = '';
-    //hide the review screen
-    reviews_ui.review_options_dialog.show();
-
-    reviews_decksGrid.store.close();
-    reviews_decksGrid.store.fetch({
-        onComplete: function() {
-            reviews_decksGrid.sort();
-            reviews_decksGrid.resize();
-            
-            //reset the deck selection
-            reviews_decksGrid.selection.setSelected(reviews_decksGrid.selection.selectedIndex, false);
-            reviews_decksGrid.selection.setSelected(0, true);
-        }
-    });
-};
-
-reviews_ui.endSession = function() {
-    reviews_ui.unsetCardBackKeyboardShortcuts();
-    reviews_ui.unsetCardFrontKeyboardShortcuts();
-
-    //show the page behind this
-    dojo.byId('body_contents').style.display = '';
-
-    dojo.byId('reviews_fullscreenContainer').style.display = 'none';
-    //TODO fade out, less harsh
-    //TODO show review session results
-    reviews.endSession();
-};
-
-reviews_ui.displayNextIntervals = function(card) {
-    //dojo.byId('reviews_gradeNoneInterval').innerHTML = reviews_ui.humanizedInterval(card.next_due_at_per_grade['0']);
-    //show a special message for card failures
-    //FIXME but only for young card failures - mature cards should have an interval shown
-    dojo.byId('reviews_gradeNoneInterval').innerHTML = 'Review soon';
-    dojo.byId('reviews_gradeHardInterval').innerHTML = reviews_ui.humanizedInterval(card.next_due_at_per_grade['3']);
-    dojo.byId('reviews_gradeGoodInterval').innerHTML = reviews_ui.humanizedInterval(card.next_due_at_per_grade['4']);
-    dojo.byId('reviews_gradeEasyInterval').innerHTML = reviews_ui.humanizedInterval(card.next_due_at_per_grade['5']);
-};
-
-reviews_ui.displayCard = function(card, show_card_back) {
-    reviews_ui.card_back_visible = false;
-    reviews_ui.unsetCardBackKeyboardShortcuts();
-    reviews_cardFront.attr('content', card.front);
-    dojo.byId('reviews_showCardBack').style.display = '';
-    reviews_cardBack.attr('content', card.back);
-    reviews_cardBack.domNode.style.display = 'none';
-    dojo.byId('reviews_gradeButtons').style.visibility = 'hidden';
-    //reviews_ui.review_dialog._position(); //recenter dialog
-    //reviews_showCardBackButton.focus();
-    if (show_card_back) {
-        reviews_ui.showCardBack(card);
-    } else {
-        reviews_ui.setCardFrontKeyboardShortcuts();
-        reviews_showCardBackButton.attr('disabled', false);
-        reviews_showCardBackButton.focus();
-    }
-};
-
-reviews_ui.goToNextCard = function() {
-    //disable the review buttons until the back is shown again
-    dojo.query('button', dojo.byId('reviews_gradeButtons')).forEach(function(node) {
-        dijit.getEnclosingWidget(node).attr('disabled', true);
-    });
-    //disable the card back button until the next card is ready
-    reviews_showCardBackButton.attr('disabled', true);
-    
-    var next_card_def = reviews.nextCard();
-    next_card_def.addCallback(function(next_card) {
-        if (next_card) {
-            //next card is ready
-            reviews_ui.displayCard(next_card);
-        } else  {
-            //out of cards on the server
-            reviews_ui.endSession();
-        }
-    });
-};
-
-reviews_ui.showCardBack = function(card) {
-    reviews_showCardBackButton.attr('disabled', true);
-    reviews_ui.card_back_visible = true;
-    reviews_ui.unsetCardFrontKeyboardShortcuts();
-    
-    //enable the grade buttons
-    dojo.query('button', dojo.byId('reviews_gradeButtons')).forEach(function(node) {
-        dijit.getEnclosingWidget(node).attr('disabled', false);
-    });
-
-    dojo.byId('reviews_showCardBack').style.display = 'none';
-    reviews_cardBack.domNode.style.display = '';
-    reviews_ui.displayNextIntervals(card);
-    dojo.byId('reviews_gradeButtons').style.visibility = '';
-    reviews_ui.review_dialog.domNode.focus();
-    reviews_ui.setCardBackKeyboardShortcuts();
-};
-
-reviews_ui.reviewCard = function(card, grade) {
-    var review_def = reviews.reviewCard(card, grade);
-    review_def.addCallback(function(data) {
-        //FIXME anything go here?
-    });
-    reviews_ui.goToNextCard();
-};
-
-
-reviews_ui.displayNextCard = function() {
-};
-
-
-reviews_ui.showReviewScreen = function() {
-    //show the fullscreen reviews div
-    dijit.byId('reviews_fullscreenContainer').domNode.style.display = '';
-
-    //hide the page behind this
-    dojo.byId('body_contents').style.display = 'none';
-
-    //show the review screen and hide the end of review screen
-    dojo.byId('reviews_reviewScreen').style.display = '';
-    dojo.byId('reviews_reviewEndScreen').style.display = 'none';
-
-    dijit.byId('reviews_fullscreenContainer').domNode.focus();
-};
-
-
-reviews_ui.isCardBackDisplayed = function() {
-    //Returns true if the card's back side is shown
-    return reviews_cardBack.domNode.style.display == '';
-};
-
-
-reviews_ui.unsetKeyboardShortcuts = function() {
-    //unsets the keyboard shortcuts, 
-    //no matter whether the card's front or back is currently displayed
-    reviews_ui.unsetCardFrontKeyboardShortcuts();
-    reviews_ui.unsetCardBackKeyboardShortcuts();
-};
-
-reviews_ui.setKeyboardShortcuts = function() {
-    reviews_ui.unsetKeyboardShortcuts();
-    if (reviews_ui.isCardBackDisplayed()) {
-        reviews_ui.setCardBackKeyboardShortcuts();
-    } else {
-        reviews_ui.setCardFrontKeyboardShortcuts();
-    }
-};
-
-
-reviews_ui.card_front_keyboard_shortcut_connection = null;
-reviews_ui.card_back_keyboard_shortcut_connection = null;
-
-reviews_ui.setCardBackKeyboardShortcuts = function() {
-  //reviews_ui.card_back_keyboard_shortcut_connection = dojo.connect(reviews_ui.review_dialog, 'onKeyPress', function(e) {
-  reviews_ui.card_back_keyboard_shortcut_connection = dojo.connect(window, 'onkeypress', function(e) {
-    switch(e.charOrCode) {
-        case '0':
-        case '1':
-            reviews_ui.reviewCard(reviews.current_card, reviews.grades.GRADE_NONE);
-            break;
-        case '2':
-            reviews_ui.reviewCard(reviews.current_card, reviews.grades.GRADE_HARD);
-            break;
-        case '3':
-            reviews_ui.reviewCard(reviews.current_card, reviews.grades.GRADE_GOOD);
-            break;
-        case '4':
-            reviews_ui.reviewCard(reviews.current_card, reviews.grades.GRADE_EASY);
-            break;
-    }
-  });
-};
-
-reviews_ui.setCardFrontKeyboardShortcuts = function() {
-  //reviews_ui.card_front_keyboard_shortcut_connection = dojo.connect(reviews_ui.review_dialog, 'onKeyPress', function(e) {
-  reviews_ui.card_front_keyboard_shortcut_connection = dojo.connect(window, 'onkeypress', function(e) {
-    var k = dojo.keys;
-    switch(e.charOrCode) {
-        case k.ENTER:
-        case ' ':
-            reviews_ui.showCardBack(reviews.current_card);
-            dojo.stopEvent(e);
-            break;
-        //default:
-    }
-  });
-};
-
-reviews_ui.unsetCardFrontKeyboardShortcuts = function() {
-    if (reviews_ui.card_front_keyboard_shortcut_connection) {
-        dojo.disconnect(reviews_ui.card_front_keyboard_shortcut_connection);
-    }
-};
-
-reviews_ui.unsetCardBackKeyboardShortcuts = function() {
-    if (reviews_ui.card_back_keyboard_shortcut_connection) {
-        dojo.disconnect(reviews_ui.card_back_keyboard_shortcut_connection);
-    }
-};
-
-
-
-reviews_ui.submitReviewOptionsDialog = function() {
-    //hide this options screen
-    //dojo.byId('reviews_reviewOptions').style.display = 'none';//({display: 'none'});
-
-    //TODO add a loading screen
-
-
-
-    var decks_grid_item = reviews_decksGrid.selection.getSelected()[0];
-    var deck_id = decks_grid_item['id'][0]; //TODO allow multiple selections
-    
-    //start a review session with the server
-    var session_def = reviews.startSession(deck_id, 20); //FIXME use the user-defined session limits
-
-    //wait for the first cards to be returned from the server
-    session_def.addCallback(function() {
-        //show the first card
-        var next_card_def = reviews.nextCard();
-        next_card_def.addCallback(function(next_card) {
-
-            if (next_card) {
-                //hide this dialog and show the review screen
-                reviews_reviewDialog.refocus = false;
-                reviews_reviewDialog.hide();
-                reviews_ui.showReviewScreen();
-
-                //show the card
-                reviews_ui.displayCard(next_card);
-            } else {
-                //no cards are due
-                reviews_ui.showNoCardsDue();
-            }
-        });
-    });
-};
-
-
-var reviews_decksGridLayout = [{
-			type: "dojox.grid._RadioSelector"
-		},{ cells: [[
-			{name: 'Name', field: 'name', width: 'auto'},
-			//{name: 'Cards', field: 'card_count', width: 'auto'},
-			{name: 'Cards due', field: 'due_card_count', width: '58px'},
-			{name: 'New cards', field: 'new_card_count', width: '60px'},
-		]]}];
