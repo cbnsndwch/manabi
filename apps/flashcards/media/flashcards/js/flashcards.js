@@ -27,7 +27,7 @@
   //dojo.require("dojox.layout.FloatingPane"); 
   dojo.require("dojo.NodeList-traverse");
   dojo.require("dijit.Tooltip");
-  dojo.require("dojox.timing.Timer");
+  dojo.require("dojox.timing");
   
   
 
