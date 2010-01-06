@@ -3,6 +3,7 @@ from django.contrib.auth.models import User
 from django.forms import ModelForm
 from django.forms.util import ErrorList
 from dbtemplates.models import Template
+from django.db.models import Q
 
 from fields import FieldContent
 #import fields
@@ -53,7 +54,13 @@ class FactManager(models.Manager):
         query = query.strip()
         if not query_set:
             query_set = self.all()
-        return query_set.filter(id__in=set(field_content.fact_id for field_content in FieldContent.objects.filter(content__icontains=query, fact__fact_type=fact_type).all()))
+        
+        matches = FieldContent.objects.filter( \
+                Q(content__icontains=query) \
+                | Q(cached_transliteration_without_markup__icontains=query) \
+                & Q(fact__fact_type=fact_type)).all()
+
+        return query_set.filter(id__in=set(field_content.fact_id for field_content in matches))
 
 
 #TODO citation/fact source class

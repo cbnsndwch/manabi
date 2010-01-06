@@ -37,6 +37,7 @@ class FieldType(models.Model):
     name = models.CharField(max_length=50)
     fact_type = models.ForeignKey('FactType')
 
+    #fk to the FieldType which contains a transliteration of this FieldType
     transliteration_field_type = models.OneToOneField('self', blank=True, null=True)
     
     #constraints
@@ -98,6 +99,26 @@ class AbstractFieldContent(models.Model):
     media_uri = models.URLField(blank=True)
     media_file = models.FileField(upload_to='/card_media/', null=True, blank=True) #TODO upload to user directory, using .storage
 
+    #if this Field is a transliteration, then we will cache the non-marked up transliteration
+    #for example, for '<TA|ta>beru', we will cache 'taberu' in this field.
+    cached_transliteration_without_markup = models.CharField(max_length=1000, blank=True)
+
+
+    @property
+    def transliteration_field_content(self):
+        '''
+        Returns the transliteration field for this field.
+        If one doesn't exist, returns None.
+        '''
+        if self.field_type.transliteration_field_type:
+            #this field is supposed to have a matching transliteration field
+            try:
+                return self.fact.fieldcontent_set.get(field_type=self.field_type.transliteration_field_type)
+            except self.DoesNotExist:
+                return None
+        else:
+            return None
+
     @property
     def human_readable_content(self):
         '''
@@ -158,23 +179,12 @@ class SharedFieldContent(AbstractFieldContent):
 class FieldContent(AbstractFieldContent):
     fact = models.ForeignKey('Fact')
     
-    @property
-    def transliteration_field_content(self):
-        '''
-        Returns the transliteration field for this field.
-        If one doesn't exist, returns None.
-        '''
-        if self.field_type.transliteration_field_type:
-            #this field is supposed to have a matching transliteration field
-            try:
-                return self.fact.fieldcontent_set.get(field_type=self.field_type.transliteration_field_type)
-            except self.DoesNotExist:
-                return None
-        else:
-            return None
-
-
-
+    def save(self):
+        # If this is a transliteration field,
+        # update the transliteration cache.
+        if self.field_type.is_transliteration_field_type():
+            self.cached_transliteration_without_markup = self.strip_ruby_bottom()
+        super(FieldContent, self).save()
 
     class Meta:
         #TODO unique_together = (('fact', 'field_type'), ) #one field content per field per fact

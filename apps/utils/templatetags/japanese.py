@@ -28,7 +28,7 @@ def furiganaize(text):
     new_text += text[last_match_end:]
     return new_text
 
-
+#TODO move below into some other module
 def strip_ruby_text(text):
     new_text = ''
     last_match_end = 0

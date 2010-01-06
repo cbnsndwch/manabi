@@ -32,7 +32,7 @@ class Command(BaseCommand):
         import flashcards.partsofspeech as partsofspeech
         import pickle
         part_of_speech_choices = pickle.dumps(partsofspeech.ALL_PART_OF_SPEECH_CHOICES)
-        pos_field = FieldType(name='Part of Speech', fact_type=japanese_fact_type, unique=False, blank=True, choices=part_of_speech_choices, grid_column_width='40px', ordinal=4)
+        pos_field = FieldType(name='Part of Speech', fact_type=japanese_fact_type, unique=False, blank=True, choices=part_of_speech_choices, grid_column_width='90px', ordinal=4)
         pos_field.save()
         notes_field = FieldType(name='Notes', fact_type=japanese_fact_type, unique=False, blank=True, hidden_in_form=True, hidden_in_grid=True, ordinal=5)
         notes_field.save()

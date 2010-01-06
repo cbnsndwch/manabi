@@ -7,6 +7,7 @@ from dbtemplates.models import Template
 from facts import FactType
 
 
+
 class CardTemplate(models.Model):
     fact_type = models.ForeignKey(FactType)
 
@@ -23,6 +24,11 @@ class CardTemplate(models.Model):
     #can show validation errors to the user based on this (e.g. "Enter a reading if you want to do kanji writing")
     requisite_field_types = models.ManyToManyField('FieldType', blank=True) #TODO implement
     
+    #sometimes multiple cards should share intervals if they're similar enough.
+    #use this group ID (not a foreignkey though) to synchronize among other cards within a fact.
+    #this group is per fact type.
+    card_synchronization_group = models.SmallIntegerField(blank=True, null=True)
+
     generate_by_default = models.BooleanField(default=True)
     ordinal = models.IntegerField(null=True, blank=True)
     

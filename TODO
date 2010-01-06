@@ -15,11 +15,21 @@ SUPER CRITICAL BUGS:
 --------------------
 when not signed in, bugs! (click title) (also, dojo errors)
 
+searching for the newly modified readings in facts editor is broken
 
 
 ---------------------
 TODO:
 ---------------------
+'reset' button for facts editor
+
+make the 'per-card actions' section of buttons in the facts editor clearer
+
+more detailed card review history stats
+
+wait until deck stats are downloaded before opening the review dialog,
+so we can make sure the user selects a deck with due cards, etc.
+
 card review undo
 
 delay before the first time we focus the Show Back button, to avoid accidentally
@@ -163,6 +173,7 @@ Longer Term To-Do
 ----------------------
 Export (CSV, XML, Anki)
 Import (CSV, HTML tables, Anki, Mnemosyne)
+stats/graphs
 
 
 
@@ -205,6 +216,9 @@ scenario: reviewing a card that was failed just a few minutes ago.
 the meaning of 'too easy' for example really changes here. With new cards, the grades show how well you already 
 knew the card. But for a recently failed card, 'too easy' is kind of expected
 
+when looking for due cards, count cards that are due any time within the next 8-16 hours as due *now*,
+as long as their interval is above some amount (like only mature cards)
+but give these lower priority somehow perhaps
 
 OTHER NOTES
 comment tags:

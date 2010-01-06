@@ -231,14 +231,9 @@
                 <strong>Session card limit:</strong></td>
                 <input dojoType="dijit.form.NumberSpinner" value="0" smallDelta="5"
                 constraints="{min:0,max:1000,places:0}"
-                jsId="reviews_cardLimitInput" style="width:80px">
+                jsId="reviews_cardLimitInput" style="width:80px"> cards
             </div>
             <span style="color:gray">(0 = unlimited)</span>
-        </p>
-
-
-        <p>
-            <span style="color:gray">(study options under development)</span><br>
         </p>
 
         <div id="reviews_noCardsDue" style="display: none">
@@ -249,12 +244,44 @@
         <div id="reviews_beginReview">
             <button dojoType="dijit.form.Button" type="button" jsId="reviews_beginReviewButton">
                 Begin Review
-                <script type="dojo/method" event="onClick" args="evt">
+                <script type="dojo/connect" event="onClick" args="evt">
                     reviews_ui.submitReviewOptionsDialog();
                 </script>
             </button>
         </div>
-    </div>
 
+    </div>
+</div>
+
+
+<div dojoType="dijit.Dialog" jsId="reviews_sessionOverDialog" id="reviews_sessionOverDialog" title="Flashcard Review">
+	<script type="dojo/connect" event="onCancel" args="evt">
+	</script>
+	<script type="dojo/connect" event="onKeyPress" args="evt">
+        //submit the dialog if user presses Enter
+        var k = dojo.keys;
+        switch(evt.charOrCode) {
+            case k.ENTER:
+                //TODO reviews_ui.submitReviewOptionsDialog();
+                break;
+        }
+	</script>
+    <strong style="font-size:120%">Well done!</strong><br>
+    <br>
+    Your study session is over. You reviewed <span id="reviews_sessionOverDialogReviewCount"></span> cards.<br>
+    <br>
+    <button dojoType="dijit.form.Button" type="button">
+        Continue Reviewing
+        <script type="dojo/connect" event="onClick" args="evt">
+            reviews_sessionOverDialog.hide();
+            reviews_ui.openDialog();
+        </script>
+    </button>
+    <button dojoType="dijit.form.Button" type="button">
+        Close
+        <script type="dojo/connect" event="onClick" args="evt">
+            reviews_sessionOverDialog.hide();
+        </script>
+    </button>
 </div>
 
