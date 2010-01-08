@@ -106,7 +106,7 @@ reviews._start_session_timer = function() {
         var time_now = new Date();
         var elapsed = time_now - reviews.session_start_time; //in ms
         //see if we're over the session time limit
-        if (reviews_session_time_limit
+        if (reviews.session_time_limit
                 && reviews.session_time_limit * 60000 <= elapsed) {
             reviews._stop_session_timer();
         } else {

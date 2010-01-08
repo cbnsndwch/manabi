@@ -82,6 +82,8 @@ or perhaps add a 'monolingual?' kind of bool field
 ---------------------
 TODO (low priority):
 ---------------------
+freeze my pip reqs
+
 respect hidden fields for fact update form - with the 'Add Foobar' link
 
 don't create blank fieldcontent objects. but add the missing ones to update forms, 
@@ -219,6 +221,16 @@ knew the card. But for a recently failed card, 'too easy' is kind of expected
 when looking for due cards, count cards that are due any time within the next 8-16 hours as due *now*,
 as long as their interval is above some amount (like only mature cards)
 but give these lower priority somehow perhaps
+
+
+problem: 2 very mature sibling cards due at same time, delay makes 1 due a week later.
+fail 1st card, but recall 2nd because a week wasn't sufficient.
+but 2nd now has an even huger interval.
+so to lessen this, perhaps if a card was delayed after a failed sibling card,
+its interval should not increase as much.
+one way to do this would be to cancel the bonus for recalling far after the card 
+was due, especially if the failed card was failed far after its due time.
+
 
 OTHER NOTES
 comment tags:

@@ -12,6 +12,8 @@ from fields import FieldContent
 
 import usertagging
 
+def seconds_to_days(s):
+    return s / 86400.0
 
 class FactType(models.Model):
     name = models.CharField(max_length=50)
@@ -22,8 +24,8 @@ class FactType(models.Model):
     many_children_per_fact = models.NullBooleanField(blank=True, null=True)
 
     #not used for child fact types
-    minimum_card_space = models.FloatField(default=60, help_text="Duration expressed in seconds.") #separate the cards of this fact initially
-    minimum_space_factor = models.FloatField(default=.1) #minimal interval multiplier between two cards of the same fact
+    min_card_space = models.FloatField(default=seconds_to_days(600), help_text="Duration expressed in (partial) days.") #separate the cards of this fact initially
+    space_factor = models.FloatField(default=.1) #minimal interval multiplier between two cards of the same fact
     
     created_at = models.DateTimeField(auto_now_add=True, editable=False)
     modified_at = models.DateTimeField(auto_now=True, editable=False)

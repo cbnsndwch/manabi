@@ -44,7 +44,7 @@ class FieldType(models.Model):
     unique = models.BooleanField(default=True)
     blank = models.BooleanField(default=False)
     editable = models.BooleanField(default=True)
-    ordinal = models.IntegerField(null=True, blank=True)
+    numeric = models.BooleanField(default=False)
     multi_line = models.BooleanField(default=True, blank=True)
     choices = models.CharField(blank=True, max_length=1000, help_text='Use a pickled choices tuple. The "none" value is used to indicate no selection, so don\'t use it in the choices tuple.')
 
@@ -59,8 +59,10 @@ class FieldType(models.Model):
     hidden_in_form = models.BooleanField(default=False) #hide this field when adding/editing a fact, unless the user wants to see extra, optional fields
     hidden_in_grid = models.BooleanField(default=False)
     grid_column_width = models.CharField(blank=True, max_length=10)
-
     #hidden_when_reviewing = models.BooleanField(default=False) #hide this field during review, click to see it (like extra notes maybe) #handle in templates
+
+    ordinal = models.IntegerField(null=True, blank=True)
+
 
     active = models.BooleanField(default=True)
 
