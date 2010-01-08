@@ -81,8 +81,11 @@ class CardManager(models.Manager):
             new_cards = new_cards.filter(fact__deck=deck)
         return new_cards
 
-    def due_cards(self, user, deck):
-        return self.filter(fact__deck__owner=user, fact__deck=deck, due_at__lte=datetime.datetime.utcnow()).order_by('-interval')
+    def due_cards(self, user, deck=None):
+        due_cards = self.filter(fact__deck__owner=user, due_at__lte=datetime.datetime.utcnow()).order_by('-interval')
+        if deck:
+            due_cards = due_cards.filter(fact__deck=deck)
+        return due_cards
 
 
     #def failed_cards(self):

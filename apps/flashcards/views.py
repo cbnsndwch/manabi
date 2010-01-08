@@ -255,8 +255,14 @@ def rest_generate_reading(request):
                     if len(postfix_kana):
                         kanji_reading = kanji_reading[:-len(postfix_kana)]
 
-                    ret += u'{prefix}<{kanji}|{reading}>{postfix}'.format( \
-                            prefix=prefix_kana, kanji=kanji, reading=kanji_reading, postfix=postfix_kana)
+                    #ret += u'{prefix}<{kanji}|{reading}>{postfix}'.format( \
+                    #\u3000 is a full-width space
+                    if ret:
+                        space_char = u'\u3000' #\u3000 is a full-width space
+                    else:
+                        space_char = '' #beginning of transliteration, no need for leading space.
+                    ret += u'{prefix}{space_char}{kanji}[{reading}]{postfix}'.format( \
+                            prefix=prefix_kana, space_char=space_char, kanji=kanji, reading=kanji_reading, postfix=postfix_kana)
                 else:
                     ret += word
             else:

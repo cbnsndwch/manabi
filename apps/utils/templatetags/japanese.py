@@ -10,11 +10,13 @@ from re import compile
 #RUBY_TEXT_MARKUP_TEMPLATE = u'<span class="ruby"><span class="rb">{expression}</span><span class="rp">(</span><span class="rt">{reading}</span><span class="rp">)</span></span>'
 RUBY_TEXT_MARKUP_TEMPLATE = u'<span class="ezRuby" title="{reading}">{expression}</span>'
 
-_LEFT_CARET = u'\&lt;'
-_RIGHT_CARET = u'\&gt;'
+#_LEFT_CARET = u'\&lt;'
+#_RIGHT_CARET = u'\&gt;'
 
-ruby_prog = compile(u'\&lt;(.*)\|(.*)\&gt;')
-unescaped_ruby_prog = compile(u'<(.*)\|(.*)>')
+#ruby_prog = compile(u'\&lt;(.*)\|(.*)\&gt;')
+#unescaped_ruby_prog = compile(u'<(.*)\|(.*)>')
+ruby_prog = compile(u'[^\s](.*)\[(.*)\]')
+unescaped_ruby_prog = compile(u'[^\s](.*)\[(.*)\]')
 
 def furiganaize(text):
     new_text = ''

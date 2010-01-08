@@ -15,11 +15,7 @@ SUPER CRITICAL BUGS:
 --------------------
 focus first field when opening flashcard add dialog (it doesn't always do this)
 
-deck grid says 2 due for deck, but 0 due for all decks
-
 when not signed in, bugs! (click title) (also, dojo errors)
-
-searching for the newly modified readings in facts editor is broken
 
 sometimes the decks grid doesnt resize in time of the dialog opening
 
@@ -31,6 +27,10 @@ gray out the fields while fact submission is in progress
 ---------------------
 TODO:
 ---------------------
+normalize 'parts of speech', per language
+
+allow unicode full-width (japanese) [] for transliterations, as well as < > because theyre easier to type in the japanese IME
+
 allow a 'new card order' for cards within a fact (like recall before other ones since recall is more important)
 
 'reset' button for facts editor
