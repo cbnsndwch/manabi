@@ -95,6 +95,29 @@ class CardManager(models.Manager):
         due_cards_count = len(self.due_cards(user, deck)) #TODO refactor, make this faster (use aggregate)
         return due_cards_count
 
+    def _space_cards(self, card_query, count, review_time):
+        '''
+        Check if any of these are from the same fact,
+        or if other cards from their facts have been
+        reviewed recently. If so, push their due date up.
+        '''
+        while True:
+            cards_delayed = 0
+            cards = card_query[:count]
+            for card in cards:
+                min_space = card.min_space_from_siblings()
+                for sibling_card in card.siblings():
+                    if sibling_card.is_due(review_time) \
+                            or review_time - sibling_card.last_reviewed_at <= min_space:
+                        # Delay the card. It's already sorted by priority, so we delay
+                        # this one instead of its sibling.
+                        card.delay(min_space)
+                        card.save()
+                        cards_delayed += 1
+                        break # this first card was delayed, so move on to other first cards
+            if not cards_delayed:
+                break
+        return cards
 
     def _next_due_cards(self, initial_query, count, review_time):
         '''
@@ -107,48 +130,9 @@ class CardManager(models.Manager):
             return []
 
         due_cards = initial_query.filter(due_at__lte=review_time).order_by('-interval')
-
         #TODO Also get cards that aren't quite due yet, but will be soon, and depending on their maturity (i.e. only mature cards due soon). Figure out some kind of way to prioritize these too.
 
-        # Check if any of these are from the same fact,
-        # or if other cards from their facts have been
-        # reviewed recently. If so, push their due date up.
-        while True:
-            cards_delayed = 0
-            first_due_cards = due_cards[:count]
-            for due_card in first_due_cards:
-                min_space = due_card.min_space_from_siblings()
-                for sibling_card in due_card.siblings():
-                    if sibling_card.is_due(review_time) \
-                            or review_time - sibling_card.last_reviewed_at <= min_space:
-                        # We sort by '-interval' so this card already has the smaller interval.
-                        # So, we will delay it.
-                        due_card.delay(min_space)
-                        due_card.save()
-                        cards_delayed += 1
-                        break # this first due card was delayed, so move on to other first due cards
-            if not cards_delayed:
-                break
-        return first_due_cards
-
-    def _space_cards(self, card_query, count, review_time):
-        while True:
-            cards_delayed = 0
-            cards = card_query[:count]
-            for card in cards:
-                min_space = card.min_space_from_siblings()
-                for sibling_card in card.siblings():
-                    if sibling_card.is_due(review_time) \
-                            or review_time - sibling_card.last_reviewed_at <= min_space:
-                        # Delay the failed card.
-                        card.delay(min_space)
-                        card.save()
-                        cards_delayed += 1
-                        break # this first card was delayed, so move on to other first cards
-            if not cards_delayed:
-                break
-        return cards
-
+        return self._space_cards(failed_not_due_cards, count, review_time)
 
     def _next_failed_not_due_cards(self, initial_query, count, review_time):
         if not count:
@@ -156,22 +140,14 @@ class CardManager(models.Manager):
         #TODO prioritize certain failed cards, not just by due date
         failed_not_due_cards = initial_query.filter(last_review_grade=GRADE_NONE, \
                 due_at__gt=review_time).order_by('due_at')
-        while True:
-            cards_delayed = 0
-            first_failed_not_due_cards = failed_not_due_cards[:count]
-            for failed_card in first_failed_not_due_cards:
-                min_space = failed_card.min_space_from_siblings()
-                for sibling_card in failed_card.siblings():
-                    if sibling_card.is_due(review_time) \
-                            or review_time - sibling_card.last_reviewed_at <= min_space:
-                        # Delay the failed card.
-                        failed_card.delay(min_space)
-                        failed_card.save()
-                        cards_delayed += 1
-                        break # this first card was delayed, so move on to other first cards
-            if not cards_delayed:
-                break
-        return first_failed_not_due_cards
+        return self._space_cards(failed_not_due_cards, count, review_time)
+
+    def _next_new_cards(self, initial_query, count, review_time):
+        if not count:
+            return []
+        #TODO prioritize certain failed cards, not just by due date
+        new_cards = initial_query.filter(due_at__isnull=True).order_by('new_card_ordinal')
+        return self._space_cards(new_cards, count, review_time)
 
 
 
@@ -193,7 +169,6 @@ class CardManager(models.Manager):
             user_cards = user_cards.exclude(id__in=excluded_ids)
 
         #due cards
-        #due_cards = user_cards.filter(due_at__lte=now).order_by('-interval')
         due_cards = self._next_due_cards(user_cards, count, now)
         cards_left = count - len(due_cards)
         if len(due_cards):
@@ -209,24 +184,28 @@ class CardManager(models.Manager):
 
         #FIXME add new cards into the mix
         #for now, we'll add new ones to the end
-        new_cards = user_cards.filter(due_at__isnull=True).order_by('new_card_ordinal')
-        card_queries.append(new_cards)
+        new_cards = self._next_new_cards(user_cards, cards_left, now) 
+        cards_left -= len(new_cards)
+        if len(new_cards):
+            card_queries.append(new_cards)
 
-        card_queries_ret = []
-        cards_left = count
-        for card_query in card_queries:
-            if cards_left > 0:
-                card_query_limited = card_query[:cards_left]
-                if len(card_query_limited) > 0:
-                    card_queries_ret.append(card_query_limited)
-                    cards_left -= len(card_query_limited)
+        #card_queries_ret = []
+        #cards_left = count
+        #for card_query in card_queries:
+        #    if cards_left > 0:
+        #        card_query_limited = card_query[:cards_left]
+        #        if len(card_query_limited) > 0:
+        #            card_queries_ret.append(card_query_limited)
+        #            cards_left -= len(card_query_limited)
 
-        return chain(*card_queries_ret) #chain(due_cards, failed_not_due_cards, new_cards)
+        #return chain(*card_queries_ret) #chain(due_cards, failed_not_due_cards, new_cards)
+        return chain(*card_queries)
 
 
 #used for randomizing new card insertion
 MAX_NEW_CARD_ORDINAL = 10000000
                       #4294967295
+#FIXME how to order new cards
 
 
 
