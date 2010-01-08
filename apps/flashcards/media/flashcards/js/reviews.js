@@ -72,6 +72,9 @@ reviews.prefetchCards = function(count, session_start) {
         handleAs: 'json',
         load: function(data) {
             if (data.success) {
+                console.log('inside prefetchCards');
+                console.log(reviews.empty_prefetch_producer);
+                console.log(data.cards);
                 //start the session timer if it hasn't already been started
                 if (reviews.session_timer != null) {
                     if (!reviews.session_timer.isRunning) {
@@ -212,11 +215,13 @@ reviews.nextCard = function() {
             //out of cards, need to fetch more
             var prefetch_def = reviews.prefetchCards(reviews.card_buffer_count * 2, false);
             prefetch_def.addCallback(dojo.hitch(null, function(next_card_def) {
-            if (!reviews.empty_prefetch_producer) {
-                next_card_def.callback(reviews._nextCard());
-            } else {
-                next_card_def.callback(null);
-            }
+                        console.log('inside nextCards prefect_def...');
+                        console.log(reviews.empty_prefetch_producer);
+                if (reviews.cards.length) {
+                    next_card_def.callback(reviews._nextCard());
+                } else {
+                    next_card_def.callback(null);
+                }
             }, next_card_def));
         } else {
             next_card_def.callback(null);
@@ -498,6 +503,7 @@ reviews_ui.goToNextCard = function() {
                 reviews_ui.displayCard(next_card);
             } else  {
                 //out of cards on the server
+                console.log('out of cards on server');
                 reviews_ui.endSession();
             }
         });
@@ -528,6 +534,10 @@ reviews_ui.reviewCard = function(card, grade) {
         //FIXME anything go here?
     });
     reviews_ui.goToNextCard();
+    if (grade == reviews.grades.GRADE_NONE) {
+        //failed cards will be reshown
+        reviews.fails_since_prefetch_request += 1;
+    }
 };
 
 

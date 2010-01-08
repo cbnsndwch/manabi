@@ -13,14 +13,26 @@ should all those connects be disconnected somehow? particularly in body_pane (do
 
 SUPER CRITICAL BUGS:
 --------------------
+focus first field when opening flashcard add dialog (it doesn't always do this)
+
+deck grid says 2 due for deck, but 0 due for all decks
+
 when not signed in, bugs! (click title) (also, dojo errors)
 
 searching for the newly modified readings in facts editor is broken
+
+sometimes the decks grid doesnt resize in time of the dialog opening
+
+session time limit is bugged out (doesnt always get reset - particualrly when there's an error starting the session)
+
+gray out the fields while fact submission is in progress
 
 
 ---------------------
 TODO:
 ---------------------
+allow a 'new card order' for cards within a fact (like recall before other ones since recall is more important)
+
 'reset' button for facts editor
 
 make the 'per-card actions' section of buttons in the facts editor clearer
@@ -198,6 +210,7 @@ mincho vs gothic fonts for kanji, maybe on mouse hover or something (useful for 
 
 inflection (like in Genki)
 
+truancy expectation (http://foolsworkshop.com/reviews/terms#truancy and its uses there)
 
 
 ---------------------

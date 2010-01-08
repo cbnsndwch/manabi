@@ -81,6 +81,10 @@ class CardManager(models.Manager):
             new_cards = new_cards.filter(fact__deck=deck)
         return new_cards
 
+    def due_cards(self, user, deck):
+        return self.filter(fact__deck__owner=user, fact__deck=deck, due_at__lte=datetime.datetime.utcnow()).order_by('-interval')
+
+
     #def failed_cards(self):
     #    failed_cards = self.filter(last_review_grade=GRADE_NONE)
 
@@ -95,11 +99,13 @@ class CardManager(models.Manager):
         due_cards_count = len(self.due_cards(user, deck)) #TODO refactor, make this faster (use aggregate)
         return due_cards_count
 
-    def _space_cards(self, card_query, count, review_time):
+    def _space_cards(self, card_query, count, review_time, excluded_ids=[]):
         '''
         Check if any of these are from the same fact,
         or if other cards from their facts have been
         reviewed recently. If so, push their due date up.
+        `excluded_ids` is included for avoiding showing sibling 
+        cards of cards which the user is already currently reviewing.
         '''
         while True:
             cards_delayed = 0
@@ -108,7 +114,9 @@ class CardManager(models.Manager):
                 min_space = card.min_space_from_siblings()
                 for sibling_card in card.siblings():
                     if sibling_card.is_due(review_time) \
-                            or review_time - sibling_card.last_reviewed_at <= min_space:
+                            or sibling_card.id in excluded_ids \
+                            or (sibling_card.last_reviewed_at \
+                            and review_time - sibling_card.last_reviewed_at <= min_space):
                         # Delay the card. It's already sorted by priority, so we delay
                         # this one instead of its sibling.
                         card.delay(min_space)
@@ -119,7 +127,7 @@ class CardManager(models.Manager):
                 break
         return cards
 
-    def _next_due_cards(self, initial_query, count, review_time):
+    def _next_due_cards(self, initial_query, count, review_time, excluded_ids=[]):
         '''
         Returns the first [count] cards from initial_query which are due,
         taking spacing of cards from the same fact into account.
@@ -132,23 +140,56 @@ class CardManager(models.Manager):
         due_cards = initial_query.filter(due_at__lte=review_time).order_by('-interval')
         #TODO Also get cards that aren't quite due yet, but will be soon, and depending on their maturity (i.e. only mature cards due soon). Figure out some kind of way to prioritize these too.
 
-        return self._space_cards(failed_not_due_cards, count, review_time)
+        return self._space_cards(due_cards, count, review_time)
 
     def _next_failed_not_due_cards(self, initial_query, count, review_time):
         if not count:
             return []
         #TODO prioritize certain failed cards, not just by due date
-        failed_not_due_cards = initial_query.filter(last_review_grade=GRADE_NONE, \
+        # We'll show failed cards even if they've been reviewed recently.
+        # This is because failed cards are set to be shown 'soon' and not just 
+        # in 10 minutes. Special rules.
+        #TODO we shouldn't show mature failed cards so soon though!
+        card_query = initial_query.filter(last_review_grade=GRADE_NONE, \
                 due_at__gt=review_time).order_by('due_at')
-        return self._space_cards(failed_not_due_cards, count, review_time)
+        return card_query[:count]
 
-    def _next_new_cards(self, initial_query, count, review_time):
+    def _next_new_cards(self, initial_query, count, review_time, excluded_ids=[]):
         if not count:
             return []
         #TODO prioritize certain failed cards, not just by due date
-        new_cards = initial_query.filter(due_at__isnull=True).order_by('new_card_ordinal')
-        return self._space_cards(new_cards, count, review_time)
-
+        card_query = initial_query.filter(due_at__isnull=True).order_by('new_card_ordinal')
+        new_cards = []
+        for card in card_query.iterator(): #TODO iterator() necessary?
+            min_space = card.min_space_from_siblings()
+            eligible = True
+            for sibling_card in card.siblings():
+                if sibling_card in new_cards:
+                    # sibling card is already included as a new card to be shown - disqualify
+                    eligible = False
+                elif sibling_card.id in excluded_ids:
+                    # sibling card is currently in the client-side review queue - disqualify
+                    eligible = False
+                elif sibling_card.is_due(review_time):
+                    # sibling card is due - disqualify
+                    eligible = False
+                    break
+                elif sibling_card.last_reviewed_at:
+                    if review_time - sibling_card.last_reviewed_at <= min_space:
+                        # sibling card was reviewed recently - disqualify
+                        eligible = False
+                        break
+                elif sibling_card.last_review_grade == GRADE_NONE:
+                    # sibling card is failed - disqualify
+                    # Either it's due, or it's not due and
+                    # it's shown before new cards.
+                    eligible = False
+                    break
+            if eligible:
+                new_cards.append(card)
+        # Return a query containing the eligible cards.
+        eligible_ids = [card.id for card in new_cards]
+        return self.filter(id__in=eligible_ids)
 
 
     def next_cards(self, user, count, excluded_ids, session_start, deck=None):
@@ -169,7 +210,7 @@ class CardManager(models.Manager):
             user_cards = user_cards.exclude(id__in=excluded_ids)
 
         #due cards
-        due_cards = self._next_due_cards(user_cards, count, now)
+        due_cards = self._next_due_cards(user_cards, count, now, excluded_ids)
         cards_left = count - len(due_cards)
         if len(due_cards):
             card_queries.append(due_cards)
@@ -184,21 +225,11 @@ class CardManager(models.Manager):
 
         #FIXME add new cards into the mix
         #for now, we'll add new ones to the end
-        new_cards = self._next_new_cards(user_cards, cards_left, now) 
+        new_cards = self._next_new_cards(user_cards, cards_left, now, excluded_ids) 
         cards_left -= len(new_cards)
         if len(new_cards):
             card_queries.append(new_cards)
 
-        #card_queries_ret = []
-        #cards_left = count
-        #for card_query in card_queries:
-        #    if cards_left > 0:
-        #        card_query_limited = card_query[:cards_left]
-        #        if len(card_query_limited) > 0:
-        #            card_queries_ret.append(card_query_limited)
-        #            cards_left -= len(card_query_limited)
-
-        #return chain(*card_queries_ret) #chain(due_cards, failed_not_due_cards, new_cards)
         return chain(*card_queries)
 
 
@@ -279,16 +310,19 @@ class Card(AbstractCard):
     def min_space_from_siblings(self, sibling_cards=None):
         '''
         Calculate the minimum space between this card and its siblings.
-        Returns a float for days.
+        Returns a timedelta.
         '''
         if not sibling_cards:
             sibling_cards = self.fact.card_set.exclude(id=self.id)
-        space_factor  = self.fact.facttype.space_factor
+        space_factor  = self.fact.fact_type.space_factor
         min_interval  = min([card.interval for card in sibling_cards]) #days as float
-        min_space     = max(due_card.fact.facttype.min_card_space, \
-                            min_interval * space_factor)
-        min_space     = datetime.timedelta(days=min_space)
-        return min_space
+        min_card_space = self.fact.fact_type.min_card_space
+        if min_interval:
+            min_space = max(self.fact.fact_type.min_card_space, \
+                    min_interval * space_factor)
+        else:
+            min_space = min_card_space
+        return datetime.timedelta(days=min_space)
 
     def is_new(self):
         ''''Returns True if this is a new card.'''
@@ -301,6 +335,8 @@ class Card(AbstractCard):
 
     def is_due(self, time=None):
         '''Returns True if this card's due date is in the past.'''
+        if not self.due_at:
+            return False
         if not time:
             time = datetime.datetime.utcnow()
         return self.due_at < time
@@ -315,7 +351,7 @@ class Card(AbstractCard):
         delay_duration should be a timedelta
         '''
         now = datetime.datetime.utcnow()
-        if self.due_at >= now
+        if self.due_at >= now:
             from_date = self.due_at
         else:
             from_date = now
@@ -416,6 +452,7 @@ class Card(AbstractCard):
         self._update_statistics(grade, reviewed_at)
 
         self.last_review_grade = grade
+        self.last_reviewed_at = reviewed_at
 
         #TODO add this review to this card's history
         #self.cardhistory.

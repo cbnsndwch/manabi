@@ -273,14 +273,14 @@
     Your study session is over. You reviewed <span id="reviews_sessionOverDialogReviewCount"></span> cards.<br>
     <br>
     <button dojoType="dijit.form.Button" type="button">
-        Continue Reviewing
+        Review More
         <script type="dojo/connect" event="onClick" args="evt">
             reviews_sessionOverDialog.hide();
             reviews_ui.openDialog();
         </script>
     </button>
     <button dojoType="dijit.form.Button" type="button">
-        Close
+        Exit
         <script type="dojo/connect" event="onClick" args="evt">
             reviews_sessionOverDialog.hide();
         </script>
