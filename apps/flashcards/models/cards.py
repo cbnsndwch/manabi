@@ -207,7 +207,7 @@ class CardManager(models.Manager):
         user_cards = self.of_user(user)
 
         if deck:
-            user_cards = user_cards.filter(fact_deck=deck)
+            user_cards = user_cards.filter(fact__deck=deck)
 
         if excluded_ids:
             user_cards = user_cards.exclude(id__in=excluded_ids)

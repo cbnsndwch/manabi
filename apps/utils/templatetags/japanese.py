@@ -2,7 +2,7 @@ from django import template
 
 register = template.Library()
 
-from re import compile
+from re import compile, UNICODE
 
 
 
@@ -15,8 +15,10 @@ RUBY_TEXT_MARKUP_TEMPLATE = u'<span class="ezRuby" title="{reading}">{expression
 
 #ruby_prog = compile(u'\&lt;(.*)\|(.*)\&gt;')
 #unescaped_ruby_prog = compile(u'<(.*)\|(.*)>')
-ruby_prog = compile(u'[^\s](.*)\[(.*)\]')
-unescaped_ruby_prog = compile(u'[^\s](.*)\[(.*)\]')
+#ruby_prog = compile(u'\s(.*)\[(.*)\]', UNICODE) #for some reason, only [\s^] works, and [^\s] doesn't - so [] must prefer the first option it's given over the second
+ruby_prog = compile(u'(\S*?)\[(.*?)\]', UNICODE) #for some reason, only [\s^] works, and [^\s] doesn't - so [] must prefer the first option it's given over the second
+#ruby_prog2 = compile(u'^(.*)\[(.*)\]', UNICODE)
+#unescaped_ruby_prog = compile(u'[^\s](.*)\[(.*)\]')
 
 def furiganaize(text):
     new_text = ''
@@ -34,7 +36,7 @@ def furiganaize(text):
 def strip_ruby_text(text):
     new_text = ''
     last_match_end = 0
-    for match in unescaped_ruby_prog.finditer(text):
+    for match in ruby_prog.finditer(text):
         expression = match.group(1)
         start, end = match.start(), match.end()
         new_substring = expression
@@ -51,7 +53,7 @@ def strip_ruby_bottom(text):
     '''
     new_text = ''
     last_match_end = 0
-    for match in unescaped_ruby_prog.finditer(text):
+    for match in ruby_prog.finditer(text):
         reading = match.group(2)
         start, end = match.start(), match.end()
         new_substring = reading
