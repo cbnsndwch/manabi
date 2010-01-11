@@ -295,7 +295,7 @@ class Card(AbstractCard):
 
 
     def __unicode__(self):
-        field_content = dict((field_content.field_type_id, field_content.content,) for field_content in self.fact.fieldcontent_set.all())
+        field_content = dict((field_content.field_type_id, field_content,) for field_content in self.fact.fieldcontent_set.all())
         card_context = {'fields': field_content}
         front = render_to_string(self.template.front_template_name, card_context)
         back = render_to_string(self.template.back_template_name, card_context)

@@ -16,7 +16,7 @@ RUBY_TEXT_MARKUP_TEMPLATE = u'<span class="ezRuby" title="{reading}">{expression
 #ruby_prog = compile(u'\&lt;(.*)\|(.*)\&gt;')
 #unescaped_ruby_prog = compile(u'<(.*)\|(.*)>')
 #ruby_prog = compile(u'\s(.*)\[(.*)\]', UNICODE) #for some reason, only [\s^] works, and [^\s] doesn't - so [] must prefer the first option it's given over the second
-ruby_prog = compile(u'(\S*?)\[(.*?)\]', UNICODE) #for some reason, only [\s^] works, and [^\s] doesn't - so [] must prefer the first option it's given over the second
+ruby_prog = compile(u'\s?(\S*?)\[(.*?)\]', UNICODE) #for some reason, only [\s^] works, and [^\s] doesn't - so [] must prefer the first option it's given over the second
 #ruby_prog2 = compile(u'^(.*)\[(.*)\]', UNICODE)
 #unescaped_ruby_prog = compile(u'[^\s](.*)\[(.*)\]')
 

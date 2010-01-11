@@ -720,7 +720,7 @@ def rest_card(request, card_id): #todo:refactor into facts (no???)
       #TODO refactor the below into a model - it's not DRY
       reviewed_at = datetime.datetime.utcnow()
 
-      field_contents = dict((field_content.field_type_id, field_content.content,) for field_content in card.fact.fieldcontent_set.all())
+      field_contents = dict((field_content.field_type_id, field_content,) for field_content in card.fact.fieldcontent_set.all())
       card_context = {'fields': field_contents}
       due_times = {}
       for grade in [GRADE_NONE, GRADE_HARD, GRADE_GOOD, GRADE_EASY,]:
