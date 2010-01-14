@@ -664,7 +664,7 @@ def next_cards_for_review(request):
             card_context = {'fields': field_contents}
             due_times = {}
             for grade in [GRADE_NONE, GRADE_HARD, GRADE_GOOD, GRADE_EASY,]:
-                due_at = card._next_due_at(grade, reviewed_at, card._next_interval(grade, card._next_ease_factor(grade)))
+                due_at = card._next_due_at(grade, reviewed_at, card._next_interval(grade, card._next_ease_factor(grade, reviewed_at), reviewed_at))
                 duration = due_at - reviewed_at
                 days = duration.days + (duration.seconds / 86400.0)
                 due_times[grade] = days
@@ -724,7 +724,7 @@ def rest_card(request, card_id): #todo:refactor into facts (no???)
       card_context = {'fields': field_contents}
       due_times = {}
       for grade in [GRADE_NONE, GRADE_HARD, GRADE_GOOD, GRADE_EASY,]:
-          due_at = card._next_due_at(grade, reviewed_at, card._next_interval(grade, card._next_ease_factor(grade)))
+          due_at = card._next_due_at(grade, reviewed_at, card._next_interval(grade, card._next_ease_factor(grade, reviewed_at), reviewed_at))
           duration = due_at - reviewed_at
           days = duration.days + (duration.seconds / 86400.0)
           due_times[grade] = days

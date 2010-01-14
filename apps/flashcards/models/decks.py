@@ -12,10 +12,9 @@ from itertools import chain
 from fields import FieldContent, SharedFieldContent
 import cards
 from facts import Fact, SharedFact
-#import fields
-#import facts
 
 import usertagging
+
 
 class DeckManager(models.Manager):
     def values_of_all_with_stats_and_totals(self, user, fields=None):
@@ -70,6 +69,8 @@ class AbstractDeck(models.Model):
     description = models.TextField(max_length=2000, blank=True)
 
     textbook_source = models.ForeignKey(Textbook, null=True, blank=True)
+
+    picture = models.FileField(upload_to='/deck_media/', null=True, blank=True) #TODO upload to user directory, using .storage
 
     priority = models.IntegerField(default=0, blank=True)
 

@@ -7,6 +7,8 @@ from itertools import chain
 
 import random
 
+from math import cos, pi
+
 import datetime
 
 from facts import Fact, FactType, SharedFact
@@ -50,6 +52,8 @@ DEFAULT_EASE_FACTOR = 2.5
 
 #TODO make _next_interval/ease_factor into class methods?
 
+# When intervals are set, they are fuzzed by at most this value, -/+
+INTERVAL_FUZZ_MAX = 0.035
 
 NEW_CARDS_PER_DAY = 20 #TODO this should at least be an option, but should also scale to use
 
@@ -130,19 +134,24 @@ class CardManager(models.Manager):
                 break
         return cards
 
-    def _next_due_cards(self, initial_query, count, review_time, excluded_ids=[]):
+    def _next_failed_due_cards(self, initial_query, count, review_time, excluded_ids=[]):
+        if not count:
+            return []
+        cards = initial_query.filter(last_review_grade=GRADE_NONE, due_at__lte=review_time).order_by('due_at')
+        return self._space_cards(cards, count, review_time)
+
+    def _next_not_failed_due_cards(self, initial_query, count, review_time, excluded_ids=[]):
         '''
         Returns the first [count] cards from initial_query which are due,
-        taking spacing of cards from the same fact into account.
+        weren't failed the last review, and  taking spacing of cards from
+        the same fact into account.
         
         review_time should be datetime.datetime.utcnow()
         '''
         if not count:
             return []
-
-        due_cards = initial_query.filter(due_at__lte=review_time).order_by('-interval')
+        due_cards = initial_query.exclude(last_review_grade=GRADE_NONE).filter(due_at__lte=review_time).order_by('-interval')
         #TODO Also get cards that aren't quite due yet, but will be soon, and depending on their maturity (i.e. only mature cards due soon). Figure out some kind of way to prioritize these too.
-
         return self._space_cards(due_cards, count, review_time)
 
     def _next_failed_not_due_cards(self, initial_query, count, review_time):
@@ -170,9 +179,11 @@ class CardManager(models.Manager):
                 if sibling_card in new_cards:
                     # sibling card is already included as a new card to be shown - disqualify
                     eligible = False
+                    break
                 elif sibling_card.id in excluded_ids:
                     # sibling card is currently in the client-side review queue - disqualify
                     eligible = False
+                    break
                 elif sibling_card.is_due(review_time):
                     # sibling card is due - disqualify
                     eligible = False
@@ -212,26 +223,42 @@ class CardManager(models.Manager):
         if excluded_ids:
             user_cards = user_cards.exclude(id__in=excluded_ids)
 
-        #due cards
-        due_cards = self._next_due_cards(user_cards, count, now, excluded_ids)
-        cards_left = count - len(due_cards)
-        if len(due_cards):
-            card_queries.append(due_cards)
+        cards_left = count
+        for card_func in [
+                self._next_failed_due_cards,        #due, failed
+                self._next_not_failed_due_cards,    #due, not failed
+                self._next_failed_not_due_cards,    #failed, not due
+                self._next_new_cards]:              #new
+            cards = card_func(user_cards, count, now, excluded_ids)
+            cards_left -= len(cards)
+            if len(cards):
+                card_queries.append(cards)
 
+        #due cards
+#        failed_due_cards = self._next_failed_due_cards(user_cards, count, now, excluded_ids)
+#        cards_left = count - len(failed_due_cards)
+#        if len(failed_due_cards):
+#            card_queries.append(failed_due_cards)
+#
+#        due_cards = self._next_not_failed_due_cards(user_cards, count, now, excluded_ids)
+#        cards_left = count - len(due_cards)
+#        if len(due_cards):
+#            card_queries.append(due_cards)
+#
         #followed by failed, not due, but not if this isn't the start of a review session
         #FIXME decide what to do with this #if session_start:
         #failed_not_due_cards = user_cards.filter(last_review_grade=GRADE_NONE, due_at__gt=now).order_by('due_at')
-        failed_not_due_cards = self._next_failed_not_due_cards(user_cards, cards_left, now)
-        cards_left -= len(failed_not_due_cards)
-        if len(failed_not_due_cards):
-            card_queries.append(failed_not_due_cards)
+#        failed_not_due_cards = self._next_failed_not_due_cards(user_cards, cards_left, now)
+#        cards_left -= len(failed_not_due_cards)
+#        if len(failed_not_due_cards):
+#            card_queries.append(failed_not_due_cards)
 
         #FIXME add new cards into the mix
         #for now, we'll add new ones to the end
-        new_cards = self._next_new_cards(user_cards, cards_left, now, excluded_ids) 
-        cards_left -= len(new_cards)
-        if len(new_cards):
-            card_queries.append(new_cards)
+#        new_cards = self._next_new_cards(user_cards, cards_left, now, excluded_ids) 
+#        cards_left -= len(new_cards)
+#        if len(new_cards):
+#            card_queries.append(new_cards)
 
         return chain(*card_queries)
 
@@ -288,6 +315,7 @@ class Card(AbstractCard):
     last_reviewed_at = models.DateTimeField(null=True, blank=True)
     last_review_grade = models.PositiveIntegerField(null=True, blank=True)
     
+    review_count = models.PositiveIntegerField(default=0, editable=False) #TODO use this for is_new()
     
     class Meta:
         unique_together = (('fact', 'template'), )
@@ -360,59 +388,125 @@ class Card(AbstractCard):
             from_date = now
         self.due_at = from_date + delay_duration
 
-    def _next_interval(self, grade, ease_factor):
+
+    def _next_interval(self, grade, ease_factor, reviewed_at):
         '''Returns an interval, measured in days.'''
-        if self.interval is None: #self.is_new(): #TODO verify this is a good approach
+        # New card.
+        if self.interval is None:
             #get this card's deck, which has the initial interval durations
             #(initial intervals are configured at the deck level)
-            interval = self.fact.deck.schedulingoptions.initial_interval(grade)
-        elif self.last_review_grade == GRADE_NONE: #card was already failing
+            next_interval = self.fact.deck.schedulingoptions.initial_interval(grade)
+        elif self.last_review_grade == GRADE_NONE:
+            # Treat like a new card since it was failed last review.
             #TODO treat mature failed cards differently
-            interval = self.fact.deck.schedulingoptions.initial_interval(grade)
+            next_interval = self.fact.deck.schedulingoptions.initial_interval(grade)
         else:
+            # Review failure.
             if grade == GRADE_NONE:
-                #review failure
-                #reset the interval to an initial value
+                # Reset the interval to an initial value.
                 #TODO how to handle failures on new cards? should it keep its 'new' status, and should the EF change?
+                #TODO handle failures of cards that are reviewed early differently somehow
                 if self.is_mature():
                     #failure on a mature card
-                    interval = MATURE_FAILURE_INTERVAL
+                    next_interval = MATURE_FAILURE_INTERVAL
                 else:
                     #failure on a young or new card
                     #reset the interval
-                    interval = YOUNG_FAILURE_INTERVAL
+                    next_interval = YOUNG_FAILURE_INTERVAL
+            # Successful review.
             else:
-                interval = self.interval * ease_factor
+                current_interval = self.interval
 
+                # Late review.
+                if reviewed_at > self.due_at:
+                    # Give a bonus to the current interval for successfully recalling later than due date.
+                    interval_bonus = reviewed_at - self.due_at #(reviewed_at - self.last_reviewed_at)
+                    # Less bonus for non-easy grades.
+                    if grade == GRADE_HARD:
+                        interval_bonus /= 4.0
+                    elif grade == GRADE_GOOD:
+                        interval_bonus /= 2.0
+                    current_interval += interval_bonus
+                    # Cap the bonus.
+                    if grade < GRADE_EASY:
+                        current_interval = max(current_interval, 3 * current_interval)
+
+                # Penalize hard grades.
+                if grade == GRADE_HARD:
+                    ease_factor = 1.2
+
+                next_interval = current_interval * ease_factor
+                
+                # Give a bonus for easy grades.
                 if grade == GRADE_EASY:
-                    interval += interval * GRADE_EASY_BONUS_FACTOR
+                    next_interval += next_interval * GRADE_EASY_BONUS_FACTOR
+
+                # Early review.
+                if reviewed_at < self.due_at:
+                    # Lessen the interval increase, proportionate to how early it was reviewed.
+                    percentage_early = (self.due_at - reviewed_at)/(self.due_at - self.last_reviewed_at) # e.g. if due in 10 days, reviewed in 4, 40%
+
+                    # If reviewed really early, don't add much to the interval.
+                    # If reviewed close to due date, add most of the interval.
+                    #adjusted_interval_increase = (next_interval - current_interval) * ((1 - cos(percentage_early * pi / 1.5)) / 2)
+                    adjusted_interval_increase = (next_interval - current_interval) * self._adjustment_curve(percentage_early)
+                    interval = current_interval + adjusted_interval_increase
                     
-        return interval
+        # Fuzz the result. Conservatively favor shorter intervals.
+        next_interval *= random.triangular(-INTERVAL_FUZZ_MAX, INTERVAL_FUZZ_MAX, (-INTERVAL_FUZZ_MAX) / 4.0)
+
+        return next_interval
    
+    def _adjustment_curve(self, percentage):
+        '''curve mid_point is between 0 and 1, the x value at which the curve slope rate of change is 0'''
+        # ((1-cos(.88*pi*.79))/2)/((1-cos(pi*.79))/2)
+        #TODO mid point parameter
+        upper_x_bound = .79 #midpoint is around .88
+        max_value = ((1 - cos(pi * upper_x_bound)))
+        return ((1 - cos(percentage * pi * upper_x_bound))) / max_value
 
-    def _next_ease_factor(self, grade):
-        if self.ease_factor is None:#self.is_new() or self: #TODO verify this is a good approach
-            #default to the average for this deck
-            #FIXME card.deck. how 2 average???
-            ease_factor = DEFAULT_EASE_FACTOR + EASE_FACTOR_MODIFIERS[grade] #temp solution
+    def is_being_learned(self):
+        '''Returns whether this card is still being learned.'''
+        return self.interval > (self.fact.deck.schedulingoptions.easy_interval_max + INTERVAL_FUZZ_MAX)
+
+
+    def _next_ease_factor(self, grade, reviewed_at):
+        # New card.
+        if self.ease_factor is None:
+            # Default to the average for this deck
+            next_ease_factor = self.deck.average_ease_factor() + EASE_FACTOR_MODIFIERS[grade]
         else:
-            #if grade == GRADE_NONE:
-            if self.last_review_grade == GRADE_NONE:
-                #if this was already a failed card, don't continue to make ease factor harder, (for young cards only?)
-                ease_factor = self.ease_factor
+            # Only make the ease factor harder if the last review grade was better than this review (for young cards only)
+            if EASE_FACTOR_MODIFIERS[grade] <= 0 and self.is_being_learned() and grade >= self.last_review_grade:
+                next_ease_factor = self.ease_factor
             else:
-                ease_factor = self.ease_factor + EASE_FACTOR_MODIFIERS[grade]
+                next_ease_factor = self.ease_factor + EASE_FACTOR_MODIFIERS[grade]
 
-        if ease_factor < MINIMUM_EASE_FACTOR:
-            ease_factor = MINIMUM_EASE_FACTOR
+                # Early review.
+                if reviewed_at < self.due_at:
+                    # Lessen the EF adjustment, proportionate to how early it was reviewed.
+                    percentage_early = (self.due_at - reviewed_at)/(self.due_at - self.last_reviewed_at) # e.g. if due in 10 days, reviewed in 4, 40%
 
-        return ease_factor
+                    # If reviewed really early, don't add much to the interval.
+                    # If reviewed close to due date, add most of the interval.
+                    difference = (next_ease_factor - self.ease_factor)
+                    #adjustment = difference * ((1 - cos(percentage_early * pi)) / 2)
+                    adjustment = difference * self._adjustment_curve(percentage_early)
+                    next_ease_factor = self.ease_factor + adjustment
+
+        if next_ease_factor < MINIMUM_EASE_FACTOR:
+            next_ease_factor = MINIMUM_EASE_FACTOR
+
+        return next_ease_factor
 
 
     def _update_statistics(self, grade, reviewed_at):
+        '''Updates this card's stats. Call this for each review.'''
         #TODO update CardStatistics
         card_history_item = CardHistory(card=self, response=grade, reviewed_at=reviewed_at)
         card_history_item.save()
+
+        self.review_count += 1
 
 
     def _next_due_at(self, grade, reviewed_at, interval):
@@ -439,12 +533,12 @@ class Card(AbstractCard):
 
         #adjust ease factor
         last_ease_factor = self.ease_factor
-        self.ease_factor = self._next_ease_factor(grade)
+        self.ease_factor = self._next_ease_factor(grade, reviewed_at)
         self.last_ease_factor = last_ease_factor
 
         #adjust interval
         last_interval = self.interval
-        self.interval = self._next_interval(grade, self.ease_factor)
+        self.interval = self._next_interval(grade, self.ease_factor, reviewed_at)
         self.last_interval = last_interval
     
         #determine next due date
@@ -473,8 +567,6 @@ class Card(AbstractCard):
 class CardStatistics(models.Model):
     card = models.ForeignKey(Card)
 
-    success_count = models.PositiveIntegerField(default=0, editable=False)
-    failure_count = models.PositiveIntegerField(default=0, editable=False)
 
     #TODO review stats depending on how card was rated, and how mature it is
 

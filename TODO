@@ -246,6 +246,11 @@ its interval should not increase as much.
 one way to do this would be to cancel the bonus for recalling far after the card 
 was due, especially if the failed card was failed far after its due time.
 
+detect when a user grades inaccurately. for example, if the user tends to 
+mark 'very easy', but gets it wrong or thinks it's hard when it comes up 
+and it's reviewed on time.
+
+
 
 OTHER NOTES
 comment tags:
