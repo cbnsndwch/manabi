@@ -138,7 +138,7 @@ class CardManager(models.Manager):
         if not count:
             return []
         cards = initial_query.filter(last_review_grade=GRADE_NONE, due_at__lte=review_time).order_by('due_at')
-        return self._space_cards(cards, count, review_time)
+        return cards[:count] #don't space these #self._space_cards(cards, count, review_time)
 
     def _next_not_failed_due_cards(self, initial_query, count, review_time, excluded_ids=[]):
         '''
@@ -229,37 +229,16 @@ class CardManager(models.Manager):
                 self._next_not_failed_due_cards,    #due, not failed
                 self._next_failed_not_due_cards,    #failed, not due
                 self._next_new_cards]:              #new
+            if not card_left:
+                break
             cards = card_func(user_cards, count, now, excluded_ids)
             cards_left -= len(cards)
             if len(cards):
                 card_queries.append(cards)
 
-        #due cards
-#        failed_due_cards = self._next_failed_due_cards(user_cards, count, now, excluded_ids)
-#        cards_left = count - len(failed_due_cards)
-#        if len(failed_due_cards):
-#            card_queries.append(failed_due_cards)
-#
-#        due_cards = self._next_not_failed_due_cards(user_cards, count, now, excluded_ids)
-#        cards_left = count - len(due_cards)
-#        if len(due_cards):
-#            card_queries.append(due_cards)
-#
-        #followed by failed, not due, but not if this isn't the start of a review session
         #FIXME decide what to do with this #if session_start:
-        #failed_not_due_cards = user_cards.filter(last_review_grade=GRADE_NONE, due_at__gt=now).order_by('due_at')
-#        failed_not_due_cards = self._next_failed_not_due_cards(user_cards, cards_left, now)
-#        cards_left -= len(failed_not_due_cards)
-#        if len(failed_not_due_cards):
-#            card_queries.append(failed_not_due_cards)
-
         #FIXME add new cards into the mix
         #for now, we'll add new ones to the end
-#        new_cards = self._next_new_cards(user_cards, cards_left, now, excluded_ids) 
-#        cards_left -= len(new_cards)
-#        if len(new_cards):
-#            card_queries.append(new_cards)
-
         return chain(*card_queries)
 
 
