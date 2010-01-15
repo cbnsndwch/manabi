@@ -3,6 +3,7 @@ from facts import * #Fact, FactType
 from fields import *
 from decks import *
 from cardtemplates import *
+from reviews import *
 
 from django.db.models.signals import post_save  
 
@@ -23,6 +24,9 @@ def create_default_user_data(sender, instance, created, **kwargs):
 
       my_deck_scheduling = SchedulingOptions(deck=my_deck)
       my_deck_scheduling.save()
+
+      review_stats = ReviewStatistics(user=user)
+      review_stats.save()
       
 post_save.connect(create_default_user_data, sender=User) 
 

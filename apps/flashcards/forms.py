@@ -38,7 +38,7 @@ class DeckForm(ModelForm):
     
     class Meta:
         model = Deck
-        exclude = ('owner', 'description', 'priority', 'textbook_source',)
+        exclude = ('owner', 'description', 'priority', 'textbook_source', 'picture',)
         
 class FactTypeForm(ModelForm):
     class Meta:

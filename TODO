@@ -27,6 +27,12 @@ gray out the fields while fact submission is in progress
 ---------------------
 TODO:
 ---------------------
+take spacing delays into consideration when calculating interval/ease factor
+
+dont reset cards completely upon failure
+
+failed card maximum before reviews prioritize failed cards over others or something like that
+
 normalize 'parts of speech', per language
 
 allow unicode full-width (japanese) [] for transliterations, as well as < > because theyre easier to type in the japanese IME
@@ -67,11 +73,13 @@ move 'All decks' grid option above grid
 
 -disable form submission buttons while they're being processed, after clicked - 
 
-space cards from same fact.
+-space cards from same fact.
+
 give a negative bonus when reviewing cards from the same fact without waiting for delay.
+
 show a bonus indicator ala readthekanji.com to boost morale
 
-bonus for late review
+-bonus for late review
 
 allow selecting multiple facts
 
@@ -89,7 +97,6 @@ allow a language choice field for the user to select for every flashcard added, 
 or default a 'meaning' field to the user's native language (since it'll either be that, or the same as the card's foreign language)
 or perhaps add a 'monolingual?' kind of bool field
 
--furigana support
 
 ---------------------
 TODO (low priority):
@@ -107,8 +114,6 @@ add ability to have help text per each choice in a field
 
 use json instead of pickled tuples for flashcard choice fields
 
--'no cards' message for empty facts editor
-
 disable the generate readings link while it's loading
 
 don't generate reading if the expression hasn't changed since the last generation
@@ -119,7 +124,7 @@ delete globally unused tags once removed from an object
 
 use named URLs
 
-review only certain decks or certain tags
+review only certain tags
 
 select last-used deck in fact add dialog (and last used model, cards etc) - (per session or not?)
 store and remember last deck when creating cards, between sessions
@@ -249,6 +254,17 @@ was due, especially if the failed card was failed far after its due time.
 detect when a user grades inaccurately. for example, if the user tends to 
 mark 'very easy', but gets it wrong or thinks it's hard when it comes up 
 and it's reviewed on time.
+
+------------
+Early Review
+------------
+If there are still failed cards and the session ended due to time/card limits,
+then they showed be shown first if the user hits 'Review More'.
+The message before 'Review More' should be different depending on if 
+it means that the user will be reviewing cards EARLY, or simply more of what 
+was due (or not due failed cards). If only new cards are left, if under 
+the quota, show 'Review More'. If the new card quota is met, then change 
+the button itself to something like 'Learn More New Cards'.
 
 
 

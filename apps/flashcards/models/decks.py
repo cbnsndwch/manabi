@@ -140,15 +140,16 @@ usertagging.register(Deck)
 class SchedulingOptions(models.Model):
     deck = models.OneToOneField(Deck)
 
-    #TODO make a custom 'range' field type
-    unknown_interval_min = models.FloatField(default=0.006944) #10 mins #TODO is this right? 0.333)
-    unknown_interval_max = models.FloatField(default=0.006944) #0.5)
-    hard_interval_min = models.FloatField(default=0.333)
-    hard_interval_max = models.FloatField(default=0.5)
-    medium_interval_min = models.FloatField(default=3.0)
-    medium_interval_max = models.FloatField(default=5.0)
-    easy_interval_min = models.FloatField(default=7.0)
-    easy_interval_max = models.FloatField(default=9.0)
+    mature_unknown_interval_min = models.FloatField(default=0.333)
+    mature_unknown_interval_max = models.FloatField(default=0.333)
+    unknown_interval_min = models.FloatField(default=20.0/(24.0*60.0))  # 1 hour
+    unknown_interval_max = models.FloatField(default=25.0/(24.0*60.0))  #TODO more? 0.5)
+    hard_interval_min = models.FloatField(default=0.333)       #  8 hours
+    hard_interval_max = models.FloatField(default=0.5)         # 12 hours
+    medium_interval_min = models.FloatField(default=3.0)       #  3 days
+    medium_interval_max = models.FloatField(default=5.0)       #  5 days
+    easy_interval_min = models.FloatField(default=7.0)         #  7 days
+    easy_interval_max = models.FloatField(default=9.0)         #  9 days
 
     def __unicode__(self):
         return self.deck.name
@@ -172,7 +173,6 @@ class SchedulingOptions(models.Model):
             min, max = self.medium_interval_min, self.medium_interval_max
         elif grade == cards.GRADE_EASY:
             min, max = self.easy_interval_min, self.easy_interval_max
-        #TODO raise an exception if the grade is something else
         
         return self._generate_interval(min, max)
 
