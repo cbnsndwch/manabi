@@ -13,7 +13,7 @@ import datetime
 
 from facts import Fact, FactType, SharedFact
 from cardtemplates import CardTemplate
-from reviewstatistics import ReviewStatistics
+from reviews import ReviewStatistics
 
 from django.template.loader import render_to_string
 
