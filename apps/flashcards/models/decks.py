@@ -83,6 +83,9 @@ class SharedDeck(AbstractDeck):
     creator = models.ForeignKey(User)
 
     downloads = models.PositiveIntegerField(default=0, blank=True)
+
+    created_at = models.DateTimeField(auto_now_add=True, editable=False)
+    modified_at = models.DateTimeField(auto_now=True, editable=False)
     
     def __unicode__(self):
         return self.name
@@ -101,6 +104,9 @@ class Deck(AbstractDeck):
     objects = DeckManager()
 
     owner = models.ForeignKey(User)
+
+    created_at = models.DateTimeField(auto_now_add=True, editable=False)
+    modified_at = models.DateTimeField(auto_now=True, editable=False)
     
     def __unicode__(self):
         return self.name

@@ -1,7 +1,7 @@
 from cards import * #Card, CardHistory, CardStatistics
-from facts import * #Fact, FactType
-from fields import *
 from decks import *
+#from facts import * #Fact, FactType
+from fields import *
 from cardtemplates import *
 from reviews import *
 

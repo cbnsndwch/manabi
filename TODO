@@ -266,6 +266,9 @@ was due (or not due failed cards). If only new cards are left, if under
 the quota, show 'Review More'. If the new card quota is met, then change 
 the button itself to something like 'Learn More New Cards'.
 
+just make the good/easy ones not affect much - reuse the last interval.
+
+also for new cards reviewed too early (due to spacing), hmmm
 
 
 OTHER NOTES
