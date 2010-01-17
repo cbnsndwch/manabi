@@ -68,6 +68,9 @@ NEW_CARDS_PER_DAY = 20 #TODO this should at least be an option, but should also 
 # 3: failed, not due
 
 
+def timedelta_to_float(timedelta_obj):
+    '''Returns a float of days.'''
+    return float(timedelta_obj.days) + timedelta_obj.seconds / 86400.0
 
 
 class CardManager(models.Manager):
@@ -155,7 +158,7 @@ class CardManager(models.Manager):
         #TODO Also get cards that aren't quite due yet, but will be soon, and depending on their maturity (i.e. only mature cards due soon). Figure out some kind of way to prioritize these too.
         return self._space_cards(due_cards, count, review_time)
 
-    def _next_failed_not_due_cards(self, initial_query, count, review_time):
+    def _next_failed_not_due_cards(self, initial_query, count, review_time, excluded_ids=[]):
         if not count:
             return []
         #TODO prioritize certain failed cards, not just by due date
@@ -230,7 +233,7 @@ class CardManager(models.Manager):
                 self._next_not_failed_due_cards,    #due, not failed
                 self._next_failed_not_due_cards,    #failed, not due
                 self._next_new_cards]:              #new
-            if not card_left:
+            if not cards_left:
                 break
             cards = card_func(user_cards, count, now, excluded_ids)
             cards_left -= len(cards)
@@ -396,7 +399,7 @@ class Card(AbstractCard):
             # Late review.
             if reviewed_at > self.due_at:
                 # Give a bonus to the current interval for successfully recalling later than due date.
-                interval_bonus = reviewed_at - self.due_at #(reviewed_at - self.last_reviewed_at)
+                interval_bonus = timedelta_to_float(reviewed_at - self.due_at) #(reviewed_at - self.last_reviewed_at)
                 # Less bonus for non-easy grades.
                 if grade == GRADE_HARD:
                     interval_bonus /= 4.0
@@ -405,8 +408,7 @@ class Card(AbstractCard):
                 #current_interval += interval_bonus
                 # Cap the bonus.
                 if grade < GRADE_EASY:
-                    #current_interval = max(current_interval, 5 * current_interval)
-                    interval_bonus = min(interval_bonus, 4 * current_interval)
+                    interval_bonus = min(interval_bonus, timedelta_to_float(datetime.timedelta(4 * current_interval)))
 
             # Treat like a new card since it was failed last review.
             if self.last_review_grade == GRADE_NONE:
@@ -457,7 +459,7 @@ class Card(AbstractCard):
                         interval = current_interval + adjusted_interval_increase
                         
         # Fuzz the result. Conservatively favor shorter intervals.
-        next_interval *= random.triangular(-INTERVAL_FUZZ_MAX, INTERVAL_FUZZ_MAX, (-INTERVAL_FUZZ_MAX) / 4.5)
+        next_interval += random.triangular(-INTERVAL_FUZZ_MAX, INTERVAL_FUZZ_MAX, (-INTERVAL_FUZZ_MAX) / 4.5)
 
         return next_interval
 
@@ -476,17 +478,17 @@ class Card(AbstractCard):
                 next_ease_factor = self.ease_factor + EASE_FACTOR_MODIFIERS[grade]
 
                 # Lessen the effect if this card was reviewed successfully soon after failing
-                if grade > GRADES_NONE \
-                        and self.last_review_grade == GRADES_NONE \
+                if grade > GRADE_NONE \
+                        and self.last_review_grade == GRADE_NONE \
                         and (reviewed_at - self.last_reviewed_at) < datetime.timedelta(minutes=30): #TODO don't hard code this value here
                     #TODO different adjustment for 'hard' grades vs good/too easy
-                    percentage_early = (reviewed_at - self.last_reviewed_at) / datetime.timedelta(minutes=60) #force it to be under 50%
+                    percentage_early = timedelta_to_float(reviewed_at - self.last_reviewed_at) / timedelta_to_float(datetime.timedelta(minutes=60)) #force it to be under 50%
                     adjustment = (next_ease_factor - self.ease_factor) * self._adjustment_curve(percentage_early)
                     next_ease_factor = self.ease_factor + adjustment
                 # Early review, and not right after a failure (failure reviews will often be 'early').
-                elif reviewed_at < self.due_at and self.last_review_grade != GRADES_NONE:
+                elif reviewed_at < self.due_at and self.last_review_grade != GRADE_NONE:
                     # Lessen the EF adjustment, proportionate to how early it was reviewed.
-                    percentage_early = (self.due_at - reviewed_at)/(self.due_at - self.last_reviewed_at) # e.g. if due in 10 days, reviewed in 4, 40% (so actually kind of inverse)
+                    percentage_early = timedelta_to_float(self.due_at - reviewed_at)/timedelta_to_float(self.due_at - self.last_reviewed_at) # e.g. if due in 10 days, reviewed in 4, 40% (so actually kind of inverse)
                     # If reviewed really early, don't add much to the interval.
                     # If reviewed close to due date, add most of the interval.
                     adjustment = (next_ease_factor - self.ease_factor) * self._adjustment_curve(percentage_early)

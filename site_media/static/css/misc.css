@@ -126,6 +126,41 @@ div.flashcard_container {
     width: 70%;*/
 }
 
+div#reviews_gradeButtons {
+    text-align:center;
+}
+
+div.reviews_gradeButton {
+    /*float:left;*/
+    display: inline-block;
+    text-align:center;
+    margin: 0px 2px;
+}
+
+span.reviews_gradeButtonInterval {
+    color:gray;
+    font-size:11px;
+    text-align:center;
+}
+
+
+.reviews_incorrectGradeButtons, .reviews_correctGradeButtons {
+    display:inline-block;
+    padding-top: 4px;
+    padding-bottom: 3px;
+    padding-left: 2px;
+    padding-right: 2px;
+    -moz-border-radius: 6px;
+    -webkit-border-radius: 6px;
+}
+
+div.reviews_incorrectGradeButtons {
+    background-color:#FBEFEF;
+}
+
+div.reviews_correctGradeButtons {
+    background-color:#E0F8E0;
+}
 
 #reviews_showCardBack {
     padding-top: 20px;
@@ -193,7 +228,7 @@ div.flashcard_container {
 /* IE6,7 */
 .ezRuby{
   border-bottom: 1px dotted #666666;
-  cursor: help;
+  /*cursor: help;*/
 }
 
 /* Ruby Base */
@@ -221,11 +256,11 @@ html>/* */body .ezRuby:before {
 
 /* Adapt to your site's CSS */
 html>/* */body .ezRuby:hover{
-  color: #000000;
+  /*color: #000000;*/
   background-color: #FFFFCC;
 }
 
 html>/* */body .ezRuby:hover:before{
-  background-color: #FFCC66;
+  background-color: #FFEDCD;
 }
 

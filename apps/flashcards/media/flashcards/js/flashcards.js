@@ -28,6 +28,7 @@
   dojo.require("dojo.NodeList-traverse");
   dojo.require("dijit.Tooltip");
   dojo.require("dojox.timing");
+  dojo.require("dojox.widget.Dialog");
   
   
 

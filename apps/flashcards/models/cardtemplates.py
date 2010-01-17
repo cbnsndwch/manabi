@@ -33,7 +33,7 @@ class CardTemplate(models.Model):
     ordinal = models.IntegerField(null=True, blank=True)
     
     hide_front = models.BooleanField(default=False, blank=True) #hide front when showing back
-    allow_blank_back = models.BooleanField(default=True, blank=True) #don't activate cards with missing answers #TODO move to another model?
+    allow_blank_back = models.BooleanField(default=True, blank=True) #don't activate cards with missing answers #TODO implement this
     
     active = models.BooleanField(default=True, blank=True)
     

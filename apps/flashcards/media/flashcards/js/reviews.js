@@ -432,8 +432,9 @@ reviews_ui.openSessionOverDialog = function(review_count) {
 }
 
 reviews_ui.endSession = function() {
-    reviews_ui.unsetCardBackKeyboardShortcuts();
-    reviews_ui.unsetCardFrontKeyboardShortcuts();
+    //reviews_ui.unsetCardBackKeyboardShortcuts();
+    //reviews_ui.unsetCardFrontKeyboardShortcuts();
+    reviews_ui.unsetKeyboardShortcuts();
 
     reviews_ui._unsubscribe_from_session_events();
 
@@ -468,7 +469,7 @@ reviews_ui.displayCard = function(card, show_card_back) {
     dojo.byId('reviews_showCardBack').style.display = '';
     reviews_cardBack.attr('content', card.back);
     reviews_cardBack.domNode.style.display = 'none';
-    dojo.byId('reviews_gradeButtons').style.visibility = 'hidden';
+    dojo.byId('reviews_gradeButtonsContainer').style.visibility = 'hidden';
     if (show_card_back) {
         reviews_ui.showCardBack(card);
     } else {
@@ -485,7 +486,7 @@ reviews_ui.goToNextCard = function() {
         reviews_ui.endSession();
     } else {
         //disable the review buttons until the back is shown again
-        dojo.query('button', dojo.byId('reviews_gradeButtons')).forEach(function(node) {
+        dojo.query('button', dojo.byId('reviews_gradeButtonsContainer')).forEach(function(node) {
             dijit.getEnclosingWidget(node).attr('disabled', true);
         });
         //disable the card back button until the next card is ready
@@ -517,7 +518,7 @@ reviews_ui.showCardBack = function(card) {
     dojo.byId('reviews_showCardBack').style.display = 'none';
     reviews_cardBack.domNode.style.display = '';
     reviews_ui.displayNextIntervals(card);
-    dojo.byId('reviews_gradeButtons').style.visibility = '';
+    dojo.byId('reviews_gradeButtonsContainer').style.visibility = '';
     reviews_ui.review_dialog.domNode.focus();
     reviews_ui.setCardBackKeyboardShortcuts();
 };
@@ -581,6 +582,7 @@ reviews_ui.card_front_keyboard_shortcut_connection = null;
 reviews_ui.card_back_keyboard_shortcut_connection = null;
 
 reviews_ui.setCardBackKeyboardShortcuts = function() {
+  reviews_ui.unsetCardBackKeyboardShortcuts(); //don't set twice
   //reviews_ui.card_back_keyboard_shortcut_connection = dojo.connect(reviews_ui.review_dialog, 'onKeyPress', function(e) {
   reviews_ui.card_back_keyboard_shortcut_connection = dojo.connect(window, 'onkeypress', function(e) {
     switch(e.charOrCode) {
@@ -602,7 +604,7 @@ reviews_ui.setCardBackKeyboardShortcuts = function() {
 };
 
 reviews_ui.setCardFrontKeyboardShortcuts = function() {
-  //reviews_ui.card_front_keyboard_shortcut_connection = dojo.connect(reviews_ui.review_dialog, 'onKeyPress', function(e) {
+  reviews_ui.unsetCardFrontKeyboardShortcuts(); //don't set twice
   reviews_ui.card_front_keyboard_shortcut_connection = dojo.connect(window, 'onkeypress', function(e) {
     var k = dojo.keys;
     switch(e.charOrCode) {

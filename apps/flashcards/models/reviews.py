@@ -22,7 +22,7 @@ class ReviewStatistics(models.Model):
     #TODO refactor for DRY
     def increment_new_reviews(self):
         now = datetime.datetime.utcnow()
-        if now.time() >= end_of_day and last_new_review_at.time() < end_of_day:
+        if now.time() >= end_of_day and self.last_new_review_at.time() < end_of_day:
             self.new_reviews_today = 1
         else:
             self.new_reviews_today += 1
@@ -30,7 +30,7 @@ class ReviewStatistics(models.Model):
 
     def increment_failed_reviews(self):
         now = datetime.datetime.utcnow()
-        if now.time() >= end_of_day and last_failed_review_at.time() < end_of_day:
+        if now.time() >= end_of_day and self.last_failed_review_at.time() < end_of_day:
             self.failed_reviews_today = 1
         else:
             self.failed_reviews_today += 1

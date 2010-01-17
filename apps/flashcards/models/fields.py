@@ -63,7 +63,6 @@ class FieldType(models.Model):
 
     ordinal = models.IntegerField(null=True, blank=True)
 
-
     active = models.BooleanField(default=True)
 
     created_at = models.DateTimeField(auto_now_add=True, editable=False)

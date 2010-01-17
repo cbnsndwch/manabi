@@ -60,114 +60,84 @@
                     <div style="font-size:32px; padding:20px;" dojoType="dijit.layout.ContentPane" jsId="reviews_cardBack" id="reviews_cardBack"></div>
                 </div>
             </div>
-            <div id="reviews_gradeButtons" style="margin-top:8px;">
+            <div id="reviews_gradeButtonsContainer">
                 <div style="font-size:32px;text-align:center;">
                     <p class="reviews_back_prompt"><em>
-                        Please grade your answer.
+                        Please grade your recall of this card.
                     </em></p>
                 </div>
-                <table style="margin:0px auto;">
-                <tr>
-                <td>
-                <button dojoType="dijit.form.Button" id="reviews_gradeWrongButton" type="button" disabled="true">
-                    <span class="reviews_gradeButtonInner">
-                        Wrong
-                    </span>
-                    <script type="dojo/connect" event="onClick" args="evt">
-                        //reviews_gradeWrongTooltip.close();
-                        reviews_ui.reviewCard(reviews.current_card, reviews.grades.GRADE_NONE);
-                    </script>
-                </button>
-                {% comment %}
-                <div dojoType="dijit.Tooltip" jsId="reviews_gradeWrongTooltip" connectId="reviews_gradeWrongButton" position="below" showDelay="600">
-                    <div>
-                        Rate this card wrong if you:
-                        <ul>
-                            <li>Couldn't remember the answer</li>
-                            <li>Remembered an incorrect answer</li>
-                            <li>Remembered, but made a mistake</li>
-                        </ul>
-                        Also, to avoid the "Tip of the Tongue" syndrome,<br>
-                        rate a card wrong if the answer is taking too<br>
-                        long to come to you.
+                <div id="reviews_gradeButtons" style="margin-top:8px;">
+                    <div class="reviews_incorrectGradeButtons">
+                        <div class="reviews_gradeButton">
+                            <button dojoType="dijit.form.Button" id="reviews_gradeWrongButton" type="button" disabled="true">
+                                <span class="reviews_gradeButtonInner">
+                                    Wrong
+                                </span>
+                                <script type="dojo/connect" event="onClick" args="evt">
+                                    //reviews_gradeWrongTooltip.close();
+                                    reviews_ui.reviewCard(reviews.current_card, reviews.grades.GRADE_NONE);
+                                </script>
+                            </button><br>
+                            <span id="reviews_gradeNoneInterval" class="reviews_gradeButtonInterval"></span>
+                        </div>
+                        <div style="clear:both;display:inline"></div>
                     </div>
-                </div>
-                {% endcomment %}
-                </td>
-                <td>
-                <button dojoType="dijit.form.Button" id="reviews_gradeHardButton" type="button" disabled="true">
-                    <span class="reviews_gradeButtonInner">
-                        Hard
-                    </span>
-                    <script type="dojo/connect" event="onClick" args="evt">
-                        //reviews_gradeHardTooltip.close();
-                        reviews_ui.reviewCard(reviews.current_card, reviews.grades.GRADE_HARD);
-                    </script>
-                </button>
-                {% comment %}
-                <div dojoType="dijit.Tooltip" jsId="reviews_gradeHardTooltip" connectId="reviews_gradeHardButton" position="below" showDelay="600">
-                    This grade means that you remembered the<br>
-                    card's answer, but it was difficult and took too<br>
-                    long to recall.<br>
-                    <br>
-                    It tells the flashcard algorithm that you<br>
-                    should have reviewed this card earlier<br>
-                    than you did.
-                </div>
-                {% endcomment %}
-                </td>
-                <td>
-                <button dojoType="dijit.form.Button" id="reviews_gradeGoodButton" type="button" disabled="true">
-                    <span class="reviews_gradeButtonInner">
-                        Good
-                    </span>
-                    <script type="dojo/connect" event="onClick" args="evt">
-                        //reviews_gradeGoodTooltip.close();
-                        reviews_ui.reviewCard(reviews.current_card, reviews.grades.GRADE_GOOD);
-                    </script>
-                </button>
-                {% comment %}
-                <div dojoType="dijit.Tooltip" jsId="reviews_gradeGoodTooltip" connectId="reviews_gradeGoodButton" position="below" showDelay="600">
-                    <div>
-                        This grade means that you recalled the<br>
-                        card's answer correctly and with just a small<br>
-                        amount of difficulty.<br>
-                        <br>
-                        This is the ideal response and means<br>
-                        that this software is working effectively.<br>
+                    <div class="reviews_correctGradeButtons">
+                        <div class="reviews_gradeButton">
+                            <button dojoType="dijit.form.Button" id="reviews_gradeHardButton" type="button" disabled="true">
+                                <span class="reviews_gradeButtonInner">
+                                    Hard
+                                </span>
+                                <script type="dojo/connect" event="onClick" args="evt">
+                                    //reviews_gradeHardTooltip.close();
+                                    reviews_ui.reviewCard(reviews.current_card, reviews.grades.GRADE_HARD);
+                                </script>
+                            </button><br>
+                            <span id="reviews_gradeHardInterval" class="reviews_gradeButtonInterval"></span>
+                        </div>
+                        <div class="reviews_gradeButton">
+                            <button dojoType="dijit.form.Button" id="reviews_gradeGoodButton" type="button" disabled="true">
+                                <span class="reviews_gradeButtonInner">
+                                    Good
+                                </span>
+                                <script type="dojo/connect" event="onClick" args="evt">
+                                    //reviews_gradeGoodTooltip.close();
+                                    reviews_ui.reviewCard(reviews.current_card, reviews.grades.GRADE_GOOD);
+                                </script>
+                            </button><br>
+                            <span id="reviews_gradeGoodInterval" class="reviews_gradeButtonInterval"></span>
+                        </div>
+                        <div class="reviews_gradeButton">
+                            <button dojoType="dijit.form.Button" id="reviews_gradeEasyButton" type="button" disabled="true">
+                                <span class="reviews_gradeButtonInner">
+                                    Too Easy
+                                </span>
+                                <script type="dojo/connect" event="onClick" args="evt">
+                                    //reviews_gradeEasyTooltip.close();
+                                    reviews_ui.reviewCard(reviews.current_card, reviews.grades.GRADE_EASY);
+                                </script>
+                            </button><br>
+                            <span id="reviews_gradeEasyInterval" class="reviews_gradeButtonInterval"></span>
+                        </div>
+                        <div style="clear:both"></div>
                     </div>
+                    <div style="font-size:32px;text-align:center;">
+                        <span class="fakeLink" id="reviews_gradesHelpLink" style="font-size:12px;color:gray" onclick="dijit.byId('reviews_gradesHelpDialog').show()">What do these buttons mean?</span>
+                    </div>
+                    <div id="reviews_gradesHelpDialog" dojoType="dojox.widget.Dialog" dimensions="[510,400]">
+                        <div style="padding-left:15px;padding-right:15px;">
+                            <p>
+                                This flashcard software uses the grades that you give each card to determine when you should review that card next in the future. When you're just starting to learn a new card, it's okay (and expected) that you'll have to rate the card review as a failure (the <em>Wrong</em> grade). After this initial learning period, ideally most of your grades will be <em>Good</em>. Please grade your cards honestly, and don't be afraid to give it a low rating if you're unsure of yourself.
+                            </p>                    
+			                <p style="">
+                                <strong>Wrong</strong> - Rate a card as this if you couldn't remember its answer, or if you remembered it incorrectly or made a mistake.<br><br>
+                                <strong>Hard</strong> - This grade means that you remembered the card's answer, but it was difficult to recall and took too long. This tells the flashcard algorithm that you should have reviewed this card earlier than you did.<br><br>
+                                <strong>Good</strong> - This means that you recalled the card's answer correctly and with just a small amount of difficulty. This is the ideal response and means that this software is working effectively.<br><br>
+                                <strong>Too Easy</strong> - This means that you recalled the answer very easily. You could have waited a while longer to review this card - it wasn't necessary to review it this early.
+			                </p>
+                        </div>
+		            </div>
                 </div>
-                {% endcomment %}
-                </td>
-                <td>
-                <button dojoType="dijit.form.Button" id="reviews_gradeEasyButton" type="button" disabled="true">
-                    <span class="reviews_gradeButtonInner">
-                        Too Easy
-                    </span>
-                    <script type="dojo/connect" event="onClick" args="evt">
-                        //reviews_gradeEasyTooltip.close();
-                        reviews_ui.reviewCard(reviews.current_card, reviews.grades.GRADE_EASY);
-                    </script>
-                </button>
-                {% comment %}
-                <div dojoType="dijit.Tooltip" jsId="reviews_gradeEasyTooltip" connectId="reviews_gradeEasyButton" position="below" showDelay="600">
-                    This means that you recalled the answer very<br>
-                    easily.<br>
-                    <br>
-                    You could have waited a while longer<br>
-                    to review this card - it wasn't necessary to<br>
-                    review it this early.
-                </div>
-                {% endcomment %}
-                </td>
-                </tr>
-                <tr>
-                    <td id="reviews_gradeNoneInterval" style="color:gray;font-size:11px;text-align:center;"></td>
-                    <td id="reviews_gradeHardInterval" style="color:gray;font-size:11px;text-align:center;"></td>
-                    <td id="reviews_gradeGoodInterval" style="color:gray;font-size:11px;text-align:center;"></td>
-                    <td id="reviews_gradeEasyInterval" style="color:gray;font-size:11px;text-align:center;"></td>
-                </tr>
-                </table>
             </div>
         </div>
 

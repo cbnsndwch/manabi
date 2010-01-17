@@ -13,6 +13,8 @@ should all those connects be disconnected somehow? particularly in body_pane (do
 
 SUPER CRITICAL BUGS:
 --------------------
+SPACE DOESNT WORK FOR MEANING FIELD
+
 focus first field when opening flashcard add dialog (it doesn't always do this)
 
 when not signed in, bugs! (click title) (also, dojo errors)

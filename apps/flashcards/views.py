@@ -292,7 +292,7 @@ def rest_decks(request):
     pass
   elif request.method == "GET":
     try:
-      ret = Deck.objects.filter(owner=request.user)
+      ret = Deck.objects.filter(owner=request.user).values('id', 'name', 'description')
     except Deck.DoesNotExist:
       ret = []
     return to_dojo_data(ret, label='name')
