@@ -1,9 +1,7 @@
-.dojoxGridSortNode {
-    font-weight:normal;
-}
 .dojoxGrid {
 	position: relative;
 	background-color: #EBEADB;
+	font-family: Geneva, Arial, Helvetica, sans-serif;
 	-moz-outline-style: none;
 	outline: none;
 	overflow: hidden;
@@ -347,8 +345,7 @@
 }
 .tundra .dojoxGrid {
 	background-color: #e9e9e9;
-	/*font-size: 0.85em; */
-    font-size: 1em;
+	font-size: 0.85em; 
 }
 .tundra .dojoxGridMasterMessages {
 	background-color: #fefefe;
@@ -474,12 +471,12 @@
 	border: 1px solid white;
 	border-right: 1px solid #D5CDB5;
 }
-/*.tundra .dojoxGridCellFocus {
+.tundra .dojoxGridCellFocus {
 	border: 1px dashed darkblue !important;
-}*/
-/*.tundra .dojoxGridCellOver {
+}
+.tundra .dojoxGridCellOver {
 	border: 1px dotted #a6a6a6;
-}*/
+}
 .tundra .dojoxGridCellFocus .dojoxGridCellOver {
 	border: 1px dashed darkblue !important;
 }
@@ -562,4 +559,3 @@
 .tundra .dojoxGridRowOdd .dojoxGridSubRowAlt {
 	background-color: #EDEFF3;
 }
-

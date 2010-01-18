@@ -61,11 +61,13 @@
                 </div>
             </div>
             <div id="reviews_gradeButtonsContainer">
+                {% comment %}
                 <div style="font-size:32px;text-align:center;">
                     <p class="reviews_back_prompt"><em>
                         Please grade your recall of this card.
                     </em></p>
                 </div>
+                {% endcomment %}
                 <div id="reviews_gradeButtons" style="margin-top:8px;">
                     <div class="reviews_incorrectGradeButtons">
                         <div class="reviews_gradeButton">
@@ -244,16 +246,16 @@
     Your study session is over. You reviewed <span id="reviews_sessionOverDialogReviewCount"></span> cards.<br>
     <br>
     <button dojoType="dijit.form.Button" type="button">
+        Done
+        <script type="dojo/connect" event="onClick" args="evt">
+            reviews_sessionOverDialog.hide();
+        </script>
+    </button>
+    <button dojoType="dijit.form.Button" type="button">
         Review More
         <script type="dojo/connect" event="onClick" args="evt">
             reviews_sessionOverDialog.hide();
             reviews_ui.openDialog();
-        </script>
-    </button>
-    <button dojoType="dijit.form.Button" type="button">
-        Exit
-        <script type="dojo/connect" event="onClick" args="evt">
-            reviews_sessionOverDialog.hide();
         </script>
     </button>
 </div>

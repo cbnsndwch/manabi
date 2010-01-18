@@ -6,10 +6,10 @@
 {% block head_title %}{% trans "Welcome" %}{% endblock %}
 
 {% block extra_head %}
-  {% include 'dojango/include.html' %}
   {% if user.is_authenticated %}
     {% include 'flashcards/extra_head.html' %}
   {% endif %}
+
 {% endblock %}
 
 {% block tab_id %}id="home_tab"{% endblock %}
@@ -17,7 +17,7 @@
 {% block body_contents %}
     {% if not user.is_authenticated %}
     <h1>Welcome</h1>
-    
+    <div id="loginPromptContainer">    
         {% url acct_login as login_url %}
         {% ifsetting ACCOUNT_OPEN_SIGNUP %}
             {% url acct_signup as signup_url %}
@@ -25,6 +25,7 @@
         {% else %}
             <p>{% blocktrans %}You can <a href="{{ login_url }}">Log in</a> to try out the site.{% endblocktrans %}</p>
         {% endifsetting %}
-    {% endif %}
+        {% endif %}
+    </div>
     
 {% endblock %}

@@ -17,7 +17,7 @@
         </div>
         <div style="margin-top:7px;margin-bottom:7px;"><strong style="vertical-align:top">Cards:</strong>
             <select multiple="true" dojoType="dojox.form.CheckedMultiSelect" 
-                jsId="cardTemplatesInput" style="height:76px;">
+                jsId="cardTemplatesInput" style="height:6.2em;">
                 {% for card_template in fact_add_form.card_templates %}
                     <option value="{{ card_template.id }}"{% if card_template.generate_by_default %} selected="selected"{% endif %}>
                         {{ card_template.name }}

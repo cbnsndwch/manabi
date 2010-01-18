@@ -696,7 +696,7 @@ reviews_decksGridLayout = [{
 		},{ cells: [[
 			{name: 'Name', field: 'name', width: 'auto'},
 			//{name: 'Cards', field: 'card_count', width: 'auto'},
-			{name: 'Cards due', field: 'due_card_count', width: '58px'},
-			{name: 'New cards', field: 'new_card_count', width: '60px'},
+			{name: 'Cards due', field: 'due_card_count', width: '70px'},
+			{name: 'New cards', field: 'new_card_count', width: '70px'},
 		]]}];//);
 

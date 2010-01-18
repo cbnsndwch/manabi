@@ -1968,7 +1968,8 @@ div.dijitTabBtnDisabled, .dj_ie div.dijitTabBtnDisabled {
 	
 	border: 1px solid #c0c0c0;
 	border-bottom: 1px solid #9b9b9b;
-	padding: 0.1em 0.2em 0.2em 0.2em;
+	/*padding: 0.1em 0.2em 0.2em 0.2em;*/
+	padding: 0.0em 0.1em 0.2em 0.2em;
 	background: #fff url(images/buttonEnabled.png) repeat-x bottom left;
 }
 .tundra .dijitSelect .dijitButtonContents {
@@ -2795,13 +2796,11 @@ div.dijitTabBtnDisabled, .dj_ie div.dijitTabBtnDisabled {
 	padding: 0px 4px;
 }
 .tundra .dijitDialogCloseIcon {
-	
-	
 	background: url(images/tabClose.png) no-repeat right top;
 	position: absolute;
 	vertical-align: middle;
-	right: 6px;
-	top: 4px;
+	right: 7px;
+	top: .5em;
 	height: 15px;
 	width: 15px;
 	cursor: pointer;

@@ -13,11 +13,7 @@ should all those connects be disconnected somehow? particularly in body_pane (do
 
 SUPER CRITICAL BUGS:
 --------------------
-SPACE DOESNT WORK FOR MEANING FIELD
-
-focus first field when opening flashcard add dialog (it doesn't always do this)
-
-when not signed in, bugs! (click title) (also, dojo errors)
+-when not signed in, bugs! (click title) (also, dojo errors)
 
 sometimes the decks grid doesnt resize in time of the dialog opening
 
@@ -29,6 +25,8 @@ gray out the fields while fact submission is in progress
 ---------------------
 TODO:
 ---------------------
+try to guess with improperly formed furigana notation (gohanwoTA[ta]beru without the space) - find the last non-kanji etc.
+
 take spacing delays into consideration when calculating interval/ease factor
 
 dont reset cards completely upon failure
@@ -152,6 +150,8 @@ sort facts with case insensitivity
 ---------------------
 BUGS:
 ---------------------
+Account link has a bugs
+
 update tag list after updating fact in fact editor
 
 split half-width characters out and don't send them to mecab, or keep track of them somehow - spaces between them collapse
