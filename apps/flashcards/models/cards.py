@@ -450,7 +450,7 @@ class Card(AbstractCard):
                     # Early review.
                     if reviewed_at < self.due_at:
                         # Lessen the interval increase, proportionate to how early it was reviewed.
-                        percentage_early = (self.due_at - reviewed_at)/(self.due_at - self.last_reviewed_at) # e.g. if due in 10 days, reviewed in 4, 40%
+                        percentage_early = timedelta_to_float(self.due_at - reviewed_at) / timedelta_to_float(self.due_at - self.last_reviewed_at) # e.g. if due in 10 days, reviewed in 4, 40%
 
                         # If reviewed really early, don't add much to the interval.
                         # If reviewed close to due date, add most of the interval.
@@ -488,7 +488,7 @@ class Card(AbstractCard):
                 # Early review, and not right after a failure (failure reviews will often be 'early').
                 elif reviewed_at < self.due_at and self.last_review_grade != GRADE_NONE:
                     # Lessen the EF adjustment, proportionate to how early it was reviewed.
-                    percentage_early = timedelta_to_float(self.due_at - reviewed_at)/timedelta_to_float(self.due_at - self.last_reviewed_at) # e.g. if due in 10 days, reviewed in 4, 40% (so actually kind of inverse)
+                    percentage_early = timedelta_to_float(self.due_at - reviewed_at) / timedelta_to_float(self.due_at - self.last_reviewed_at) # e.g. if due in 10 days, reviewed in 4, 40% (so actually kind of inverse)
                     # If reviewed really early, don't add much to the interval.
                     # If reviewed close to due date, add most of the interval.
                     adjustment = (next_ease_factor - self.ease_factor) * self._adjustment_curve(percentage_early)

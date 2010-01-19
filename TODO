@@ -13,6 +13,8 @@ should all those connects be disconnected somehow? particularly in body_pane (do
 
 SUPER CRITICAL BUGS:
 --------------------
+sometimes when i do space, 1, space, 1, etc. quickly in review mode, it shows the back side of the next card prematurely
+
 -when not signed in, bugs! (click title) (also, dojo errors)
 
 sometimes the decks grid doesnt resize in time of the dialog opening

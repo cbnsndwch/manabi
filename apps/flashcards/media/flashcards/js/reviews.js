@@ -24,6 +24,7 @@ dojo.addOnLoad(function() {
     reviews.grades = {GRADE_NONE: 0, GRADE_HARD: 3, GRADE_GOOD: 4, GRADE_EASY: 5}
     reviews.empty_prefetch_producer = false;
     reviews.fails_since_prefetch_request = 0;
+    reviews.session_timer = null;
     //reviews.session_over_def = null; //subscribe to this to know when the session is over,
                                      //particularly because the time/card limit ran out
 });
@@ -99,6 +100,9 @@ reviews.prefetchCards = function(count, session_start) {
 }
 
 reviews._start_session_timer = function() {
+    if (reviews.session_timer) {
+        reviews.session_timer.stop();
+    }
     reviews.session_start_time = new Date();
     reviews.session_timer = new dojox.timing.Timer();
     reviews.session_timer.setInterval(1000); //in ms
@@ -405,6 +409,9 @@ reviews_ui.showReviewOptions = function() {
 
 reviews_ui.openDialog = function() {
     //TODO first check if there are any cards due (using default review options? or special request to server)
+
+    reviews_beginReviewButton.attr('disabled', false);
+
     reviews_ui.showReviewOptions();
     reviews_ui.review_options_dialog.tabStart = reviews_beginReviewButton;
 
@@ -680,6 +687,8 @@ reviews_ui.submitReviewOptionsDialog = function() {
 
     //TODO add a loading screen
 
+    //disable the submit button while it processes
+    reviews_beginReviewButton.attr('disabled', true);
 
     var decks_grid_item = reviews_decksGrid.selection.getSelected()[0];
     var deck_id = decks_grid_item['id'][0]; //TODO allow multiple selections
