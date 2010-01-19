@@ -12,7 +12,6 @@ dojo.provide('reviews');
 reviews = {};
 
 dojo.addOnLoad(function() {
-
     reviews.cards = new Array();
     
     //this is for cards that are reviewed, and have been submitted to the server
