@@ -252,7 +252,7 @@ def download_shared_deck(user, shared_deck):
     deck = Deck(
         name=shared_deck.name,
         description=shared_deck.description,
-        textbook=shared_deck.textbook,
+        #TODO implement textbook=shared_deck.textbook, #picture too...
         priority=shared_deck.priority,
         owner=user)
     deck.save()
