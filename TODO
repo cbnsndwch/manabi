@@ -13,6 +13,8 @@ should all those connects be disconnected somehow? particularly in body_pane (do
 
 SUPER CRITICAL BUGS:
 --------------------
+MECAB screws up with "貸し出す" !!!!! (kasidasu.. becomes KA[kasida]si for some reason?!?!?)
+
 sometimes when i do space, 1, space, 1, etc. quickly in review mode, it shows the back side of the next card prematurely
 
 -when not signed in, bugs! (click title) (also, dojo errors)
@@ -27,6 +29,8 @@ gray out the fields while fact submission is in progress
 ---------------------
 TODO:
 ---------------------
+have the extra front field for some  card types be a "hint" that must be clicked. like the meaning for kanji reading cards.
+
 try to guess with improperly formed furigana notation (gohanwoTA[ta]beru without the space) - find the last non-kanji etc.
 
 take spacing delays into consideration when calculating interval/ease factor

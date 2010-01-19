@@ -334,9 +334,10 @@ class Card(AbstractCard):
         if not sibling_cards:
             sibling_cards = self.fact.card_set.exclude(id=self.id)
         space_factor  = self.fact.fact_type.space_factor
-        min_interval  = min([card.interval for card in sibling_cards]) #days as float
         min_card_space = self.fact.fact_type.min_card_space
-        if min_interval:
+        sibling_intervals = [card.interval for card in sibling_cards]
+        if sibling_intervals:
+            min_interval  = min(sibling_intervals) #days as float
             min_space = max(self.fact.fact_type.min_card_space, \
                     min_interval * space_factor)
         else:
