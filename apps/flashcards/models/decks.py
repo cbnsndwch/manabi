@@ -193,7 +193,7 @@ def share_deck(deck):
     shared_deck = SharedDeck(
         name=deck.name,
         description=deck.description,
-        textbook=deck.textbook,
+        #TODO implement textbook_source=deck.textbook_source, #TODO picture too
         priority=deck.priority,
         creator=deck.owner)
     shared_deck.save()
