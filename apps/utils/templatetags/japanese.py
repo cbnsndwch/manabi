@@ -7,7 +7,6 @@ from re import compile, UNICODE
 
 
 #RUBY_TEXT_MARKUP_TEMPLATE = u'<ruby><rb>{expression}</rb><rp>(</rp><rt>{reading}</rt><rp>)</rp></ruby>'
-#RUBY_TEXT_MARKUP_TEMPLATE = u'<span class="ruby"><span class="rb">{expression}</span><span class="rp">(</span><span class="rt">{reading}</span><span class="rp">)</span></span>'
 RUBY_TEXT_MARKUP_TEMPLATE = u'<span class="ezRuby" title="{reading}">{expression}</span>'
 
 #_LEFT_CARET = u'\&lt;'

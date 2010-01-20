@@ -45,7 +45,7 @@ class DeckManager(models.Manager):
         deck_values.insert(0, all_decks_option)
 
         return deck_values
-            
+
 
 #TODO use this
 class Textbook(models.Model):
@@ -145,7 +145,7 @@ usertagging.register(Deck)
 
 class SchedulingOptions(models.Model):
     deck = models.OneToOneField(Deck)
-
+    
     mature_unknown_interval_min = models.FloatField(default=0.333)
     mature_unknown_interval_max = models.FloatField(default=0.333)
     unknown_interval_min = models.FloatField(default=20.0/(24.0*60.0))  # 1 hour
@@ -165,7 +165,7 @@ class SchedulingOptions(models.Model):
     
     #TODO should be classmethod
     def _generate_interval(self, min_duration, max_duration):
-        return random.uniform(min_duration, max_duration)
+        return random.uniform(min_duration, max_duration) #TODO favor (random.triangular) conservatism
 
     def initial_interval(self, grade):
         '''

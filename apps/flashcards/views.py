@@ -12,10 +12,10 @@ from django.template import RequestContext, loader
 from django.contrib.auth.decorators import login_required
 
 from flashcards.models.decks import download_shared_deck, share_deck
+from utils import japanese
 
 from django.template.loader import render_to_string
 
-from itertools import takewhile
 
 import usertagging
 
@@ -29,21 +29,7 @@ from django.db import transaction
 from django.views.generic.list_detail import object_list
 from django.views.generic.create_update import update_object, delete_object, create_object
 
-#TODO refactor into utils
-CODE_PAGES = {
-              'ascii'   : (2, 126), #todo: full-width roman
-              'hiragana': (12352, 12447),
-              'katakana': (12448, 12543),
-              'kanji'   : (19968, 40879)} #todo: rare kanji too
 
-def _code_page(utf8_char):
-    "Gets the code page for a Unicode character from a UTF-8 character."
-    #uni_val = ord(unicode(utf8_char, 'utf-8'))
-    uni_val=ord(utf8_char)
-    for title, pages in CODE_PAGES.iteritems():
-        if uni_val >= pages[0] and uni_val <= pages[1]:
-            return title
-    return 'unknown'
 
 #todo:
 # respond with a better failure message if an xhr request is made from an unauthenticated user
@@ -213,61 +199,8 @@ def rest_entry_point(request):
 @json_response
 def rest_generate_reading(request):
     if request.method == 'POST':
-        expression = request.POST['expression'].encode('eucjp')
-        proc = subprocess.Popen('mecab', shell=False, stdin=subprocess.PIPE, stdout=subprocess.PIPE)
-        mecab_output = proc.communicate(expression)[0].decode('eucjp')
-        lines = mecab_output.split(u'\n')[:-2] #skip the \nEOS\n
-
-        ret = u''
-        for line in lines:
-            if line[0] == u',':
-                ret += u','
-                continue
-            elif line[:3] == u'EOS':
-                ret += u'\n'
-                continue
-            elif line[0].strip() == '':
-                ret += line[0]
-                continue
-            fields = line.split(u',')
-            word = fields[0].split()[0]
-
-            if len(fields) == 9:
-                reading = fields[7]
-
-                #has kanji and a reading?
-                if jcconv.kata2hira(reading) != word and \
-                        reading != word and \
-                        any(_code_page(char) != 'hiragana' and _code_page(char) != 'katakana' for char in word):
-
-                    #the reading comes in as katakana, we want hiragana
-                    reading = jcconv.kata2hira(reading)
-
-                    #sometimes words like taberu come out as taberu instead of ta and beru
-                    #detect hiragana stems and split them (or just split off duplicate stems)
-                    prefix_kana = u''.join([char for char in takewhile(lambda char: _code_page(char) in ['hiragana', 'katakana'], \
-                            word)])
-                    kanji = u''.join([char for char in takewhile(lambda char: _code_page(char) not in ['hiragana', 'katakana'], \
-                            word[len(prefix_kana):])])
-                    postfix_kana = u''.join([char for char in takewhile(lambda char: _code_page(char) in ['hiragana', 'katakana'], \
-                            word[len(prefix_kana) + len(kanji):])])
-                    kanji_reading = reading[len(prefix_kana):]
-                    if len(postfix_kana):
-                        kanji_reading = kanji_reading[:-len(postfix_kana)]
-
-                    #ret += u'{prefix}<{kanji}|{reading}>{postfix}'.format( \
-                    #\u3000 is a full-width space
-                    if ret:
-                        space_char = u'\u3000' #\u3000 is a full-width space
-                    else:
-                        space_char = '' #beginning of transliteration, no need for leading space.
-                    ret += u'{prefix}{space_char}{kanji}[{reading}]{postfix}'.format( \
-                            prefix=prefix_kana, space_char=space_char, kanji=kanji, reading=kanji_reading, postfix=postfix_kana)
-                else:
-                    ret += word
-            else:
-                ret += word
-
+        expression = request.POST['expression']
+        ret = japanese.generate_reading(expression)
         return {'success':True, 'reading': ret}
         
 
