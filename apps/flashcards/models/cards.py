@@ -101,26 +101,31 @@ class CardManager(models.Manager):
 
     #def mature_cards(self):
     #    return self.filter(interval__gt=MATURE_INTERVAL_MIN)
+    
 
     def cards_new_count(self, user, deck=None):
         new_cards_count = len(self.new_cards(user, deck)) #TODO refactor, make this faster (use aggregate)
         return new_cards_count
 
+
     def cards_due_count(self, user, deck=None):
         due_cards_count = len(self.due_cards(user, deck)) #TODO refactor, make this faster (use aggregate)
         return due_cards_count
+
 
     def _space_cards(self, card_query, count, review_time, excluded_ids=[]):
         '''
         Check if any of these are from the same fact,
         or if other cards from their facts have been
         reviewed recently. If so, push their due date up.
+
         `excluded_ids` is included for avoiding showing sibling 
         cards of cards which the user is already currently reviewing.
         '''
+        delayed_new_cards = [] # Keep track of new cards we want to skip, since we shouldn't set their due_at (via delay())
         while True:
             cards_delayed = 0
-            cards = card_query[:count]
+            cards = card_query.exclude(id__in=[card.id for card in delayed_new_cards])[:count]
             for card in cards:
                 min_space = card.min_space_from_siblings()
                 for sibling_card in card.siblings():
@@ -130,19 +135,24 @@ class CardManager(models.Manager):
                             and review_time - sibling_card.last_reviewed_at <= min_space):
                         # Delay the card. It's already sorted by priority, so we delay
                         # this one instead of its sibling.
-                        card.delay(min_space)
-                        card.save()
+                        if card.is_new():
+                            delayed_new_cards.append(card)
+                        else:
+                            card.delay(min_space)
+                            card.save()
                         cards_delayed += 1
                         break # this first card was delayed, so move on to other first cards
             if not cards_delayed:
                 break
         return cards
 
+
     def _next_failed_due_cards(self, initial_query, count, review_time, excluded_ids=[]):
         if not count:
             return []
         cards = initial_query.filter(last_review_grade=GRADE_NONE, due_at__lte=review_time).order_by('due_at')
         return cards[:count] #don't space these #self._space_cards(cards, count, review_time)
+
 
     def _next_not_failed_due_cards(self, initial_query, count, review_time, excluded_ids=[]):
         '''
@@ -158,6 +168,7 @@ class CardManager(models.Manager):
         #TODO Also get cards that aren't quite due yet, but will be soon, and depending on their maturity (i.e. only mature cards due soon). Figure out some kind of way to prioritize these too.
         return self._space_cards(due_cards, count, review_time)
 
+
     def _next_failed_not_due_cards(self, initial_query, count, review_time, excluded_ids=[]):
         if not count:
             return []
@@ -169,6 +180,7 @@ class CardManager(models.Manager):
         card_query = initial_query.filter(last_review_grade=GRADE_NONE, \
                 due_at__gt=review_time).order_by('due_at')
         return card_query[:count]
+
 
     def _next_new_cards(self, initial_query, count, review_time, excluded_ids=[]):
         if not count:
@@ -244,6 +256,7 @@ class CardManager(models.Manager):
         #FIXME add new cards into the mix
         #for now, we'll add new ones to the end
         return chain(*card_queries)
+
 
 
 #used for randomizing new card insertion
@@ -347,18 +360,21 @@ class Card(AbstractCard):
 
     def is_new(self):
         ''''Returns True if this is a new card.'''
-        return self.due_at is None
+        return self.last_reviewed_at is None #self.due_at is None
 
     def is_mature(self):
         return self.interval >= MATURE_INTERVAL_MIN
 
     def is_due(self, time=None):
         '''Returns True if this card's due date is in the past.'''
+        if self.is_new():
+            return False
         if not self.due_at:
             return False
         if not time:
             time = datetime.datetime.utcnow()
         return self.due_at < time
+
 
     def delay(self, delay_duration):
         '''
@@ -376,6 +392,7 @@ class Card(AbstractCard):
             from_date = now
         self.due_at = from_date + delay_duration
 
+
     def _adjustment_curve(self, percentage):
         '''curve mid_point is between 0 and 1, the x value at which the curve slope rate of change is 0'''
         # ((1-cos(.88*pi*.79))/2)/((1-cos(pi*.79))/2)
@@ -383,9 +400,11 @@ class Card(AbstractCard):
         max_value = ((1 - cos(pi * upper_x_bound)))
         return ((1 - cos(percentage * pi * upper_x_bound))) / max_value
 
+
     def is_being_learned(self):
         '''Returns whether this card is still being learned.'''
         return self.interval > (self.fact.deck.schedulingoptions.easy_interval_max + INTERVAL_FUZZ_MAX)
+
 
     def _next_interval(self, grade, ease_factor, reviewed_at):
         '''Returns an interval, measured in days.'''
