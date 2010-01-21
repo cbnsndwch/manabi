@@ -350,9 +350,9 @@ def rest_facts(request): #todo:refactor into facts (no???)
 
 
         #filtering by deck
-        if 'deck' in request.GET:
+        if 'deck' in request.GET and request.GET['deck'].strip():
             try:
-                deck = Deck.objects.get(id=request.GET['deck'])
+                deck = Deck.objects.get(id=int(request.GET['deck']))
             except Deck.DoesNotExist:
                 ret = {}
             user_facts = fact_type.fact_set.filter(deck=deck)
@@ -362,7 +362,7 @@ def rest_facts(request): #todo:refactor into facts (no???)
         facts = user_facts
 
         #filtering by tags
-        if 'tags' in request.GET:
+        if 'tags' in request.GET and request.GET['tags'].strip():
             tag_ids = [int(tag_id) for tag_id in request.GET['tags'].split(',')]
             tags = usertagging.models.Tag.objects.filter(id__in=tag_ids)
             facts = usertagging.models.TaggedItem.objects.get_by_model(user_facts, tags)
