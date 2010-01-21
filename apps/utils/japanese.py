@@ -94,7 +94,6 @@ def _furiganaize(word, reading, is_at_beginning_of_transliteration=False):
     kanji_reading = reading[len(prefix_kana):-len(postfix_kana) or None]
 
     # Check if it's a compound word which has kana in between kanji
-    print expression_middle
     middle_ret = _furiganaize_complex_compound_word(expression_middle, kanji_reading)
     if not middle_ret:
         middle_ret = u'{kanji}[{reading}]'.format(kanji=expression_middle, reading=kanji_reading)
