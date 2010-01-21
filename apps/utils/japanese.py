@@ -8,10 +8,10 @@ CODE_PAGES = {
               'katakana': (12448, 12543),
               'kanji'   : (19968, 40879)} #todo: rare kanji too
 
+
 def _code_page(utf8_char):
     "Gets the code page for a Unicode character from a UTF-8 character."
-    #uni_val = ord(unicode(utf8_char, 'utf-8'))
-    uni_val=ord(utf8_char)
+    uni_val = ord(utf8_char)
     for title, pages in CODE_PAGES.iteritems():
         if uni_val >= pages[0] and uni_val <= pages[1]:
             return title
@@ -36,7 +36,6 @@ def _furiganaize_complex_compound_word(word, reading, is_at_beginning_of_transli
     prefix_kanji, rest_of_word = _split_by(lambda char: not _is_hiragana(char), word)
     postfix_kanji, middle_kana = _split_by(lambda char: not _is_hiragana(char), rest_of_word[::-1]) #split from end
     postfix_kanji, middle_kana = postfix_kanji[::-1], middle_kana[::-1]
-    import pdb;pdb.set_trace()
 
     # Make sure there is no kanji in between the hiragana
     if not all(_is_hiragana(char) for char in middle_kana):
@@ -76,14 +75,12 @@ def _split_by(filter_func, word):
     Returns a tuple containing the first part of the word that satisfies filter_func,
     followed by the rest of the word.
     '''
-#    prefix = u''.join([char for char in takewhile(lambda char: _code_page(char) in code_pages, word)])
     prefix = u''.join([char for char in takewhile(filter_func, word)])
     return (prefix, word[len(prefix):],)
 
 
 def _furiganaize(word, reading, is_at_beginning_of_transliteration=False):
     '''word=TAberu, reading=taberu returns TA[ta]beru'''
-
 
     #sometimes words like taberu come out as taberu instead of ta and beru
     #detect hiragana stems and split them (or just split off duplicate stems)
@@ -102,12 +99,10 @@ def _furiganaize(word, reading, is_at_beginning_of_transliteration=False):
     if not middle_ret:
         middle_ret = u'{kanji}[{reading}]'.format(kanji=expression_middle, reading=kanji_reading)
 
-
-    space_char = u'\u3000' if is_at_beginning_of_transliteration or prefix_kana else u'' # \u3000 is a full-width space - necessary if this isn't the start of the transliteration
+    space_char = u'\u3000' if not is_at_beginning_of_transliteration or prefix_kana else u'' # \u3000 is a full-width space - necessary if this isn't the start of the transliteration
 
     return u'{prefix}{space_char}{middle}{postfix}'.format( \
             prefix=prefix_kana, space_char=space_char, middle=middle_ret, postfix=postfix_kana)
-
 
 
 

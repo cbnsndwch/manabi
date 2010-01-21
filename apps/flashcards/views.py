@@ -12,7 +12,7 @@ from django.template import RequestContext, loader
 from django.contrib.auth.decorators import login_required
 
 from flashcards.models.decks import download_shared_deck, share_deck
-from utils import japanese
+from apps.utils import japanese
 
 from django.template.loader import render_to_string
 
