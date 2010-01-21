@@ -16,7 +16,6 @@ from apps.utils import japanese
 
 from django.template.loader import render_to_string
 
-
 import usertagging
 
 import datetime

@@ -13,9 +13,9 @@ should all those connects be disconnected somehow? particularly in body_pane (do
 
 SUPER CRITICAL BUGS:
 --------------------
-MECAB screws up with "貸し出す" !!!!! (kasidasu.. becomes KA[kasida]si for some reason?!?!?)
+-MECAB screws up with "貸し出す" !!!!! (kasidasu.. becomes KA[kasida]si for some reason?!?!?)
 
-the furiganaizer for "貸[か]し出[だ]す" is messed up. the da is above the sida, and the rubyless version comes out as 'kadasu'
+-the furiganaizer for "貸[か]し出[だ]す" is messed up. the da is above the sida, and the rubyless version comes out as 'kadasu'
 
 sometimes when i do space, 1, space, 1, etc. quickly in review mode, it shows the back side of the next card prematurely
 
@@ -158,6 +158,8 @@ sort facts with case insensitivity
 ---------------------
 BUGS:
 ---------------------
+grid Edit link is half hidden in safari - fix this by resizing grid appropriately (upon page resize etc)
+
 mecab probably doesn't handle numbers well - just ignore them for furigana
 
 grid sort arrows are invisible
