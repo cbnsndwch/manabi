@@ -34,7 +34,7 @@
                 var new_value = '';
                 if (field_content_item.attr('baseClass') == 'dijitSelect') {
                     new_value = field_content_item.attr('displayedValue');
-                    if (new_value == 'none') {
+                    if (field_content_item.attr('value') == 'none') {
                         new_value = '';
                     }
                 } else {
