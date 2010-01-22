@@ -89,6 +89,7 @@ def _furiganaize(word, reading, is_at_beginning_of_transliteration=False):
             word)])
     postfix_kana = u''.join([char for char in takewhile(lambda char: _code_page(char) in ['hiragana', 'katakana'], \
             word[::-1][:-len(prefix_kana) or None])]) #take from the end
+    postfix_kana = postfix_kana[::-1]
 
     expression_middle = word[len(prefix_kana):-len(postfix_kana) or None]
     kanji_reading = reading[len(prefix_kana):-len(postfix_kana) or None]
