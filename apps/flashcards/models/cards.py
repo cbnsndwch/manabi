@@ -15,6 +15,8 @@ from facts import Fact, FactType, SharedFact
 from cardtemplates import CardTemplate
 from reviews import ReviewStatistics
 
+import usertagging
+
 from django.template.loader import render_to_string
 
 #grade IDs (don't change these once they're set)
@@ -222,7 +224,7 @@ class CardManager(models.Manager):
         return self.filter(id__in=eligible_ids)
 
 
-    def next_cards(self, user, count, excluded_ids, session_start, deck=None):
+    def next_cards(self, user, count, excluded_ids, session_start, deck=None, tags=None):
         '''
         Returns `count` cards to be reviewed, in order.
         count should not be any more than a short session of cards
@@ -235,6 +237,10 @@ class CardManager(models.Manager):
 
         if deck:
             user_cards = user_cards.filter(fact__deck=deck)
+
+        if tags:
+            facts = usertagging.models.TaggedItem.objects.get_by_model(Fact, tags)
+            user_cards = user_cards.filter(fact__in=facts)
 
         if excluded_ids:
             user_cards = user_cards.exclude(id__in=excluded_ids)

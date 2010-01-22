@@ -190,8 +190,35 @@
         <div dojoType="dojox.grid.DataGrid" store="reviews_decksStore" 
             clientSort="true" style="width: 450px;" autoHeight="6" jsId="reviews_decksGrid"
             selectionMode="single" rowSelector="false"  
-            rowsPerPage="40" keepRows="200" structure="reviews_decksGridLayout"></div>
-
+            rowsPerPage="40" keepRows="200" structure="reviews_decksGridLayout">
+                <script type="dojo/connect" event="onSelectionChanged" args="evt">
+                    dojo.byId('reviews_noCardsDue').style.display = 'none';
+                    dojo.byId('reviews_beginReview').style.display = '';
+                    reviews_beginReviewButton.attr('disabled', false);
+                </script>
+        </div>
+        <br>
+        <div>
+            <strong>Filter cards by tag:</strong> <em>(optional)</em><br>
+            <div dojoType="dijit.form.FilteringSelect" store="cards_factsTagsStore"
+                searchAttr="name" jsId="reviews_filterByTagInput" style="display:inline-block">
+                <script type="dojo/connect" event="onChange" args="evt">
+                    if (this.attr('displayedValue').trim() != '') {
+                        reviews_clearFilterByTagInput.domNode.style.visibility = '';
+                    }
+                    dojo.byId('reviews_noCardsDue').style.display = 'none';
+                    dojo.byId('reviews_beginReview').style.display = '';
+                    reviews_beginReviewButton.attr('disabled', false);
+                </script>
+            </div>
+            <button dojoType="dijit.form.Button" type="button" style="visibility: hidden;" jsId="reviews_clearFilterByTagInput">
+                Clear Filter
+                <script type="dojo/connect" event="onClick" args="evt">
+                    reviews_filterByTagInput.reset();
+                    this.domNode.style.visibility = 'hidden';            
+                </script>
+            </button>
+        </div>
         <p>
             <div style="margin-bottom:8px">
                 <strong>Session time limit:</strong> 

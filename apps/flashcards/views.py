@@ -568,7 +568,11 @@ def next_cards_for_review(request):
     if request.method == 'GET':
         count = int(request.GET.get('count', 5))
 
-        deck_id = int(request.GET.get('deck', -1))
+        deck_id = request.GET.get('deck', -1)
+        if deck_id:
+            deck_id = int(deck_id)
+        else:
+            deck_id = -1
         if deck_id != -1:
             try:
                 deck = Deck.objects.get(id=deck_id)
@@ -577,6 +581,16 @@ def next_cards_for_review(request):
         else:
             deck = None
 
+        tag_id = request.GET.get('tag', -1)
+        if tag_id:
+            tag_id = int(tag_id)
+        else:
+            tag_id = -1
+        if tag_id != -1:
+            tag_ids = [tag_id] #TODO support multiple tags
+            tags = usertagging.models.Tag.objects.filter(id__in=tag_ids)
+        else:
+            tags = None
 
         session_start = string.lower(request.GET.get('session_start', 'false')) == 'true'
 
@@ -585,7 +599,7 @@ def next_cards_for_review(request):
         except ValueError:
             excluded_card_ids = []
 
-        next_cards = Card.objects.next_cards(request.user, count, excluded_card_ids, session_start, deck=deck)#[:count]
+        next_cards = Card.objects.next_cards(request.user, count, excluded_card_ids, session_start, deck=deck, tags=tags)#[:count]
         #FIXME need to account for 0 cards returned 
 
         # format into json object

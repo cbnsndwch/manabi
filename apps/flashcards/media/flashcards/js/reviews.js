@@ -66,6 +66,9 @@ reviews.prefetchCards = function(count, session_start) {
     if (reviews.session_deck_id != '-1') {
         url += '&deck='+reviews.session_deck_id;
     }
+    if (reviews.session_tag_id != '-1') {
+        url += '&tag='+reviews.session_tag_id;
+    }
 
     xhr_args = {
         url: url,//'/flashcards/rest/cards_for_review', //TODO don't hardcode these URLs
@@ -134,12 +137,14 @@ reviews._stop_session_timer = function() {
     }
 };
 
-reviews.startSession = function(deck_id, session_new_card_limit, session_card_limit, session_time_limit) {
+reviews.startSession = function(deck_id, session_new_card_limit, session_card_limit, session_time_limit, tag_id) {
     //Use deck_id = -1 for all decks
+    //Use tag_id = -1 for no tag filter
     //session_time_limit is in minutes
     //Always call this before doing anything else.
     //Returns a deferred.
     reviews.session_deck_id = deck_id;
+    reviews.session_tag_id = tag_id;
     reviews.session_new_card_limit = session_new_card_limit;
     reviews.session_card_limit = session_card_limit;
     reviews.session_time_limit = session_time_limit;
@@ -651,9 +656,9 @@ reviews_ui._unsubscribe_from_session_events = function() {
     });
 }
 
-reviews_ui.startSession = function(deck_id, session_time_limit, session_card_limit) {
+reviews_ui.startSession = function(deck_id, session_time_limit, session_card_limit, tag_id) {
     //start a review session with the server
-    var session_def = reviews.startSession(deck_id, 20, session_card_limit, session_time_limit); //FIXME use the user-defined session limits
+    var session_def = reviews.startSession(deck_id, 20, session_card_limit, session_time_limit, tag_id); //FIXME use the user-defined session limits
 
     reviews_ui._subscribe_to_session_events();
 
@@ -694,7 +699,12 @@ reviews_ui.submitReviewOptionsDialog = function() {
     var time_limit = reviews_timeLimitInput.attr('value');
     var card_limit = reviews_cardLimitInput.attr('value');
 
-    reviews_ui.startSession(deck_id, time_limit, card_limit);
+    var tag_id = reviews_filterByTagInput.attr('value');
+    if (reviews_filterByTagInput.attr('displayedValue') == '') {
+        tag_id = '-1';
+    }
+
+    reviews_ui.startSession(deck_id, time_limit, card_limit, tag_id);
 };
 
 

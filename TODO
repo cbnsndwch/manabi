@@ -109,6 +109,8 @@ or perhaps add a 'monolingual?' kind of bool field
 ---------------------
 TODO (low priority):
 ---------------------
+allow filtering reviews by multiple tags, not just one
+
 furiganaize regex is still a little sketchy
 
 freeze my pip reqs
