@@ -34,7 +34,8 @@ def parse_tag_input(input):
     if u',' not in input and u'"' not in input:
         #words = list(set(split_strip(input, u' ')))
         #words.sort()
-        words = list(set(input.strip()))
+        #words = list(set(input.strip()))
+        words = [input.strip()]
         return words
 
     words = []
