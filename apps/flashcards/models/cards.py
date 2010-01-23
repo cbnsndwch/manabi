@@ -148,6 +148,36 @@ class CardManager(models.Manager):
                 break
         return cards
 
+    def _space_cards_for_early_review(self, card_query, count, review_time, excluded_ids=[]):
+        '''
+        Doesn't actually delay cards.
+        If all cards in query end up being "spaced", then 
+        it will return the space cards, since early review
+        shouldn't ever run out of cards.
+        '''
+        delayed_new_cards = [] # Keep track of new cards we want to skip, since we shouldn't set their due_at (via delay())
+        while True:
+            cards_delayed = 0
+            cards = card_query.exclude(id__in=[card.id for card in delayed_new_cards])[:count]
+            for card in cards:
+                min_space = card.min_space_from_siblings()
+                for sibling_card in card.siblings():
+                    if sibling_card.is_due(review_time) \
+                            or sibling_card.id in excluded_ids \
+                            or (sibling_card.last_reviewed_at \
+                            and review_time - sibling_card.last_reviewed_at <= min_space):
+                        # Delay the card. It's already sorted by priority, so we delay
+                        # this one instead of its sibling.
+                        if card.is_new():
+                            delayed_new_cards.append(card)
+                        else:
+                            card.delay(min_space)
+                            card.save()
+                        cards_delayed += 1
+                        break # this first card was delayed, so move on to other first cards
+            if not cards_delayed:
+                break
+        return cards
 
     def _next_failed_due_cards(self, initial_query, count, review_time, excluded_ids=[]):
         if not count:
@@ -222,6 +252,17 @@ class CardManager(models.Manager):
         # Return a query containing the eligible cards.
         eligible_ids = [card.id for card in new_cards]
         return self.filter(id__in=eligible_ids)
+
+
+    def _next_due_soon_cards(self, initial_query, count, review_time, excluded_ids=[]):
+        '''
+        Used for early review.
+        Ordered by due date, ascending.
+        '''
+        if not count:
+            return []
+        cards = initial_query.exclude(last_review_grade=GRADE_NONE).filter(due_at__gt=review_time).order_by('due_at')
+        return self._space_cards(cards, count, review_time)
 
 
     def next_cards(self, user, count, excluded_ids, session_start, deck=None, tags=None, early_review=False):

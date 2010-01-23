@@ -29,6 +29,8 @@ gray out the fields while fact submission is in progress
 ---------------------
 TODO:
 ---------------------
+fuzzy due dates for larger interval cards
+
 allow deleting shared decks which the current user shared
 
 have the extra front field for some  card types be a "hint" that must be clicked. like the meaning for kanji reading cards.
@@ -272,6 +274,11 @@ was due, especially if the failed card was failed far after its due time.
 detect when a user grades inaccurately. for example, if the user tends to 
 mark 'very easy', but gets it wrong or thinks it's hard when it comes up 
 and it's reviewed on time.
+
+due date fuzz, dependent on interval
+overlapping date ranges for ordering... prioritize somehow. maybe based on 
+which side they overlap on. and taking interval into account.
+
 
 ------------
 Early Review
