@@ -224,10 +224,11 @@ class CardManager(models.Manager):
         return self.filter(id__in=eligible_ids)
 
 
-    def next_cards(self, user, count, excluded_ids, session_start, deck=None, tags=None):
+    def next_cards(self, user, count, excluded_ids, session_start, deck=None, tags=None, early_review=False):
         '''
         Returns `count` cards to be reviewed, in order.
         count should not be any more than a short session of cards
+        set `early_review` to True for reviewing cards early (following any due cards)
         The return format is
         '''
         card_queries = []
@@ -245,6 +246,17 @@ class CardManager(models.Manager):
         if excluded_ids:
             user_cards = user_cards.exclude(id__in=excluded_ids)
 
+        card_funcs = [
+                self._next_failed_due_cards,        #due, failed
+                self._next_not_failed_due_cards,    #due, not failed
+                self._next_failed_not_due_cards]    #failed, not due
+
+        if early_review:
+            card_funcs.extend([self._next_due_soon_cards])      #due soon, not yet, but next in the future
+        else:
+            card_funcs.extend([self._next_new_cards]) #new cards at end
+            #TODO somehow spread some new cards into the early review cards if early_review==True
+
         cards_left = count
         for card_func in [
                 self._next_failed_due_cards,        #due, failed
@@ -259,7 +271,7 @@ class CardManager(models.Manager):
                 card_queries.append(cards)
 
         #FIXME decide what to do with this #if session_start:
-        #FIXME add new cards into the mix
+        #FIXME add new cards into the mix when there's a defined new card per day limit
         #for now, we'll add new ones to the end
         return chain(*card_queries)
 
