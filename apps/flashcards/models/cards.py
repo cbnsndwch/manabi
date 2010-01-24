@@ -560,33 +560,39 @@ class Card(AbstractCard):
 
 
     def _next_ease_factor(self, grade, reviewed_at):
+        #TODO refactor early review detection into its own method for DRY
+
+        # Was it reviewed too soon after a sibling card? (Early Review)
+        is_early_review = False
+        last_sibling_review = self._last_sibling_review()
+        if last_sibling_review:
+            time_since_last_sibling_review = datetime.datetime.utcnow() - last_sibling_review
+            if time_since_last_sibling_review < datetime.timedelta(minutes=60): #TODO don't hardcode here
+                last_sibling_grade = last_sibling_review.last_review_grade
+                percentage_early = timedelta_to_float(time_since_last_sibling_review) / timedelta_to_float(datetime.timedelta(minutes=60))
+                percentage_early = self._adjustment_curve(percentage_early)
+                is_early_review = True
+
         # New card.
         if self.ease_factor is None:
             # Default to the average for this deck
             next_ease_factor = self.fact.deck.average_ease_factor() + EASE_FACTOR_MODIFIERS[grade]
 
             # Lessen the ease if this card was reviewed very soon after a sibling card.
-            last_sibling_review = self._last_sibling_review()
-            if last_sibling_review:
-                time_since_last_sibling_review = datetime.datetime.utcnow() - last_sibling_review
-                if time_since_last_sibling_review < datetime.timedelta(minutes=60): #TODO don't hardcode here
-                    last_sibling_grade = last_sibling_review.last_review_grade
-
-                    percentage_early = timedelta_to_float(time_since_last_sibling_review) / timedelta_to_float(datetime.timedelta(minutes=60))
-                    percentage_early = self._adjustment_curve(percentage_early)
-
-                    if grade <= last_sibling_grade:
-                        # Rated lower than expected since sibling was reviewed recently,
-                        # yet rated higher than this.
-                        next_ease_factor -= (1 - percentage_early) * 0.1 #TODO don't hardcode here
-                    else:
-                        # This was probably rated higher than needed, 
-                        # so let's bring it down 1 grade for calculating ease.
-                        next_ease_factor = self.fact.deck.average_ease_factor + EASE_FACTOR_MODIFIERS[grade - 1]
+            if is_early_review:
+                if grade <= last_sibling_grade:
+                    # Rated lower than expected since sibling was reviewed recently,
+                    # yet rated higher than this.
+                    next_ease_factor -= (1 - percentage_early) * 0.1 #TODO don't hardcode here
+                else:
+                    # This was probably rated higher than needed, 
+                    # so let's bring it down 1 grade for calculating ease.
+                    next_ease_factor = self.fact.deck.average_ease_factor + EASE_FACTOR_MODIFIERS[grade - 1]
         # Old card.
         else:
             # Only make the ease factor harder if the last review grade was better than this review (for young cards only)
             if EASE_FACTOR_MODIFIERS[grade] <= 0 and self.is_being_learned() and grade >= self.last_review_grade:
+                #TODO make it slightly harder if it was reviewed again too early, compared to self or sibling
                 #TODO is_being_learned might not cut it for later when mature failures are taken into account (it would return false?)
                 next_ease_factor = self.ease_factor
             else:
