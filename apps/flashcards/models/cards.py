@@ -458,7 +458,7 @@ class Card(AbstractCard):
         last_sibling_review = None
         for sibling in self.siblings():
             if not last_sibling_review \
-                    or sibling.last_reviewed_at > last_sibling_review:
+                    or (sibling.last_reviewed_at and sibling.last_reviewed_at > last_sibling_review):
                 last_sibling_review = sibling.last_reviewed_at
         return last_sibling_review
 
