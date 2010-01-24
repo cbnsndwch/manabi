@@ -592,6 +592,10 @@ def next_cards_for_review(request):
         else:
             tags = None
 
+        early_review = request.GET.get('early_review', False)
+        if not early_review: #force boolean (could be a blank string)
+            early_review = False
+
         session_start = string.lower(request.GET.get('session_start', 'false')) == 'true'
 
         try:
@@ -599,7 +603,8 @@ def next_cards_for_review(request):
         except ValueError:
             excluded_card_ids = []
 
-        next_cards = Card.objects.next_cards(request.user, count, excluded_card_ids, session_start, deck=deck, tags=tags)#[:count]
+        next_cards = Card.objects.next_cards(request.user, count, excluded_card_ids, session_start, \
+                deck=deck, tags=tags, early_review=early_review)
         #FIXME need to account for 0 cards returned 
 
         # format into json object
@@ -624,6 +629,7 @@ def next_cards_for_review(request):
 
         return {'success': True, 'cards': formatted_cards}
 
+
 @json_response
 @login_required
 def cards_due_count(request):
@@ -631,12 +637,14 @@ def cards_due_count(request):
         count = Card.objects.cards_due_count(request.user)
         return {'cards_due_count': count}
 
+
 @json_response
 @login_required
 def cards_new_count(request):
     if request.method == 'GET':
         count = Card.objects.cards_new_count(request.user)
         return {'cards_new_count': count}
+
 
 def _rest_review_card(request, card_id):
     '''

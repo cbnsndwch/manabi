@@ -111,6 +111,8 @@ or perhaps add a 'monolingual?' kind of bool field
 ---------------------
 TODO (low priority):
 ---------------------
+"this card was due in x hours" in review screen
+
 allow filtering reviews by multiple tags, not just one
 
 furiganaize regex is still a little sketchy

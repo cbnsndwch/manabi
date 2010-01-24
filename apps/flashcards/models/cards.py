@@ -431,7 +431,11 @@ class Card(AbstractCard):
 
 
     def _adjustment_curve(self, percentage):
-        '''curve mid_point is between 0 and 1, the x value at which the curve slope rate of change is 0'''
+        '''
+        Returns adjusted percentage
+        where percentage is between 0 and 1
+        curve mid_point is between 0 and 1, the x value at which the curve slope rate of change is 0
+        '''
         # ((1-cos(.88*pi*.79))/2)/((1-cos(pi*.79))/2)
         upper_x_bound = .79 #midpoint is around .88
         max_value = ((1 - cos(pi * upper_x_bound)))
@@ -443,13 +447,37 @@ class Card(AbstractCard):
         return self.interval > (self.fact.deck.schedulingoptions.easy_interval_max + INTERVAL_FUZZ_MAX)
 
 
+    def _time_since_last_sibling_review(self):
+        '''
+        Returns the time elapsed since the latest review of 
+        a sibling card.
+        '''
+        last_sibling_review = None
+        for sibling in self.siblings():
+            if not last_sibling_review \
+                    or sibling.last_reviewed_at > last_sibling_review:
+                last_sibling_review = sibling.last_reviewed_at
+        return datetime.datetime.utcnow() - last_sibling_review
+            
+
     def _next_interval(self, grade, ease_factor, reviewed_at):
         '''Returns an interval, measured in days.'''
+        #TODO shouldnt be a private function, maybe
+
         # New card.
         if self.interval is None:
             #get this card's deck, which has the initial interval durations
             #(initial intervals are configured at the deck level)
             next_interval = self.fact.deck.schedulingoptions.initial_interval(grade)
+
+            # Lessen the interval if this card is reviewed shortly after a sibling card
+            # (for early review)
+            if grade > GRADE_NONE:
+                time_since_last_sibling_review = self._time_since_last_sibling_review()
+                if time_since_last_sibling_review < datetime.timedelta(minutes=60): #TODO don't hardcode here
+                    percentage_early = timedelta_to_float(time_since_last_sibling_review) / timedelta_to_float(datetime.timedelta(minutes=60))
+                    next_interval *= self._adjustment_curve(percentage_early)
+        # Old card.
         else:
             current_interval = self.interval
             interval_bonus = 0
@@ -508,7 +536,8 @@ class Card(AbstractCard):
                     # Early review.
                     if reviewed_at < self.due_at:
                         # Lessen the interval increase, proportionate to how early it was reviewed.
-                        percentage_early = timedelta_to_float(self.due_at - reviewed_at) / timedelta_to_float(self.due_at - self.last_reviewed_at) # e.g. if due in 10 days, reviewed in 4, 40%
+                        percentage_early = timedelta_to_float(self.due_at - reviewed_at) \
+                                / timedelta_to_float(self.due_at - self.last_reviewed_at) # e.g. if due in 10 days, reviewed in 4, 40%
 
                         # If reviewed really early, don't add much to the interval.
                         # If reviewed close to due date, add most of the interval.

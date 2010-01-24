@@ -36,13 +36,17 @@ reviews.subscription_names = {
 };
 
 
-reviews.prefetchCards = function(count, session_start) {
+reviews.prefetchCards = function(count, session_start, early_review) {
     //get next cards from server, discounting those currently enqueued/pending
     //Returns a deferred.
+    
+    if (early_review == undefined) {
+        early_review = false;
+    }
 
     //serialize the excluded id list
     excluded_ids = new Array();
-    dojo.forEach(reviews.cards, //.concat(reviews.cards_reviewed_pending),
+    dojo.forEach(reviews.cards,
         function(card, index) {
             if (excluded_ids.lastIndexOf(card.id) == -1) {
                 excluded_ids.push(card.id);
@@ -55,23 +59,26 @@ reviews.prefetchCards = function(count, session_start) {
             }
     });
 
-    var url = '/flashcards/rest/cards_for_review';
+    var url = '/flashcards/rest/cards_for_review'; //TODO don't hardcode these URLs
     url += '?count='+count;
     if (session_start) {
         url += '&session_start=True';
     }
     if (excluded_ids.length > 0) {
-        url += '&excluded_cards='+excluded_ids.join('+');
+        url += '&excluded_cards=' + excluded_ids.join('+');
     }
     if (reviews.session_deck_id != '-1') {
-        url += '&deck='+reviews.session_deck_id;
+        url += '&deck=' + reviews.session_deck_id;
     }
     if (reviews.session_tag_id != '-1') {
-        url += '&tag='+reviews.session_tag_id;
+        url += '&tag=' + reviews.session_tag_id;
+    }
+    if (early_review) {
+        url += '&early_review=True';
     }
 
     xhr_args = {
-        url: url,//'/flashcards/rest/cards_for_review', //TODO don't hardcode these URLs
+        url: url,
         handleAs: 'json',
         load: function(data) {
             if (data.success) {
@@ -706,7 +713,7 @@ reviews_ui.submitReviewOptionsDialog = function(early_review) {
         tag_id = '-1';
     }
 
-    reviews_ui.startSession(deck_id, time_limit, card_limit, tag_id);
+    reviews_ui.startSession(deck_id, time_limit, card_limit, tag_id, early_review);
 };
 
 
