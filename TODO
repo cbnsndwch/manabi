@@ -13,7 +13,7 @@ should all those connects be disconnected somehow? particularly in body_pane (do
 
 SUPER CRITICAL BUGS:
 --------------------
-updating reading doesn't update it in the facts grid
+(!!!URGENT!!!) after 'reviewing early' once, the next review early session will be limited to 1 card (probably due to the card count not being reset for the next session)
 
 sometimes when i do space, 1, space, 1, etc. quickly in review mode, it shows the back side of the next card prematurely
 
@@ -164,6 +164,8 @@ sort facts with case insensitivity
 ---------------------
 BUGS:
 ---------------------
+updating reading doesn't update it in the facts grid
+
 grid Edit link is half hidden in safari - fix this by resizing grid appropriately (upon page resize etc)
 
 mecab probably doesn't handle numbers well - just ignore them for furigana

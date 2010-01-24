@@ -593,7 +593,9 @@ def next_cards_for_review(request):
             tags = None
 
         early_review = request.GET.get('early_review', False)
-        if not early_review: #force boolean (could be a blank string)
+        if str(early_review).lower() == 'true':
+            early_review = True
+        else:
             early_review = False
 
         session_start = string.lower(request.GET.get('session_start', 'false')) == 'true'

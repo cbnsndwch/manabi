@@ -240,7 +240,7 @@ class CardManager(models.Manager):
         if not count:
             return []
         cards = initial_query.exclude(last_review_grade=GRADE_NONE).filter(due_at__gt=review_time).order_by('due_at')
-        return self._space_cards(cards, count, review_time)
+        return self._space_cards(cards, count, review_time, early_review=True)
 
 
     def next_cards(self, user, count, excluded_ids, session_start, deck=None, tags=None, early_review=False):
@@ -277,11 +277,7 @@ class CardManager(models.Manager):
             #TODO somehow spread some new cards into the early review cards if early_review==True
 
         cards_left = count
-        for card_func in [
-                self._next_failed_due_cards,        #due, failed
-                self._next_not_failed_due_cards,    #due, not failed
-                self._next_failed_not_due_cards,    #failed, not due
-                self._next_new_cards]:              #new
+        for card_func in card_funcs:
             if not cards_left:
                 break
             cards = card_func(user_cards, count, now, excluded_ids)

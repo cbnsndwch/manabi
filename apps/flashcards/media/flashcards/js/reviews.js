@@ -144,7 +144,10 @@ reviews._stop_session_timer = function() {
     }
 };
 
-reviews.startSession = function(deck_id, session_new_card_limit, session_card_limit, session_time_limit, tag_id) {
+reviews.startSession = function(deck_id, session_new_card_limit, session_card_limit, session_time_limit, tag_id, early_review) {
+    if (early_review == undefined) {
+        early_review = false;
+    }
     //Use deck_id = -1 for all decks
     //Use tag_id = -1 for no tag filter
     //session_time_limit is in minutes
@@ -164,7 +167,7 @@ reviews.startSession = function(deck_id, session_new_card_limit, session_card_li
     reviews.empty_prefetch_producer = false;
 
     //TODO cleanup beforehand? precautionary..
-    return reviews.prefetchCards(reviews.card_buffer_count * 2, true);
+    return reviews.prefetchCards(reviews.card_buffer_count * 2, true, early_review);
 };
 
 reviews.endSession = function() {
@@ -399,6 +402,7 @@ reviews_ui.showNoCardsDue = function() {
     dojo.byId('reviews_reviewOptions').style.display = '';
     dojo.byId('reviews_reviewScreen').style.display = 'none';
     dojo.byId('reviews_reviewEndScreen').style.display = 'none';
+    reviews_beginEarlyReviewButton.attr('disabled', false);
 };
 
 reviews_ui.showReviewOptions = function() {
@@ -660,9 +664,13 @@ reviews_ui._unsubscribe_from_session_events = function() {
     });
 }
 
-reviews_ui.startSession = function(deck_id, session_time_limit, session_card_limit, tag_id) {
+reviews_ui.startSession = function(deck_id, session_time_limit, session_card_limit, tag_id, early_review) {
+    if (early_review == undefined) {
+        early_review = false;
+    }
+
     //start a review session with the server
-    var session_def = reviews.startSession(deck_id, 20, session_card_limit, session_time_limit, tag_id); //FIXME use the user-defined session limits
+    var session_def = reviews.startSession(deck_id, 20, session_card_limit, session_time_limit, tag_id, early_review); //FIXME use the user-defined session limits
 
     reviews_ui._subscribe_to_session_events();
 
