@@ -240,7 +240,20 @@
 
         <div id="reviews_noCardsDue" style="display: none">
             <strong>No cards are due right now.</strong><br>
-            Would you like to <u>review cards early</u>, or <u>learn new cards</u>?<br>
+            Would you like to 
+            <button dojoType="dijit.form.Button" type="button" jsId="reviews_beginEarlyReviewButton">
+                Review Cards Early
+                <script type="dojo/connect" event="onClick" args="evt">
+                    reviews_ui.submitReviewOptionsDialog(true);
+                </script>
+            </button>{% comment %}
+            or 
+            <button dojoType="dijit.form.Button" type="button">
+                Learn New Cards
+                <script type="dojo/connect" event="onClick" args="evt">
+                </script>
+            </button>{% endcomment %}
+            ?<br>
             <span style="color:gray">(early review still under development)</span>
         </div>
         <div id="reviews_beginReview">

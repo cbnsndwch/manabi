@@ -6,13 +6,16 @@ apps/dojango/media/dojo
 *.swn
 *.swm
 *.svn
+*.swl
 .svn
 *svn-base
 settings.py
 !apps/*/settings.py
+pip-log.txt
 dev.db
 fabfile.py
 workon_manabi.sh
+reset_manabi_db.sh
 *.bak
 *.tar.gz
 deploy

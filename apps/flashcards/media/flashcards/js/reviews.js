@@ -415,13 +415,13 @@ reviews_ui.openDialog = function() {
     //TODO first check if there are any cards due (using default review options? or special request to server)
 
     reviews_beginReviewButton.attr('disabled', false);
+    reviews_beginEarlyReviewButton.attr('disabled', false);
 
     reviews_ui.showReviewOptions();
     reviews_ui.review_options_dialog.tabStart = reviews_beginReviewButton;
 
     //show the options screen
     dojo.byId('reviews_reviewOptions').style.display = '';
-    //hide the review screen
     reviews_ui.review_options_dialog.show();
 
     reviews_decksGrid.store.close();
@@ -443,8 +443,6 @@ reviews_ui.openSessionOverDialog = function(review_count) {
 }
 
 reviews_ui.endSession = function() {
-    //reviews_ui.unsetCardBackKeyboardShortcuts();
-    //reviews_ui.unsetCardFrontKeyboardShortcuts();
     reviews_ui.unsetKeyboardShortcuts();
 
     reviews_ui._unsubscribe_from_session_events();
@@ -464,7 +462,6 @@ reviews_ui.endSession = function() {
 };
 
 reviews_ui.displayNextIntervals = function(card) {
-    //dojo.byId('reviews_gradeNoneInterval').innerHTML = reviews_ui.humanizedInterval(card.next_due_at_per_grade['0']);
     //show a special message for card failures
     //FIXME but only for young card failures - mature cards should have an interval shown
     dojo.byId('reviews_gradeNoneInterval').innerHTML = 'Review soon';
@@ -573,7 +570,7 @@ reviews_ui.isCardBackDisplayed = function() {
 
 
 reviews_ui.unsetKeyboardShortcuts = function() {
-    //unsets the keyboard shortcuts, 
+    //unsets the keyboard shortcuts, `
     //no matter whether the card's front or back is currently displayed
     reviews_ui.unsetCardFrontKeyboardShortcuts();
     reviews_ui.unsetCardBackKeyboardShortcuts();
@@ -685,7 +682,11 @@ reviews_ui.startSession = function(deck_id, session_time_limit, session_card_lim
 
 }
 
-reviews_ui.submitReviewOptionsDialog = function() {
+reviews_ui.submitReviewOptionsDialog = function(early_review) {
+    if (early_review == undefined) {
+        early_review = false;
+    }
+
     //hide this options screen
     //dojo.byId('reviews_reviewOptions').style.display = 'none';//({display: 'none'});
 
@@ -693,6 +694,7 @@ reviews_ui.submitReviewOptionsDialog = function() {
 
     //disable the submit button while it processes
     reviews_beginReviewButton.attr('disabled', true);
+    reviews_beginEarlyReviewButton.attr('disabled', true);
 
     var decks_grid_item = reviews_decksGrid.selection.getSelected()[0];
     var deck_id = decks_grid_item['id'][0]; //TODO allow multiple selections
