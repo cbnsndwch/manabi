@@ -351,6 +351,7 @@ class Card(AbstractCard):
     
     review_count = models.PositiveIntegerField(default=0, editable=False) #TODO use this for is_new()
     
+
     class Meta:
         unique_together = (('fact', 'template'), )
         app_label = 'flashcards'
@@ -369,13 +370,16 @@ class Card(AbstractCard):
         self.new_card_ordinal = random.randrange(0, MAX_NEW_CARD_ORDINAL)
         super(Card, self).save()
 
+
     @property
     def owner(self):
         return self.fact.deck.owner
 
+
     def siblings(self):
         '''Returns the other cards from this card's fact.'''
         return self.fact.card_set.exclude(id=self.id)
+
 
     def min_space_from_siblings(self, sibling_cards=None):
         '''
@@ -395,12 +399,15 @@ class Card(AbstractCard):
             min_space = min_card_space
         return datetime.timedelta(days=min_space)
 
+
     def is_new(self):
         ''''Returns True if this is a new card.'''
         return self.last_reviewed_at is None #self.due_at is None
 
+
     def is_mature(self):
         return self.interval >= MATURE_INTERVAL_MIN
+
 
     def is_due(self, time=None):
         '''Returns True if this card's due date is in the past.'''
@@ -619,10 +626,8 @@ class Card(AbstractCard):
                             / timedelta_to_float(self.due_at - self.last_reviewed_at) # e.g. if due in 10 days, reviewed in 4, 40% (so actually kind of inverse)
                     # If reviewed really early, don't add much to the interval.
                     # If reviewed close to due date, add most of the interval.
-
                     if is_early_review_due_to_sibling:
                         percentage_early_since_failure = min(percentage_early_since_self, percentage_early)
-
                     adjustment = (next_ease_factor - self.ease_factor) * self._adjustment_curve(percentage_early_since_self)
                     next_ease_factor = self.ease_factor + adjustment
                 # Early Review, compared to sibling
@@ -649,20 +654,7 @@ class Card(AbstractCard):
 
     
     def review(self, grade):
-        #if grade == GRADE_NONE:
-        #    #review failure
-        #    #don't affect the ease factor
-        #    #reset the interval to an initial value
-        #    #TODO how to handle failures on new cards? should it keep its 'new' status, and should the EF change?
-        #    if self.is_mature():
-        #        #failure on a mature card
-        #        self.interval = MATURE_FAILURE_INTERVAL
-        #    else:
-        #        #failure on a young or new card
-        #        #reset the interval
-        #        self.interval = YOUNG_FAILURE_INTERVAL
-        #    self.due_at = datetime.datetime.utcnow() + self.interval
-        #else:
+        #TODO how to handle failures on new cards? should it keep its 'new' status, and should the EF change?
 
         reviewed_at = datetime.datetime.utcnow()
         was_new = self.interval is None
@@ -697,7 +689,6 @@ class Card(AbstractCard):
             review_stats.increment_failed_reviews()
         review_stats.save()
 
-
         #TODO add this review to this card's history
         #self.cardhistory.
 
@@ -711,9 +702,9 @@ class Card(AbstractCard):
 #  pass
 
 
+#TODO implement
 class CardStatistics(models.Model):
     card = models.ForeignKey(Card)
-
 
     failure_count = models.PositiveIntegerField(default=0, editable=False)
     #TODO review stats depending on how card was rated, and how mature it is
