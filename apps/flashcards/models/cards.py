@@ -563,15 +563,15 @@ class Card(AbstractCard):
         #TODO refactor early review detection into its own method for DRY
 
         # Was it reviewed too soon after a sibling card? (Early Review)
-        is_early_review = False
+        is_early_review_due_to_sibling = False
         last_sibling_review = self._last_sibling_review()
         if last_sibling_review:
             time_since_last_sibling_review = datetime.datetime.utcnow() - last_sibling_review
             if time_since_last_sibling_review < datetime.timedelta(minutes=60): #TODO don't hardcode here
                 last_sibling_grade = last_sibling_review.last_review_grade
                 percentage_early = timedelta_to_float(time_since_last_sibling_review) / timedelta_to_float(datetime.timedelta(minutes=60))
-                percentage_early = self._adjustment_curve(percentage_early)
-                is_early_review = True
+                #percentage_early = self._adjustment_curve(percentage_early)
+                is_early_review_due_to_sibling = True
 
         # New card.
         if self.ease_factor is None:
@@ -579,11 +579,11 @@ class Card(AbstractCard):
             next_ease_factor = self.fact.deck.average_ease_factor() + EASE_FACTOR_MODIFIERS[grade]
 
             # Lessen the ease if this card was reviewed very soon after a sibling card.
-            if is_early_review:
+            if is_early_review_due_to_sibling:
                 if grade <= last_sibling_grade:
                     # Rated lower than expected since sibling was reviewed recently,
                     # yet rated higher than this.
-                    next_ease_factor -= (1 - percentage_early) * 0.1 #TODO don't hardcode here
+                    next_ease_factor -= (1 - self._adjustment_curve(percentage_early)) * 0.1 #TODO don't hardcode here
                 else:
                     # This was probably rated higher than needed, 
                     # so let's bring it down 1 grade for calculating ease.
@@ -601,20 +601,32 @@ class Card(AbstractCard):
                 # Lessen the effect if this card was reviewed successfully soon after failing
                 if grade > GRADE_NONE \
                         and self.last_review_grade == GRADE_NONE \
-                        and (reviewed_at - self.last_reviewed_at) < datetime.timedelta(minutes=30): #TODO don't hard code this value here
-                    #FIXME lessen it even more if this is an early review due to spacing from siblings
+                        and (reviewed_at - self.last_reviewed_at) < datetime.timedelta(minutes=60): #TODO don't hard code this value here
+                    #FIXME except if this is an early review due to spacing from siblings, then don't lessen it as much
                     #TODO different adjustment for 'hard' grades vs good/too easy
-                    percentage_early = timedelta_to_float(reviewed_at - self.last_reviewed_at) \
-                            / timedelta_to_float(datetime.timedelta(minutes=60)) #force it to be under 50%
-                    adjustment = (next_ease_factor - self.ease_factor) * self._adjustment_curve(percentage_early)
+                    percentage_early_since_failure = timedelta_to_float(reviewed_at - self.last_reviewed_at) \
+                            / timedelta_to_float(datetime.timedelta(minutes=60)) #TODO don't hard code this value here
+
+                    if is_early_review_due_to_sibling:
+                        percentage_early_since_failure = min(percentage_early_since_failure, percentage_early)
+
+                    adjustment = (next_ease_factor - self.ease_factor) * self._adjustment_curve(percentage_early_since_failure)
                     next_ease_factor = self.ease_factor + adjustment
                 # Early Review, and not right after a failure (failure reviews will often be 'early').
                 elif reviewed_at < self.due_at and self.last_review_grade != GRADE_NONE:
                     # Lessen the EF adjustment, proportionate to how early it was reviewed.
-                    percentage_early = timedelta_to_float(self.due_at - reviewed_at) \
+                    percentage_early_since_self = timedelta_to_float(self.due_at - reviewed_at) \
                             / timedelta_to_float(self.due_at - self.last_reviewed_at) # e.g. if due in 10 days, reviewed in 4, 40% (so actually kind of inverse)
                     # If reviewed really early, don't add much to the interval.
                     # If reviewed close to due date, add most of the interval.
+
+                    if is_early_review_due_to_sibling:
+                        percentage_early_since_failure = min(percentage_early_since_self, percentage_early)
+
+                    adjustment = (next_ease_factor - self.ease_factor) * self._adjustment_curve(percentage_early_since_self)
+                    next_ease_factor = self.ease_factor + adjustment
+                # Early Review, compared to sibling
+                elif is_early_review_due_to_sibling:
                     adjustment = (next_ease_factor - self.ease_factor) * self._adjustment_curve(percentage_early)
                     next_ease_factor = self.ease_factor + adjustment
 
