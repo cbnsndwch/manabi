@@ -19,11 +19,9 @@ sometimes when i do space, 1, space, 1, etc. quickly in review mode, it shows th
 
 -when not signed in, bugs! (click title) (also, dojo errors)
 
-sometimes the decks grid doesnt resize in time of the dialog opening
-
 session time limit is bugged out (doesnt always get reset - particualrly when there's an error starting the session)
 
-gray out the fields while fact submission is in progress
+gray out the fields while fact submission is in progress (and make sure cmd-enter is disabled then too)
 
 
 ---------------------
@@ -164,6 +162,8 @@ sort facts with case insensitivity
 ---------------------
 BUGS:
 ---------------------
+sometimes the decks grid doesnt resize in time of the dialog opening
+
 updating reading doesn't update it in the facts grid
 
 grid Edit link is half hidden in safari - fix this by resizing grid appropriately (upon page resize etc)

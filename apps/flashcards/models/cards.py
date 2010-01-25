@@ -469,8 +469,24 @@ class Card(AbstractCard):
             
 
     def _next_interval(self, grade, ease_factor, reviewed_at):
-        '''Returns an interval, measured in days.'''
+        '''
+        Returns an interval, measured in days.
+
+        Make sure any spacing delays due to sibling cards
+        is already accounted for in this card's due_at
+        by the time this is called.
+        '''
         #TODO shouldnt be a private function, maybe
+
+        # Early Review due to siblings.
+        is_early_review_due_to_sibling = False
+        last_sibling_review = self._last_sibling_review()
+        if last_sibling_review:
+            time_since_last_sibling_review = datetime.datetime.utcnow() - last_sibling_review
+            if time_since_last_sibling_review < datetime.timedelta(minutes=60): #TODO don't hardcode here
+                last_sibling_grade = last_sibling_review.last_review_grade
+                percentage_waited_for_sibling = timedelta_to_float(time_since_last_sibling_review) / timedelta_to_float(datetime.timedelta(minutes=60))
+                is_early_review_due_to_sibling = True
 
         # New card.
         if self.interval is None:
@@ -481,11 +497,8 @@ class Card(AbstractCard):
             # Lessen the interval if this card is reviewed shortly after a sibling card
             # (for Early Review)
             if grade > GRADE_NONE:
-                time_since_last_sibling_review = self._time_since_last_sibling_review()
-                if time_since_last_sibling_review \
-                        and time_since_last_sibling_review < datetime.timedelta(minutes=60): #TODO don't hardcode here
-                    percentage_early = timedelta_to_float(time_since_last_sibling_review) / timedelta_to_float(datetime.timedelta(minutes=60))
-                    next_interval *= self._adjustment_curve(percentage_early)
+                if is_early_review_due_to_sibling:
+                    next_interval *= self._adjustment_curve(percentage_waited_for_sibling)
         # Old card.
         else:
             current_interval = self.interval
@@ -500,6 +513,8 @@ class Card(AbstractCard):
                     time_since_last_review = reviewed_at - self.last_reviewed_at
                     if time_since_last_review < datetime.timedelta(minutes=60): #TODO don't hard code this value here
                         next_interval /= 1.6 #TODO don't hardcode this here
+                # Also lessen if it's right after a sibling card review
+
             else:
                 # Review failure.
                 if grade == GRADE_NONE:
@@ -530,7 +545,7 @@ class Card(AbstractCard):
                         #current_interval += interval_bonus
                         # Cap the bonus.
                         if grade < GRADE_EASY:
-                            interval_bonus = min(interval_bonus, timedelta_to_float(datetime.timedelta(4 * current_interval)))
+                            interval_bonus = min(interval_bonus, timedelta_to_float(datetime.timedelta(4 * current_interval))) #TODO don't hardcode
 
                     current_interval += interval_bonus
 
@@ -545,19 +560,53 @@ class Card(AbstractCard):
                         next_interval += next_interval * GRADE_EASY_BONUS_FACTOR
 
                     # Early review.
+                    #FIXME account for early review due to sibling? or is it always going to be spaced anyway, thus affecting due_at
+                    #TODO for now assume due_at includes delays for spacing by now - but perhaps delays should be separated from due_at?
                     if reviewed_at < self.due_at:
                         # Lessen the interval increase, proportionate to how early it was reviewed.
-                        percentage_early = timedelta_to_float(self.due_at - reviewed_at) \
-                                / timedelta_to_float(self.due_at - self.last_reviewed_at) # e.g. if due in 10 days, reviewed in 4, 40%
+                        last_effective_interval = timedelta_to_float(self.due_at - self.last_reviewed_at)
+
+                        percentage_waited = timedelta_to_float(reviewed_at - self.last_reviewed_at) / last_effective_interval
+
+                        # Consider the time since last review to be even less if a sibling card was reviewed more recently.
+                        if is_early_review_due_to_sibling:
+                            percentage_waited = min(percentage_waited, percentage_waited_for_sibling)
+                        print 'percentage waited: ' + str(percentage_waited)
 
                         # If reviewed really early, don't add much to the interval.
                         # If reviewed close to due date, add most of the interval.
                         #adjusted_interval_increase = (next_interval - current_interval) * ((1 - cos(percentage_early * pi / 1.5)) / 2)
-                        adjusted_interval_increase = (next_interval - current_interval) * self._adjustment_curve(percentage_early)
-                        interval = current_interval + adjusted_interval_increase
-                        
+                        adjusted_interval_increase = (next_interval - current_interval) * self._adjustment_curve(percentage_waited)
+                        print 'interval increase was going to be: ' + str(next_interval - current_interval)
+                        print 'but was changed to: ' + str(adjusted_interval_increase)
+                        next_interval = current_interval + adjusted_interval_increase
+                        print 'current interval is: ' + str(current_interval)
+                        print 'so next interval is: ' + str(next_interval)
+                    # Not early for itself, but a sibling was reviewed too recently.
+                    #TODO refactor
+                    elif is_early_review_due_to_sibling:
+                        #percentage_waited = timedelta_to_float(reviewed_at - last_sibling_review.last_reviewed_at) \
+                        #        / timedelta_to_float(self.due_at - self.last_reviewed_at)
+                        adjusted_interval_increase = (next_interval - current_interval) * self._adjustment_curve(percentage_waited_for_sibling)
+                        next_interval = current_interval + adjusted_interval_increase
+
         # Fuzz the result. Conservatively favor shorter intervals.
-        next_interval += next_interval * random.triangular(-INTERVAL_FUZZ_MAX, INTERVAL_FUZZ_MAX, (-INTERVAL_FUZZ_MAX) / 4.5)
+        print 'next_interval before fuzz:' + str(next_interval)
+        fuzz = next_interval * random.triangular(-INTERVAL_FUZZ_MAX, INTERVAL_FUZZ_MAX, (-INTERVAL_FUZZ_MAX) / 4.5)
+        # Fuzz less for early reviews.
+        if is_early_review_due_to_sibling or reviewed_at < self.due_at:
+            #TODO refactor / DRY all these early review calculations
+            last_effective_interval = timedelta_to_float(self.due_at - self.last_reviewed_at)
+            if is_early_review_due_to_sibling and last_sibling_review.last_reviewed_at > self.last_reviewed_at:
+                last_effectively_reviewed_at = last_sibling_review.last_reviewed_at
+            else:
+                last_effectively_reviewed_at = self.last_reviewed_at
+            percentage_waited = timedelta_to_float(reviewed_at - last_effectively_reviewed_at) / last_effective_interval
+            print 'fuzz was to be: ' + str(fuzz)
+            fuzz *= self._adjustment_curve(percentage_waited)
+            print 'adjusted fuzz: ' + str(fuzz)
+        next_interval += fuzz
+        print 'and after fuzz: ' + str(next_interval)
 
         return next_interval
 
@@ -572,8 +621,7 @@ class Card(AbstractCard):
             time_since_last_sibling_review = datetime.datetime.utcnow() - last_sibling_review
             if time_since_last_sibling_review < datetime.timedelta(minutes=60): #TODO don't hardcode here
                 last_sibling_grade = last_sibling_review.last_review_grade
-                percentage_early = timedelta_to_float(time_since_last_sibling_review) / timedelta_to_float(datetime.timedelta(minutes=60))
-                #percentage_early = self._adjustment_curve(percentage_early)
+                percentage_waited_for_sibling = timedelta_to_float(time_since_last_sibling_review) / timedelta_to_float(datetime.timedelta(minutes=60))
                 is_early_review_due_to_sibling = True
 
         # New card.
@@ -586,7 +634,7 @@ class Card(AbstractCard):
                 if grade <= last_sibling_grade:
                     # Rated lower than expected since sibling was reviewed recently,
                     # yet rated higher than this.
-                    next_ease_factor -= (1 - self._adjustment_curve(percentage_early)) * 0.1 #TODO don't hardcode here
+                    next_ease_factor -= (1 - self._adjustment_curve(percentage_waited_for_sibling)) * 0.1 #TODO don't hardcode here
                 else:
                     # This was probably rated higher than needed, 
                     # so let's bring it down 1 grade for calculating ease.
@@ -611,24 +659,28 @@ class Card(AbstractCard):
                             / timedelta_to_float(datetime.timedelta(minutes=60)) #TODO don't hard code this value here
 
                     if is_early_review_due_to_sibling:
-                        percentage_early_since_failure = min(percentage_early_since_failure, percentage_early)
+                        percentage_early_since_failure = min(percentage_early_since_failure, percentage_waited_for_sibling)
 
                     adjustment = (next_ease_factor - self.ease_factor) * self._adjustment_curve(percentage_early_since_failure)
                     next_ease_factor = self.ease_factor + adjustment
                 # Early Review, and not right after a failure (failure reviews will often be 'early').
                 elif reviewed_at < self.due_at and self.last_review_grade != GRADE_NONE:
                     # Lessen the EF adjustment, proportionate to how early it was reviewed.
-                    percentage_early_since_self = timedelta_to_float(self.due_at - reviewed_at) \
+                    #percentage_early_since_self = timedelta_to_float(self.due_at - reviewed_at) \
+                    #        / timedelta_to_float(self.due_at - self.last_reviewed_at) # e.g. if due in 10 days, reviewed in 4, 40% (so actually kind of inverse)
+                    percentage_early_since_self = timedelta_to_float(reviewed_at - self.last_reviewed_at) \
                             / timedelta_to_float(self.due_at - self.last_reviewed_at) # e.g. if due in 10 days, reviewed in 4, 40% (so actually kind of inverse)
+                    last_effective_interval = timedelta_to_float(self.due_at - self.last_reviewed_at)
+                    percentage_waited = timedelta_to_float(reviewed_at - self.last_reviewed_at) / last_effective_interval
                     # If reviewed really early, don't add much to the interval.
                     # If reviewed close to due date, add most of the interval.
                     if is_early_review_due_to_sibling:
-                        percentage_early_since_failure = min(percentage_early_since_self, percentage_early)
+                        percentage_early_since_failure = min(percentage_early_since_self, percentage_waited_for_sibling)
                     adjustment = (next_ease_factor - self.ease_factor) * self._adjustment_curve(percentage_early_since_self)
                     next_ease_factor = self.ease_factor + adjustment
                 # Early Review, compared to sibling
                 elif is_early_review_due_to_sibling:
-                    adjustment = (next_ease_factor - self.ease_factor) * self._adjustment_curve(percentage_early)
+                    adjustment = (next_ease_factor - self.ease_factor) * self._adjustment_curve(percentage_waited_for_sibling)
                     next_ease_factor = self.ease_factor + adjustment
 
         if next_ease_factor < MINIMUM_EASE_FACTOR:
@@ -655,21 +707,21 @@ class Card(AbstractCard):
         reviewed_at = datetime.datetime.utcnow()
         was_new = self.interval is None
 
-        #adjust ease factor
+        # Adjust ease factor
         last_ease_factor = self.ease_factor
         self.ease_factor = self._next_ease_factor(grade, reviewed_at)
         self.last_ease_factor = last_ease_factor
 
-        #adjust interval
+        # Adjust interval
         last_interval = self.interval
         self.interval = self._next_interval(grade, self.ease_factor, reviewed_at)
         self.last_interval = last_interval
     
-        #determine next due date
+        # Determine next due date
         self.last_due_at = self.due_at
         self.due_at = self._next_due_at(grade, reviewed_at, self.interval)
 
-        #update this card's statistics
+        # Update this card's statistics
         self._update_statistics(grade, reviewed_at)
 
         self.last_review_grade = grade
