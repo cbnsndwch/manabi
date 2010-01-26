@@ -600,7 +600,7 @@ def next_cards_for_review(request):
         # Early Review
         early_review = request.GET.get('early_review', 'false').lower() == 'true'
 
-        # Learn More new cards.
+        # Learn More new cards. Usually this will be combined with early_review.
         learn_more = request.GET.get('learn_more', 'false').lower() == 'true'
         if learn_more:
             daily_new_card_limit = None

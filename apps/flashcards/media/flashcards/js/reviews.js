@@ -36,17 +36,10 @@ reviews.subscription_names = {
 };
 
 
-reviews.prefetchCards = function(count, session_start, early_review, learn_more) {
+reviews.prefetchCards = function(count, session_start) {
     //get next cards from server, discounting those currently enqueued/pending
     //Returns a deferred.
     reviews._prefetch_in_progress = true;
-
-    if (early_review == undefined) {
-        early_review = false;
-    }
-    if (learn_more == undefined) {
-        learn_more = false;
-    }
 
     //serialize the excluded id list
     excluded_ids = new Array();
@@ -77,9 +70,10 @@ reviews.prefetchCards = function(count, session_start, early_review, learn_more)
     if (reviews.session_tag_id != '-1') {
         url += '&tag=' + reviews.session_tag_id;
     }
-    if (early_review) {
+    if (reviews.session_early_review) {
         url += '&early_review=True';
-    } else if (learn_more) {
+    }
+    if (reviews.session_learn_more) {
         url += '&learn_more=True';
     }
 
@@ -170,6 +164,8 @@ reviews.startSession = function(deck_id, daily_new_card_limit, session_card_limi
     reviews.session_card_limit = session_card_limit;
     reviews.session_time_limit = session_time_limit;
     reviews.session_cards_reviewed_count = 0;
+    reviews.session_early_review = early_review;
+    reviews.session_learn_more = learn_more;
 
     reviews._prefetch_in_progress = false;
     //reviews.session_over_def = new dojo.Deferred();
@@ -180,7 +176,7 @@ reviews.startSession = function(deck_id, daily_new_card_limit, session_card_limi
     reviews.empty_prefetch_producer = false;
 
     //TODO cleanup beforehand? precautionary..
-    return reviews.prefetchCards(reviews.card_buffer_count * 2, true, early_review, learn_more);
+    return reviews.prefetchCards(reviews.card_buffer_count * 2, true);
 };
 
 reviews.endSession = function() {
@@ -408,7 +404,6 @@ reviews_ui.humanizedInterval = function(interval) {
 };
 
 reviews_ui.showNoCardsDue = function(can_learn_more) {
-    console.log('1');
     dojo.byId('reviews_noCardsDue').style.display = '';
     dojo.byId('reviews_beginReview').style.display = 'none';
     dojo.byId('reviews_reviewOptions').style.display = 'none';
@@ -724,7 +719,8 @@ reviews_ui.startSession = function(deck_id, session_time_limit, session_card_lim
                 //no cards are due
                 //are there new cards left to learn today? (decide whether to
                 //show learn more button).
-                can_learn_more = initial_card_prefetch.new_cards_left_for_today == '0' && initial_card_prefetch.new_cards_left != '0'; //TODO better api for this
+                //can_learn_more = initial_card_prefetch.new_cards_left_for_today == '0' && initial_card_prefetch.new_cards_left != '0'; //TODO better api for this
+                can_learn_more = initial_card_prefetch.new_cards_left != '0'; //TODO better api for this
                 reviews_ui.showNoCardsDue(can_learn_more);
             }
         });

@@ -161,7 +161,7 @@
 </div>
 
 
-<div dojoType="dijit.Dialog" jsId="reviews_reviewDialog" id="reviews_reviewDialog" title="Flashcard Review">
+<div dojoType="dijit.Dialog" jsId="reviews_reviewDialog" id="reviews_reviewDialog" title="Flashcards">
 	<script type="dojo/connect" event="onCancel" args="evt">
         reviews.endSession();
 	</script>
@@ -240,31 +240,34 @@
             </div>{% endcomment %}
         </p>
         <br>
-
     </div>
 
     <div id="reviews_noCardsDue" style="display: none">
         <strong style="font-size:120%">No cards are due right now.</strong><br>
+        You should wait until later to review more.<br>
+        But if you like, you may continue.<br>
         <br>
-        Would you like to 
-        <button dojoType="dijit.form.Button" type="button" jsId="reviews_beginEarlyReviewButton">
-            Review Early
-            <script type="dojo/connect" event="onClick" args="evt">
-                reviews_ui.submitReviewOptionsDialog(true);
-            </script>
-        </button>
-        <span id="reviews_learnMoreContainer">
-            or 
-            <button dojoType="dijit.form.Button" type="button" jsId="reviews_learnMoreButton">
-                Learn More
+        <div style="text-align:center">
+            <button dojoType="dijit.form.Button" type="button" jsId="reviews_beginEarlyReviewButton">
+                Review Early
                 <script type="dojo/connect" event="onClick" args="evt">
-                    reviews_ui.submitReviewOptionsDialog(false, true);
+                    reviews_ui.submitReviewOptionsDialog(true);
                 </script>
-            </button>
-        </span>
-        ?<br>
+            </button><br>
+            <span style="color:gray">Review cards before they're due.</span><br>
+            <span id="reviews_learnMoreContainer">
+            <br>
+                <button dojoType="dijit.form.Button" type="button" jsId="reviews_learnMoreButton">
+                    Learn More
+                    <script type="dojo/connect" event="onClick" args="evt">
+                        reviews_ui.submitReviewOptionsDialog(true, true); // learn more, and learn new cards early if necessary
+                    </script>
+                </button><br>
+                <span style="color:gray">Learn new cards.</span>
+            </span>
+        </div>
         <br>
-        <span class="fakeLink" onclick="reviews_ui.showReviewOptions()">Return to study options</span>
+        <span class="fakeLink" onclick="reviews_ui.showReviewOptions()">Back to study options</span>
     </div>
     <div id="reviews_beginReview">
         <button dojoType="dijit.form.Button" type="button" jsId="reviews_beginReviewButton">

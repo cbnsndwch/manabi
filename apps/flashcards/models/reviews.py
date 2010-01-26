@@ -24,14 +24,14 @@ class ReviewStatistics(models.Model):
 
     #TODO refactor into a custom model field
     def get_new_reviews_today(self):
-        if not self._is_review_time_within_users_day(self.last_new_review_at):
+        if not self.last_new_review_at or not self._is_review_time_within_users_day(self.last_new_review_at):
             self.new_reviews_today = 0
         return self.new_reviews_today
 
 
     #TODO refactor into a custom model field
     def get_failed_reviews_today(self):
-        if not self._is_review_time_within_users_day(self.last_failed_review_at):
+        if not self.last_failed_at or not self._is_review_time_within_users_day(self.last_failed_review_at):
             self.failed_reviews_today = 0
         return self.failed_reviews_today
 
