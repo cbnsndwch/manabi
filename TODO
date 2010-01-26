@@ -13,7 +13,11 @@ should all those connects be disconnected somehow? particularly in body_pane (do
 
 SUPER CRITICAL BUGS:
 --------------------
-(!!!URGENT!!!) after 'reviewing early' once, the next review early session will be limited to 1 card (probably due to the card count not being reset for the next session)
+only show the 'early'/'learn more' buttons by themselves
+
+-?-(!!!URGENT!!!) after 'reviewing early' once, the next review early session will be limited to 1 card (probably due to the card count not being reset for the next session)
+
+get deck average EF for new cards
 
 sometimes when i do space, 1, space, 1, etc. quickly in review mode, it shows the back side of the next card prematurely
 
@@ -27,6 +31,8 @@ gray out the fields while fact submission is in progress (and make sure cmd-ente
 ---------------------
 TODO:
 ---------------------
+!!!'next review is in X days' like anki
+
 fuzzy due dates for larger interval cards
 
 allow deleting shared decks which the current user shared

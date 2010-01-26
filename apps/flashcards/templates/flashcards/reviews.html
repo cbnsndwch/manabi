@@ -224,48 +224,57 @@
                 <strong>Session time limit:</strong> 
                 <input dojoType="dijit.form.NumberSpinner" value="10" smallDelta="1"
                 constraints="{min:0,max:120,places:0}"
-                jsId="reviews_timeLimitInput" style="width:80px"> minutes
+                jsId="reviews_timeLimitInput" style="width:80px"> minutes <span style="color:gray">(0 = unlimited)</span>
             </div>
-            <div style="margin-bottom:6px">
+            <div style="margin-bottom:8px">
                 <strong>Session card limit:</strong></td>
                 <input dojoType="dijit.form.NumberSpinner" value="0" smallDelta="5"
                 constraints="{min:0,max:1000,places:0}"
-                jsId="reviews_cardLimitInput" style="width:80px"> cards
-            </div>
-            <div>
-                <span style="color:gray">(0 = unlimited)</span>
-            </div>
+                jsId="reviews_cardLimitInput" style="width:80px"> cards <span style="color:gray">(0 = unlimited)</span>
+            </div>{% comment %}
+            <div style="margin-bottom:6px">
+                <strong>New cards per day:</strong></td>
+                <input dojoType="dijit.form.NumberSpinner" value="20" smallDelta="5"
+                constraints="{min:1,max:500,places:0}"
+                jsId="reviews_newCardLimitInput" style="width:80px"> cards
+            </div>{% endcomment %}
         </p>
         <br>
 
-        <div id="reviews_noCardsDue" style="display: none">
-            <strong>No cards are due right now.</strong><br>
-            Would you like to 
-            <button dojoType="dijit.form.Button" type="button" jsId="reviews_beginEarlyReviewButton">
-                Review Cards Early
-                <script type="dojo/connect" event="onClick" args="evt">
-                    reviews_ui.submitReviewOptionsDialog(true);
-                </script>
-            </button>{% comment %}
+    </div>
+
+    <div id="reviews_noCardsDue" style="display: none">
+        <strong style="font-size:120%">No cards are due right now.</strong><br>
+        <br>
+        Would you like to 
+        <button dojoType="dijit.form.Button" type="button" jsId="reviews_beginEarlyReviewButton">
+            Review Early
+            <script type="dojo/connect" event="onClick" args="evt">
+                reviews_ui.submitReviewOptionsDialog(true);
+            </script>
+        </button>
+        <span id="reviews_learnMoreContainer">
             or 
-            <button dojoType="dijit.form.Button" type="button">
-                Learn New Cards
+            <button dojoType="dijit.form.Button" type="button" jsId="reviews_learnMoreButton">
+                Learn More
                 <script type="dojo/connect" event="onClick" args="evt">
-                </script>
-            </button>{% endcomment %}
-            ?<br>
-            <span style="color:gray">(early review still under development)</span>
-        </div>
-        <div id="reviews_beginReview">
-            <button dojoType="dijit.form.Button" type="button" jsId="reviews_beginReviewButton">
-                Begin Review
-                <script type="dojo/connect" event="onClick" args="evt">
-                    reviews_ui.submitReviewOptionsDialog();
+                    reviews_ui.submitReviewOptionsDialog(false, true);
                 </script>
             </button>
-        </div>
-
+        </span>
+        ?<br>
+        <br>
+        <span class="fakeLink" onclick="reviews_ui.showReviewOptions()">Return to study options</span>
     </div>
+    <div id="reviews_beginReview">
+        <button dojoType="dijit.form.Button" type="button" jsId="reviews_beginReviewButton">
+            Begin Review
+            <script type="dojo/connect" event="onClick" args="evt">
+                reviews_ui.submitReviewOptionsDialog();
+            </script>
+        </button>
+    </div>
+
 </div>
 
 

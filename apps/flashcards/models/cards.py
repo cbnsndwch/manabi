@@ -5,6 +5,8 @@ from django.forms.util import ErrorList
 from dbtemplates.models import Template
 from itertools import chain
 
+from django.db.models import Avg, Max, Min, Count
+
 import random
 
 from math import cos, pi
@@ -157,14 +159,14 @@ class CardManager(models.Manager):
         return cards
 
 
-    def _next_failed_due_cards(self, initial_query, count, review_time, excluded_ids=[]):
+    def _next_failed_due_cards(self, user, initial_query, count, review_time, excluded_ids=[], daily_new_card_limit=None):
         if not count:
             return []
         cards = initial_query.filter(last_review_grade=GRADE_NONE, due_at__lte=review_time).order_by('due_at')
         return cards[:count] #don't space these #self._space_cards(cards, count, review_time)
 
 
-    def _next_not_failed_due_cards(self, initial_query, count, review_time, excluded_ids=[]):
+    def _next_not_failed_due_cards(self, user, initial_query, count, review_time, excluded_ids=[], daily_new_card_limit=None):
         '''
         Returns the first [count] cards from initial_query which are due,
         weren't failed the last review, and  taking spacing of cards from
@@ -179,7 +181,7 @@ class CardManager(models.Manager):
         return self._space_cards(due_cards, count, review_time)
 
 
-    def _next_failed_not_due_cards(self, initial_query, count, review_time, excluded_ids=[]):
+    def _next_failed_not_due_cards(self, user, initial_query, count, review_time, excluded_ids=[], daily_new_card_limit=None):
         if not count:
             return []
         #TODO prioritize certain failed cards, not just by due date
@@ -192,9 +194,16 @@ class CardManager(models.Manager):
         return card_query[:count]
 
 
-    def _next_new_cards(self, initial_query, count, review_time, excluded_ids=[]):
+    def _next_new_cards(self, user, initial_query, count, review_time, excluded_ids=[], daily_new_card_limit=None):
         if not count:
             return []
+
+        if daily_new_card_limit:
+            new_reviews_today = user.reviewstatistics.get_new_reviews_today()
+            if new_reviews_today >= daily_new_card_limit:
+                return []
+            new_count_left_for_today = daily_new_card_limit - new_reviews_today
+
         #TODO prioritize certain failed cards, not just by due date
         card_query = initial_query.filter(due_at__isnull=True).order_by('new_card_ordinal')
         new_cards = []
@@ -229,10 +238,13 @@ class CardManager(models.Manager):
                 new_cards.append(card)
         # Return a query containing the eligible cards.
         eligible_ids = [card.id for card in new_cards]
-        return self.filter(id__in=eligible_ids)
+        ret = self.filter(id__in=eligible_ids)
+        if daily_new_card_limit:
+            ret = ret[:new_count_left_for_today]
+        return ret
 
 
-    def _next_due_soon_cards(self, initial_query, count, review_time, excluded_ids=[]):
+    def _next_due_soon_cards(self, user, initial_query, count, review_time, excluded_ids=[], daily_new_card_limit=None):
         '''
         Used for early review.
         Ordered by due date.
@@ -243,7 +255,32 @@ class CardManager(models.Manager):
         return self._space_cards(cards, count, review_time, early_review=True)
 
 
-    def next_cards(self, user, count, excluded_ids, session_start, deck=None, tags=None, early_review=False):
+    #FIXME distinguish from cards_new_count or merge or make some new kind of review optioned class
+    #TODO consolidate with next_cards (see below)
+    def new_cards_count(self, user, excluded_ids, deck=None, tags=None):
+        '''Returns the number of new cards for the given review parameters.'''
+        now = datetime.datetime.utcnow()
+
+        user_cards = self.of_user(user)
+
+        if deck:
+            user_cards = user_cards.filter(fact__deck=deck)
+
+        if tags:
+            facts = usertagging.models.TaggedItem.objects.get_by_model(Fact, tags)
+            user_cards = user_cards.filter(fact__in=facts)
+
+        if excluded_ids:
+            user_cards = user_cards.exclude(id__in=excluded_ids)
+
+        new_cards = user_cards.filter(due_at__isnull=True)
+        return len(new_cards)
+
+        
+    #def _next_cards_initial_query(self, user, count, excluded_ids, session_start, deck=None, tags=None, early_review=False, daily_new_card_limit=None):
+
+
+    def next_cards(self, user, count, excluded_ids, session_start, deck=None, tags=None, early_review=False, daily_new_card_limit=None):
         '''
         Returns `count` cards to be reviewed, in order.
         count should not be any more than a short session of cards
@@ -266,21 +303,21 @@ class CardManager(models.Manager):
             user_cards = user_cards.exclude(id__in=excluded_ids)
 
         card_funcs = [
-                self._next_failed_due_cards,        #due, failed
-                self._next_not_failed_due_cards,    #due, not failed
-                self._next_failed_not_due_cards]    #failed, not due
+                self._next_failed_due_cards,        # due, failed
+                self._next_not_failed_due_cards,    # due, not failed
+                self._next_failed_not_due_cards]    # failed, not due
 
         if early_review:
-            card_funcs.extend([self._next_due_soon_cards])      #due soon, not yet, but next in the future
+            card_funcs.extend([self._next_due_soon_cards]) # due soon, not yet, but next in the future
         else:
-            card_funcs.extend([self._next_new_cards]) #new cards at end
+            card_funcs.extend([self._next_new_cards]) # new cards at end
             #TODO somehow spread some new cards into the early review cards if early_review==True
-
+        #TODO use args instead, like *kwargs etc for these funcs
         cards_left = count
         for card_func in card_funcs:
             if not cards_left:
                 break
-            cards = card_func(user_cards, count, now, excluded_ids)
+            cards = card_func(user, user_cards, count, now, excluded_ids, daily_new_card_limit)
             cards_left -= len(cards)
             if len(cards):
                 card_queries.append(cards)
@@ -326,7 +363,6 @@ class SharedCard(AbstractCard):
 
 
 class Card(AbstractCard):
-    #manager
     objects = CardManager()
 
     fact = models.ForeignKey(Fact)
@@ -523,11 +559,11 @@ class Card(AbstractCard):
                     #TODO handle failures of cards that are reviewed early differently somehow
                     #TODO penalize even worse if it was reviewed early and still failed
                     if self.is_mature():
-                        #failure on a mature card
+                        # Failure on a mature card
                         next_interval = MATURE_FAILURE_INTERVAL
                     else:
-                        #failure on a young or new card
-                        #reset the interval
+                        # Failure on a young or new card
+                        # Reset the interval
                         next_interval = YOUNG_FAILURE_INTERVAL
                 # Successful review.
                 else:
@@ -594,7 +630,7 @@ class Card(AbstractCard):
         #print 'next_interval before fuzz:' + str(next_interval)
         fuzz = next_interval * random.triangular(-INTERVAL_FUZZ_MAX, INTERVAL_FUZZ_MAX, (-INTERVAL_FUZZ_MAX) / 4.5)
         # Fuzz less for early reviews.
-        if is_early_review_due_to_sibling or reviewed_at < self.due_at:
+        if is_early_review_due_to_sibling or (self.due_at and reviewed_at < self.due_at):
             #TODO refactor / DRY all these early review calculations
             last_effective_interval = timedelta_to_float(self.due_at - self.last_reviewed_at)
             if is_early_review_due_to_sibling and last_sibling_review.last_reviewed_at > self.last_reviewed_at:
@@ -668,10 +704,6 @@ class Card(AbstractCard):
                 # Early Review, and not right after a failure (failure reviews will often be 'early').
                 elif reviewed_at < self.due_at and self.last_review_grade != GRADE_NONE:
                     # Lessen the EF adjustment, proportionate to how early it was reviewed.
-                    #percentage_early_since_self = timedelta_to_float(self.due_at - reviewed_at) \
-                    #        / timedelta_to_float(self.due_at - self.last_reviewed_at) # e.g. if due in 10 days, reviewed in 4, 40% (so actually kind of inverse)
-                    #percentage_waited_for_self = timedelta_to_float(reviewed_at - self.last_reviewed_at) \
-                    #        / timedelta_to_float(self.due_at - self.last_reviewed_at) # e.g. if due in 10 days, reviewed in 4, 40% (so actually kind of inverse)
                     last_effective_interval = timedelta_to_float(self.due_at - self.last_reviewed_at)
                     percentage_waited = timedelta_to_float(reviewed_at - self.last_reviewed_at) / last_effective_interval
                     #print 'percentage waited: ' + str(percentage_waited)
@@ -741,9 +773,6 @@ class Card(AbstractCard):
         if grade == GRADE_NONE:
             review_stats.increment_failed_reviews()
         review_stats.save()
-
-        #TODO add this review to this card's history
-        #self.cardhistory.
 
 
 

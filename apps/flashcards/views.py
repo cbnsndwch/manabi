@@ -95,6 +95,7 @@ def deck_list(request):
 
   return object_list(request, queryset=decks, extra_context=context, template_object_name='deck')
 
+
 @login_required
 def deck_update(request, deck_id):
   deck = Deck.objects.get(id=deck_id)
@@ -113,6 +114,7 @@ def deck_update(request, deck_id):
                                                           'deck': deck,
                                                           'container_id': 'deckDialog',
                                                           'post_save_redirect': '/flashcards/decks'}) #todo:post/pre redirs
+
 
 @login_required
 def deck_delete(request, deck_id, post_delete_redirect='/flashcards/decks'): #todo: pass post_*_redirect from urls.py
@@ -568,23 +570,22 @@ def next_cards_for_review(request):
     if request.method == 'GET':
         count = int(request.GET.get('count', 5))
 
-        deck_id = request.GET.get('deck', -1)
-        if deck_id:
-            deck_id = int(deck_id)
-        else:
+        # Deck.
+        try:
+            deck_id = int(request.GET.get('deck', -1))
+        except ValueError:
             deck_id = -1
+        deck = None
         if deck_id != -1:
             try:
                 deck = Deck.objects.get(id=deck_id)
             except Deck.DoesNotExist:
-                deck = None #TODO return error instead
-        else:
-            deck = None
+                pass #TODO return error instead
 
-        tag_id = request.GET.get('tag', -1)
-        if tag_id:
-            tag_id = int(tag_id)
-        else:
+        # Tags.
+        try:
+            tag_id = int(request.GET.get('tag', -1))
+        except ValueError:
             tag_id = -1
         if tag_id != -1:
             tag_ids = [tag_id] #TODO support multiple tags
@@ -592,12 +593,19 @@ def next_cards_for_review(request):
         else:
             tags = None
 
-        early_review = request.GET.get('early_review', False)
-        if str(early_review).lower() == 'true':
-            early_review = True
-        else:
-            early_review = False
+        # New cards per day limit.
+        #TODO implement this to be user-configurable instead of hard-coded
+        daily_new_card_limit = 20
 
+        # Early Review
+        early_review = request.GET.get('early_review', 'false').lower() == 'true'
+
+        # Learn More new cards.
+        learn_more = request.GET.get('learn_more', 'false').lower() == 'true'
+        if learn_more:
+            daily_new_card_limit = None
+
+        # Beginning of review session?
         session_start = string.lower(request.GET.get('session_start', 'false')) == 'true'
 
         try:
@@ -606,7 +614,7 @@ def next_cards_for_review(request):
             excluded_card_ids = []
 
         next_cards = Card.objects.next_cards(request.user, count, excluded_card_ids, session_start, \
-                deck=deck, tags=tags, early_review=early_review)
+                deck=deck, tags=tags, early_review=early_review, daily_new_card_limit=daily_new_card_limit)
         #FIXME need to account for 0 cards returned 
 
         # format into json object
@@ -629,7 +637,20 @@ def next_cards_for_review(request):
                 'next_due_at_per_grade': due_times
             })
 
-        return {'success': True, 'cards': formatted_cards}
+        ret = {'success': True, 'cards': formatted_cards}
+
+        # New card count for today.
+        new_reviews_today = request.user.reviewstatistics.get_new_reviews_today()
+        if daily_new_card_limit:
+            new_cards_left_for_today = daily_new_card_limit - new_reviews_today
+            if new_cards_left_for_today < 0:
+                new_cards_left_for_today = 0
+            ret['new_cards_left_for_today'] = new_cards_left_for_today
+
+            # New cards left for this query. #TODO rename it
+            ret['new_cards_left'] = Card.objects.new_cards_count(request.user, excluded_card_ids, deck=deck, tags=tags)
+
+        return ret
 
 
 @json_response
