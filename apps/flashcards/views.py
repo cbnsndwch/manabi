@@ -123,7 +123,7 @@ def deck_delete(request, deck_id, post_delete_redirect='/flashcards/decks'): #to
     raise forms.ValidationError('You do not have permission to access this flashcard deck.')
   if request.method == 'POST':
     #don't allow the last deck to be deleted
-    if len(Deck.objects.filter(owner=request.user)) == 1:
+    if Deck.objects.filter(owner=request.user).count() == 1:
         return HttpResponse(json_encode({'success':False}, mimetype='text/javascript')) #TODO error message
 
     obj.delete_cascading()

@@ -38,7 +38,7 @@ class DeckManager(models.Manager):
         #TODO optimize by keeping totals above
         all_decks_option = {'id': -1, 
                             'name': 'All decks',
-                            'card_count': len(cards.Card.objects.of_user(user)),
+                            'card_count': cards.Card.objects.of_user(user).count(),
                             'due_card_count': cards.Card.objects.cards_due_count(user),
                             'new_card_count': cards.Card.objects.cards_new_count(user)}
 
@@ -125,7 +125,7 @@ class Deck(AbstractDeck):
 
     @property
     def card_count(self):
-        return len(cards.Card.objects.of_user(self.owner))
+        return cards.Card.objects.of_user(self.owner).count()
 
     def average_ease_factor(self):
         return 2.5 #FIXME

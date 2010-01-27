@@ -108,12 +108,12 @@ class CardManager(models.Manager):
     
 
     def cards_new_count(self, user, deck=None):
-        new_cards_count = len(self.new_cards(user, deck)) #TODO refactor, make this faster (use aggregate)
+        new_cards_count = self.new_cards(user, deck).count()
         return new_cards_count
 
 
     def cards_due_count(self, user, deck=None):
-        due_cards_count = len(self.due_cards(user, deck)) #TODO refactor, make this faster (use aggregate)
+        due_cards_count = self.due_cards(user, deck).count()
         return due_cards_count
 
 
@@ -204,9 +204,9 @@ class CardManager(models.Manager):
                 return []
 
             # Count the number of new cards in the `excluded_ids`, which the user already has queued up
-            new_excluded_cards = len(Card.objects.filter(id__in=excluded_ids, due_at__isnull=True))
+            new_excluded_cards_count = Card.objects.filter(id__in=excluded_ids, due_at__isnull=True).count()
 
-            new_count_left_for_today = daily_new_card_limit - new_reviews_today - new_excluded_cards
+            new_count_left_for_today = daily_new_card_limit - new_reviews_today - new_excluded_cards_count
 
         #TODO prioritize certain failed cards, not just by due date
         card_query = initial_query.filter(due_at__isnull=True).order_by('new_card_ordinal')
@@ -289,7 +289,7 @@ class CardManager(models.Manager):
             user_cards = user_cards.exclude(id__in=excluded_ids)
 
         new_cards = user_cards.filter(due_at__isnull=True)
-        return len(new_cards)
+        return new_cards.count()
 
         
     #def _next_cards_initial_query(self, user, count, excluded_ids, session_start, deck=None, tags=None, early_review=False, daily_new_card_limit=None):
