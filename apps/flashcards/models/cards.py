@@ -242,7 +242,7 @@ class CardManager(models.Manager):
                 new_cards.append(card)
                 # Got enough cards?
                 if len(new_cards) == count \
-                        or (len(new_cards) == new_count_left_for_today and not early_review):
+                        or (not early_review and len(new_cards) == new_count_left_for_today):
                     break
         
         eligible_ids = [card.id for card in new_cards]
@@ -251,7 +251,7 @@ class CardManager(models.Manager):
             eligible_ids.extend([card.id for card in card_query.exclude(id__in=eligible_ids)[:count - len(new_cards)]])
 
         # Return a query containing the eligible cards.
-        ret = self.filter(id__in=eligible_ids)
+        ret = self.filter(id__in=eligible_ids).order_by('new_card_ordinal')
         if daily_new_card_limit:
             ret = ret[:min(count, new_count_left_for_today)]
         else:
@@ -345,6 +345,7 @@ class CardManager(models.Manager):
             cards_left -= len(cards)
             if len(cards):
                 card_queries.append(cards)
+
 
         #FIXME decide what to do with this #if session_start:
         #FIXME add new cards into the mix when there's a defined new card per day limit
@@ -529,7 +530,7 @@ class Card(AbstractCard):
         return datetime.datetime.utcnow() - last_sibling_reviewed_at
             
 
-    def _next_interval(self, grade, ease_factor, reviewed_at):
+    def _next_interval(self, grade, ease_factor, reviewed_at, do_fuzz=True):
         '''
         Returns an interval, measured in days.
 
@@ -559,13 +560,19 @@ class Card(AbstractCard):
 
             # Lessen the interval if this card is reviewed shortly after a sibling card
             # (for Early Review)
-            ffffffffff
-            #FIXME increase em but temporarily or something
+            #FIXME need a better solution for this. dependent on the status of the sibling card.
             if grade > GRADE_NONE:
                 if is_early_review_due_to_sibling:
                     print 'next_interval was to be: ' + str(next_interval)
                     print 'percentage_waited_for_sibling: ' + str(percentage_waited_for_sibling)
-                    next_interval *= self._adjustment_curve(percentage_waited_for_sibling)
+                    #if grade < last_sibling_grade:
+                    #    next_interval *= self._adjustment_curve(percentage_waited_for_sibling)
+                    #else:
+                    #    next_interval = min(next_interval, last_reviewed_sibling.interval)
+                    #next_interval *= self._adjustment_curve(percentage_waited_for_sibling)
+                    if grade > last_sibling_grade:
+                        difference = next_interval - self.fact.deck.schedulingoptions.initial_interval(last_sibling_grade)
+                        next_interval -= difference * self._adjustment_curve(1 - percentage_waited_for_sibling)
                     print 'next_interval became: ' + str(next_interval)
         # Old card.
         else:
@@ -658,27 +665,28 @@ class Card(AbstractCard):
                         adjusted_interval_increase = (next_interval - current_interval) * self._adjustment_curve(percentage_waited_for_sibling)
                         next_interval = current_interval + adjusted_interval_increase
 
-        # Fuzz the result. Conservatively favor shorter intervals.
-        #print 'next_interval before fuzz:' + str(next_interval)
-        fuzz = next_interval * random.triangular(-INTERVAL_FUZZ_MAX, INTERVAL_FUZZ_MAX, (-INTERVAL_FUZZ_MAX) / 4.5)
-        # Fuzz less for early reviews.
-        if is_early_review_due_to_sibling or (self.due_at and reviewed_at < self.due_at):
-            #TODO refactor / DRY all these early review calculations
-            if self.last_reviewed_at:
-                last_effective_interval = timedelta_to_float(self.due_at - self.last_reviewed_at)
-                if is_early_review_due_to_sibling and last_reviewed_sibling.last_reviewed_at > self.last_reviewed_at:
-                    last_effectively_reviewed_at = last_reviewed_sibling.last_reviewed_at
+        if do_fuzz:
+            # Fuzz the result. Conservatively favor shorter intervals.
+            #print 'next_interval before fuzz:' + str(next_interval)
+            fuzz = next_interval * random.triangular(-INTERVAL_FUZZ_MAX, INTERVAL_FUZZ_MAX, (-INTERVAL_FUZZ_MAX) / 4.5)
+            # Fuzz less for early reviews.
+            if is_early_review_due_to_sibling or (self.due_at and reviewed_at < self.due_at):
+                #TODO refactor / DRY all these early review calculations
+                if self.last_reviewed_at:
+                    last_effective_interval = timedelta_to_float(self.due_at - self.last_reviewed_at)
+                    if is_early_review_due_to_sibling and last_reviewed_sibling.last_reviewed_at > self.last_reviewed_at:
+                        last_effectively_reviewed_at = last_reviewed_sibling.last_reviewed_at
+                    else:
+                        last_effectively_reviewed_at = self.last_reviewed_at
+                    percentage_waited = timedelta_to_float(reviewed_at - last_effectively_reviewed_at) / last_effective_interval
+                # New card.
                 else:
-                    last_effectively_reviewed_at = self.last_reviewed_at
-                percentage_waited = timedelta_to_float(reviewed_at - last_effectively_reviewed_at) / last_effective_interval
-            # New card.
-            else:
-                percentage_waited = percentage_waited_for_sibling
-            #print 'fuzz was to be: ' + str(fuzz)
-            fuzz *= self._adjustment_curve(percentage_waited)
-            #print 'adjusted fuzz: ' + str(fuzz)
-        next_interval += fuzz
-        #print 'and after fuzz: ' + str(next_interval)
+                    percentage_waited = percentage_waited_for_sibling
+                #print 'fuzz was to be: ' + str(fuzz)
+                fuzz *= self._adjustment_curve(percentage_waited)
+                #print 'adjusted fuzz: ' + str(fuzz)
+            next_interval += fuzz
+            #print 'and after fuzz: ' + str(next_interval)
 
         return next_interval
 

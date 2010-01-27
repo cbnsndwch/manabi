@@ -429,13 +429,13 @@ reviews_ui.showReviewOptions = function() {
     dojo.byId('reviews_reviewEndScreen').style.display = 'none';
 
     //show the due count
-    reviews.dueCardsCount().addCallback(function(count) {
+    /*reviews.dueCardsCount().addCallback(function(count) {
         dojo.byId('reviews_cardsDueCount').innerHTML = count;
     });
     //show the new count
     reviews.newCardsCount().addCallback(function(count) {
         dojo.byId('reviews_cardsNewCount').innerHTML = count;
-    });
+    });*/
 
     reviews_beginReviewButton.attr('disabled', false);
     reviews_beginEarlyReviewButton.attr('disabled', true);

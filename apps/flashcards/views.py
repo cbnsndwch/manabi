@@ -625,10 +625,14 @@ def next_cards_for_review(request):
             card_context = {'fields': field_contents}
             due_times = {}
             for grade in [GRADE_NONE, GRADE_HARD, GRADE_GOOD, GRADE_EASY,]:
-                due_at = card._next_due_at(grade, reviewed_at, card._next_interval(grade, card._next_ease_factor(grade, reviewed_at), reviewed_at))
+                # Disable fuzzing so that lower grades won't have later due times than higher grades
+                # (although this can happen in practice, only due to this fuzzing).
+                # It also makes grades appear more consistent.
+                due_at = card._next_due_at(grade, reviewed_at, card._next_interval(grade, card._next_ease_factor(grade, reviewed_at), reviewed_at, do_fuzz=False))
                 duration = due_at - reviewed_at
                 days = duration.days + (duration.seconds / 86400.0)
                 due_times[grade] = days
+            due_times = dict((grade, due_time) for grade, due_time in due_times.items())
             formatted_cards.append({
                 'id': card.id,
                 'fact_id': card.fact.id,
