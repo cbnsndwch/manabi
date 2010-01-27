@@ -26,23 +26,25 @@ gray out the fields while fact submission is in progress (and make sure cmd-ente
 ---------------------
 TODO:
 ---------------------
-!!!'next review is in X days' like anki
+use .count() instead of len() (faster)
+
+timezones for new users
+
+suspend cards
+
+normalize 'parts of speech', per language
 
 more variance in early review intervals - hard should be more aggressive
 
-take into account multiple siblings being sent in one GET request, in the case of early review. should AVOID this and just
-make the client request more more often. or pre-empt the scheduling somehow. have a 2ary internal excluded id list for this, to pass
-among the card funcs.
-
 allow deleting shared decks which the current user shared
+
+smart.fm integration (audio first)
 
 have the extra front field for some  card types be a "hint" that must be clicked. like the meaning for kanji reading cards.
 
 dont reset cards completely upon failure
 
 failed card maximum before reviews prioritize failed cards over others or something like that
-
-normalize 'parts of speech', per language
 
 allow unicode full-width (japanese) [] for transliterations, as well as < > because theyre easier to type in the japanese IME
 
@@ -98,6 +100,10 @@ or perhaps add a 'monolingual?' kind of bool field
 ---------------------
 TODO (low priority):
 ---------------------
+take into account multiple siblings being sent in one GET request, in the case of early review. should AVOID this and just
+make the client request more more often. or pre-empt the scheduling somehow. have a 2ary internal excluded id list for this, to pass
+among the card funcs.
+
 show a bonus indicator ala readthekanji.com to boost morale
 
 set deck select width instead of using an auto width (see dojocampus example)

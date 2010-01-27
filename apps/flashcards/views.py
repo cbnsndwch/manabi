@@ -673,6 +673,106 @@ def cards_new_count(request):
         return {'cards_new_count': count}
 
 
+    (r'^rest/cards_for_review/due_tomorrow_count$', 'views.cards_due_tomorrow_count'),
+    (r'^rest/cards_for_review/next_card_due_at$', 'views.next_card_due_at'),
+
+@json_response
+@login_required
+def cards_due_tomorrow_count(request):
+    if request.method == 'GET':
+        #TODO refactor request parameters somehow
+        # Deck.
+        try:
+            deck_id = int(request.GET.get('deck', -1))
+        except ValueError:
+            deck_id = -1
+        deck = None
+        if deck_id != -1:
+            try:
+                deck = Deck.objects.get(id=deck_id)
+            except Deck.DoesNotExist:
+                pass #TODO return error instead
+
+        # Tags.
+        try:
+            tag_id = int(request.GET.get('tag', -1))
+        except ValueError:
+            tag_id = -1
+        if tag_id != -1:
+            tag_ids = [tag_id] #TODO support multiple tags
+            tags = usertagging.models.Tag.objects.filter(id__in=tag_ids)
+        else:
+            tags = None
+        
+        count = Card.objects.count_of_cards_due_tomorrow(request.user, deck=deck, tags=tags)
+        return {'cards_due_tomorrow_count': count}
+
+@json_response
+@login_required
+def hours_until_next_card_due(request):
+    if request.method == 'GET':
+        #TODO refactor request parameters somehow
+        # Deck.
+        try:
+            deck_id = int(request.GET.get('deck', -1))
+        except ValueError:
+            deck_id = -1
+        deck = None
+        if deck_id != -1:
+            try:
+                deck = Deck.objects.get(id=deck_id)
+            except Deck.DoesNotExist:
+                pass #TODO return error instead
+
+        # Tags.
+        try:
+            tag_id = int(request.GET.get('tag', -1))
+        except ValueError:
+            tag_id = -1
+        if tag_id != -1:
+            tag_ids = [tag_id] #TODO support multiple tags
+            tags = usertagging.models.Tag.objects.filter(id__in=tag_ids)
+        else:
+            tags = None
+        
+        due_at = Card.objects.next_card_due_at(request.user, deck=deck, tags=tags)
+        difference = due_at - datetime.datetime.utcnow()
+        hours_from_now = difference.days * 24 + difference.seconds / (60 * 60)
+        return {'hours_until_next_card_due': hours_from_now}
+
+
+@json_response
+@login_required
+def next_card_due_at(request):
+    if request.method == 'GET':
+        #TODO refactor request parameters somehow
+        # Deck.
+        try:
+            deck_id = int(request.GET.get('deck', -1))
+        except ValueError:
+            deck_id = -1
+        deck = None
+        if deck_id != -1:
+            try:
+                deck = Deck.objects.get(id=deck_id)
+            except Deck.DoesNotExist:
+                pass #TODO return error instead
+
+        # Tags.
+        try:
+            tag_id = int(request.GET.get('tag', -1))
+        except ValueError:
+            tag_id = -1
+        if tag_id != -1:
+            tag_ids = [tag_id] #TODO support multiple tags
+            tags = usertagging.models.Tag.objects.filter(id__in=tag_ids)
+        else:
+            tags = None
+        
+        due_at = Card.objects.next_card_due_at(request.user, deck=deck, tags=tags)
+        return {'next_card_due_at': due_at}
+
+
 def _rest_review_card(request, card_id):
     '''
     '''

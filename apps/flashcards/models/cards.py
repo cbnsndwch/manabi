@@ -295,6 +295,39 @@ class CardManager(models.Manager):
     #def _next_cards_initial_query(self, user, count, excluded_ids, session_start, deck=None, tags=None, early_review=False, daily_new_card_limit=None):
 
 
+    def count_of_cards_due_tomorrow(self, user, deck=None, tags=None):
+        '''
+        Returns the number of cards due by tomorrow at the same time as now.
+        Doesn't take future spacing into account though, so it's a somewhat rough estimate.
+        '''
+        cards = self.of_user(user)
+        if deck:
+            cards = cards.filter(fact__deck=deck)
+        if tags:
+            facts = usertagging.models.TaggedItem.objects.get_by_model(Fact, tags)
+            cards = cards.filter(fact__in=facts)
+        this_time_tomorrow = datetime.datetime.utcnow() + datetime.timedelta(days=1)
+        cards = cards.filter(due_at__lt=this_time_tomorrow)
+        return cards.count()
+
+
+    def next_card_due_at(self, user, deck=None, tags=None):
+        '''
+        Returns the due date of the next due card.
+        '''
+        cards = self.of_user(user)
+        if deck:
+            cards = cards.filter(fact__deck=deck)
+        if tags:
+            facts = usertagging.models.TaggedItem.objects.get_by_model(Fact, tags)
+            cards = cards.filter(fact__in=facts)
+        try:
+            card = cards.filter(due_at__isnull=False).order_by('due_at')[0]
+        except IndexError:
+            return None
+        return card.due_at
+        
+
     def next_cards(self, user, count, excluded_ids, session_start, deck=None, tags=None, early_review=False, daily_new_card_limit=None):
         '''
         Returns `count` cards to be reviewed, in order.
@@ -831,10 +864,6 @@ class Card(AbstractCard):
 
 
 
-
-#TODO tags or this?
-#class CardFlag(models.Model):
-#  pass
 
 
 #TODO implement

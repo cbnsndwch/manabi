@@ -302,45 +302,44 @@ reviews.reviewCard = function(card, grade) {
     return def;
 };
 
-reviews.dueCardsCount = function() {
-    var due_count_def = new dojo.Deferred();
+reviews._simpleXHRValueFetch = function(url, value_name) {
+    var def = new dojo.Deferred();
 
     var xhr_args = {
-        url: '/flashcards/rest/cards_for_review/due_count',
+        url: url,
         handleAs: 'json',
-        load: dojo.hitch(null, function(due_count_def, data) {
+        load: dojo.hitch(null, function(def, data) {
             if (data.success) {
-                due_count_def.callback(data.cards_due_count);
+                def.callback(data[value_name]);
             } else {
                 //TODO error handling (do a failure callback)
             }
-        }, due_count_def),
+        }, def),
     }
     dojo.xhrGet(xhr_args);
 
-    return due_count_def;
+    return def;
+};
+
+reviews.dueCardsCount = function() {
+    return reviews._simpleXHRValueFetch('/flashcards/rest/cards_for_review/due_count', 'cards_due_count');
 };
 
 reviews.newCardsCount = function() {
-    var new_count_def = new dojo.Deferred();
-
-    var xhr_args = {
-        url: '/flashcards/rest/cards_for_review/new_count',
-        handleAs: 'json',
-        load: dojo.hitch(null, function(new_count_def, data) {
-            if (data.success) {
-                new_count_def.callback(data.cards_new_count);
-            } else {
-                //TODO error handling (do a failure callback)
-            }
-        }, new_count_def),
-    };
-    dojo.xhrGet(xhr_args);
-
-    return new_count_def;
+    return reviews._simpleXHRValueFetch('/flashcards/rest/cards_for_review/new_count', 'cards_new_count');
 };
 
+reviews.nextCardDueAt = function() {
+    return reviews._simpleXHRValueFetch('/flashcards/rest/cards_for_review/next_due_at', 'next_card_due_at');
+};
 
+reviews.hoursUntilNextCardDue = function() {
+    return reviews._simpleXHRValueFetch('/flashcards/rest/cards_for_review/hours_until_next_due', 'hours_until_next_card_due');
+};
+
+reviews.countOfCardsDueTomorrow = function() {
+    return reviews._simpleXHRValueFetch('/flashcards/rest/cards_for_review/due_tomorrow_count', 'cards_due_tomorrow_count');
+};
 
 
 
@@ -466,8 +465,24 @@ reviews_ui.openDialog = function() {
 
 
 reviews_ui.openSessionOverDialog = function(review_count) {
-    dojo.byId('reviews_sessionOverDialogReviewCount').innerHTML = review_count;
-    reviews_sessionOverDialog.show();
+    // get the # due tomorrow to display
+    reviews.countOfCardsDueTomorrow().addCallback(function(count) {
+        if (count == 0) {
+            // None due by this time tomorrow, so we'll get the time when one
+            // is next due.
+            reviews.hoursUntilNextCardDue().addCallback(function(hours_until) {
+                dojo.byId('reviews_sessionOverDialogNextDue').innerHTML = 'The next card is due in ' + hours_until + ' hours.';
+                dojo.byId('reviews_sessionOverDialogReviewCount').innerHTML = review_count;
+                reviews_sessionOverDialog.show();
+            });
+        } else {
+            dojo.byId('reviews_sessionOverDialogNextDue').innerHTML = 'At this time tomorrow, there will be ' + count + ' cards due for review.';
+            dojo.byId('reviews_sessionOverDialogReviewCount').innerHTML = review_count;
+            reviews_sessionOverDialog.show();
+        }
+        //dojo.byId('reviews_cardsNewCount').innerHTML = count;
+    });
+
 }
 
 
