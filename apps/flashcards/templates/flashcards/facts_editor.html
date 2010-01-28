@@ -110,6 +110,17 @@
     clientSort="true" style="width: 100%;" autoHeight="11" jsId="cards_factsGrid"
     selectionMode="single" rowSelector="false" formatterScope="myObject" 
     rowsPerPage="40" keepRows="200" noDataMessage="No flashcards to display.">
+    <script type="dojo/connect" event="onStyleRow" args="evt">
+        // Style the suspended rows
+        var row_index = evt.index;
+        var item = this.getItem(row_index);
+        if (item) {
+            var is_suspended = this.store.getValue(item, 'suspended', null);
+            evt.customClasses += (is_suspended ? ' suspended_grid_row' : '');
+        }
+        //this.focus.styleRow(evt);
+        //this.edit.styleRow(evt);
+    </script>
     <script type="dojo/connect" event="onRowClick" args="evt">
         var row_index = evt.rowIndex;
         //enable the fact editing buttons
@@ -154,7 +165,7 @@
         </script>
     </button>
     <button jsId="cards_toggleSuspendButton" dojoType="dijit.form.ToggleButton" disabled="true">
-        Suspend
+        Suspend Flashcard
         <script type="dojo/connect" event="onChange" args="evt">
             if (evt) {
                 this.attr('label', 'Unsuspend Flashcard');
