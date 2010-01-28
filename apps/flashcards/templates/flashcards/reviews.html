@@ -3,14 +3,14 @@
 
 <div class="fullscreen" id="reviews_fullscreenContainer" style="display:none" dojoType="dijit.layout.ContentPane">
     <div class="fullscreen_toolbar">
-        <div dojoType="dijit.form.Button" type="button">
-            Quit Review
+        <div dojoType="dijit.form.Button" type="button" iconClass="manabi_icon manabi_icon_clock_stop">
+            Quit
             <script type="dojo/method" event="onClick" args="evt">
                 reviews_ui.endSession();
             </script>
         </div>
-        <div dojoType="dijit.form.Button" type="button">
-            Edit Flashcard
+        <div dojoType="dijit.form.Button" type="button" iconClass="manabi_icon manabi_icon_application_form_edit">
+            Edit
             <script type="dojo/method" event="onClick" args="evt">
                 reviews_ui.unsetKeyboardShortcuts();
 
@@ -34,15 +34,16 @@
                 fact_ui.showFactEditForm(reviews.current_card.fact_id, success_callback);
             </script>
         </div>
-        <div dojoType="dijit.form.Button" type="button" id="reviews_suspendCurrentCardButton">
+        <div dojoType="dijit.form.Button" type="button" id="reviews_suspendCurrentCardButton" iconClass="manabi_icon manabi_icon_control_pause">
             Suspend Flashcard
             <script type="dojo/method" event="onClick" args="evt">
                 reviews_ui.suspendCurrentCard();
             </script>
         </div>
-        <div dojoType="dijit.Tooltip" connectId="reviews_suspendCurrentCardButton" position="below">
+        <div dojoType="dijit.Tooltip" connectId="reviews_suspendCurrentCardButton" position="below" showDelay="10">
             Stop learning this flashcard.<br>
-            You can un-suspend later with the flashcard editor.
+            It will no longer appear in future reviews.<br>
+            You can unsuspend later with the Flashcard Editor.
         </div>
                     
     </div>
@@ -283,7 +284,7 @@
         <span class="fakeLink" onclick="reviews_ui.showReviewOptions()">Back to study options</span>
     </div>
     <div id="reviews_beginReview">
-        <button dojoType="dijit.form.Button" type="button" jsId="reviews_beginReviewButton">
+        <button dojoType="dijit.form.Button" type="button" iconClass="manabi_icon manabi_icon_clock_play" jsId="reviews_beginReviewButton">
             Begin Review
             <script type="dojo/connect" event="onClick" args="evt">
                 reviews_ui.submitReviewOptionsDialog();

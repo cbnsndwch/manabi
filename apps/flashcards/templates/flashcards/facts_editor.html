@@ -11,7 +11,6 @@
 
 
 
-
 <div dojoType="dijit.form.Form" encType="multipart/form-data" action="" method="" style="display:inline;">
 	<script type="dojo/connect" event="onSubmit" args="evt">
 		evt.preventDefault();
@@ -31,7 +30,7 @@
     </script>
     {% spaceless %}
     <input type="text" dojoType="dijit.form.TextBox" id="cards_factSearchField">
-    <button dojoType="dijit.form.Button" type="submit">
+    <button dojoType="dijit.form.Button" type="submit" iconClass="manabi_icon manabi_icon_magnifier">
         Search
     </button>
     <button dojoType="dijit.form.Button" type="button" style="visibility: hidden;" jsId="cards_clearFactSearchButton">
@@ -164,13 +163,15 @@
             }
         </script>
     </button>
-    <button jsId="cards_toggleSuspendButton" dojoType="dijit.form.ToggleButton" disabled="true">
+    <button jsId="cards_toggleSuspendButton" dojoType="dijit.form.ToggleButton" iconClass="manabi_icon manabi_icon_control_pause" disabled="true">
         Suspend Flashcard
         <script type="dojo/connect" event="onChange" args="evt">
             if (evt) {
                 this.attr('label', 'Unsuspend Flashcard');
+                this.attr('iconClass', 'manabi_icon manabi_icon_control_play');
             } else {
                 this.attr('label', 'Suspend Flashcard');
+                this.attr('iconClass', 'manabi_icon manabi_icon_control_pause');
             }
         </script>
         <script type="dojo/connect" event="onClick" args="evt">

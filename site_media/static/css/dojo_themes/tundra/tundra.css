@@ -2748,7 +2748,7 @@ div.dijitTabBtnDisabled, .dj_ie div.dijitTabBtnDisabled {
 .tundra .dijitToolbar .dijitToggleButtonCheckedHover
  {
 	background-color:#abc1e5;
-	border:1px solid #316ac5;
+	border:1px solid #316ac5
 	padding: 0px;	
 }
 .tundra .dijitToolbar .dijitButtonHover,
@@ -3220,4 +3220,36 @@ div.dijitTabBtnDisabled, .dj_ie div.dijitTabBtnDisabled {
 	
 	border-left-width: 0px;
 	border-right-width: 1px;
+}
+
+
+
+/* my new icons */
+
+
+.tundra .manabi_icon {
+	width: 16px;
+	height: 16px;
+	text-align: center;
+}
+.tundra .manabi_icon_magnifier {
+	background-image: url(images/icons/magnifier.png);
+}
+.tundra .manabi_icon_add {
+	background-image: url(images/icons/add.png);
+}
+.tundra .manabi_icon_control_pause {
+	background-image: url(images/icons/control_pause_blue.png);
+}
+.tundra .manabi_icon_control_play {
+	background-image: url(images/icons/control_play_blue.png);
+}
+.tundra .manabi_icon_clock_play {
+	background-image: url(images/icons/clock_play.png);
+}
+.tundra .manabi_icon_clock_stop {
+	background-image: url(images/icons/clock_stop.png);
+}
+.tundra .manabi_icon_application_form_edit {
+	background-image: url(images/icons/application_form_edit.png);
 }

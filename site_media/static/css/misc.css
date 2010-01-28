@@ -105,7 +105,7 @@ div.fullscreen_toolbar {
     margin-top: 0px;
     margin-left: 0px;
     margin-right: 0px;
-    padding: 5px;
+    padding: 3px;
 }
 
 div.fullscreen_content {
@@ -275,4 +275,10 @@ html>/* */body .ezRuby:hover{
 html>/* */body .ezRuby:hover:before{
   background-color: #FFEDCD;
 }
+
+
+
+
+/* Icons */
+
 
