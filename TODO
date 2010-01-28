@@ -13,10 +13,9 @@ should all those connects be disconnected somehow? particularly in body_pane (do
 
 SUPER CRITICAL BUGS:
 --------------------
-
 get deck average EF for new cards
 
-sometimes when i do space, 1, space, 1, etc. quickly in review mode, it shows the back side of the next card prematurely
+don't show 'review early' button if there are no cards that are not new
 
 -when not signed in, bugs! (click title) (also, dojo errors)
 
@@ -26,25 +25,27 @@ gray out the fields while fact submission is in progress (and make sure cmd-ente
 ---------------------
 TODO:
 ---------------------
-use .count() instead of len() (faster)
+!!!!!!!card review undo
+undoes: review, suspend,
+history: per session only I guess. what about undoing the last card then? re-enter session i suppose
 
-timezones for new users
+-suspend cards
 
-suspend cards
-
-normalize 'parts of speech', per language
+fact editor grid styling for suspended rows (gray them out)
 
 more variance in early review intervals - hard should be more aggressive
 
 allow deleting shared decks which the current user shared
 
+review early being useful for cramming: dont end up just cycling endlessly through the lower interval stuff. 
+the longer interval things should come up too.
+despite intervals not being increased much by early review, there should be some delay/spacing so that 
+short intervals are delayed a bit for a longer one to come up first.
+or maintain a list of the due dates for an entire session or something? idk
+
 smart.fm integration (audio first)
 
-have the extra front field for some  card types be a "hint" that must be clicked. like the meaning for kanji reading cards.
-
 dont reset cards completely upon failure
-
-failed card maximum before reviews prioritize failed cards over others or something like that
 
 allow unicode full-width (japanese) [] for transliterations, as well as < > because theyre easier to type in the japanese IME
 
@@ -58,8 +59,6 @@ more detailed card review history stats
 
 wait until deck stats are downloaded before opening the review dialog,
 so we can make sure the user selects a deck with due cards, etc.
-
-card review undo
 
 delay before the first time we focus the Show Back button, to avoid accidentally
 hitting enter twice in the study options dialog.
@@ -100,6 +99,16 @@ or perhaps add a 'monolingual?' kind of bool field
 ---------------------
 TODO (low priority):
 ---------------------
+sort POS
+
+failed card maximum before reviews prioritize failed cards over others or something like that
+
+have the extra front field for some  card types be a "hint" that must be clicked. like the meaning for kanji reading cards.
+
+search for suspended cards
+
+normalize 'parts of speech', per language
+
 take into account multiple siblings being sent in one GET request, in the case of early review. should AVOID this and just
 make the client request more more often. or pre-empt the scheduling somehow. have a 2ary internal excluded id list for this, to pass
 among the card funcs.
@@ -167,6 +176,10 @@ sort facts with case insensitivity
 ---------------------
 BUGS:
 ---------------------
+sometimes when i do space, 1, space, 1, etc. quickly in review mode, it shows the back side of the next card prematurely
+
+openid signup doesnt have timezone in the form
+
 sometimes the decks grid doesnt resize in time of the dialog opening
 
 updating reading doesn't update it in the facts grid

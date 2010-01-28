@@ -114,9 +114,11 @@
         var row_index = evt.rowIndex;
         //enable the fact editing buttons
         cards_deleteButton.attr('disabled', false);
-    </script>
-    <script type="dojo/connect" event="onRowClick" args="evt">
-        //TODO edit row
+
+        // Set the suspend toggle button's state
+        var card_is_suspended = cards_factsGrid.selection.getSelected()[0]['suspended'][0];
+        cards_toggleSuspendButton.attr('checked', card_is_suspended);
+        cards_toggleSuspendButton.attr('disabled', false);
     </script>
     <thead>
         <tr>
@@ -135,8 +137,8 @@
         <script type="dojo/connect" event="onClick" args="evt">
             var delete_response = window.confirm('Really delete this flashcard?');
             if (delete_response) {
-                grid_item = cards_factsGrid.selection.getSelected()[0];
-                fact_id = grid_item['fact-id'][0]; //TODO allow multiple selections
+                var grid_item = cards_factsGrid.selection.getSelected()[0];
+                var fact_id = grid_item['fact-id'][0]; //TODO allow multiple selections
                 var deferred = dojo.xhrPost({
                     url: '/flashcards/rest/facts/' + fact_id,
                     handleAs: 'text',
@@ -149,6 +151,43 @@
                       } //FIXME handle error - if fails, don't remove from store'
                 });
             }
+        </script>
+    </button>
+    <button jsId="cards_toggleSuspendButton" dojoType="dijit.form.ToggleButton" disabled="true">
+        Suspend
+        <script type="dojo/connect" event="onChange" args="evt">
+            if (evt) {
+                this.attr('label', 'Unsuspend Flashcard');
+            } else {
+                this.attr('label', 'Suspend Flashcard');
+            }
+        </script>
+        <script type="dojo/connect" event="onClick" args="evt">
+            // Suspends this fact's cards.
+            var suspend = this.attr('checked');
+            var grid_item = cards_factsGrid.selection.getSelected()[0];
+            var fact_id = grid_item['fact-id'][0]; //TODO allow multiple selections
+            var url = '/flashcards/rest/facts/' + fact_id + '/';
+            if (suspend) {
+                url += 'suspend';
+            } else {
+                url += 'unsuspend';
+            }
+            var xhr_args = {
+                url: url,
+                handleAs: 'json',
+                load: dojo.hitch(null, function(grid_item, suspend, data) {
+                    cards_toggleSuspendButton.attr('disabled', false);
+                    if (data.success) {
+                        // update the suspended status in the grid
+                        cards_factsGrid.store.setValue(grid_item, 'suspended', suspend);
+                        cards_factsGrid.store.save(); //TODO handle errors
+                    } else { //FIXME try again on failure, or something
+                    }
+                }, grid_item, suspend)
+            };
+            cards_toggleSuspendButton.attr('disabled', true);
+            dojo.xhrPost(xhr_args);
         </script>            
     </button>
 </div>

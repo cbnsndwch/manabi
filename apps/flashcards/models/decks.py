@@ -148,7 +148,7 @@ class SchedulingOptions(models.Model):
     
     mature_unknown_interval_min = models.FloatField(default=0.333)
     mature_unknown_interval_max = models.FloatField(default=0.333)
-    unknown_interval_min = models.FloatField(default=20.0/(24.0*60.0))  # 1 hour
+    unknown_interval_min = models.FloatField(default=20.0/(24.0*60.0))  # 
     unknown_interval_max = models.FloatField(default=25.0/(24.0*60.0))  #TODO more? 0.5)
     hard_interval_min = models.FloatField(default=0.333)       #  8 hours
     hard_interval_max = models.FloatField(default=0.5)         # 12 hours

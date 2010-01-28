@@ -1,6 +1,7 @@
   dojo.require("dijit.Dialog");
   dojo.require("dijit.form.TextBox");
   dojo.require("dijit.form.Button");
+  dojo.require("dijit.form.ToggleButton");
   //dojo.require("dijit.form.FilteringSelect");
   dojo.require("dojo.data.ItemFileReadStore");
   dojo.require("dijit.form.MultiSelect");

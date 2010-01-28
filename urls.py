@@ -8,6 +8,8 @@ admin.autodiscover()
 
 from account.openid_consumer import PinaxConsumer
 
+from forms import SignupForm, OpenIDSignupForm
+
 
 if settings.ACCOUNT_OPEN_SIGNUP:
     signup_view = "account.views.signup"
@@ -24,7 +26,7 @@ urlpatterns = patterns('',
     url(r'^home$', direct_to_template, {'template': 'home.html',}, name='home_inline'),
     
     url(r'^admin/invite_user/$', 'signup_codes.views.admin_invite_user', name="admin_invite_user"),
-    url(r'^account/signup/$', signup_view, name="acct_signup"),
+    url(r'^account/signup/$', signup_view, name="acct_signup", kwargs={'form_class': SignupForm}), # Use our customized form
     
     (r'^about/', include('about.urls')),
     (r'^account/', include('account.urls')),

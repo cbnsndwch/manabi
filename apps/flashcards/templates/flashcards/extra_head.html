@@ -25,6 +25,7 @@
 <script type="text/javascript">
     //defaultCell: { width: 8, editable: false, type: dojox.grid.cells._Widget },
 
+    // Fact editor grid
     var cards_editRow = function(row_index) {
         var selected_fact_id = cards_factsGrid.getItem(row_index)['fact-id'];
         var success_callback = dojo.hitch(null, function(selected_fact_row_index, data, card_counter) {

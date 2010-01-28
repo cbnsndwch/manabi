@@ -254,6 +254,21 @@ reviews.nextCard = function() {
 };
 
 
+reviews.suspendCard = function(card) {
+    // Suspends this and sibling cards.
+    xhr_args = {
+        url: '/flashcards/rest/facts/' + card.fact_id + '/suspend',
+        handleAs: 'json',
+        load: function(data) {
+            if (data.success) {
+            } else {
+                //FIXME try again on failure, or something
+            }
+        }
+    };
+    return dojo.xhrPost(xhr_args);
+};
+
 reviews.reviewCard = function(card, grade) {
     xhr_args = {
         url: '/flashcards/rest/cards/'+card.id,
@@ -633,6 +648,10 @@ reviews_ui.setKeyboardShortcuts = function() {
     }
 };
 
+reviews_ui.suspendCurrentCard = function() {
+    reviews.suspendCard(reviews.current_card);
+    reviews_ui.goToNextCard();
+}
 
 reviews_ui.card_front_keyboard_shortcut_connection = null;
 reviews_ui.card_back_keyboard_shortcut_connection = null;

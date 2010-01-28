@@ -53,7 +53,7 @@ class FieldType(models.Model):
     language = models.CharField(max_length=3, choices=ISO_639_2_LANGUAGES, blank=True, null=True)
     character_restriction = models.CharField(max_length=3, choices=OPTIONAL_CHARACTER_RESTRICTIONS, blank=True, null=True)
     
-    accepts_media = models.BooleanField(default=False, blank=True) #TODO only allow media without any text, right?
+    accepts_media = models.BooleanField(default=False, blank=True) # only allow media without any text
     media_restriction = models.CharField(max_length=3, choices=OPTIONAL_MEDIA_TYPE_RESTRICTIONS, blank=True, null=True)
 
     hidden_in_form = models.BooleanField(default=False) #hide this field when adding/editing a fact, unless the user wants to see extra, optional fields

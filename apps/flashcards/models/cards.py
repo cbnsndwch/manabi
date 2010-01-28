@@ -4,22 +4,16 @@ from django.forms import ModelForm
 from django.forms.util import ErrorList
 from dbtemplates.models import Template
 from itertools import chain
-
 from django.db.models import Avg, Max, Min, Count
-
 import random
-
 from math import cos, pi
-
 import datetime
-
 from facts import Fact, FactType, SharedFact
 from cardtemplates import CardTemplate
 from reviews import ReviewStatistics
-
 import usertagging
-
 from django.template.loader import render_to_string
+
 
 #grade IDs (don't change these once they're set)
 GRADE_NONE = 0
@@ -31,16 +25,13 @@ GRADE_EASY = 5
 
 #below is used in the EF equation, but we're going to precompute the EF factors
 #GRADE_FACTORS = {GRADE_NONE: 0, GRADE_HARD: 3, GRADE_GOOD: 4, GRADE_EASY: 5}
-
 #this is the EF algorithm from which the EF factors are computed:
 #ease_factor = self.ease_factor + (0.1 - (max_grade - grade_factor) * (0.08 + (max_grade - grade_factor) * 0.02))
 
-#constants:
-#max_grade = 3
 #MAX_EASE_FACTOR_STEP = 0.1
 
 #these are the precomputed values, so that we can modify them independently later to test their effectiveness:
-EASE_FACTOR_MODIFIERS = {GRADE_NONE: -0.3, GRADE_HARD: -0.1401, GRADE_GOOD: 0.0, GRADE_EASY: 0.1} #FIXME accurate grade_none value
+EASE_FACTOR_MODIFIERS = {GRADE_NONE: -0.3, GRADE_HARD: -0.1401, GRADE_GOOD: 0.0, GRADE_EASY: 0.1} #TODO accurate grade_none value
 
 MINIMUM_EASE_FACTOR = 1.3
 
@@ -65,8 +56,6 @@ NEW_CARDS_PER_DAY = 20 #TODO this should at least be an option, but should also 
 #number of failed cards before failed cards are shown earlier than any due cards
 #TODO MAX_FAILED_CARDS = 20 #TODO should be option.
 
-#show failed cards in 10 mins, but if all due are done and timer/quota isn't, show early
-
 # 1: mature due (-interval)
 # 2: young due
 # 3: failed, not due
@@ -85,16 +74,16 @@ class CardManager(models.Manager):
 
     def of_user(self, user):
         #TODO this is probably really slow
-        return self.filter(fact__deck__owner=user)
+        return self.filter(fact__deck__owner=user, suspended=False, active=True)
 
     def new_cards(self, user, deck=None):
-        new_cards = self.filter(fact__deck__owner=user, due_at__isnull=True)
+        new_cards = self.filter(fact__deck__owner=user, due_at__isnull=True, suspended=False, active=True)
         if deck:
             new_cards = new_cards.filter(fact__deck=deck)
         return new_cards
 
     def due_cards(self, user, deck=None):
-        due_cards = self.filter(fact__deck__owner=user, due_at__lte=datetime.datetime.utcnow()).order_by('-interval')
+        due_cards = self.filter(fact__deck__owner=user, due_at__lte=datetime.datetime.utcnow(), suspended=False, active=True).order_by('-interval')
         if deck:
             due_cards = due_cards.filter(fact__deck=deck)
         return due_cards
@@ -380,7 +369,7 @@ class CardManager(models.Manager):
                 card_queries.append(cards)
 
 
-        #FIXME decide what to do with this #if session_start:
+        #TODO decide what to do with this #if session_start:
         #FIXME add new cards into the mix when there's a defined new card per day limit
         #for now, we'll add new ones to the end
         return chain(*card_queries)
@@ -390,7 +379,6 @@ class CardManager(models.Manager):
 #used for randomizing new card insertion
 MAX_NEW_CARD_ORDINAL = 10000000
                       #4294967295 is the upper bound
-#FIXME how to order new cards
 
 
 

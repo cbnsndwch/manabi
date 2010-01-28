@@ -379,7 +379,7 @@ def rest_facts(request): #todo:refactor into facts (no???)
         else:
           preret = []
           for fact in facts:
-            row = {'fact-id': fact.id}
+            row = {'fact-id': fact.id, 'suspended': all([card.suspended for card in fact.card_set.filter(active=True)])}
             ident, name = '', ''
             for field_content in fact.fieldcontent_set.all():
               key='id{0}'.format(field_content.field_type.id) #TODO rename to be clearer, like field_id or SOMETHING
@@ -402,6 +402,47 @@ def rest_facts(request): #todo:refactor into facts (no???)
       return to_dojo_data(ret)
   elif method == 'POST':
     return _facts_create(request)
+
+#@login_required
+#@json_response
+#def rest_card_suspend(request, card_id):
+#    if request.method == 'POST':
+#        try:
+#            fact = Card.objects.get(id=card_id)
+#            
+#            card.suspended = True
+#            card.save()
+#            return {'success': True}
+#        except Card.DoesNotExist:
+#            return {'success': False}
+
+
+@login_required
+@json_response
+def rest_fact_suspend(request, fact_id):
+    if request.method == 'POST':
+        try:
+            fact = Fact.objects.get(id=fact_id)
+            for card in fact.card_set.all():
+                card.suspended = True
+                card.save()
+            return {'success': True}
+        except Fact.DoesNotExist:
+            return {'success': False}
+
+
+@login_required
+@json_response
+def rest_fact_unsuspend(request, fact_id):
+    if request.method == 'POST':
+        try:
+            fact = Fact.objects.get(id=fact_id)
+            for card in fact.card_set.all():
+                card.suspended = False
+                card.save()
+            return {'success': True}
+        except Fact.DoesNotExist:
+            return {'success': False}
 
 
 @login_required
