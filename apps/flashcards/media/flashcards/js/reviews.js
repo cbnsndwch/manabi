@@ -17,13 +17,8 @@ dojo.addOnLoad(function() {
     //this is for cards that are reviewed, and have been submitted to the server
     //without a response yet.
     //It's a list of card IDs.
-    reviews.cards_reviewed_pending = new Array(); 
-    reviews.current_card = null;
     reviews.card_buffer_count = 5;
     reviews.grades = {GRADE_NONE: 0, GRADE_HARD: 3, GRADE_GOOD: 4, GRADE_EASY: 5}
-    reviews.empty_prefetch_producer = false;
-    reviews.fails_since_prefetch_request = 0;
-    reviews.session_timer = null;
     //reviews.session_over_def = null; //subscribe to this to know when the session is over,
                                      //particularly because the time/card limit ran out
 });
@@ -167,6 +162,13 @@ reviews.startSession = function(deck_id, daily_new_card_limit, session_card_limi
     reviews.session_early_review = early_review;
     reviews.session_learn_more = learn_more;
 
+    reviews.empty_prefetch_producer = false;
+    reviews.cards_reviewed_pending = new Array(); 
+    reviews.cards_reviewed_pending_defs = new Array(); //contains the Deferred objects for each pending review
+    reviews.current_card = null;
+    reviews.fails_since_prefetch_request = 0;
+    reviews.session_timer = null;
+
     reviews._prefetch_in_progress = false;
     //reviews.session_over_def = new dojo.Deferred();
 
@@ -196,7 +198,7 @@ reviews.endSession = function() {
 reviews.reload_current_card = function() {
     //TODO refresh the card inside reviews.cards, instead of just setting current_cards
     var xhr_args = {
-        url: 'flashcards/rest/cards/'+reviews.current_card.id,
+        url: 'flashcards/rest/cards/' + reviews.current_card.id,
         handleAs: 'json',
         load: function(data) {
             if (data.success) {
@@ -254,6 +256,42 @@ reviews.nextCard = function() {
 };
 
 
+reviews._resetCardCache = function() {
+    // Resets the card cache, as well as the "current_card"
+
+    // Clear cache
+    reviews.cards_reviewed_pending.splice(reviews.cards_reviewed_pending.lastIndexOf(reviews.current_card.id), 1)
+    reviews.cards = new Array();
+    reviews.current_card = null;
+
+    // Refill it
+    return reviews.prefetchCards(reviews.card_buffer_count * 2, true);
+}
+
+
+reviews.undo = function() {
+    // Note that this will nullify current_card. You'll have to call next_card
+    // after this is done (after its deferred is called).
+
+    // Wait until the card review submission queue is clear before issuing the
+    // undo, so that we don't accidentally undo earlier than intended.
+    var review_defs = new dojo.DeferredList(reviews.cards_reviewed_pending_defs);
+    var undo_def = new dojo.Deferred();
+    review_defs.addCallback(dojo.hitch(null, function(undo_def) {
+        // Send undo request
+        var actual_undo_def = reviews._simpleXHRPost('/flashcards/rest/cards_for_review/undo');
+        
+        // Clear and refill card cache
+        actual_undo_def.addCallback(dojo.hitch(null, function(undo_def) {
+            reviews.session_cards_reviewed_count -= 1;
+            reviews._resetCardCache().addCallback(dojo.hitch(null, function(undo_def) {
+                undo_def.callback();
+            }, undo_def));
+        }, undo_def));
+    }, undo_def));
+    return undo_def;
+}
+
 reviews.suspendCard = function(card) {
     // Suspends this and sibling cards.
     xhr_args = {
@@ -297,14 +335,16 @@ reviews.reviewCard = function(card, grade) {
 
     //check if the session should be over now (time or card limit is up)
     //now = new Date(); //FIXME consolidate with more recent timer stuff
-    /*if ((reviews.session_start_time.getMinutes() +
-        reviews.session_time_limit) < now ||
-        reviews.session_card_limit <= reviews.session_cards_reviewed_count) {
-        //reviews.session_over_def.callback();
-    }*/
 
     //start sending the review in ASAP
     var def = dojo.xhrPost(xhr_args);
+
+    //add to review def queue
+    reviews.cards_reviewed_pending_defs.push(def);
+    def.addCallback(dojo.hitch(null, function(def) {
+        // remove the def from the queue once it's called
+        reviews.cards_reviewed_pending_defs.splice(reviews.cards_reviewed_pending_defs.lastIndexOf(def), 1);
+    }, def));
 
     //has the user reached the card review count limit?
     if (reviews.session_cards_reviewed_count >= reviews.session_card_limit
@@ -317,7 +357,7 @@ reviews.reviewCard = function(card, grade) {
     return def;
 };
 
-reviews._simpleXHRValueFetch = function(url, value_name) {
+reviews._simpleXHRPost = function(url) {
     var def = new dojo.Deferred();
 
     var xhr_args = {
@@ -325,7 +365,31 @@ reviews._simpleXHRValueFetch = function(url, value_name) {
         handleAs: 'json',
         load: dojo.hitch(null, function(def, data) {
             if (data.success) {
-                def.callback(data[value_name]);
+                def.callback();
+            } else {
+                //TODO error handling (do a failure callback)
+            }
+        }, def),
+    }
+    dojo.xhrPost(xhr_args);
+
+    return def;
+};
+
+reviews._simpleXHRValueFetch = function(url, value_name) {
+    // value_name is optional
+    var def = new dojo.Deferred();
+
+    var xhr_args = {
+        url: url,
+        handleAs: 'json',
+        load: dojo.hitch(null, function(def, data) {
+            if (data.success) {
+                if (value_name == undefined) {
+                    def.callback();
+                } else {
+                    def.callback(data[value_name]);
+                }
             } else {
                 //TODO error handling (do a failure callback)
             }
@@ -386,6 +450,7 @@ dojo.addOnLoad(function() {
 reviews_ui.humanizedInterval = function(interval) {
     var ret = null;
     var duration = null;
+    interval = parseFloat(interval);
 
     if ((interval * 24 * 60) < 1) {
         //less than a minute
@@ -495,7 +560,6 @@ reviews_ui.openSessionOverDialog = function(review_count) {
             dojo.byId('reviews_sessionOverDialogReviewCount').innerHTML = review_count;
             reviews_sessionOverDialog.show();
         }
-        //dojo.byId('reviews_cardsNewCount').innerHTML = count;
     });
 
 }
@@ -597,6 +661,8 @@ reviews_ui.showCardBack = function(card) {
 reviews_ui.reviewCard = function(card, grade) {
     var review_def = reviews.reviewCard(card, grade);
     review_def.addCallback(function(data) {
+        // Enable the Undo button (maybe should do this before the def?)
+        reviews_undoReviewButton.attr('disabled', false);
         //FIXME anything go here?
     });
     reviews_ui.goToNextCard();
@@ -608,6 +674,35 @@ reviews_ui.reviewCard = function(card, grade) {
 
 
 reviews_ui.displayNextCard = function() {
+};
+
+
+reviews_ui._disableReviewScreenUI = function(disable) {
+    if (disable == undefined) {
+        disable = true;
+    }
+    dojo.query('.dijitButton', dojo.byId('reviews_fullscreenContainer')).forEach(function(item) {
+        dijit.getEnclosingWidget(item).attr('disabled', disable);
+    });
+};
+
+
+reviews_ui.undo = function() {
+    // disable review UI until the undo operation is finished
+    reviews_ui._disableReviewScreenUI();
+
+    var undo_def = reviews.undo();
+
+    undo_def.addCallback(function() {
+        // show the next card, now that the cache is cleared
+        reviews_ui.goToNextCard();
+
+        // re-enable review UI
+        reviews_ui._disableReviewScreenUI(false);
+
+        // disable the undo button until next review submission
+        reviews_undoReviewButton.attr('disabled', true);
+    });
 };
 
 

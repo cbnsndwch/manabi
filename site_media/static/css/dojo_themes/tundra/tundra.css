@@ -3238,6 +3238,9 @@ div.dijitTabBtnDisabled, .dj_ie div.dijitTabBtnDisabled {
 .tundra .manabi_icon_add {
 	background-image: url(images/icons/add.png);
 }
+.tundra .manabi_icon_undo {
+	background-image: url(images/icons/arrow_undo.png);
+}
 .tundra .manabi_icon_control_pause {
 	background-image: url(images/icons/control_pause_blue.png);
 }

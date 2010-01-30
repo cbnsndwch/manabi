@@ -45,7 +45,12 @@
             It will no longer appear in future reviews.<br>
             You can unsuspend later with the Flashcard Editor.
         </div>
-                    
+        <div dojoType="dijit.form.Button" type="button" iconClass="manabi_icon manabi_icon_undo" disabled="true" jsId="reviews_undoReviewButton">
+            Undo
+            <script type="dojo/method" event="onClick" args="evt">
+                reviews_ui.undo();
+            </script>
+        </div>
     </div>
     <div class="fullscreen_content">
         <div id="reviews_reviewScreen">
@@ -307,7 +312,7 @@
                 break;
         }
 	</script>
-    <strong style="font-size:120%">Well done!</strong><br>
+    <strong style="font-size:120%">Well done.</strong><br>
     <br>
     Your study session is over. You reviewed <span id="reviews_sessionOverDialogReviewCount"></span> cards.<br>
     <br>

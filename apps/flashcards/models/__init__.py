@@ -4,6 +4,7 @@ from facts import * #Fact, FactType
 from fields import *
 from cardtemplates import *
 from reviews import *
+from undo import *
 
 from django.db.models.signals import post_save  
 

@@ -11,6 +11,7 @@ from django.template.loader import render_to_string
 from django.utils import simplejson as json
 from django.utils.functional import Promise
 
+
 try:
     # we need it, if we want to serialize query- and model-objects
     # of google appengine within json_encode

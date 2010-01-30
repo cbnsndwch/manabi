@@ -56,6 +56,11 @@ urlpatterns = patterns('flashcards',
     (r'^rest/cards_for_review/next_due_at$', 'views.next_card_due_at'),
     (r'^rest/cards_for_review/hours_until_next_due$', 'views.hours_until_next_card_due'),
     (r'^rest/cards_for_review$', 'views.next_cards_for_review'),
+
+    #card review undo
+    (r'^rest/cards_for_review/undo$', 'views.undo_review'),
+    (r'^rest/cards_for_review/undo/reset$', 'views.reset_review_undo_stack'),
+
     
 
     #url(r'^$', direct_to_template, {"template": "flashcards/base.html"}, name="flashcards"),

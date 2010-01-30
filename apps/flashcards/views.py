@@ -12,6 +12,7 @@ from django.template import RequestContext, loader
 from django.contrib.auth.decorators import login_required
 
 from flashcards.models.decks import download_shared_deck, share_deck
+from flashcards.models.undo import UndoCardReview
 from apps.utils import japanese
 
 from django.template.loader import render_to_string
@@ -27,6 +28,7 @@ from django.db import transaction
 
 from django.views.generic.list_detail import object_list
 from django.views.generic.create_update import update_object, delete_object, create_object
+
 
 
 
@@ -672,6 +674,7 @@ def next_cards_for_review(request):
                 due_at = card._next_due_at(grade, reviewed_at, card._next_interval(grade, card._next_ease_factor(grade, reviewed_at), reviewed_at, do_fuzz=False))
                 duration = due_at - reviewed_at
                 days = duration.days + (duration.seconds / 86400.0)
+                days = format(round(days, 4), '.4f')
                 due_times[grade] = days
             due_times = dict((grade, due_time) for grade, due_time in due_times.items())
             formatted_cards.append({
@@ -822,11 +825,9 @@ def _rest_review_card(request, card_id):
         try:
             card = Card.objects.get(id=card_id) #FIXME make sure this user owns this card
             card.review(int(request.POST['grade']))
-            card.save()
             return {'success': True}
         except Card.DoesNotExist:
             return {'success': False}
-
 
 
 
@@ -868,4 +869,21 @@ def rest_card(request, card_id): #todo:refactor into facts (no???)
         return _rest_review_card(request, int(card_id))
 
 
+
+# Undo stack for card reviews
+
+@json_response
+@login_required
+def undo_review(request):
+    if request.method == 'POST':
+        UndoCardReview.objects.undo(request.user)
+        return {'success': True}
+
+
+@json_response
+@login_required
+def reset_review_undo_stack(request):
+    if request.method == 'POST':
+        UndoCardReview.objects.reset(request.user)
+        return {'success': True}
 

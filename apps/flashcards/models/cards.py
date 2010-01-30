@@ -11,8 +11,10 @@ import datetime
 from facts import Fact, FactType, SharedFact
 from cardtemplates import CardTemplate
 from reviews import ReviewStatistics
+from undo import UndoCardReview
 import usertagging
 from django.template.loader import render_to_string
+from django.db import transaction
 
 
 #grade IDs (don't change these once they're set)
@@ -445,7 +447,8 @@ class Card(AbstractCard):
 
 
     def save(self):
-        self.new_card_ordinal = random.randrange(0, MAX_NEW_CARD_ORDINAL)
+        if not self.new_card_ordinal:
+            self.new_card_ordinal = random.randrange(0, MAX_NEW_CARD_ORDINAL)
         super(Card, self).save()
 
 
@@ -804,19 +807,33 @@ class Card(AbstractCard):
         #TODO update CardStatistics
         card_history_item = CardHistory(card=self, response=grade, reviewed_at=reviewed_at)
         card_history_item.save()
-
         self.review_count += 1
+        return card_history_item
 
 
     def _next_due_at(self, grade, reviewed_at, interval):
         return reviewed_at + datetime.timedelta(days=interval)
 
-    
+
+    @transaction.commit_on_success    
     def review(self, grade):
         #TODO how to handle failures on new cards? should it keep its 'new' status, and should the EF change?
 
         reviewed_at = datetime.datetime.utcnow()
         was_new = self.interval is None
+
+        # Update this card's statistics
+        card_history_item = self._update_statistics(grade, reviewed_at)
+
+        # Update the overall review statistics for this user
+        review_stats = self.owner.reviewstatistics #ReviewStatistics.objects.get_or_create(user=self.owner)[0]
+        if was_new:
+            review_stats.increment_new_reviews()
+        if grade == GRADE_NONE:
+            review_stats.increment_failed_reviews()
+
+        # Create Undo stack item
+        UndoCardReview.objects.add_undo(card_history_item, review_stats)
 
         # Adjust ease factor
         last_ease_factor = self.ease_factor
@@ -832,21 +849,15 @@ class Card(AbstractCard):
         self.last_due_at = self.due_at
         self.due_at = self._next_due_at(grade, reviewed_at, self.interval)
 
-        # Update this card's statistics
-        self._update_statistics(grade, reviewed_at)
 
         self.last_review_grade = grade
         self.last_reviewed_at = reviewed_at
         if grade == GRADE_NONE:
             self.last_failed_at = reviewed_at
 
-        # Update the overall review statistics for this user
-        review_stats = self.owner.reviewstatistics #ReviewStatistics.objects.get_or_create(user=self.owner)[0]
-        if was_new:
-            review_stats.increment_new_reviews()
-        if grade == GRADE_NONE:
-            review_stats.increment_failed_reviews()
+        
         review_stats.save()
+        self.save()
 
 
 
@@ -854,7 +865,7 @@ class Card(AbstractCard):
 
 
 
-#TODO implement
+#TODO implement (remember to update UndoReview too)
 class CardStatistics(models.Model):
     card = models.ForeignKey(Card)
 
