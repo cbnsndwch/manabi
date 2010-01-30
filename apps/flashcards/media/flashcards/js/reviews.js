@@ -161,24 +161,30 @@ reviews.startSession = function(deck_id, daily_new_card_limit, session_card_limi
     reviews.session_cards_reviewed_count = 0;
     reviews.session_early_review = early_review;
     reviews.session_learn_more = learn_more;
-
     reviews.empty_prefetch_producer = false;
     reviews.cards_reviewed_pending = new Array(); 
     reviews.cards_reviewed_pending_defs = new Array(); //contains the Deferred objects for each pending review
     reviews.current_card = null;
     reviews.fails_since_prefetch_request = 0;
     reviews.session_timer = null;
-
     reviews._prefetch_in_progress = false;
     //reviews.session_over_def = new dojo.Deferred();
-
-    //start session timer - a published event
-    reviews._start_session_timer();
-    
     reviews.empty_prefetch_producer = false;
 
+    // reset the review undo stack on the server
+    var def = new dojo.Deferred();
+    reviews._simpleXHRPost('/flashcards/rest/cards_for_review/undo/reset').addCallback(dojo.hitch(def, function(def) {
+        var prefetch_def = reviews.prefetchCards(reviews.card_buffer_count * 2, true);
+        prefetch_def.addCallback(dojo.hitch(def, function(def, prefetch_item) {
+            //start session timer - a published event
+            reviews._start_session_timer();
+
+            def.callback(prefetch_item);
+        }, def));
+    }, def));
+
     //TODO cleanup beforehand? precautionary..
-    return reviews.prefetchCards(reviews.card_buffer_count * 2, true);
+    return def;
 };
 
 reviews.endSession = function() {
@@ -694,8 +700,10 @@ reviews_ui.undo = function() {
     var undo_def = reviews.undo();
 
     undo_def.addCallback(function() {
-        // show the next card, now that the cache is cleared
+        // Show the next card, now that the cache is cleared.
+        // Also show its back.
         reviews_ui.goToNextCard();
+        reviews_ui.showCardBack(reviews.current_card);
 
         // re-enable review UI
         reviews_ui._disableReviewScreenUI(false);

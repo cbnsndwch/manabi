@@ -13,7 +13,6 @@ should all those connects be disconnected somehow? particularly in body_pane (do
 
 SUPER CRITICAL BUGS:
 --------------------
-disable undo button after clicked (before/after submit too)
 ensure the next card up is the one that was undone
 
 get deck average EF for new cards
@@ -29,9 +28,7 @@ gray out the fields while fact submission is in progress (and make sure cmd-ente
 TODO:
 ---------------------
 !!!!!!!card review undo
-undoes: review, suspend,
-history: per session only I guess. what about undoing the last card then? re-enter session i suppose
-only 1 undo too, i suppose. easy.
+undoes: suspend,
 
 hashes for back/forwards
 
