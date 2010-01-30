@@ -257,8 +257,19 @@ class CardManager(models.Manager):
         '''
         if not count:
             return []
+        priority_cutoff = review_time - datetime.timedelta(minutes=30)
         cards = initial_query.exclude(last_review_grade=GRADE_NONE).filter(due_at__gt=review_time).order_by('due_at')
-        return self._space_cards(cards, count, review_time, early_review=True)
+        staler_cards = cards.filter(last_reviewed_at__gt=priority_cutoff).order_by('due_at')
+        return self._space_cards(staler_cards, count, review_time, early_review=True)
+
+
+    def _next_due_soon_cards2(self, user, initial_query, count, review_time, excluded_ids=[], daily_new_card_limit=None, early_review=False):
+        if not count:
+            return []
+        priority_cutoff = review_time - datetime.timedelta(minutes=30)
+        cards = initial_query.exclude(last_review_grade=GRADE_NONE).filter(due_at__gt=review_time).order_by('due_at')
+        fresher_cards = cards.filter(last_reviewed_at__lte=priority_cutoff).order_by('due_at')
+        return self._space_cards(fresher_cards, count, review_time, early_review=True)
 
 
     #FIXME distinguish from cards_new_count or merge or make some new kind of review optioned class
@@ -348,12 +359,14 @@ class CardManager(models.Manager):
             user_cards = user_cards.exclude(id__in=excluded_ids)
 
         card_funcs = [
-                self._next_failed_due_cards,        # due, failed
-                self._next_not_failed_due_cards,    # due, not failed
-                self._next_failed_not_due_cards]    # failed, not due
+            self._next_failed_due_cards,        # due, failed
+            self._next_not_failed_due_cards,    # due, not failed
+            self._next_failed_not_due_cards]    # failed, not due
 
         if early_review and daily_new_card_limit:
-            card_funcs.extend([self._next_due_soon_cards]) # due soon, not yet, but next in the future
+            card_funcs.extend([
+                self._next_due_soon_cards,
+                self._next_due_soon_cards2]) # due soon, not yet, but next in the future
         else:
             card_funcs.extend([self._next_new_cards]) # new cards at end
 
@@ -364,7 +377,7 @@ class CardManager(models.Manager):
         for card_func in card_funcs:
             if not cards_left:
                 break
-            cards = card_func(user, user_cards, count, now, excluded_ids, daily_new_card_limit, \
+            cards = card_func(user, user_cards, cards_left, now, excluded_ids, daily_new_card_limit, \
                     early_review=early_review)
             cards_left -= len(cards)
             if len(cards):
@@ -833,7 +846,7 @@ class Card(AbstractCard):
             review_stats.increment_failed_reviews()
 
         # Create Undo stack item
-        UndoCardReview.objects.add_undo(card_history_item, review_stats)
+        UndoCardReview.objects.add_undo(card_history_item)
 
         # Adjust ease factor
         last_ease_factor = self.ease_factor

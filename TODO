@@ -27,17 +27,14 @@ gray out the fields while fact submission is in progress (and make sure cmd-ente
 ---------------------
 TODO:
 ---------------------
-!!!!!!!card review undo
-undoes: suspend,
-
-hashes for back/forwards
+early review spacing
 
 more variance in early review intervals - hard should be more aggressive
 
 allow deleting shared decks which the current user shared
 
 somewhat randomize order of failed cards when reviewing early i guess or something
-cos otherwise you just get the same order over and over
+cos otherwise you just get the same order over and over (or even during regular review)
 
 review early being useful for cramming: dont end up just cycling endlessly through the lower interval stuff. 
 the longer interval things should come up too.
@@ -45,7 +42,9 @@ despite intervals not being increased much by early review, there should be some
 short intervals are delayed a bit for a longer one to come up first.
 or maintain a list of the due dates for an entire session or something? idk
 
-decorators for view funcs (GET, POST, DELETE etc)
+hashes for back/forwards
+
+undo suspend,
 
 what to do about undoing the final card in a review? (ui issue)
 
@@ -55,9 +54,9 @@ dont reset cards completely upon failure
 
 allow unicode full-width (japanese) [] for transliterations, as well as < > because theyre easier to type in the japanese IME
 
-allow a 'new card order' for cards within a fact (like recall before other ones since recall is more important)
+'reset scheduling' button for facts editor
 
-'reset' button for facts editor
+help text for keyboard shortcuts
 
 make the 'per-card actions' section of buttons in the facts editor clearer
 
@@ -71,8 +70,6 @@ hitting enter twice in the study options dialog.
 
 put the card grade buttons on the bottom of the screen
 
-make english text in cards have a smaller font than japanese text
-
 make fact form requirements dependent on cards selected
 
 example sentence UI
@@ -82,10 +79,6 @@ fact type templating system for adding/editing form
 move 'All decks' grid option above grid
 
 -disable form submission buttons while they're being processed, after clicked - 
-
-give a negative bonus when reviewing cards from the same fact without waiting for delay.
-
--bonus for late review
 
 allow selecting multiple facts
 
@@ -105,6 +98,12 @@ or perhaps add a 'monolingual?' kind of bool field
 ---------------------
 TODO (low priority):
 ---------------------
+make english text in cards have a smaller font than japanese text
+
+allow a 'new card order' for cards within a fact (like recall before other ones since recall is more important)
+
+decorators for view funcs (GET, POST, DELETE etc)
+
 sort POS
 
 failed card maximum before reviews prioritize failed cards over others or something like that

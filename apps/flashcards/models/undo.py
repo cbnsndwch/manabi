@@ -34,8 +34,8 @@ class UndoCardReviewManager(models.Manager):
         self.of_user(user).delete()
 
 
-    @transaction.commit_on_success    
-    def add_undo(self, card_history, review_stats):
+    @transaction.commit_on_success
+    def add_undo(self, card_history):
         '''
         Only keeps 1 level undo for now, to simplify things.
         '''
@@ -46,7 +46,8 @@ class UndoCardReviewManager(models.Manager):
             user = user,
             card = card_history.card,
             card_history = card_history,
-            pickled_card = card_history.card)
+            pickled_card = card_history.card,
+            pickled_review_stats = user.reviewstatistics)
 
         # Delete previous undo if it exists
         for user_undo in self.of_user(user):
@@ -66,13 +67,16 @@ class UndoCardReviewManager(models.Manager):
         if not last_undo:
             return False
         card = last_undo.card
+        review_stats = user.reviewstatistics
         card_history = last_undo.card_history
         undone_card = last_undo.pickled_card
+        undone_review_stats = last_undo.pickled_review_stats
         
         # Overwrite the card model with its pickled counterpart
-        for field_name in _get_model_fields(undone_card):
-            setattr(card, field_name, getattr(undone_card, field_name))
-        card.save()
+        for from_model, to_model in [(undone_card, card,), (undone_review_stats, review_stats,)]:
+            for field_name in _get_model_fields(from_model):
+                setattr(to_model, field_name, getattr(from_model, field_name))
+            to_model.save()
 
         # Delete the card history item
         card_history.delete()
@@ -90,6 +94,7 @@ class UndoCardReview(models.Model):
     card = models.ForeignKey('Card')
     card_history = models.ForeignKey('CardHistory')
     pickled_card = PickledObjectField()
+    pickled_review_stats = PickledObjectField()
 
     class Meta:
         app_label = 'flashcards'
