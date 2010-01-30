@@ -488,29 +488,47 @@ reviews_ui.humanizedInterval = function(interval) {
     return ret;
 };
 
-reviews_ui.showNoCardsDue = function(can_learn_more) {
-    dojo.byId('reviews_noCardsDue').style.display = '';
+reviews_ui._showNoCardsDue = function() {
     dojo.byId('reviews_beginReview').style.display = 'none';
     dojo.byId('reviews_reviewOptions').style.display = 'none';
     dojo.byId('reviews_reviewScreen').style.display = 'none';
     dojo.byId('reviews_reviewEndScreen').style.display = 'none';
-    
-    if (can_learn_more) {
-        dojo.byId('reviews_learnMoreContainer').style.display = '';
-        reviews_learnMoreButton.attr('disabled', false);
+};
+
+reviews_ui.showNoCardsDue = function(can_learn_more, empty_query) {
+    reviews_beginReviewButton.attr('disabled', true);
+
+    if (!can_learn_more && empty_query) {
+        reviews_beginEarlyReviewButton.attr('disabled', true);
+        dojo.byId('reviews_emptyQuery').style.display = '';
+        reviews_ui._showNoCardsDue();
     } else {
-        dojo.byId('reviews_learnMoreContainer').style.display = 'none';
-        reviews_learnMoreButton.attr('disabled', true);
+        reviews.hoursUntilNextCardDue().addCallback(function(hours_until) {
+            if (parseInt(hours_until) > 24) {
+                reviews.nextCardDueAt().addCallback(function(next_due_at) {
+                    dojo.byId('reviews_noCardsDueNextDueAt').innerHTML = 'The next card is due at: ' + next_due_at;
+                    dojo.byId('reviews_noCardsDue').style.display = '';
+                    reviews_ui._showNoCardsDue();
+                });
+            } else {
+                dojo.byId('reviews_noCardsDueNextDueAt').innerHTML = 'The next card is due in ' + hours_until + ' hours.';
+                dojo.byId('reviews_noCardsDue').style.display = '';
+                reviews_ui._showNoCardsDue();
+            }
+        });
+        dojo.byId('reviews_learnMoreContainer').style.display = can_learn_more ? '' : 'none';
+        reviews_learnMoreButton.attr('disabled', !can_learn_more);
+        reviews_beginEarlyReviewButton.attr('disabled', false);
+        reviews_ui._showNoCardsDue();
     }
 
-    reviews_beginEarlyReviewButton.attr('disabled', false);
-    reviews_beginReviewButton.attr('disabled', true);
 };
 
 reviews_ui.showReviewOptions = function() {
     dojo.byId('reviews_beginReview').style.display = '';
     dojo.byId('reviews_reviewOptions').style.display = '';
     dojo.byId('reviews_noCardsDue').style.display = 'none';
+    dojo.byId('reviews_emptyQuery').style.display = 'none';
     dojo.byId('reviews_reviewEndScreen').style.display = 'none';
 
     //show the due count
@@ -858,7 +876,8 @@ reviews_ui.startSession = function(deck_id, session_time_limit, session_card_lim
                 //show learn more button).
                 //can_learn_more = initial_card_prefetch.new_cards_left_for_today == '0' && initial_card_prefetch.new_cards_left != '0'; //TODO better api for this
                 can_learn_more = initial_card_prefetch.new_cards_left != '0'; //TODO better api for this
-                reviews_ui.showNoCardsDue(can_learn_more);
+                empty_query = initial_card_prefetch.total_card_count_for_query == '0';
+                reviews_ui.showNoCardsDue(can_learn_more, empty_query);
             }
         });
     });

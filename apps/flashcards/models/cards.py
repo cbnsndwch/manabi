@@ -74,6 +74,17 @@ class CardManager(models.Manager):
     #def get_query_set(self):
     #    return super(UserCardManager, self).get_query_set().filter(
 
+    def count(self, user, deck=None, tags=None):
+        cards = self.of_user(user)
+        if deck:
+            cards = cards.filter(fact__deck=deck)
+        if tags:
+            facts = usertagging.models.TaggedItem.objects.get_by_model(Fact, tags)
+            cards = user_cards.filter(fact__in=facts)
+        return cards.count()
+            
+
+
     def of_user(self, user):
         #TODO this is probably really slow
         return self.filter(fact__deck__owner=user, suspended=False, active=True)
@@ -310,7 +321,9 @@ class CardManager(models.Manager):
             cards = cards.filter(fact__in=facts)
         this_time_tomorrow = datetime.datetime.utcnow() + datetime.timedelta(days=1)
         cards = cards.filter(due_at__lt=this_time_tomorrow)
-        return cards.count()
+        due_count = cards.count()
+        new_count = min(NEW_CARDS_PER_DAY, self.new_cards_count(user, [], deck=deck, tags=tags))
+        return due_count + new_count
 
 
     def next_card_due_at(self, user, deck=None, tags=None):

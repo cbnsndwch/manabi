@@ -13,6 +13,10 @@ should all those connects be disconnected somehow? particularly in body_pane (do
 
 SUPER CRITICAL BUGS:
 --------------------
+'learn more' intervals are messed up!!!!!!!!!!!!!
+
+count 'at this time tomorrow' is wrong - doesn't take new cards per daily limit into account
+
 ensure the next card up is the one that was undone
 
 get deck average EF for new cards

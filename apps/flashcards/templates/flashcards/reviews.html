@@ -261,21 +261,33 @@
         <br>
     </div>
 
+    <div id="reviews_emptyQuery" style="display: none">
+        <strong style="font-size:120%">No cards to review.</strong><br>
+        Your selection contains no cards to review.<br>
+        <br>
+        Try creating flashcards first, or download a shared deck.<br>
+        <br>
+        <span class="fakeLink" onclick="reviews_ui.showReviewOptions()">Back to study options</span>
+    </div>
     <div id="reviews_noCardsDue" style="display: none">
         <strong style="font-size:120%">No cards are due right now.</strong><br>
         You should wait until later to review more.<br>
         But if you like, you may continue.<br>
         <br>
+        <span id="reviews_noCardsDueNextDueAt"></span><br>
+        <br>
         <div style="text-align:center">
-            <button dojoType="dijit.form.Button" type="button" jsId="reviews_beginEarlyReviewButton">
-                Review Early
-                <script type="dojo/connect" event="onClick" args="evt">
-                    reviews_ui.submitReviewOptionsDialog(true);
-                </script>
-            </button><br>
+            <span id="reviews_reviewEarlyContainer">
+                <button dojoType="dijit.form.Button" type="button" jsId="reviews_beginEarlyReviewButton">
+                    Review Early
+                    <script type="dojo/connect" event="onClick" args="evt">
+                        reviews_ui.submitReviewOptionsDialog(true);
+                    </script>
+                </button><br>
+            </span>
             <span style="color:gray">Review cards before they're due.</span><br>
             <span id="reviews_learnMoreContainer">
-            <br>
+                <br>
                 <button dojoType="dijit.form.Button" type="button" jsId="reviews_learnMoreButton">
                     Learn More
                     <script type="dojo/connect" event="onClick" args="evt">

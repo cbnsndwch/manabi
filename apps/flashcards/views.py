@@ -1,4 +1,4 @@
-from flashcards.models import FactType, Fact, Deck, CardTemplate, FieldType, FieldContent, Card, SharedDeck, GRADE_NONE, GRADE_HARD, GRADE_GOOD, GRADE_EASY, SchedulingOptions
+from flashcards.models import FactType, Fact, Deck, CardTemplate, FieldType, FieldContent, Card, SharedDeck, GRADE_NONE, GRADE_HARD, GRADE_GOOD, GRADE_EASY, SchedulingOptions, NEW_CARDS_PER_DAY
 from flashcards.forms import DeckForm, FactForm, FieldContentForm, CardTemplateForm, FactTypeForm, CardForm
 from django.http import HttpResponseRedirect, HttpResponse
 from django.shortcuts import render_to_response
@@ -638,7 +638,7 @@ def next_cards_for_review(request):
 
         # New cards per day limit.
         #TODO implement this to be user-configurable instead of hard-coded
-        daily_new_card_limit = 20
+        daily_new_card_limit = NEW_CARDS_PER_DAY
 
         # Early Review
         early_review = request.GET.get('early_review', 'false').lower() == 'true'
@@ -697,6 +697,7 @@ def next_cards_for_review(request):
 
             # New cards left for this query. #TODO rename it
             ret['new_cards_left'] = Card.objects.new_cards_count(request.user, excluded_card_ids, deck=deck, tags=tags)
+        ret['total_card_count_for_query'] = Card.objects.count(request.user, deck=deck, tags=tags)
 
         return ret
 
