@@ -14,6 +14,7 @@ should all those connects be disconnected somehow? particularly in body_pane (do
 SUPER CRITICAL BUGS:
 --------------------
 'learn more' intervals are messed up!!!!!!!!!!!!!
+i think it's the fuzz. look at a 'learn more' delayed sibling card, and rate it, undo, repeat - sometimes it goes descending
 
 count 'at this time tomorrow' is wrong - doesn't take new cards per daily limit into account
 

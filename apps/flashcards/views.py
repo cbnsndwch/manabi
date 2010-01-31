@@ -789,6 +789,7 @@ def hours_until_next_card_due(request):
 @json_response
 @login_required
 def next_card_due_at(request):
+    '''Returns a human-readable format of the next date that the card is due.'''
     if request.method == 'GET':
         #TODO refactor request parameters somehow
         # Deck.
@@ -815,6 +816,7 @@ def next_card_due_at(request):
             tags = None
         
         due_at = Card.objects.next_card_due_at(request.user, deck=deck, tags=tags)
+        due_at = due_at.date().strftime('%B %d, %Y')
         return {'next_card_due_at': due_at}
 
 
