@@ -77,9 +77,10 @@ class Command(BaseCommand):
         recognition_card_template = CardTemplate(name='Recognition', fact_type=japanese_fact_type, front_template_name='', back_template_name='', generate_by_default=True, ordinal=1)
         recognition_card_template.front_prompt = u'What does this expression mean?'
         recognition_card_template.save()
-        front_template_content = '{{{{ fields.{0}.content|linebreaksbr }}}}'.format(expression_field.id)
+        #front_template_content = '{{{{ fields.{0}.content|linebreaksbr }}}}'.format(expression_field.id)
+        front_template_content = '{{% if not fields.{0}.has_identical_transliteration_field %}}{{{{ fields.{0}.content|linebreaksbr }}}}<br>{{% endif %}}{{{{ fields.{1}.content|linebreaksbr }}}}'.format(expression_field.id, reading_field.id)
         front_template_name = u'flashcards/shared/{0}/{1}_front.html'.format(japanese_fact_type.id, recognition_card_template.id)
-        back_template_content = '{{{{ fields.{0}.content|linebreaksbr }}}}<br>{{{{ fields.{1}.content|linebreaksbr }}}}'.format(reading_field.id, meaning_field.id)
+        back_template_content = '{{{{ fields.{0}.content|linebreaksbr }}}}'.format(meaning_field.id)
         back_template_name = u'flashcards/shared/{0}/{1}_back.html'.format(japanese_fact_type.id, recognition_card_template.id)
         tmplt = Template(name=front_template_name, content=self._add_front_prompt(self._wrap_furiganaize_template_tag(front_template_content), recognition_card_template))
         tmplt.save()
@@ -147,7 +148,7 @@ class Command(BaseCommand):
 
 
         kanji_writing_card_template = CardTemplate(name='Kanji Writing', fact_type=japanese_fact_type, front_template_name='', back_template_name='', generate_by_default=False, ordinal=4)
-        kanji_writing_card_template.front_prompt = u'How do you write this using kanji?'
+        kanji_writing_card_template.front_prompt = u'How do you write this in kanji?'
         kanji_writing_card_template.save()
         front_template_content = '{{{{ fields.{0}.strip_ruby_bottom }}}}<br>{{{{ fields.{1}.content|linebreaksbr }}}}'.format(reading_field.id, meaning_field.id)
         front_template_name = u'flashcards/shared/{0}/{1}_front.html'.format(japanese_fact_type.id, kanji_writing_card_template.id)
