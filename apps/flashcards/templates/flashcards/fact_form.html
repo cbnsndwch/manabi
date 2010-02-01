@@ -10,11 +10,11 @@
         <input dojoType="dijit.form.TextBox" 
             name="_method" 
             value="PUT" 
-            type="hidden"></input>
+            type="hidden">
         <input dojoType="dijit.form.TextBox" 
             name="fact-id" 
             value="{{ fact.id }}" 
-            type="hidden"></input>
+            type="hidden">
         <div>
             <div>
                 <strong>Deck:</strong>
@@ -77,11 +77,11 @@
                             name="field_content-{{ forloop.counter0 }}-field_type" 
                             class="cards_fieldContentType" 
                             value="{{ field_type.id }}" 
-                            type="hidden"></input>
+                            type="hidden">
                         <input dojoType="dijit.form.TextBox" 
                             name="field_content-{{ forloop.counter0 }}-id" 
                             value="{{ field_content.id }}" 
-                            type="hidden"></input>
+                            type="hidden">
                     </div>
                 {% endwith %}
             {% endfor %}

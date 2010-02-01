@@ -12,8 +12,8 @@
             <span id="deckInputContainer">
             <input name="fact-deck" jsId="deckInput" 
                 dojoType="dijit.form.Select" tabIndex="49">
-                </input></span>
-            {% comment %}Model: <input name="fact-fact_type" jsId="factTypeInput" dojoType="dojox.form.DropDownSelect"></input>{% endcomment %}
+                </span>
+            {% comment %}Model: <input name="fact-fact_type" jsId="factTypeInput" dojoType="dojox.form.DropDownSelect">{% endcomment %}
         </div>
         <div style="margin-top:7px;margin-bottom:7px;"><strong style="vertical-align:top">Cards:</strong>
             <select multiple="true" dojoType="dojox.form.CheckedMultiSelect" 
@@ -83,7 +83,7 @@
                             name="field_content-{{ forloop.counter0 }}-field_type" 
                             id="id_field_content-{{ forloop.counter0 }}-field_type" 
                             value="{{ field_type.id }}" 
-                            type="hidden"></input>
+                            type="hidden">
                     </div>
                 </div>
             {% endfor %}
