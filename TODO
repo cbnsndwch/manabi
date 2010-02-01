@@ -45,11 +45,7 @@ or maintain a list of the due dates for an entire session or something? idk
 
 hashes for back/forwards
 
-undo suspend,
-
 what to do about undoing the final card in a review? (ui issue)
-
-smart.fm integration (audio first)
 
 dont reset cards completely upon failure
 
@@ -89,14 +85,20 @@ see my 'sansou / mountain cottage card [=yama no bessou]' - kanji from that is u
 so, we need a separate field for synonym! (OR just a notes field, which is only shown in the answer,
 or maybe both a question note field and an answer note field. these could be in the hidden 'extra fields')
 
-allow a language choice field for the user to select for every flashcard added, per field, optionally (like smart.fm)
-or default a 'meaning' field to the user's native language (since it'll either be that, or the same as the card's foreign language)
-or perhaps add a 'monolingual?' kind of bool field
+consolidate fact_add_form and fact_form
 
 
 ---------------------
 TODO (low priority):
 ---------------------
+undo suspend,
+
+smart.fm integration (audio first)
+
+allow a language choice field for the user to select for every flashcard added, per field, optionally (like smart.fm)
+or default a 'meaning' field to the user's native language (since it'll either be that, or the same as the card's foreign language)
+or perhaps add a 'monolingual?' kind of bool field
+
 allow unicode full-width (japanese) [] for transliterations, as well as < > because theyre easier to type in the japanese IME
 
 make english text in cards have a smaller font than japanese text
@@ -122,8 +124,6 @@ among the card funcs.
 show a bonus indicator ala readthekanji.com to boost morale
 
 set deck select width instead of using an auto width (see dojocampus example)
-
-consolidate fact_add_form and fact_form
 
 try using select_related to speed up the orm
 
@@ -351,9 +351,10 @@ http://maxvoltar.com/articles/1-day-with-the-magic-mouse
 
 
 
+http://developer.apple.com/mac/library/documentation/UserExperience/Reference/DictionaryServicesRef/Reference/reference.html
+
 -----------------------
 vim todo:
-shift-enter: insert linebreak below cursor, without moving cursor
 
 -----------------------
 stuff for yoshimura sensei:

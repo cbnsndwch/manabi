@@ -606,7 +606,7 @@ class Card(AbstractCard):
         if self.interval is None:
             #get this card's deck, which has the initial interval durations
             #(initial intervals are configured at the deck level)
-            next_interval = self.fact.deck.schedulingoptions.initial_interval(grade)
+            next_interval = self.fact.deck.schedulingoptions.initial_interval(grade, do_fuzz=do_fuzz)
 
             # Lessen the interval if this card is reviewed shortly after a sibling card
             # (for Early Review)
@@ -631,7 +631,7 @@ class Card(AbstractCard):
             # Treat like a new card since it was failed last review.
             if self.last_review_grade == GRADE_NONE:
                 #TODO treat mature failed cards differently
-                next_interval = self.fact.deck.schedulingoptions.initial_interval(grade, do_fuzz=False)
+                next_interval = self.fact.deck.schedulingoptions.initial_interval(grade, do_fuzz=do_fuzz)
 
                 # Lessen the effect if this card was reviewed successfully very soon after failing
                 if grade > GRADE_NONE:
