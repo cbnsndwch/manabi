@@ -112,20 +112,21 @@ def edit_string_for_tags(tags):
     it will be space-delimited.
     """
     names = []
-    use_commas = False
+    #use_commas = False
     for tag in tags:
         name = tag.name
         if u',' in name:
             names.append('"%s"' % name)
             continue
-        elif u' ' in name:
-            if not use_commas:
-                use_commas = True
+        #elif u' ' in name:
+        #    if not use_commas:
+        #        use_commas = True
         names.append(name)
-    if use_commas:
-        glue = u', '
-    else:
-        glue = u' '
+    import pdb;pdb.set_trace()
+    #if use_commas:
+    glue = u', '
+    #else:
+    #    glue = u' '
     return glue.join(names)
 
 def get_queryset_and_model(queryset_or_model):

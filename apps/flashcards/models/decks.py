@@ -68,6 +68,7 @@ class Textbook(models.Model):
 class AbstractDeck(models.Model):
     name = models.CharField(max_length=100)
     description = models.TextField(max_length=2000, blank=True)
+    owner = models.ForeignKey(User)
 
     textbook_source = models.ForeignKey(Textbook, null=True, blank=True)
 
@@ -75,25 +76,27 @@ class AbstractDeck(models.Model):
 
     priority = models.IntegerField(default=0, blank=True)
 
+    created_at = models.DateTimeField(auto_now_add=True, editable=False)
+    modified_at = models.DateTimeField(auto_now=True, editable=False)
+
     class Meta:
         app_label = 'flashcards'
         abstract = True
 
+    @property
+    def card_count(self):
+        return cards.Card.objects.of_user(self.owner).count()
+
 
 class SharedDeck(AbstractDeck):
-    creator = models.ForeignKey(User)
-
     downloads = models.PositiveIntegerField(default=0, blank=True)
 
-    created_at = models.DateTimeField(auto_now_add=True, editable=False)
-    modified_at = models.DateTimeField(auto_now=True, editable=False)
-    
     def __unicode__(self):
         return self.name
     
     class Meta:
         app_label = 'flashcards'
-        #TODO unique_together = (('creator', 'name'), )
+        #TODO unique_together = (('owner', 'name'), )
 
     #FIXME delete cascading
     
@@ -104,11 +107,6 @@ class Deck(AbstractDeck):
     #manager
     objects = DeckManager()
 
-    owner = models.ForeignKey(User)
-
-    created_at = models.DateTimeField(auto_now_add=True, editable=False)
-    modified_at = models.DateTimeField(auto_now=True, editable=False)
-    
     def __unicode__(self):
         return self.name
     
@@ -123,10 +121,6 @@ class Deck(AbstractDeck):
     @property
     def due_card_count(self):
         return cards.Card.objects.cards_due_count(self.owner, deck=self)
-
-    @property
-    def card_count(self):
-        return cards.Card.objects.of_user(self.owner).count()
 
     def average_ease_factor(self):
         deck_cards = cards.Card.objects.filter(id__in=self.fact_set.all(), active=True, suspended=False)
@@ -204,8 +198,11 @@ def share_deck(deck):
         description=deck.description,
         #TODO implement textbook_source=deck.textbook_source, #TODO picture too
         priority=deck.priority,
-        creator=deck.owner)
+        owner=deck.owner)
     shared_deck.save()
+
+    # Copy the tags
+    shared_deck.tags = usertagging.utils.edit_string_for_tags(deck.tags)
 
     #copy the facts and child facts
     fact_to_shared_fact = {} #maps fact to shared_fact
@@ -234,10 +231,11 @@ def share_deck(deck):
                 fact=shared_fact,
                 field_type=field_content.field_type,
                 content=field_content.content,
+                cached_transliteration_without_markup=field_content.cached_transliteration_without_markup,
                 media_uri=field_content.media_uri,
                 media_file=field_content.media_file)
             shared_field_content.save()
-                                                      
+
         #copy the cards
         for card in fact.card_set.filter(active=True):
             shared_card = cards.SharedCard(
@@ -265,6 +263,9 @@ def download_shared_deck(user, shared_deck):
         priority=shared_deck.priority,
         owner=user)
     deck.save()
+
+    # Copy the tags
+    deck.tags = usertagging.utils.edit_string_for_tags(shared_deck.tags)
 
     #create default deck scheduling options
     scheduling_options = SchedulingOptions(deck=deck)
@@ -297,6 +298,7 @@ def download_shared_deck(user, shared_deck):
                 fact=fact,
                 field_type=shared_field_content.field_type,
                 content=shared_field_content.content,
+                cached_transliteration_without_markup=field_content.cached_transliteration_without_markup,
                 media_uri=shared_field_content.media_uri,
                 media_file=shared_field_content.media_file)
             field_content.save()

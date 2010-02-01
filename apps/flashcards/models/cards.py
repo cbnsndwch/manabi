@@ -192,7 +192,7 @@ class CardManager(models.Manager):
         # in 10 minutes. Special rules.
         #TODO we shouldn't show mature failed cards so soon though!
         card_query = initial_query.filter(last_review_grade=GRADE_NONE, \
-                due_at__gt=review_time).order_by('due_at')
+                due_at__gt=review_time).order_by('due_at') #TODO randomize the order (once we fix the Undo)
         return card_query[:count]
 
 

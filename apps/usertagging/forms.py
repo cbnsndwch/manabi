@@ -32,6 +32,8 @@ class TagField(forms.CharField):
         value = super(TagField, self).clean(value)
         if value == u'':
             return value
+        if '"' in value or '\'' in value:
+            raise forms.ValidationError(_('Tags may not contain quotes.'))
         for tag_name in parse_tag_input(value):
             if len(tag_name) > settings.MAX_TAG_LENGTH:
                 raise forms.ValidationError(
