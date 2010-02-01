@@ -687,33 +687,32 @@ class Card(AbstractCard):
                     # Early review.
                     #FIXME account for early review due to sibling? or is it always going to be spaced anyway, thus affecting due_at
                     #TODO for now assume due_at includes delays for spacing by now - but perhaps delays should be separated from due_at?
-                    if reviewed_at < self.due_at:
-                        # Lessen the interval increase, proportionate to how early it was reviewed.
-                        last_effective_interval = timedelta_to_float(self.due_at - self.last_reviewed_at)
+                    if reviewed_at < self.due_at or is_early_review_due_to_sibling:
+                        if reviewed_at < self.due_at:
+                            # Lessen the interval increase, proportionate to how early it was reviewed.
+                            last_effective_interval = timedelta_to_float(self.due_at - self.last_reviewed_at)
 
-                        percentage_waited = timedelta_to_float(reviewed_at - self.last_reviewed_at) / last_effective_interval
+                            percentage_waited = timedelta_to_float(reviewed_at - self.last_reviewed_at) / last_effective_interval
+                        else:
+                            percentage_waited = 1.0 # to be the 
 
                         # Consider the time since last review to be even less if a sibling card was reviewed more recently.
                         if is_early_review_due_to_sibling:
                             percentage_waited = min(percentage_waited, percentage_waited_for_sibling)
+
+                        #TODO Give penalty for hard grades in an early review, if the last grade was better.
+
                         #print 'percentage waited: ' + str(percentage_waited)
 
                         # If reviewed really early, don't add much to the interval.
                         # If reviewed close to due date, add most of the interval.
-                        #adjusted_interval_increase = (next_interval - current_interval) * ((1 - cos(percentage_early * pi / 1.5)) / 2)
                         adjusted_interval_increase = (next_interval - current_interval) * self._adjustment_curve(percentage_waited)
+
                         #print 'interval increase was going to be: ' + str(next_interval - current_interval)
                         #print 'but was changed to: ' + str(adjusted_interval_increase)
                         next_interval = current_interval + adjusted_interval_increase
                         #print 'current interval is: ' + str(current_interval)
                         #print 'so next interval is: ' + str(next_interval)
-                    # Not early for itself, but a sibling was reviewed too recently.
-                    #TODO refactor
-                    elif is_early_review_due_to_sibling:
-                        #percentage_waited = timedelta_to_float(reviewed_at - last_sibling_review.last_reviewed_at) \
-                        #        / timedelta_to_float(self.due_at - self.last_reviewed_at)
-                        adjusted_interval_increase = (next_interval - current_interval) * self._adjustment_curve(percentage_waited_for_sibling)
-                        next_interval = current_interval + adjusted_interval_increase
 
         if do_fuzz:
             # Fuzz the result. Conservatively favor shorter intervals.

@@ -20,7 +20,7 @@ i think it's the fuzz. look at a 'learn more' delayed sibling card, and rate it,
 
 ensure the next card up is the one that was undone
 
-get deck average EF for new cards
+-get deck average EF for new cards
 
 -don't show 'review early' button if there are no cards that are not new
 
