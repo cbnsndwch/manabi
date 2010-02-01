@@ -16,13 +16,13 @@ SUPER CRITICAL BUGS:
 'learn more' intervals are messed up!!!!!!!!!!!!!
 i think it's the fuzz. look at a 'learn more' delayed sibling card, and rate it, undo, repeat - sometimes it goes descending
 
-count 'at this time tomorrow' is wrong - doesn't take new cards per daily limit into account
+-count 'at this time tomorrow' is wrong - doesn't take new cards per daily limit into account
 
 ensure the next card up is the one that was undone
 
 get deck average EF for new cards
 
-don't show 'review early' button if there are no cards that are not new
+-don't show 'review early' button if there are no cards that are not new
 
 -when not signed in, bugs! (click title) (also, dojo errors)
 

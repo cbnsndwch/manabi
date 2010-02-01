@@ -3,6 +3,7 @@ from django.contrib.auth.models import User
 from django.forms import ModelForm
 from django.forms.util import ErrorList
 from dbtemplates.models import Template
+from django.db.models import Avg
 
 import random
 from django.db import transaction
@@ -128,7 +129,12 @@ class Deck(AbstractDeck):
         return cards.Card.objects.of_user(self.owner).count()
 
     def average_ease_factor(self):
-        return 2.5 #FIXME
+        deck_cards = cards.Card.objects.filter(id__in=self.fact_set.all(), active=True, suspended=False)
+        if deck_cards.count():
+            average_ef = deck_cards.aggregate(average_ease_factor=Avg('ease_factor'))['average_ease_factor']
+            return average_ef
+        else:
+            return 2.5
     
     @transaction.commit_on_success    
     def delete_cascading(self):

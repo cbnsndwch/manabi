@@ -589,7 +589,6 @@ class Card(AbstractCard):
         by the time this is called.
         '''
         #TODO shouldnt be a private function, maybe
-        import pdb;pdb.set_trace()
 
         # Early Review due to siblings.
         is_early_review_due_to_sibling = False
