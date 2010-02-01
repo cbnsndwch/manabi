@@ -382,6 +382,7 @@ reviews._simpleXHRPost = function(url) {
     return def;
 };
 
+
 reviews._simpleXHRValueFetch = function(url, value_name) {
     // value_name is optional
     var def = new dojo.Deferred();
@@ -392,7 +393,7 @@ reviews._simpleXHRValueFetch = function(url, value_name) {
         load: dojo.hitch(null, function(def, data) {
             if (data.success) {
                 if (value_name == undefined) {
-                    def.callback();
+                    def.callback(data);
                 } else {
                     def.callback(data[value_name]);
                 }
@@ -418,8 +419,10 @@ reviews.nextCardDueAt = function() {
     return reviews._simpleXHRValueFetch('/flashcards/rest/cards_for_review/next_due_at', 'next_card_due_at');
 };
 
-reviews.hoursUntilNextCardDue = function() {
-    return reviews._simpleXHRValueFetch('/flashcards/rest/cards_for_review/hours_until_next_due', 'hours_until_next_card_due');
+reviews.timeUntilNextCardDue = function() {
+    return reviews._simpleXHRValueFetch('/flashcards/rest/cards_for_review/hours_until_next_due');
+//    console.log(data);
+//   return {hours: data['hours_until_next_card_due'], minutes: data['minutes_until_next_card_due']};
 };
 
 reviews.countOfCardsDueTomorrow = function() {
@@ -495,6 +498,18 @@ reviews_ui._showNoCardsDue = function() {
     dojo.byId('reviews_reviewEndScreen').style.display = 'none';
 };
 
+
+reviews_ui._humanizedTimeUntil = function(time_until) {
+    if (parseInt(time_until['hours_until_next_card_due']) > 0) {
+        return time_until['hours_until_next_card_due'] + ' hours';
+    } else if (parseInt(time_until['minutes_until_next_card_due']) > 0) {
+        return ['minutes_until_next_card_due'] + ' minutes';
+    } else {
+        return 'under a minute';
+    }
+};
+
+
 reviews_ui.showNoCardsDue = function(can_learn_more, empty_query) {
     reviews_beginReviewButton.attr('disabled', true);
 
@@ -503,15 +518,16 @@ reviews_ui.showNoCardsDue = function(can_learn_more, empty_query) {
         dojo.byId('reviews_emptyQuery').style.display = '';
         reviews_ui._showNoCardsDue();
     } else {
-        reviews.hoursUntilNextCardDue().addCallback(function(hours_until) {
-            if (parseInt(hours_until) > 24) {
+        reviews.timeUntilNextCardDue().addCallback(function(time_until) {
+                console.log(time_until);
+            if (parseInt(time_until['hours']) > 24) {
                 reviews.nextCardDueAt().addCallback(function(next_due_at) {
                     dojo.byId('reviews_noCardsDueNextDueAt').innerHTML = 'The next card is due at: ' + next_due_at;
                     dojo.byId('reviews_noCardsDue').style.display = '';
                     reviews_ui._showNoCardsDue();
                 });
             } else {
-                dojo.byId('reviews_noCardsDueNextDueAt').innerHTML = 'The next card is due in ' + hours_until + ' hours.';
+                dojo.byId('reviews_noCardsDueNextDueAt').innerHTML = 'The next card is due in ' + reviews_ui._humanizedTimeUntil(time_until);
                 dojo.byId('reviews_noCardsDue').style.display = '';
                 reviews_ui._showNoCardsDue();
             }
@@ -574,8 +590,8 @@ reviews_ui.openSessionOverDialog = function(review_count) {
         if (count == 0) {
             // None due by this time tomorrow, so we'll get the time when one
             // is next due.
-            reviews.hoursUntilNextCardDue().addCallback(function(hours_until) {
-                dojo.byId('reviews_sessionOverDialogNextDue').innerHTML = 'The next card is due in ' + hours_until + ' hours.';
+            reviews.timeUntilNextCardDue().addCallback(function(time_until) {
+                dojo.byId('reviews_sessionOverDialogNextDue').innerHTML = 'The next card is due in ' + reviews_ui._humanizedTimeUntil(time_until);
                 dojo.byId('reviews_sessionOverDialogReviewCount').innerHTML = review_count;
                 reviews_sessionOverDialog.show();
             });

@@ -10,7 +10,7 @@ from dojango.decorators import json_response
 from dojango.util import to_dojo_data, json_decode, json_encode
 from django.template import RequestContext, loader
 from django.contrib.auth.decorators import login_required
-
+from django.contrib.humanize.templatetags.humanize import naturalday
 from flashcards.models.decks import download_shared_deck, share_deck
 from flashcards.models.undo import UndoCardReview
 from apps.utils import japanese
@@ -783,7 +783,8 @@ def hours_until_next_card_due(request):
         due_at = Card.objects.next_card_due_at(request.user, deck=deck, tags=tags)
         difference = due_at - datetime.datetime.utcnow()
         hours_from_now = difference.days * 24 + difference.seconds / (60 * 60)
-        return {'hours_until_next_card_due': hours_from_now}
+        minutes_from_now = difference.days * 24 + difference.seconds / 60
+        return {'hours_until_next_card_due': hours_from_now, 'minutes_until_next_card_due': minutes_from_now}
 
 
 @json_response
@@ -816,7 +817,7 @@ def next_card_due_at(request):
             tags = None
         
         due_at = Card.objects.next_card_due_at(request.user, deck=deck, tags=tags)
-        due_at = due_at.date().strftime('%B %d, %Y')
+        due_at = naturalday(due_at.date())
         return {'next_card_due_at': due_at}
 
 

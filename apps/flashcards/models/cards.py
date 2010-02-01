@@ -589,6 +589,7 @@ class Card(AbstractCard):
         by the time this is called.
         '''
         #TODO shouldnt be a private function, maybe
+        import pdb;pdb.set_trace()
 
         # Early Review due to siblings.
         is_early_review_due_to_sibling = False
@@ -631,7 +632,7 @@ class Card(AbstractCard):
             # Treat like a new card since it was failed last review.
             if self.last_review_grade == GRADE_NONE:
                 #TODO treat mature failed cards differently
-                next_interval = self.fact.deck.schedulingoptions.initial_interval(grade)
+                next_interval = self.fact.deck.schedulingoptions.initial_interval(grade, do_fuzz=False)
 
                 # Lessen the effect if this card was reviewed successfully very soon after failing
                 if grade > GRADE_NONE:

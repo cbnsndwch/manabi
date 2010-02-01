@@ -167,7 +167,7 @@ class SchedulingOptions(models.Model):
     def _generate_interval(self, min_duration, max_duration):
         return random.uniform(min_duration, max_duration) #TODO favor (random.triangular) conservatism
 
-    def initial_interval(self, grade):
+    def initial_interval(self, grade, do_fuzz=True):
         '''
         Generates an initial interval duration for a new card that's been reviewed.
         '''
@@ -180,7 +180,10 @@ class SchedulingOptions(models.Model):
         elif grade == cards.GRADE_EASY:
             min, max = self.easy_interval_min, self.easy_interval_max
         
-        return self._generate_interval(min, max)
+        if do_fuzz:
+            return self._generate_interval(min, max)
+        else:
+            return (min + max) / 2.0
 
 
 

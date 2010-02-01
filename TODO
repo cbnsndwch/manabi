@@ -57,8 +57,6 @@ smart.fm integration (audio first)
 
 dont reset cards completely upon failure
 
-allow unicode full-width (japanese) [] for transliterations, as well as < > because theyre easier to type in the japanese IME
-
 'reset scheduling' button for facts editor
 
 help text for keyboard shortcuts
@@ -103,6 +101,8 @@ or perhaps add a 'monolingual?' kind of bool field
 ---------------------
 TODO (low priority):
 ---------------------
+allow unicode full-width (japanese) [] for transliterations, as well as < > because theyre easier to type in the japanese IME
+
 make english text in cards have a smaller font than japanese text
 
 allow a 'new card order' for cards within a fact (like recall before other ones since recall is more important)
