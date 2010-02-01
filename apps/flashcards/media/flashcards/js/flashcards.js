@@ -145,7 +145,7 @@
       });
 
       //destroy any error messages
-      dojo.query('.field_content_error', dojo.byId('#factFields')).empty();
+      dojo.query('.field_content_error', dojo.byId('#factAddFormWrapper')).empty();
 
       //focus the first text field
       dojo.query('textarea', factAddDialog.domNode)[0].focus();
@@ -264,9 +264,18 @@
           if ('content' in errorMsg) {
               dojo.byId('id_field_content-'+idx+'-content-errors').innerHTML = '<font color="red"><em>'+errorMsg.content.join('<br>')+'</em></font>';
           } else {
-              dojo.empty(dojo.byId('id_field_content-'+idx+'-content-errors'));
+              var node_to_empty = dojo.byId('id_field_content-'+idx+'-content-errors');
+              if (node_to_empty) {
+                dojo.empty(node_to_empty);
+              }
           }
       });
+      
+      if (data.errors.fact.length && 'tags' in data.errors.fact[0]) {
+          dojo.byId('fact-tag-errors').innerHTML = '<font color="red"><em>' + data.errors.fact[0].tags.join('<br>') + '</em></font>';
+      } else {
+          dojo.query('#fact-tag-errors').empty();
+      }
       factAddFormSubmitButton.attr('disabled', false);
     }, cardTemplatesInput, factAddForm, null, true);
   }

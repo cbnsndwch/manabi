@@ -22,6 +22,8 @@ ensure the next card up is the one that was undone
 
 gray out the fields while fact submission is in progress (and make sure cmd-enter is disabled then too)
 
+tag errors not shown in fact editor
+
 
 ---------------------
 TODO:
