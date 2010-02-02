@@ -71,6 +71,9 @@
     <div id="body_contents">
         {% block body %}
         <div dojoType="dijit.layout.ContentPane" jsId="body_pane" href="home">
+            <script type="dojo/connect" event="onDownloadEnd">
+                manabi_ui.convertLinksToXhr(body_pane.domNode);            
+            </script>
             {% block body_contents %}
             {% endblock %}
         </div>

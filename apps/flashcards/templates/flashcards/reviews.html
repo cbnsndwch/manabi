@@ -239,7 +239,7 @@
                 </script>
             </button>
         </div>
-        <p>
+        <div>
             <div style="margin-bottom:8px">
                 <strong>Session time limit:</strong> 
                 <input dojoType="dijit.form.NumberSpinner" value="10" smallDelta="1"
@@ -251,14 +251,8 @@
                 <input dojoType="dijit.form.NumberSpinner" value="0" smallDelta="5"
                 constraints="{min:0,max:1000,places:0}"
                 jsId="reviews_cardLimitInput" style="width:80px"> cards <span style="color:gray">(0 = unlimited)</span>
-            </div>{% comment %}
-            <div style="margin-bottom:6px">
-                <strong>New cards per day:</strong>
-                <input dojoType="dijit.form.NumberSpinner" value="20" smallDelta="5"
-                constraints="{min:1,max:500,places:0}"
-                jsId="reviews_newCardLimitInput" style="width:80px"> cards
-            </div>{% endcomment %}
-        </p>
+            </div>
+        </div>
         <br>
     </div>
 

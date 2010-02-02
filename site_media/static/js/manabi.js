@@ -6,12 +6,6 @@ dojo.addOnLoad(function() {
 
     //make all the links ajaxy
     manabi_ui.convertLinksToXhr(dojo.body());
-
-    /*body_pane.onDownloadEnd(function(data) {
-        console.log('1');
-        manabi_ui.convertLinksToXhr(body_pane.domNode);
-        console.log('1');
-    });*/
 });
 
 manabi_ui.xhrLink = function(href) { //, target_pane) {
