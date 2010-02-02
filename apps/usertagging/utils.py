@@ -122,12 +122,11 @@ def edit_string_for_tags(tags):
         #    if not use_commas:
         #        use_commas = True
         names.append(name)
-    import pdb;pdb.set_trace()
     #if use_commas:
-    glue = u', '
+    #glue = u', '
     #else:
     #    glue = u' '
-    return glue.join(names)
+    return u', '.join(names)
 
 def get_queryset_and_model(queryset_or_model):
     """
