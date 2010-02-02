@@ -123,12 +123,12 @@ class Deck(AbstractDeck):
         return cards.Card.objects.cards_due_count(self.owner, deck=self)
 
     def average_ease_factor(self):
-        deck_cards = cards.Card.objects.filter(id__in=self.fact_set.all(), active=True, suspended=False)
+        deck_cards = cards.Card.objects.filter(id__in=self.fact_set.all(), active=True, suspended=False, ease_factor__isnull=False)
         if deck_cards.count():
             average_ef = deck_cards.aggregate(average_ease_factor=Avg('ease_factor'))['average_ease_factor']
-            return average_ef
-        else:
-            return 2.5
+            if average_ef:
+                return average_ef
+        return 2.5
     
     @transaction.commit_on_success    
     def delete_cascading(self):
