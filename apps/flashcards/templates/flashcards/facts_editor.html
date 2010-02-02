@@ -115,6 +115,7 @@
         var item = this.getItem(row_index);
         if (item) {
             var is_suspended = this.store.getValue(item, 'suspended', null);
+            console.log(is_suspended);
             evt.customClasses += (is_suspended ? ' suspended_grid_row' : '');
         }
         //this.focus.styleRow(evt);

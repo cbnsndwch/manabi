@@ -209,7 +209,7 @@ div.reviews_correctGradeButtons {
 
 
 .suspended_grid_row {
-    color:lightgray;
+    text-decoration: line-through;
 }
 
 /* furigana */

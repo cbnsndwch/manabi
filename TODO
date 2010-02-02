@@ -13,8 +13,7 @@ should all those connects be disconnected somehow? particularly in body_pane (do
 
 SUPER CRITICAL BUGS:
 --------------------
-'learn more' intervals are messed up!!!!!!!!!!!!!
-i think it's the fuzz. look at a 'learn more' delayed sibling card, and rate it, undo, repeat - sometimes it goes descending
+suspended cards arent gray in the fact editor
 
 ensure the next card up is the one that was undone
 
@@ -28,6 +27,8 @@ tag errors not shown in fact editor
 ---------------------
 TODO:
 ---------------------
+learning mode (after sentences)
+
 early review spacing
 
 more variance in early review intervals - hard should be more aggressive
@@ -182,6 +183,9 @@ sort facts with case insensitivity
 ---------------------
 BUGS:
 ---------------------
+'learn more' intervals are messed up!!!!!!!!!!!!!
+i think it's the fuzz. look at a 'learn more' delayed sibling card, and rate it, undo, repeat - sometimes it goes descending
+
 unmatched div in home page
 
 dotted outline isnt aligned inside selected buttons
