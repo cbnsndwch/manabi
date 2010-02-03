@@ -261,7 +261,7 @@ def download_shared_deck(user, shared_deck):
         description=shared_deck.description,
         #TODO implement textbook=shared_deck.textbook, #picture too...
         priority=shared_deck.priority,
-        owner_id=user_id)
+        owner_id=user.id)
     deck.save()
 
     # Copy the tags
