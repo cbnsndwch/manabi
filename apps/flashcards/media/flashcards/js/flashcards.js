@@ -458,14 +458,16 @@
                 standby.show();
             }
             dijit.byId(reading_field).attr('disabled', true);        
-            def.addCallback(dojo.hitch(null, function(reading_field, standby, reading) {
-                reading_field.attr('value', reading);
+            def.addCallback(dojo.hitch(null, function(reading_field, expression, standby, reading) {
+                if (reading.trim() != expression.trim()) {
+                    reading_field.attr('value', reading);
+                }
                 if (standby) {
                     standby.hide();
                     standby.destroy();
                 }
                 dijit.byId(reading_field).attr('disabled', false);            
-            }, dijit.byId(reading_field), standby));
+            }, dijit.byId(reading_field), expression, standby));
         } else {
             dijit.byId(reading_field).attr('value', '');
         }
