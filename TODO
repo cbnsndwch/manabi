@@ -13,6 +13,10 @@ should all those connects be disconnected somehow? particularly in body_pane (do
 
 SUPER CRITICAL BUGS:
 --------------------
+NY isnt default timezone
+
+confirmed account page should have link to login
+
 suspended cards arent gray in the fact editor
 
 ensure the next card up is the one that was undone

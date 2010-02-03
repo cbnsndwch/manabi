@@ -170,7 +170,7 @@ class AbstractFieldContent(models.Model):
 
 
 class SharedFieldContent(AbstractFieldContent):
-    fact = models.ForeignKey('SharedFact')
+    fact = models.ForeignKey('SharedFact', db_index=True)
 
     class Meta:
         #TODO unique_together = (('fact', 'field_type'), ) #one field content per field per fact
@@ -178,7 +178,7 @@ class SharedFieldContent(AbstractFieldContent):
     
 
 class FieldContent(AbstractFieldContent):
-    fact = models.ForeignKey('Fact')
+    fact = models.ForeignKey('Fact', db_index=True)
     
     def save(self):
         # If this is a transliteration field,

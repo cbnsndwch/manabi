@@ -68,7 +68,7 @@ class Textbook(models.Model):
 class AbstractDeck(models.Model):
     name = models.CharField(max_length=100)
     description = models.TextField(max_length=2000, blank=True)
-    owner = models.ForeignKey(User)
+    owner = models.ForeignKey(User, db_index=True)
 
     textbook_source = models.ForeignKey(Textbook, null=True, blank=True)
 
@@ -298,7 +298,7 @@ def download_shared_deck(user, shared_deck):
                 fact=fact,
                 field_type=shared_field_content.field_type,
                 content=shared_field_content.content,
-                cached_transliteration_without_markup=field_content.cached_transliteration_without_markup,
+                cached_transliteration_without_markup=shared_field_content.cached_transliteration_without_markup,
                 media_uri=shared_field_content.media_uri,
                 media_file=shared_field_content.media_file)
             field_content.save()

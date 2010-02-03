@@ -84,7 +84,7 @@ class AbstractFact(models.Model):
 
 
 class SharedFact(AbstractFact):
-    deck = models.ForeignKey('SharedDeck', blank=True, null=True)
+    deck = models.ForeignKey('SharedDeck', blank=True, null=True, db_index=True)
     
     #child facts (e.g. example sentences for a Japanese fact)
     parent_fact = models.ForeignKey('self', blank=True, null=True, related_name='child_facts')
@@ -99,7 +99,7 @@ class Fact(AbstractFact):
     #manager
     objects = FactManager()
 
-    deck = models.ForeignKey('Deck', blank=True, null=True)
+    deck = models.ForeignKey('Deck', blank=True, null=True, db_index=True)
 
     #child facts (e.g. example sentences for a Japanese fact)
     parent_fact = models.ForeignKey('self', blank=True, null=True, related_name='child_facts')

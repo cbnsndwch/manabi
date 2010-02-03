@@ -418,8 +418,8 @@ class AbstractCard(models.Model):
     
     leech = models.BooleanField() #TODO add leech handling
     
-    active = models.BooleanField(default=True) #False when the card is removed from the Fact. This way, we can keep card statistics if enabled later
-    suspended = models.BooleanField(default=False) #Not used right now. 'active' is more like a deletion, this is lighter
+    active = models.BooleanField(default=True, db_index=True) #False when the card is removed from the Fact. This way, we can keep card statistics if enabled later
+    suspended = models.BooleanField(default=False, db_index=True) #Not used right now. 'active' is more like a deletion, this is lighter
 
     new_card_ordinal = models.PositiveIntegerField(null=True, blank=True)
 
@@ -429,7 +429,7 @@ class AbstractCard(models.Model):
     
 
 class SharedCard(AbstractCard):
-    fact = models.ForeignKey(SharedFact)
+    fact = models.ForeignKey(SharedFact, db_index=True)
     
     class Meta:
         unique_together = (('fact', 'template'), )
@@ -439,13 +439,13 @@ class SharedCard(AbstractCard):
 class Card(AbstractCard):
     objects = CardManager()
 
-    fact = models.ForeignKey(Fact)
+    fact = models.ForeignKey(Fact, db_index=True)
     
     synchronized_with = models.ForeignKey('self', null=True, blank=True) #for owner cards, part of synchronized decks, not used yet
 
     ease_factor = models.FloatField(null=True, blank=True)
-    interval = models.FloatField(null=True, blank=True) #days
-    due_at = models.DateTimeField(null=True, blank=True) #null means this card is 'new'
+    interval = models.FloatField(null=True, blank=True, db_index=True) #days
+    due_at = models.DateTimeField(null=True, blank=True, db_index=True) #null means this card is 'new'
     
     last_ease_factor = models.FloatField(null=True, blank=True)
     last_interval = models.FloatField(null=True, blank=True)

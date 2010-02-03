@@ -101,7 +101,7 @@ def deck_list(request):
 @login_required
 def deck_update(request, deck_id):
   deck = Deck.objects.get(id=deck_id)
-  if deck.owner.id != request.user.id: #and not request.User.is_staff():
+  if deck.owner_id != request.user.id: #and not request.User.is_staff():
     raise forms.ValidationError('You do not have permission to access this flashcard deck.')
   #return update_object(request, form_class=DeckForm, object_id=deck_id, post_save_redirect='../decks', extra_context={'container_id': 'deckDialog'}, template_object_name='deck')
   if request.method == 'POST':
@@ -121,7 +121,7 @@ def deck_update(request, deck_id):
 @login_required
 def deck_delete(request, deck_id, post_delete_redirect='/flashcards/decks'): #todo: pass post_*_redirect from urls.py
   obj = Deck.objects.get(id=deck_id)
-  if obj.owner.id != request.user.id: #and not request.User.is_staff():
+  if obj.owner_id != request.user.id: #and not request.User.is_staff():
     raise forms.ValidationError('You do not have permission to access this flashcard deck.')
   if request.method == 'POST':
     #don't allow the last deck to be deleted
@@ -182,7 +182,7 @@ def shared_deck_download(request, shared_deck_id, post_download_redirect='/flash
 @login_required
 def deck_share(request, deck_id, post_redirect='/flashcards/shared_decks'): #todo: pass post_*_redirect from urls.py
   obj = Deck.objects.get(id=deck_id)
-  if obj.owner.id != request.user.id: #and not request.User.is_staff():
+  if obj.owner_id != request.user.id: #and not request.User.is_staff():
     raise forms.ValidationError('You do not have permission to access this flashcard deck.')
   if request.method == 'POST':
     share_deck(obj)
@@ -240,13 +240,13 @@ def rest_deck(request, deck_id):
   method = _request_type(request)
   if method == 'DELETE':
     obj = Deck.objects.get(id=deck_id)
-    if obj.owner.id != request.user.id: #and not request.User.is_staff():
+    if obj.owner_id != request.user.id: #and not request.User.is_staff():
       raise forms.ValidationError('You do not have permission to access this flashcard deck.')
     obj.delete()
     #request.user.message_set.create(message=ugettext("The %(verbose_name)s was deleted.") % {"verbose_name": model._meta.verbose_name})
     return {'success':True}
   if method == 'PUT':
-    if Deck.objects.get(id=deck_id).owner.id != request.user.id: #and not request.User.is_staff():
+    if Deck.objects.get(id=deck_id).owner_id != request.user.id: #and not request.User.is_staff():
       raise forms.ValidationError('You do not have permission to access this flashcard deck.')
     #TODO replace update_object to get rid of post_save_redirect, it's useless for ajax
     pass#return update_object(request, form_class=DeckForm, object_id=deck_id, post_save_redirect='/flashcards/decks', extra_context={'container_id': 'deckDialog', 'post_save_redirect': '/flashcards/decks'}, template_object_name='deck')
@@ -384,7 +384,7 @@ def rest_facts(request): #todo:refactor into facts (no???)
             row = {'fact-id': fact.id, 'suspended': all([card.suspended for card in fact.card_set.filter(active=True)])}
             ident, name = '', ''
             for field_content in fact.fieldcontent_set.all():
-              key='id{0}'.format(field_content.field_type.id) #TODO rename to be clearer, like field_id or SOMETHING
+              key='id{0}'.format(field_content.field_type_id) #TODO rename to be clearer, like field_id or SOMETHING
               if not ident:
                 ident = key
               elif not name:
@@ -544,7 +544,7 @@ def _facts_create(request):
   deck_id = request.POST['fact-deck'] #TODO just get this from the form
   
   # make sure the logged-in user owns this deck
-  if Deck.objects.get(id=deck_id).owner.id != request.user.id: #and not request.User.is_staff():
+  if Deck.objects.get(id=deck_id).owner_id != request.user.id: #and not request.User.is_staff():
     ret['success'] = False
     raise forms.ValidationError('You do not have permission to access this flashcard deck.')
 
@@ -679,7 +679,7 @@ def next_cards_for_review(request):
             due_times = dict((grade, due_time) for grade, due_time in due_times.items())
             formatted_cards.append({
                 'id': card.id,
-                'fact_id': card.fact.id,
+                'fact_id': card.fact_id,
                 'front': render_to_string(card.template.front_template_name, card_context),
                 'back': render_to_string(card.template.back_template_name, card_context),
                 'next_due_at_per_grade': due_times
@@ -857,7 +857,7 @@ def rest_card(request, card_id): #todo:refactor into facts (no???)
           due_times[grade] = days
       formatted_card = {
           'id': card.id,
-          'fact_id': card.fact.id,
+          'fact_id': card.fact_id,
           'front': render_to_string(card.template.front_template_name, card_context),
           'back': render_to_string(card.template.back_template_name, card_context),
           'next_due_at_per_grade': due_times
