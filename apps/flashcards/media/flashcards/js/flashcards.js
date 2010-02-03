@@ -133,7 +133,7 @@
               node.value=''; }); //TODO clear via dijit, not dom
 
       //reset multi-choice fields
-      dojo.query('.dijitSelect', dojo.byId('#factFields')).forEach(function(node, index, arr) {
+      dojo.query('.dijitSelect', dojo.byId('factFields')).forEach(function(node, index, arr) {
               var widget = dijit.getEnclosingWidget(node);
               widget.attr('value', 'none');
       });
@@ -145,7 +145,7 @@
       });
 
       //destroy any error messages
-      dojo.query('.field_content_error', dojo.byId('#factAddFormWrapper')).empty();
+      dojo.query('.field_content_error', dojo.byId('factAddFormWrapper')).empty();
 
       //focus the first text field
       dojo.query('textarea', factAddDialog.domNode)[0].focus();

@@ -10,9 +10,13 @@ make card template widget demand at least 1 checkmark at all times (really?)
 should all those connects be disconnected somehow? particularly in body_pane (do they leak memory)
 
 
+database backup plan!!!!!
+
 
 SUPER CRITICAL BUGS:
 --------------------
+dont show duplicate kana in reviews.
+
 NY isnt default timezone
 
 confirmed account page should have link to login
@@ -31,6 +35,8 @@ tag errors not shown in fact editor
 ---------------------
 TODO:
 ---------------------
+natural sorting for deck names (less 2 vs. lesson 10)
+
 learning mode (after sentences)
 
 early review spacing
