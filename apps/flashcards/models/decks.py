@@ -198,7 +198,7 @@ def share_deck(deck):
         description=deck.description,
         #TODO implement textbook_source=deck.textbook_source, #TODO picture too
         priority=deck.priority,
-        owner=deck.owner)
+        owner_id=deck.owner_id)
     shared_deck.save()
 
     # Copy the tags
@@ -218,7 +218,7 @@ def share_deck(deck):
             #regular fact
             shared_fact = SharedFact(
                 deck=shared_deck,
-                fact_type=fact.fact_type,
+                fact_type_id=fact.fact_type_id,
                 active=fact.active, #TODO should it be here?
                 priority=fact.priority,
                 notes=fact.notes)
@@ -229,7 +229,7 @@ def share_deck(deck):
         for field_content in fact.fieldcontent_set.all():
             shared_field_content = SharedFieldContent(
                 fact=shared_fact,
-                field_type=field_content.field_type,
+                field_type_id=field_content.field_type_id,
                 content=field_content.content,
                 cached_transliteration_without_markup=field_content.cached_transliteration_without_markup,
                 media_uri=field_content.media_uri,
@@ -261,7 +261,7 @@ def download_shared_deck(user, shared_deck):
         description=shared_deck.description,
         #TODO implement textbook=shared_deck.textbook, #picture too...
         priority=shared_deck.priority,
-        owner=user)
+        owner_id=user_id)
     deck.save()
 
     # Copy the tags
@@ -285,7 +285,7 @@ def download_shared_deck(user, shared_deck):
             #regular fact
             fact = Fact(
                 deck=deck,
-                fact_type=shared_fact.fact_type,
+                fact_type_is=shared_fact.fact_type_id,
                 active=shared_fact.active, #TODO should it be here?
                 priority=shared_fact.priority,
                 notes=shared_fact.notes)
@@ -296,7 +296,7 @@ def download_shared_deck(user, shared_deck):
         for shared_field_content in shared_fact.sharedfieldcontent_set.all():
             field_content = FieldContent(
                 fact=fact,
-                field_type=shared_field_content.field_type,
+                field_type_id=shared_field_content.field_type_id,
                 content=shared_field_content.content,
                 cached_transliteration_without_markup=shared_field_content.cached_transliteration_without_markup,
                 media_uri=shared_field_content.media_uri,
@@ -307,7 +307,7 @@ def download_shared_deck(user, shared_deck):
         for shared_card in shared_fact.sharedcard_set.filter(active=True):
             card = cards.Card(
                 fact=fact,
-                template=shared_card.template,
+                template_id=shared_card.template_id,
                 priority=shared_card.priority,
                 leech=shared_card.leech,
                 active=True,# shared_card.active,
