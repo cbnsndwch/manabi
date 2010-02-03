@@ -129,7 +129,7 @@
   
   function resetFactAddForm() {
       //factAddForm.reset(); //don't reset everything... just the field contents
-      dojo.query('textarea, input[name=fact-tags]',factAddDialog.domNode).forEach(function(node, index, arr){
+      dojo.query('textarea',factAddDialog.domNode).forEach(function(node, index, arr){
               node.value=''; }); //TODO clear via dijit, not dom
 
       //reset multi-choice fields
