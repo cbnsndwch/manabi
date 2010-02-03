@@ -186,8 +186,6 @@ div.reviews_correctGradeButtons {
 .fakeLink {
     text-decoration: underline;
     color: blue;
-}
-.fakeLink:hover {
     cursor: pointer;
 }
 
