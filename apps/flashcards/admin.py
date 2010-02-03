@@ -1,4 +1,4 @@
-from flashcards.models import Deck, FactType, Fact, CardTemplate, FieldType, Card, FieldContent, SchedulingOptions
+from flashcards.models import Deck, FactType, Fact, CardTemplate, FieldType, Card, FieldContent, SchedulingOptions, SharedDeck, ReviewStatistics, CardHistory
 from django.contrib import admin
 
 
