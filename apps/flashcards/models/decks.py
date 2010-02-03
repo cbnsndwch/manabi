@@ -285,7 +285,7 @@ def download_shared_deck(user, shared_deck):
             #regular fact
             fact = Fact(
                 deck=deck,
-                fact_type_is=shared_fact.fact_type_id,
+                fact_type_id=shared_fact.fact_type_id,
                 active=shared_fact.active, #TODO should it be here?
                 priority=shared_fact.priority,
                 notes=shared_fact.notes)
