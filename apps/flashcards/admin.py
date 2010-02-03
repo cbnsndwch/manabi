@@ -13,6 +13,8 @@ class FieldTypeAdmin(admin.ModelAdmin):
     exclude = ('choices',)
 
 admin.site.register(Deck)
+admin.site.register(SharedDeck)
+admin.site.register(CardHistory)
 admin.site.register(FactType, FactTypeAdmin)
 admin.site.register(Fact)
 admin.site.register(CardTemplate)
