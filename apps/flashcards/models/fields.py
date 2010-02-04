@@ -190,6 +190,7 @@ class FieldContent(AbstractFieldContent):
     class Meta:
         #TODO unique_together = (('fact', 'field_type'), ) #one field content per field per fact
         app_label = 'flashcards'
+        order_with_respect_to = 'field_type'
 
 
 
