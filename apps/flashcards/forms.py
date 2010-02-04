@@ -91,7 +91,6 @@ class FieldContentForm(ModelForm):
         elif field_type: #TODO why check if field_type?
             if content.strip(): #if it's blank, don't bother checking if it's unique
                 if unique: #TODO can a field be blank and unique? probably yes, since blank is like null
-                    import pdb;pdb.set_trace()
                     #dirty hack to get this deck's owner
                     other_field_contents = FieldContent.objects.filter(field_type=field_type, content__exact=content)
                     if cleaned_data.get('id'): #exclude the existing field content if this is an update
