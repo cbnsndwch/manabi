@@ -104,7 +104,7 @@ class FieldContentForm(ModelForm):
                         owner = Deck.objects.get(id=self.data['fact-deck'])
                     other_field_contents = other_field_contents.filter(fact__deck__owner=owner)
                     if other_field_contents.count() > 0:
-                        msg = u'This field must be unique for all facts.'+str([e.id for e in other_field_contents])
+                        msg = u'This field must be unique for all facts.'+str([e.id for e in other_field_contents])+str(content)
                         error_list.append(msg)
                         if 'content' in cleaned_data:
                             del cleaned_data['content']
