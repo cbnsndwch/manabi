@@ -98,9 +98,6 @@ class FieldContentForm(ModelForm):
                         other_field_contents = other_field_contents.exclude(id=cleaned_data.get('id').id)
                         owner = cleaned_data.get('id').fact.deck.owner #get('id') returns this FieldContent model instance, strangely enough
                     else:
-                        #FIXME temp hack fix for issue where HAI wasn't unique
-                        if self.initial.get('id'):
-                            other_field_contents = other_field_contents.exclude(id=self.initial.get('id'))
                         owner = Deck.objects.get(id=self.data['fact-deck'])
                     other_field_contents = other_field_contents.filter(fact__deck__owner=owner)
                     if other_field_contents.count() > 0:
