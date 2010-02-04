@@ -78,6 +78,12 @@ class AbstractFact(models.Model):
     created_at = models.DateTimeField(auto_now_add=True, editable=False)
     modified_at = models.DateTimeField(auto_now=True, editable=False)
 
+    @property
+    def ordered_fieldcontent_set(self):
+        #field_types = self.fact_type.fieldtype_set.all()
+        return self.fieldcontent_set.all().order_by('field_type__ordinal')
+        
+
     class Meta:
         app_label = 'flashcards'
         abstract = True

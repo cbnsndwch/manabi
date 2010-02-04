@@ -40,7 +40,7 @@
             </div>
         </div>
         <div class="cards_factFields">
-            {% for field_content in fact.fieldcontent_set.all %}
+            {% for field_content in fact.ordered_fieldcontent_set.all %}
                 <br>
                 {% with field_content.field_type as field_type %}
                     <div>

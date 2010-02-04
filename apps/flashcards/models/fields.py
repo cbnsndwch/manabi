@@ -84,13 +84,13 @@ class FieldType(models.Model):
     def choices_as_tuple(self, value):
         self.choices = pickle.dumps(value)
 
+
     def __unicode__(self):
         return self.fact_type.name + ': ' + self.name
     
     class Meta:
         unique_together = (('name', 'fact_type'), ('ordinal', 'fact_type'), )
         app_label = 'flashcards'
-        ordering = ('ordinal',)
 
 
 class AbstractFieldContent(models.Model):
@@ -168,7 +168,6 @@ class AbstractFieldContent(models.Model):
     class Meta:
         app_label = 'flashcards'
         abstract = True
-        order_with_respect_to = 'field_type'
 
 
 class SharedFieldContent(AbstractFieldContent):
