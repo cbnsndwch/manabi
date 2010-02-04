@@ -92,14 +92,14 @@ class FieldContentForm(ModelForm):
             if content.strip(): #if it's blank, don't bother checking if it's unique
                 if unique: #TODO can a field be blank and unique? probably yes, since blank is like null
                     #dirty hack to get this deck's owner
-                    other_field_contents = FieldContent.objects.filter(field_type=field_type, content__exact=content)
+                    other_field_contents = FieldContent.objects.filter(field_type=field_type, content__exact=content, fact__deck=self.data['fact-deck'])
                     if cleaned_data.get('id'): #exclude the existing field content if this is an update
                         #this is an update form (the FieldContent object already exists)
                         other_field_contents = other_field_contents.exclude(id=cleaned_data.get('id').id)
-                        owner = cleaned_data.get('id').fact.deck.owner #get('id') returns this FieldContent model instance, strangely enough
-                    else:
-                        owner = Deck.objects.get(id=self.data['fact-deck'])
-                    other_field_contents = other_field_contents.filter(fact__deck__owner=owner)
+                        #owner = cleaned_data.get('id').fact.deck.owner #get('id') returns this FieldContent model instance, strangely enough
+                    #else:
+                    #    owner = Deck.objects.get(id=self.data['fact-deck']).owner
+                    #other_field_contents = other_field_contents.filter(fact__deck__owner=owner)
                     if other_field_contents.count() > 0:
                         msg = u'This field must be unique for all facts.'
                         error_list.append(msg)
