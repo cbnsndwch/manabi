@@ -90,6 +90,7 @@ class FieldType(models.Model):
     class Meta:
         unique_together = (('name', 'fact_type'), ('ordinal', 'fact_type'), )
         app_label = 'flashcards'
+        ordering = ('ordinal',)
 
 
 class AbstractFieldContent(models.Model):
@@ -167,6 +168,7 @@ class AbstractFieldContent(models.Model):
     class Meta:
         app_label = 'flashcards'
         abstract = True
+        order_with_respect_to = 'field_type'
 
 
 class SharedFieldContent(AbstractFieldContent):
@@ -190,7 +192,6 @@ class FieldContent(AbstractFieldContent):
     class Meta:
         #TODO unique_together = (('fact', 'field_type'), ) #one field content per field per fact
         app_label = 'flashcards'
-        order_with_respect_to = 'field_type'
 
 
 
