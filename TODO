@@ -15,7 +15,11 @@ database backup plan!!!!!
 
 SUPER CRITICAL BUGS:
 --------------------
-dont show duplicate kana in reviews.
+early review cut short
+
+change email on page to manabi.org@gmail.com
+
+-dont show duplicate kana in reviews. (same word in reading)
 
 NY isnt default timezone
 
@@ -31,13 +35,22 @@ gray out the fields while fact submission is in progress (and make sure cmd-ente
 
 tag errors not shown in fact editor
 
+nobiuki suji
+
 
 ---------------------
 TODO:
 ---------------------
+delete unused tags
+
+dont save empty fieldcontents
+
+immediately remove row from grid after delete without waiting for POST response (facts editor)
+
 natural sorting for deck names (less 2 vs. lesson 10)
 
 learning mode (after sentences)
+dont count 'already known cards' (new cards answered as such) toward the 'new count per day' quota
 
 early review spacing
 

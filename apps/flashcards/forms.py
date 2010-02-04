@@ -91,6 +91,7 @@ class FieldContentForm(ModelForm):
         elif field_type: #TODO why check if field_type?
             if content.strip(): #if it's blank, don't bother checking if it's unique
                 if unique: #TODO can a field be blank and unique? probably yes, since blank is like null
+                    import pdb;pdb.set_trace()
                     #dirty hack to get this deck's owner
                     other_field_contents = FieldContent.objects.filter(field_type=field_type, content__exact=content)
                     if cleaned_data.get('id'): #exclude the existing field content if this is an update
@@ -98,6 +99,9 @@ class FieldContentForm(ModelForm):
                         other_field_contents = other_field_contents.exclude(id=cleaned_data.get('id').id)
                         owner = cleaned_data.get('id').fact.deck.owner #get('id') returns this FieldContent model instance, strangely enough
                     else:
+                        #FIXME temp hack fix for issue where HAI wasn't unique
+                        if self.initial.get('id'):
+                            other_field_contents = other_field_contents.exclude(id=self.initial.get('id'))
                         owner = Deck.objects.get(id=self.data['fact-deck'])
                     other_field_contents = other_field_contents.filter(fact__deck__owner=owner)
                     if other_field_contents.count() > 0:
