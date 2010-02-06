@@ -5,12 +5,11 @@ manabi notes
 -----------
 resize grid when window is resized!!! otherwise scrollbars get lost
 
-make card template widget demand at least 1 checkmark at all times (really?)
-
 should all those connects be disconnected somehow? particularly in body_pane (do they leak memory)
 
 
 database backup plan!!!!!
+
 
 
 SUPER CRITICAL BUGS:
@@ -22,10 +21,6 @@ change email on page to manabi.org@gmail.com
 -dont show duplicate kana in reviews. (same word in reading)
 
 NY isnt default timezone
-
-confirmed account page should have link to login
-
-suspended cards arent gray in the fact editor
 
 ensure the next card up is the one that was undone
 
@@ -39,16 +34,17 @@ nobiuki suji
 
 make field uniqueness per-deck
 
+
 ---------------------
 TODO:
 ---------------------
+confirmed account page should have link to login
+
 delete unused tags
 
 dont save empty fieldcontents
 
 immediately remove row from grid after delete without waiting for POST response (facts editor)
-
-natural sorting for deck names (less 2 vs. lesson 10)
 
 learning mode (after sentences)
 dont count 'already known cards' (new cards answered as such) toward the 'new count per day' quota
@@ -70,8 +66,6 @@ or maintain a list of the due dates for an entire session or something? idk
 
 hashes for back/forwards
 
-what to do about undoing the final card in a review? (ui issue)
-
 dont reset cards completely upon failure
 
 'reset scheduling' button for facts editor
@@ -84,9 +78,6 @@ more detailed card review history stats
 
 wait until deck stats are downloaded before opening the review dialog,
 so we can make sure the user selects a deck with due cards, etc.
-
-delay before the first time we focus the Show Back button, to avoid accidentally
-hitting enter twice in the study options dialog.
 
 put the card grade buttons on the bottom of the screen
 
@@ -116,7 +107,21 @@ consolidate fact_add_form and fact_form
 ---------------------
 TODO (low priority):
 ---------------------
+make card template widget demand at least 1 checkmark at all times (really?)
+
+natural sorting for deck names (less 2 vs. lesson 10)
+
+what to do about undoing the final card in a review? (ui issue)
+
+delay before the first time we focus the Show Back button, to avoid accidentally
+hitting enter twice in the study options dialog.
+
+kanji stories (finally, a unified database is possible...)
+also radical meaning lookup
+
 undo suspend,
+
+more undo levels
 
 smart.fm integration (audio first)
 
@@ -207,6 +212,8 @@ sort facts with case insensitivity
 ---------------------
 BUGS:
 ---------------------
+suspended cards arent gray in the fact editor
+
 'learn more' intervals are messed up!!!!!!!!!!!!!
 i think it's the fuzz. look at a 'learn more' delayed sibling card, and rate it, undo, repeat - sometimes it goes descending
 
@@ -338,6 +345,9 @@ and it's reviewed on time.
 due date fuzz, dependent on interval
 overlapping date ranges for ordering... prioritize somehow. maybe based on 
 which side they overlap on. and taking interval into account.
+
+cards with similar intervals & due dates should have their order randomized a bit,
+to avoid clustering after a week etc.
 
 
 ------------
