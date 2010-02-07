@@ -12,15 +12,13 @@
                 '/flashcards/decks/create',
             {% endif %}
             dojo.byId('deckForm'), 
-            '{{ post_save_redirect }}');
+            null/*'{{ post_save_redirect }}'*/);
         def.addCallback(function() {
             manabi_ui.refreshDeckInput();
         });
 	</script>
 
-    <p>
-	{{ form.as_table }}
-    </p>
+	{{ form.as_p }}
 
 	<button dojoType="dijit.form.Button" type="submit">Ok</button>
 	<button dojoType="dijit.form.Button" jsId="deckDeleteCancelButton">

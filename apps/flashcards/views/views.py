@@ -151,13 +151,13 @@ def deck_create(request, post_save_redirect='/flashcards/decks'):
       scheduling_options = SchedulingOptions(deck=new_deck)
       scheduling_options.save()
       #request.user.message_set.create(message=ugettext("The %(verbose_name)s was created successfully.") % {"verbose_name": model._meta.verbose_name})
-      return HttpResponse(json_encode({'success':True}), mimetype='text/javascript')#HttpResponseRedirect(post_save_redirect)
+      return HttpResponse(json_encode({'success': True, 'post_redirect': new_deck.get_absolute_url()}), mimetype='text/javascript')#HttpResponseRedirect(post_save_redirect)
     else:
-      return HttpResponse(json_encode({'success':False}), mimetype='text/javascript')
+      #FIXME post_redirect for failure? handle in ajax?
+      return HttpResponse(json_encode({'success': False}), mimetype='text/javascript')
   else:
     deck_form = DeckForm()
   return render_to_response('flashcards/deck_form.html', {'form': deck_form,
-                                                          'container_id': 'deckDialog',
                                                           'post_save_redirect': post_save_redirect}) #todo:post/pre redirs
 
 

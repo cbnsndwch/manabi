@@ -79,9 +79,6 @@ class AbstractDeck(models.Model):
     created_at = models.DateTimeField(auto_now_add=True, editable=False)
     modified_at = models.DateTimeField(auto_now=True, editable=False)
 
-    def get_absolute_url(self):
-        return '/flashcards/decks/{0}'.format(self.id)
-    
 
     class Meta:
         app_label = 'flashcards'
@@ -102,6 +99,9 @@ class SharedDeck(AbstractDeck):
         app_label = 'flashcards'
         #TODO unique_together = (('owner', 'name'), )
 
+    def get_absolute_url(self):
+        return '/flashcards/shared_decks/{0}'.format(self.id)
+    
     #FIXME delete cascading
     
 usertagging.register(SharedDeck)
@@ -117,6 +117,9 @@ class Deck(AbstractDeck):
     class Meta:
         app_label = 'flashcards'
         #TODO unique_together = (('owner', 'name'), )
+    
+    def get_absolute_url(self):
+        return '/flashcards/decks/{0}'.format(self.id)
     
 
     @property
