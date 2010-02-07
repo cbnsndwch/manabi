@@ -79,6 +79,10 @@ class AbstractDeck(models.Model):
     created_at = models.DateTimeField(auto_now_add=True, editable=False)
     modified_at = models.DateTimeField(auto_now=True, editable=False)
 
+    def get_absolute_url(self):
+        return '/flashcards/decks/{0}'.format(self.id)
+    
+
     class Meta:
         app_label = 'flashcards'
         abstract = True
@@ -114,6 +118,7 @@ class Deck(AbstractDeck):
         app_label = 'flashcards'
         #TODO unique_together = (('owner', 'name'), )
     
+
     @property
     def new_card_count(self):
         return cards.Card.objects.cards_new_count(self.owner, deck=self)
@@ -249,6 +254,7 @@ def share_deck(deck):
             shared_card.save()
 
     #done!
+    return shared_deck
 
 
 @transaction.commit_on_success    
@@ -316,4 +322,5 @@ def download_shared_deck(user, shared_deck):
             card.save()
 
     #done!
+    return deck
 

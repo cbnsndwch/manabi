@@ -1,0 +1,11 @@
+{% load xhrlinks %}
+
+<h1>Add Decks</h1>
+{% for shared_deck in shared_deck_list %}
+    <a href="/flashcards/shared_decks/{{ shared_deck.id }}" class="xhr_link">{{ shared_deck.name }}</a><br>
+{% endfor %}
+
+<p>
+    <h3><a href="/flashcards/decks/create" class="xhr_link">Create New Deck</a></h3>
+</p>
+

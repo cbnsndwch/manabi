@@ -2,13 +2,27 @@ import os
 
 from django.conf.urls.defaults import *
 from django.conf import settings
-
+from flashcards.models import SharedDeck, Deck
 from django.views.generic.simple import direct_to_template
+from django.views.generic.list_detail import object_list, object_detail
 
-from django.views.generic.list_detail import object_list
+shared_decks_dict = {
+    'queryset': SharedDeck.objects.all(),
+    'template_object_name': 'shared_deck'
+}
+decks_dict = {
+    'queryset': Deck.objects.all(),
+    'template_object_name': 'deck'
+}
 
 urlpatterns = patterns('flashcards',
     #TODO named URIs
+
+    # New layout URIs
+    (r'^add$', 'views.add_decks'),
+    (r'^shared_decks/(?P<object_id>\d+)$', object_detail, shared_decks_dict),
+    (r'^decks/(?P<object_id>\d+)$', object_detail, decks_dict),
+
     #(r'^$', 'views.index'),
     (r'^decks$', 'views.deck_list'),
     #(r'^decks/(\w+)', 'views.deck_show')
@@ -65,6 +79,7 @@ urlpatterns = patterns('flashcards',
 
     #url(r'^$', direct_to_template, {"template": "flashcards/base.html"}, name="flashcards"),
 )
+
 
 #if settings.DEBUG:
 #    # serving the media files for dojango / dojo (js/css/...)

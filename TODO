@@ -38,6 +38,8 @@ make field uniqueness per-deck
 ---------------------
 TODO:
 ---------------------
+don't allow viewing a deck which you don't own
+
 confirmed account page should have link to login
 
 delete unused tags

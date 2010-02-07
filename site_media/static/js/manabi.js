@@ -1,6 +1,7 @@
 
 manabi_ui = {}
 
+
 dojo.addOnLoad(function() {
     manabi_ui.body_pane = body_pane; //dijit.byId('body_pane');
 
@@ -8,12 +9,50 @@ dojo.addOnLoad(function() {
     manabi_ui.convertLinksToXhr(dojo.body());
 });
 
+
+// history support (via hash change)
+if (document.URL.indexOf('#') != -1) {
+    manabi_ui._baseURL = document.URL.substring(0, document.URL.indexOf('#'));
+} else {
+    manabi_ui._baseURL = document.URL;
+}
+
+manabi_ui.onHashChange = function(hash) {
+    if (!hash) {
+        manabi_ui._xhrLinkLoad('/home');
+    } else if (manabi_ui._currentPageHash != hash) {
+        // load the page given in the hash
+        manabi_ui._xhrLinkLoad(hash);
+    }
+};
+
+dojo.ready(function() {
+    dojo.subscribe("/dojo/hashchange", manabi_ui.onHashChange);
+    var hash = dojo.hash();
+    console.log(hash);
+    if (hash) {
+        manabi_ui._xhrLinkLoad(hash);
+    } else {
+        manabi_ui._xhrLinkLoad('/home');
+    }
+});
+
+
+
+
+manabi_ui._xhrLinkLoad = function(hash) {
+    manabi_ui._currentPageHash = hash;
+    // load the page
+    var target_pane = manabi_ui.body_pane;
+    target_pane.attr('href', hash);
+};
+
 manabi_ui.xhrLink = function(href) { //, target_pane) {
-    //TODO support other target panes
-    target_pane = manabi_ui.body_pane;
+    // set the URL hash for browser history
+    var hash = '/' + href.replace(manabi_ui._baseURL, '');
+    dojo.hash(hash);
 
-    target_pane.attr('href', href);
-
+    manabi_ui._xhrLinkLoad(hash);
     //TODO scroll to top when page loads?
     //TODO error page too (onDownloadError)
 }
@@ -28,15 +67,24 @@ manabi_ui.xhrLink = function(href) { //, target_pane) {
 
 
 manabi_ui.xhrPost = function(url, form, post_redirect_url) {
+    if (form == undefined) { form = null; }
+    if (post_redirect_url == undefined) { post_redirect_url = null; }
+
     manabi_standby.show();
 
     var xhr_args = {
         'url': url,
         form: form,
-        handleAs: 'text',
-        load: dojo.hitch(null, function(data) {
-                             manabi_ui.xhrLink(post_redirect_url)
-                         }, post_redirect_url),
+        handleAs: 'json',
+        load: dojo.hitch(null, function(url, data) {
+            if ('post_redirect' in data) {
+                manabi_ui.xhrLink(data.post_redirect);
+            } else {
+                if (post_redirect_url) {
+                    manabi_ui.xhrLink(post_redirect_url);
+                }
+            }
+        }, post_redirect_url),
         error: function(error) {
             alert('Error: '+error);
         }
@@ -119,4 +167,7 @@ if(typeof(String.prototype.trim) === "undefined")
         return String(this).replace(/^\s+|\s+$/g, '');
     };
 }
+
+
+
 

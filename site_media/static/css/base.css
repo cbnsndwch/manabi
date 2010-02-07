@@ -45,10 +45,10 @@ h1, h2, h3 {
 }
 #footer {
     color: #999; /* footer text colour */
-    margin: 50px auto;
+    /*margin: 50px auto;*/
     padding: 10px;
     clear: both;
-    width: 800px;
+    /*width: 800px;*/
 }
 #footer a, #footer a:visited {
     color: #444; /* footer link colour */
@@ -89,8 +89,10 @@ h1, h2, h3 {
 /* HEADER */
 
 #tabhead {
-    background: #035 url('../images/heading.png') left top repeat-x;
-    border-bottom: 1px solid #000; /* tab border */
+/*    background: #003344 #035 url('../images/heading.png') left top
+ *    repeat-x;*/
+    background-color: #003344;
+    /*border-bottom: 1px solid #000;*/ /* tab border */
     position: relative;
     padding: 4px 0px;
 }
@@ -123,12 +125,12 @@ h1, h2, h3 {
 #subnav {
     margin: 0;
     padding: 0;
-    background: #DEF; /* tab colour */
-    border-bottom: 1px solid #9BC;
+    background: #36606D /*#DEF*/; /* tab colour */
+    border-bottom: 0px solid #003344;
 }
 #subnav ul {
-    float: right;
-    margin: 0 20px;
+    float: left;
+    margin: 0;
     padding: 0;
 }
 #subnav ul li {
@@ -137,9 +139,9 @@ h1, h2, h3 {
 }
 #subnav ul a:link, #subnav ul a:visited {
     float: left;
-    font-weight: bold;
+    font-size: 1.3em;
     text-decoration: none;
-    color: #444;
+    color: #FFF;
     padding: 4px 20px;
 }
 #subnav ul a:hover {

@@ -30,6 +30,7 @@
   dojo.require("dijit.Tooltip");
   dojo.require("dojox.timing");
   dojo.require("dojox.widget.Dialog");
+  dojo.require("dojo.hash");
   
   
 

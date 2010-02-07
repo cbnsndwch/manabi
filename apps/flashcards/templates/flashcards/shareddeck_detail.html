@@ -1,0 +1,18 @@
+
+<h1>{{ shared_deck.name }}</h1>
+Created by: {{ shared_deck.owner.username }}
+
+<p>{{ shared_deck.description }}</p>
+
+<button dojoType="dijit.form.Button">
+    Add to My Decks
+	<script type="dojo/connect" event="onClick" args="evt">
+        var def = manabi_ui.xhrPost(
+            '/flashcards/shared_decks/{{ shared_deck.id }}/download',
+            null);
+        def.addCallback(function() {
+            manabi_ui.refreshDeckInput();
+        });
+	</script>
+</button>
+
