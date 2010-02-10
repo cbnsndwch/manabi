@@ -441,7 +441,7 @@ class Card(AbstractCard):
 
     fact = models.ForeignKey(Fact, db_index=True)
     
-    synchronized_with = models.ForeignKey('self', null=True, blank=True) #for owner cards, part of synchronized decks, not used yet
+    #synchronized_with = models.ForeignKey('self', null=True, blank=True) #for owner cards, part of synchronized decks, not used yet
 
     ease_factor = models.FloatField(null=True, blank=True)
     interval = models.FloatField(null=True, blank=True, db_index=True) #days
@@ -481,6 +481,40 @@ class Card(AbstractCard):
     @property
     def owner(self):
         return self.fact.deck.owner
+
+    
+    def _render(self, template_name):
+        card_context = {'fields': self.fact.field_contents}
+        return render_to_string(template_name, card_context)
+
+
+    def render_front(self):
+        '''Returns a string of the rendered card front.
+        '''
+        return self._render(self.template.front_template_name)
+
+
+    def render_back(self):
+        '''Returns a string of the rendered card back.
+        '''
+        return self._render(self.template.back_template_name)
+
+
+    def due_at_per_grade(self, reviewed_at=None):
+        if not reviewed_at:
+            reviewed_at = datetime.datetime.utcnow()
+        due_times = {}
+        for grade in [GRADE_NONE, GRADE_HARD, GRADE_GOOD, GRADE_EASY,]:
+            # Disable fuzzing so that lower grades won't have later due times than higher grades
+            # (although this can happen in practice, only due to this fuzzing).
+            # It also makes grades appear more consistent.
+            due_at = self._next_due_at(grade, reviewed_at, self._next_interval(grade, self._next_ease_factor(grade, reviewed_at), reviewed_at, do_fuzz=False))
+            duration = due_at - reviewed_at
+            days = duration.days + (duration.seconds / 86400.0)
+            days = format(round(days, 4), '.4f')
+            due_times[grade] = days
+        due_times = dict((grade, due_time) for grade, due_time in due_times.items())
+        return due_times
 
 
     def siblings(self):

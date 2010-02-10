@@ -18,9 +18,9 @@ import usertagging
 
 
 class DeckManager(models.Manager):
-    @property
-    def card_count(self):
-        return cards.Card.objects.of_user(self.owner).count()
+    #@property
+    #def card_count(self):
+    #    return cards.Card.objects.of_user(self.owner).count()
 
     def values_of_all_with_stats_and_totals(self, user, fields=None):
         '''
@@ -89,6 +89,7 @@ class AbstractDeck(models.Model):
 
 
 class SharedDeck(AbstractDeck):
+    '''This is legacy for now. Deprecated. Just used for copying decks.'''
     downloads = models.PositiveIntegerField(default=0, blank=True)
 
     def __unicode__(self):
@@ -110,6 +111,12 @@ class Deck(AbstractDeck):
     #manager
     objects = DeckManager()
 
+    # whether this is a publicly shared deck
+    shared = models.BooleanField(default=False, blank=True)
+    # or if not, whether it's synchronized with a shared deck
+    synchronized_with = models.ForeignKey('self', null=True, blank=True)
+
+
     def __unicode__(self):
         return self.name
     
@@ -123,10 +130,15 @@ class Deck(AbstractDeck):
 
     @property
     def card_count(self):
-        return cards.Card.objects.filter(fact__deck=self).count()
+        if self.synchronized_with:
+            deck = self.synchronized_with
+        else:
+            deck = self
+        return cards.Card.objects.filter(fact__deck=deck).count()
 
     @property
     def new_card_count(self):
+        #FIXME do for sync'd decks
         return cards.Card.objects.cards_new_count(self.owner, deck=self)
 
     @property
@@ -143,6 +155,7 @@ class Deck(AbstractDeck):
     
     @transaction.commit_on_success    
     def delete_cascading(self):
+        #FIXME if this is a shared/synced deck
         for fact in self.fact_set.all():
             for card in fact.card_set.all():
                 card.delete()
@@ -199,8 +212,77 @@ class SchedulingOptions(models.Model):
 
 
 
+
+
+
 @transaction.commit_on_success    
 def share_deck(deck):
+    ''''''
+    
+    #copy the deck
+    shared_deck = SharedDeck(
+        name=deck.name,
+        description=deck.description,
+        #TODO implement textbook_source=deck.textbook_source, #TODO picture too
+        priority=deck.priority,
+        owner_id=deck.owner_id)
+    shared_deck.save()
+
+    # Copy the tags
+    shared_deck.tags = usertagging.utils.edit_string_for_tags(deck.tags)
+
+    #copy the facts and child facts
+    fact_to_shared_fact = {} #maps fact to shared_fact
+    for fact in chain(deck.fact_set.all(), Fact.objects.filter(parent_fact__deck=deck)):
+        if fact.parent_fact:
+            #child fact
+            shared_fact = SharedFact(
+                fact_type=fact.fact_type,
+                active=fact.active) #TODO should it be here?
+            shared_fact.save()
+            shared_fact.parent_fact = fact_to_shared_fact[fact.parent_fact]
+        else:
+            #regular fact
+            shared_fact = SharedFact(
+                deck=shared_deck,
+                fact_type_id=fact.fact_type_id,
+                active=fact.active, #TODO should it be here?
+                priority=fact.priority,
+                notes=fact.notes)
+            shared_fact.save()
+            fact_to_shared_fact[fact] = shared_fact
+
+        #copy the field contents for this fact
+        for field_content in fact.fieldcontent_set.all():
+            shared_field_content = SharedFieldContent(
+                fact=shared_fact,
+                field_type_id=field_content.field_type_id,
+                content=field_content.content,
+                cached_transliteration_without_markup=field_content.cached_transliteration_without_markup,
+                media_uri=field_content.media_uri,
+                media_file=field_content.media_file)
+            shared_field_content.save()
+
+        #copy the cards
+        for card in fact.card_set.filter(active=True):
+            shared_card = cards.SharedCard(
+                fact=shared_fact,
+                template=card.template,
+                priority=card.priority,
+                leech=card.leech,
+                active=True,#card.active,
+                suspended=card.suspended,
+                new_card_ordinal=card.new_card_ordinal)
+            shared_card.save()
+
+    #done!
+    return shared_deck
+
+
+
+
+@transaction.commit_on_success    
+def share_deck_copy(deck):
     '''Creates a SharedDeck containing all the facts and cards and their contents, given a user's Deck.''' 
     
     #copy the deck
@@ -264,7 +346,7 @@ def share_deck(deck):
 
 
 @transaction.commit_on_success    
-def download_shared_deck(user, shared_deck):
+def download_shared_deck_copy(user, shared_deck):
     '''Copies a shared deck and all its contents to a user's own deck library.'''
 
     #copy the deck

@@ -107,12 +107,24 @@ class Fact(AbstractFact):
 
     deck = models.ForeignKey('Deck', blank=True, null=True, db_index=True)
 
+    synchronized_with = models.ForeignKey('self', null=True, blank=True)
+
     #child facts (e.g. example sentences for a Japanese fact)
     parent_fact = models.ForeignKey('self', blank=True, null=True, related_name='child_facts')
 
     @property
     def owner(self):
         return self.deck.owner
+
+
+    @property
+    def field_contents(self):
+        '''Returns a dict of {field_type_id: field_content}
+        '''
+        fact = self.synchronized_with if self.synchronized_with else self
+        field_contents = dict((field_content.field_type_id, field_content) for field_content in fact.fieldcontent_set.all())
+        return field_contents
+
 
     def fieldcontent_set_plus_blank_fields(self):
         '''
@@ -126,8 +138,11 @@ class Fact(AbstractFact):
         #field_contents = self.fieldcontent_set.all()
         #TODO add this
 
+
     class Meta:
         app_label = 'flashcards'
+        unique_together = (('deck', 'synchronized_with'),)
+
 
     def __unicode__(self):
         field_content_contents = []
