@@ -6,33 +6,8 @@
     </div>
     <div class="sidebar_box_contents" style="font-size:14px">
         <div style="margin-left:auto; margin-right:auto;width:100%;text-align:center;">
-            <div dojoType="dijit.form.DropDownButton" type="button" disabled="false">
+            <div dojoType="dijit.form.Button" type="button" disabled="false">
                 <span style="font-size:14px"><div style="width:224px; height:20px; line-height:20px;">Create Flashcards</div></span>
-                <div dojoType="dijit.TooltipDialog" jsId="factAddDialog">
-                    <script type="dojo/connect" event="onShow" args="evt">
-                        dojo.query('textarea', factAddDialog.domNode).forEach(function(node) {
-                            var widget = dijit.getEnclosingWidget(node);
-                            widget.resize();
-                        });
-                        dojo.query('div.hidden_in_form', factAddDialog.domNode).forEach(function(node) {
-                            var to_hide = true;
-                            var text_nodes = dojo.query('textarea', node);
-                            if (text_nodes.length) {
-                                var widget = dijit.getEnclosingWidget(text_nodes[0]);
-                                
-                                if (widget.attr('value').trim() != '') {
-                                    to_hide = false;
-                                }
-                            }
-                            if (to_hide) {
-                                node.style.display = 'none';
-                                //unhide the 'Add ...' link, which shows this hidden field
-                                dojo.query(node).prev()[0].style.display = '';
-                            }
-                        });
-                    </script>
-                    {% include "flashcards/fact_add_form.html" %}
-                </div>
             </div><br>
             <div dojoType="dijit.form.Button" type="button" disabled="false">
                 <div style="width:240px; height:20px; line-height:20px;"><span style="font-size:14px">Start Learning</span></div>

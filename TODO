@@ -8,8 +8,13 @@ resize grid when window is resized!!! otherwise scrollbars get lost
 should all those connects be disconnected somehow? particularly in body_pane (do they leak memory)
 
 
-database backup plan!!!!!
+database backup plan!!!!! backup-manager, rsync
 
+
+need some way to specify which cardtemplates are active for a given fact,
+so that subscribing to a deck doesnt necessitate creating a ton of card objects
+just create the card object upon first review.
+is there a good way to get new cards without knowing if a user has his own card or not yet
 
 
 SUPER CRITICAL BUGS:
@@ -38,6 +43,10 @@ make field uniqueness per-deck
 ---------------------
 TODO:
 ---------------------
+allow adding unsorted/orphan cards/items
+
+change the page title when the hash changes, somehow
+
 inline deck title, description editing (via dojo inline widgets - click to edit)
 
 user feedback link thing

@@ -116,8 +116,32 @@ manabi_ui.convertLinksToXhr = function(container_node) {
 }
 
 
+// a dirty hack since dijit.form.Select doesn't support setting its value
+manabi_ui.setSelectValue = function(input_id, value) {
+    var select = dijit.byId(input_id);
+    var options = select.getOptions();
+    var i = 0;
+    var target_index = null;
+    var current_index = null;
+    options.forEach(function(option) {
+        if (option.value == value) {
+            target_index = i;
+        } else if (option.selected) {
+            current_index = i;
+        }
+        i++;
+    });
+    if (target_index) {
+        options[current_index].selected = false;
+        options[target_index].selected = true;
+    }
+    select.removeOption(select.getOptions());
+    select.reset();
+    select.addOption(options);
+};
+
 manabi_ui.refreshSelectInput = function(input_id, options) {
-    select = dijit.byId(input_id);
+    var select = dijit.byId(input_id);
     select.removeOption(select.getOptions());
     select.reset();
     options.forEach(function(option) {

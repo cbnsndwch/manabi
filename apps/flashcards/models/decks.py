@@ -18,6 +18,10 @@ import usertagging
 
 
 class DeckManager(models.Manager):
+    @property
+    def card_count(self):
+        return cards.Card.objects.of_user(self.owner).count()
+
     def values_of_all_with_stats_and_totals(self, user, fields=None):
         '''
         Returns all decks of a user (as a list of dictionaries), 
@@ -79,14 +83,9 @@ class AbstractDeck(models.Model):
     created_at = models.DateTimeField(auto_now_add=True, editable=False)
     modified_at = models.DateTimeField(auto_now=True, editable=False)
 
-
     class Meta:
         app_label = 'flashcards'
         abstract = True
-
-    @property
-    def card_count(self):
-        return cards.Card.objects.of_user(self.owner).count()
 
 
 class SharedDeck(AbstractDeck):
@@ -123,6 +122,10 @@ class Deck(AbstractDeck):
     
 
     @property
+    def card_count(self):
+        return cards.Card.objects.filter(fact__deck=self).count()
+
+    @property
     def new_card_count(self):
         return cards.Card.objects.cards_new_count(self.owner, deck=self)
 
@@ -131,7 +134,7 @@ class Deck(AbstractDeck):
         return cards.Card.objects.cards_due_count(self.owner, deck=self)
 
     def average_ease_factor(self):
-        deck_cards = cards.Card.objects.filter(id__in=self.fact_set.all(), active=True, suspended=False, ease_factor__isnull=False)
+        deck_cards = cards.Card.objects.filter(fact__deck=self, active=True, suspended=False, ease_factor__isnull=False)
         if deck_cards.count():
             average_ef = deck_cards.aggregate(average_ease_factor=Avg('ease_factor'))['average_ease_factor']
             if average_ef:

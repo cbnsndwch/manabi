@@ -3,5 +3,26 @@
 
 <p>{{ deck.description }}</p>
 
+{% ifnotequal deck.card_count 0 %}
+    <p>
+        <button dojoType="dijit.form.Button">
+	        Study Now
+	        <script type="dojo/connect" event="onClick" args="evt">
+                reviews_ui.startSession({{ deck.id }}, 10, 0, '');
+	        </script>
+        </button>
+    </p>
+{% endifnotequal %}
+
+
+<p>
+    <button dojoType="dijit.form.Button">
+	    Create Flashcards
+	    <script type="dojo/connect" event="onClick" args="evt">
+            factAddDialog.show();
+	    </script>
+    </button>
+</p> 
+
 
 

@@ -474,3 +474,11 @@
         }
     }
 
+
+    fact_ui.showFactAddDialog = function(deck) {
+        if (deck == undefined) { deck = null; }
+        if (deck) {
+            //FIXME set it, hide the select
+        }
+        factAddDialog.show();
+    };
