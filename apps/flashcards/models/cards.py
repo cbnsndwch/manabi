@@ -79,7 +79,7 @@ class CardManager(models.Manager):
         if deck:
             cards = cards.filter(fact__deck=deck)
         if tags:
-            facts = usertagging.models.TaggedItem.objects.get_by_model(Fact, tags)
+            facts = usertagging.models.UserTaggedItem.objects.get_by_model(Fact, tags)
             cards = user_cards.filter(fact__in=facts)
         return cards.count()
             
@@ -295,7 +295,7 @@ class CardManager(models.Manager):
             user_cards = user_cards.filter(fact__deck=deck)
 
         if tags:
-            facts = usertagging.models.TaggedItem.objects.get_by_model(Fact, tags)
+            facts = usertagging.models.UserTaggedItem.objects.get_by_model(Fact, tags)
             user_cards = user_cards.filter(fact__in=facts)
 
         if excluded_ids:
@@ -317,7 +317,7 @@ class CardManager(models.Manager):
         if deck:
             cards = cards.filter(fact__deck=deck)
         if tags:
-            facts = usertagging.models.TaggedItem.objects.get_by_model(Fact, tags)
+            facts = usertagging.models.UserTaggedItem.objects.get_by_model(Fact, tags)
             cards = cards.filter(fact__in=facts)
         this_time_tomorrow = datetime.datetime.utcnow() + datetime.timedelta(days=1)
         cards = cards.filter(due_at__lt=this_time_tomorrow)
@@ -334,7 +334,7 @@ class CardManager(models.Manager):
         if deck:
             cards = cards.filter(fact__deck=deck)
         if tags:
-            facts = usertagging.models.TaggedItem.objects.get_by_model(Fact, tags)
+            facts = usertagging.models.UserTaggedItem.objects.get_by_model(Fact, tags)
             cards = cards.filter(fact__in=facts)
         try:
             card = cards.filter(due_at__isnull=False).order_by('due_at')[0]
@@ -365,7 +365,7 @@ class CardManager(models.Manager):
             user_cards = user_cards.filter(fact__deck=deck)
 
         if tags:
-            facts = usertagging.models.TaggedItem.objects.get_by_model(Fact, tags)
+            facts = usertagging.models.UserTaggedItem.objects.get_by_model(Fact, tags)
             user_cards = user_cards.filter(fact__in=facts)
 
         if excluded_ids:

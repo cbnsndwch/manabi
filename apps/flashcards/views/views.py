@@ -370,7 +370,7 @@ def rest_facts(request): #todo:refactor into facts (no???)
         if 'tags' in request.GET and request.GET['tags'].strip():
             tag_ids = [int(tag_id) for tag_id in request.GET['tags'].split(',')]
             tags = usertagging.models.Tag.objects.filter(id__in=tag_ids)
-            facts = usertagging.models.TaggedItem.objects.get_by_model(user_facts, tags)
+            facts = usertagging.models.UserTaggedItem.objects.get_by_model(user_facts, tags)
 
         #is the user searching his facts?
         if 'search' in request.GET and request.GET['search'].strip():
