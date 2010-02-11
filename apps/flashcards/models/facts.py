@@ -121,9 +121,14 @@ class Fact(AbstractFact):
     def field_contents(self):
         '''Returns a dict of {field_type_id: field_content}
         '''
-        fact = self.synchronized_with if self.synchronized_with else self
-        field_contents = dict((field_content.field_type_id, field_content) for field_content in fact.fieldcontent_set.all())
-        return field_contents
+        fact = self
+        field_contents = self.fieldcontent_set.all()
+        if self.synchronized_with:
+            # first see if the user has updated this fact's contents.
+            # this would override the synced fact's.
+            if not len(field_contents):
+                field_contents = self.synchronized_with.fieldcontent_set.all()
+        return dict((field_content.field_type_id, field_content) for field_content in field_contents)
 
 
     def fieldcontent_set_plus_blank_fields(self):

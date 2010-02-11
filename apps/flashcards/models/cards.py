@@ -215,32 +215,14 @@ class CardManager(models.Manager):
         new_cards = []
         for card in card_query.iterator():
             min_space = card.min_space_from_siblings()
-            eligible = True
             for sibling_card in card.siblings():
-                if sibling_card in new_cards:
-                    # sibling card is already included as a new card to be shown - disqualify
-                    eligible = False
+                if sibling_card in new_cards \# sibling card is already included as a new card to be shown
+                        or sibling_card.id in excluded_ids \# sibling card is currently in the client-side review queue
+                        or sibling_card.is_due(review_time) \# sibling card is due
+                        or (sibling_card.last_reviewed_at and review_time - sibling_card.last_reviewed_at <= min_space) \# sibling card was reviewed recently
+                        or sibling_card.last_review_grade == GRADE_NONE:# sibling card is failed. Either it's due, or it's not due and it's shown before new cards.
                     break
-                elif sibling_card.id in excluded_ids:
-                    # sibling card is currently in the client-side review queue - disqualify
-                    eligible = False
-                    break
-                elif sibling_card.is_due(review_time):
-                    # sibling card is due - disqualify
-                    eligible = False
-                    break
-                elif sibling_card.last_reviewed_at:
-                    if review_time - sibling_card.last_reviewed_at <= min_space:
-                        # sibling card was reviewed recently - disqualify
-                        eligible = False
-                        break
-                elif sibling_card.last_review_grade == GRADE_NONE:
-                    # sibling card is failed - disqualify
-                    # Either it's due, or it's not due and
-                    # it's shown before new cards.
-                    eligible = False
-                    break
-            if eligible:
+            else:
                 new_cards.append(card)
                 # Got enough cards?
                 if len(new_cards) == count \
@@ -254,10 +236,7 @@ class CardManager(models.Manager):
 
         # Return a query containing the eligible cards.
         ret = self.filter(id__in=eligible_ids).order_by('new_card_ordinal')
-        if daily_new_card_limit:
-            ret = ret[:min(count, new_count_left_for_today)]
-        else:
-            ret = ret[:count]
+        ret = ret[:min(count, new_count_left_for_today)] if daily_new_card_limit else ret[:count]
         return ret
 
 
@@ -285,6 +264,7 @@ class CardManager(models.Manager):
 
     #FIXME distinguish from cards_new_count or merge or make some new kind of review optioned class
     #TODO consolidate with next_cards (see below)
+    #FIXME make it work for synced decks
     def new_cards_count(self, user, excluded_ids, deck=None, tags=None):
         '''Returns the number of new cards for the given review parameters.'''
         now = datetime.datetime.utcnow()

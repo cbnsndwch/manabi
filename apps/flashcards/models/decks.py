@@ -130,10 +130,7 @@ class Deck(AbstractDeck):
 
     @property
     def card_count(self):
-        if self.synchronized_with:
-            deck = self.synchronized_with
-        else:
-            deck = self
+        deck = self.synchronized_with if self.synchronized_with else self
         return cards.Card.objects.filter(fact__deck=deck).count()
 
     @property

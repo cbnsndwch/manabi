@@ -673,7 +673,7 @@ def next_cards_for_review(request):
                 'front': card.render_front(),
                 'back': card.render_back(),
                 'next_due_at_per_grade': card.due_at_per_grade(reviewed_at=reviewed_at),
-            })
+             })
 
         ret = {'success': True, 'cards': formatted_cards}
 
