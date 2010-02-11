@@ -161,14 +161,14 @@ class CardManager(models.Manager):
         return cards
 
 
-    def _next_failed_due_cards(self, user, initial_query, count, review_time, excluded_ids=[], daily_new_card_limit=None, early_review=False):
+    def _next_failed_due_cards(self, user, initial_query, count, review_time, excluded_ids=[], daily_new_card_limit=None, early_review=False, deck=None, tags=None):
         if not count:
             return []
         cards = initial_query.filter(last_review_grade=GRADE_NONE, due_at__lte=review_time).order_by('due_at')
         return cards[:count] #don't space these #self._space_cards(cards, count, review_time)
 
 
-    def _next_not_failed_due_cards(self, user, initial_query, count, review_time, excluded_ids=[], daily_new_card_limit=None, early_review=False):
+    def _next_not_failed_due_cards(self, user, initial_query, count, review_time, excluded_ids=[], daily_new_card_limit=None, early_review=False, deck=None, tags=None):
         '''
         Returns the first [count] cards from initial_query which are due,
         weren't failed the last review, and  taking spacing of cards from
@@ -183,7 +183,7 @@ class CardManager(models.Manager):
         return self._space_cards(due_cards, count, review_time)
 
 
-    def _next_failed_not_due_cards(self, user, initial_query, count, review_time, excluded_ids=[], daily_new_card_limit=None, early_review=False):
+    def _next_failed_not_due_cards(self, user, initial_query, count, review_time, excluded_ids=[], daily_new_card_limit=None, early_review=False, deck=None, tags=None):
         if not count:
             return []
         #TODO prioritize certain failed cards, not just by due date
@@ -196,7 +196,11 @@ class CardManager(models.Manager):
         return card_query[:count]
 
 
-    def _next_new_cards(self, user, initial_query, count, review_time, excluded_ids=[], daily_new_card_limit=None, early_review=False):
+
+
+    def _next_new_cards(self, user, initial_query, count, review_time, excluded_ids=[], daily_new_card_limit=None, early_review=False, deck=None, tags=None):
+        '''Gets the next new cards for this user or deck.
+        '''
         if not count:
             return []
 
@@ -204,16 +208,13 @@ class CardManager(models.Manager):
             new_reviews_today = user.reviewstatistics.get_new_reviews_today()
             if new_reviews_today >= daily_new_card_limit:
                 return []
-
             # Count the number of new cards in the `excluded_ids`, which the user already has queued up
             new_excluded_cards_count = Card.objects.filter(id__in=excluded_ids, due_at__isnull=True).count()
-
             new_count_left_for_today = daily_new_card_limit - new_reviews_today - new_excluded_cards_count
 
-        #TODO prioritize certain failed cards, not just by due date
-        card_query = initial_query.filter(due_at__isnull=True).order_by('new_card_ordinal')
+        new_card_query = initial_query.filter(due_at__isnull=True).order_by('new_card_ordinal')
         new_cards = []
-        for card in card_query.iterator():
+        for card in new_card_query.iterator():
             min_space = card.min_space_from_siblings()
             for sibling_card in card.siblings():
                 if sibling_card in new_cards \# sibling card is already included as a new card to be shown
@@ -229,10 +230,19 @@ class CardManager(models.Manager):
                         or (not early_review and len(new_cards) == new_count_left_for_today):
                     break
         
+        if len(new_cards) < count:
+            # see if we can get new cards from synchronized decks
+            facts_added = Fact.objects.add_new_facts_from_synchronized_decks(user, count - len(new_cards), deck=deck, tags=tags)
+            if facts_added:
+                
+
+            
+            
+        
         eligible_ids = [card.id for card in new_cards]
 
-        if early_review and len(new_cards) < count:
-            eligible_ids.extend([card.id for card in card_query.exclude(id__in=eligible_ids)[:count - len(new_cards)]])
+        if early_review and len(eligible_ids) < count:
+            eligible_ids.extend([card.id for card in new_card_query.exclude(id__in=eligible_ids)[:count - len(eligible_ids)]])
 
         # Return a query containing the eligible cards.
         ret = self.filter(id__in=eligible_ids).order_by('new_card_ordinal')
@@ -240,7 +250,7 @@ class CardManager(models.Manager):
         return ret
 
 
-    def _next_due_soon_cards(self, user, initial_query, count, review_time, excluded_ids=[], daily_new_card_limit=None, early_review=False):
+    def _next_due_soon_cards(self, user, initial_query, count, review_time, excluded_ids=[], daily_new_card_limit=None, early_review=False, deck=None, tags=None):
         '''
         Used for early review.
         Ordered by due date.
@@ -253,7 +263,7 @@ class CardManager(models.Manager):
         return self._space_cards(staler_cards, count, review_time, early_review=True)
 
 
-    def _next_due_soon_cards2(self, user, initial_query, count, review_time, excluded_ids=[], daily_new_card_limit=None, early_review=False):
+    def _next_due_soon_cards2(self, user, initial_query, count, review_time, excluded_ids=[], daily_new_card_limit=None, early_review=False, deck=None, tags=None):
         if not count:
             return []
         priority_cutoff = review_time - datetime.timedelta(minutes=30)
@@ -371,7 +381,9 @@ class CardManager(models.Manager):
             if not cards_left:
                 break
             cards = card_func(user, user_cards, cards_left, now, excluded_ids, daily_new_card_limit, \
-                    early_review=early_review)
+                    early_review=early_review,
+                    deck=deck,
+                    tags=tags)
             cards_left -= len(cards)
             if len(cards):
                 card_queries.append(cards)

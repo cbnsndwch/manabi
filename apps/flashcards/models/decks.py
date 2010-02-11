@@ -52,6 +52,11 @@ class DeckManager(models.Manager):
         return deck_values
 
 
+    def synchronized_decks(self, user):
+        return self.filter(owner=user, synchronized_with__isnull=False)
+
+
+
 #TODO use this
 class Textbook(models.Model):
     name = models.CharField(max_length=100)
@@ -113,6 +118,7 @@ class Deck(AbstractDeck):
 
     # whether this is a publicly shared deck
     shared = models.BooleanField(default=False, blank=True)
+    shared_at = models.DateTimeField(null=True, blank=True)
     # or if not, whether it's synchronized with a shared deck
     synchronized_with = models.ForeignKey('self', null=True, blank=True)
 
@@ -126,7 +132,88 @@ class Deck(AbstractDeck):
     
     def get_absolute_url(self):
         return '/flashcards/decks/{0}'.format(self.id)
-    
+
+
+    @transaction.commit_on_success    
+    def share(self):
+        '''Shares this deck publicly.
+        '''
+        if self.synchronized_with:
+            raise TypeError('Cannot share synchronized decks (decks which are already synchronized with shared decks).')
+        self.shared = True
+        self.shared_at = datetime.datetime.utcnow()
+        self.save()
+
+
+    @transaction.commit_on_success    
+    def subscribe(self, user):
+        '''Subscribes to this shared deck for the given user.
+        They will study this deck as their own, but will 
+        still receive updates to content.
+
+        Returns the newly created deck.
+        '''
+        if not self.shared:
+            raise TypeError('This is not a shared deck - cannot subscribe to it.')
+        if self.synchronized_with:
+            raise TypeError('Cannot share a deck that is already synchronized to a shared deck.')
+
+        #TODO dont allow multiple subscriptions to same deck by same user
+        
+        # copy the deck
+        deck = Deck(
+            name=self.name,
+            description=self.description,
+            #TODO implement textbook=shared_deck.textbook, #picture too...
+            priority=self.priority,
+            owner_id=user.id)
+        deck.save()
+
+        # copy the tags
+        deck.tags = usertagging.utils.edit_string_for_tags(self.tags)
+
+        # create default deck scheduling options
+        scheduling_options = SchedulingOptions(deck=deck)
+        scheduling_options.save()
+
+        # copy the facts - just the first few as a buffer
+        shared_fact_to_fact = {}
+        for shared_fact in self.fact_set.filter(active=True, parent_fact__isnull=True).order_by('new_fact_ordinal')[10] #TODO dont hardcode value here #chain(self.fact_set.all(), Fact.objects.filter(parent_fact__deck=self)):
+            #FIXME get the child facts for this fact too
+            #if shared_fact.parent_fact:
+            #    #child fact
+            #    fact = Fact(
+            #        fact_type=shared_fact.fact_type,
+            #        active=shared_fact.active) #TODO should it be here?
+            #    fact.parent_fact = shared_fact_to_fact[shared_fact.parent_fact]
+            #    fact.save()
+            #else:
+            #   #regular fact
+            fact = Fact(
+                deck=deck,
+                fact_type_id=shared_fact.fact_type_id,
+                active=True, #shared_fact.active, #TODO should it be here?
+                priority=shared_fact.priority,
+                notes=shared_fact.notes)
+            fact.save()
+            shared_fact_to_fact[shared_fact] = fact
+
+            # don't copy the field contents for this fact - we'll get them from the shared fact later
+
+            # copy the cards
+            for shared_card in shared_fact.sharedcard_set.filter(active=True):
+                card = cards.Card(
+                    fact=fact,
+                    template_id=shared_card.template_id,
+                    priority=shared_card.priority,
+                    leech=False, #shared_card.leech,
+                    active=True,# shared_card.active,
+                    suspended=shared_card.suspended,
+                    new_card_ordinal=shared_card.new_card_ordinal)
+                card.save()
+        #done!
+        return deck
+
 
     @property
     def card_count(self):
@@ -214,7 +301,7 @@ class SchedulingOptions(models.Model):
 
 @transaction.commit_on_success    
 def share_deck(deck):
-    ''''''
+    '''Makes the '''
     
     #copy the deck
     shared_deck = SharedDeck(
