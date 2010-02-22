@@ -204,6 +204,8 @@ class CardManager(models.Manager):
         if not count:
             return []
 
+        new_card_query = initial_query.filter(due_at__isnull=True).order_by('new_card_ordinal')
+
         if daily_new_card_limit:
             new_reviews_today = user.reviewstatistics.get_new_reviews_today()
             if new_reviews_today >= daily_new_card_limit:
@@ -212,42 +214,50 @@ class CardManager(models.Manager):
             new_excluded_cards_count = Card.objects.filter(id__in=excluded_ids, due_at__isnull=True).count()
             new_count_left_for_today = daily_new_card_limit - new_reviews_today - new_excluded_cards_count
 
-        new_card_query = initial_query.filter(due_at__isnull=True).order_by('new_card_ordinal')
-        new_cards = []
-        for card in new_card_query.iterator():
-            min_space = card.min_space_from_siblings()
-            for sibling_card in card.siblings():
-                if sibling_card in new_cards \# sibling card is already included as a new card to be shown
-                        or sibling_card.id in excluded_ids \# sibling card is currently in the client-side review queue
-                        or sibling_card.is_due(review_time) \# sibling card is due
-                        or (sibling_card.last_reviewed_at and review_time - sibling_card.last_reviewed_at <= min_space) \# sibling card was reviewed recently
-                        or sibling_card.last_review_grade == GRADE_NONE:# sibling card is failed. Either it's due, or it's not due and it's shown before new cards.
-                    break
-            else:
-                new_cards.append(card)
-                # Got enough cards?
-                if len(new_cards) == count \
-                        or (not early_review and len(new_cards) == new_count_left_for_today):
-                    break
-        
+        def _next_new_cards2():
+            new_cards = []
+            for card in new_card_query.iterator():
+                min_space = card.min_space_from_siblings()
+                for sibling_card in card.siblings():
+                    # sibling card is already included as a new card to be shown or
+                    # sibling card is currently in the client-side review queue or 
+                    # sibling card is due or
+                    # sibling card was reviewed recently or
+                    # sibling card is failed. Either it's due, or it's not due and it's shown before new cards.
+                    if sibling_card in new_cards or \               
+                       sibling_card.id in excluded_ids or \
+                       sibling_card.is_due(review_time) or \
+                       (sibling_card.last_reviewed_at and review_time - sibling_card.last_reviewed_at <= min_space) or \
+                       sibling_card.last_review_grade == GRADE_NONE:
+                        break
+                else:
+                    new_cards.append(card)
+                    # Got enough cards?
+                    if len(new_cards) == count or \
+                       (not early_review and len(new_cards) == new_count_left_for_today):
+                        break
+            return new_cards
+
+        new_cards = _next_new_cards2()
+
         if len(new_cards) < count:
             # see if we can get new cards from synchronized decks
             facts_added = Fact.objects.add_new_facts_from_synchronized_decks(user, count - len(new_cards), deck=deck, tags=tags)
-            if facts_added:
-                
+            if len(facts_added):
+                # got new facts from a synchronized deck. get cards from them by re-getting new cards
+                new_cards = _next_new_cards2()
 
-            
-            
-        
         eligible_ids = [card.id for card in new_cards]
 
         if early_review and len(eligible_ids) < count:
+            # queue up spaced cards if needed for early review
             eligible_ids.extend([card.id for card in new_card_query.exclude(id__in=eligible_ids)[:count - len(eligible_ids)]])
 
         # Return a query containing the eligible cards.
         ret = self.filter(id__in=eligible_ids).order_by('new_card_ordinal')
         ret = ret[:min(count, new_count_left_for_today)] if daily_new_card_limit else ret[:count]
         return ret
+            
 
 
     def _next_due_soon_cards(self, user, initial_query, count, review_time, excluded_ids=[], daily_new_card_limit=None, early_review=False, deck=None, tags=None):

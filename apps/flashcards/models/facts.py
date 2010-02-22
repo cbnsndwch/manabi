@@ -71,11 +71,11 @@ class FactManager(models.Manager):
 
     @transaction.commit_on_success    
     def add_new_facts_from_synchronized_decks(self, user, count, deck=None, tags=None):
-        '''Returns the count of new facts added, after adding them for the user.
+        '''Returns a limited queryset of the new facts added, after adding them for the user.
         '''
         if deck:
             if not deck.synchronized_with:
-                return 0
+                return self.none()
             decks = [deck]
         else:
             decks = Deck.objects.synchronized_decks(user)
@@ -86,11 +86,11 @@ class FactManager(models.Manager):
         shared_deck_ids = [deck.synchronized_with_id for deck in decks]
         new_shared_facts = self.filter(deck_id__in=shared_deck_ids).exclude(id__in=user_facts)
         new_shared_facts = new_shared_facts.order_by('new_fact_ordinal')
+        new_shared_facts = new_shared_facts[:count]
         #FIXME handle 0 ret
         
         # copy each fact
-        created_count = len(new_shared_facts[count])
-        for shared_fact in new_shared_facts[count]:
+        for shared_fact in new_shared_facts:
             if shared_fact.parent_fact:
                 #child fact
                 fact = Fact(
@@ -122,7 +122,7 @@ class FactManager(models.Manager):
                     suspended=shared_card.suspended,
                     new_card_ordinal=shared_card.new_card_ordinal)
                 card.save()
-        return created_count
+        return new_shared_facts
 
 
 
@@ -196,6 +196,7 @@ class Fact(AbstractFact):
         if self.synchronized_with:
             # first see if the user has updated this fact's contents.
             # this would override the synced fact's.
+            #TODO only override on a per-field basis when the user updates field contents
             if not len(field_contents):
                 field_contents = self.synchronized_with.fieldcontent_set.all()
         return dict((field_content.field_type_id, field_content) for field_content in field_contents)
@@ -210,6 +211,7 @@ class Fact(AbstractFact):
         (e.g. a fact without a notes field, so that 
         the notes field can be included in an update form.)
         '''
+        pass
         #field_contents = self.fieldcontent_set.all()
         #TODO add this
 
