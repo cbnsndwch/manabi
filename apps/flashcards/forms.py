@@ -19,6 +19,7 @@ class CardForm(ModelForm):
         model = Card
         exclude = ('fact', 'ease_factor', )
         
+
 class DeckForm(ModelForm):
     tags = usertagging.forms.TagField(required=False)
 
@@ -38,16 +39,20 @@ class DeckForm(ModelForm):
     
     class Meta:
         model = Deck
-        exclude = ('owner', 'description', 'priority', 'textbook_source', 'picture',)
+        fields = ('name',)
+        #exclude = ('owner', 'description', 'priority', 'textbook_source', 'picture',)
         
+
 class FactTypeForm(ModelForm):
     class Meta:
         model = FactType
+
 
 class CardTemplateForm(ModelForm):
     class Meta:
         model = CardTemplate
         
+
 class FactForm(ModelForm):
     tags = usertagging.forms.TagField(required=False)
 

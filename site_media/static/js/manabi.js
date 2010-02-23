@@ -116,29 +116,6 @@ manabi_ui.convertLinksToXhr = function(container_node) {
 }
 
 
-// a dirty hack since dijit.form.Select doesn't support setting its value
-manabi_ui.setSelectValue = function(input_id, value) {
-    var select = dijit.byId(input_id);
-    var options = select.getOptions();
-    var i = 0;
-    var target_index = null;
-    var current_index = null;
-    options.forEach(function(option) {
-        if (option.value == value) {
-            target_index = i;
-        } else if (option.selected) {
-            current_index = i;
-        }
-        i++;
-    });
-    if (target_index) {
-        options[current_index].selected = false;
-        options[target_index].selected = true;
-    }
-    select.removeOption(select.getOptions());
-    select.reset();
-    select.addOption(options);
-};
 
 manabi_ui.refreshSelectInput = function(input_id, options) {
     var select = dijit.byId(input_id);
@@ -155,7 +132,8 @@ manabi_ui._getOptionsFromStore = function(store) {
     store.close();
     store.fetch({
         onItem: dojo.hitch(this, function(store, item) {
-            options.push({value: store.getValue(item, 'id'), label: store.getValue(item, 'name')});
+            var val = store.getValue(item, 'id');
+            options.push({value: val.toString(), label: store.getValue(item, 'name')});
         }, store),
         onComplete: dojo.hitch(this, function(def, options) {
             def.callback(options);

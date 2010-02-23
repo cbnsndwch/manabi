@@ -33,7 +33,7 @@ urlpatterns = patterns('flashcards',
 
     #shared decks
     #(r'^shared_decks$', 'views.shared_deck_list'),
-    (r'^shared_decks/(\w+)/download$', 'views.shared_deck_download'),
+    #FIXME(r'^shared_decks/(\w+)/download$', 'views.shared_deck_download'),
     (r'^decks/(\w+)/share$', 'views.deck_share'),
     (r'^shared_decks$', 'views.shared_deck_list'),
 

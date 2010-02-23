@@ -165,7 +165,7 @@
           hiddenFactField = new dijit.form.TextBox({value:factTypeId, name:'fact-id', type:'hidden'});//dojo.place('<input type=\"hidden\" name=\"fact\" value=\"'+factTypeId+'\">', domNode, 'last');
           hiddenFactField.placeAt(domNode, 'last');
           cardUpdateTemplatesButton.placeAt(domNode, 'last');
-            //todo:pull values from the fact store for that id*/
+            //todo:pull values from the fact store for that id
           var formPrefix = 'form_'+factTypeId+'-';
           var cardTemplateCounter = 0;
           cardUpdateTemplatesStore.fetch({
@@ -475,10 +475,11 @@
     }
 
 
-    fact_ui.showFactAddDialog = function(deck) {
-        if (deck == undefined) { deck = null; }
-        if (deck) {
+    fact_ui.showFactAddDialog = function(deck_id) {
+        if (deck_id == undefined) { deck_id = null; }
+        if (deck_id) {
             //FIXME set it, hide the select
+            deckInput.attr('value', deck_id.toString());
         }
         factAddDialog.show();
     };

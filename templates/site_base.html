@@ -81,7 +81,7 @@
         
         <div id="body_contents">
             {% block body %}
-            <div dojoType="dijit.layout.ContentPane" jsId="body_pane">
+            <div dojoType="dijit.layout.ContentPane" jsId="body_pane" style="overflow:hidden">
                 <script type="dojo/connect" event="onDownloadEnd">
                     manabi_ui.convertLinksToXhr(body_pane.domNode);            
                 </script>

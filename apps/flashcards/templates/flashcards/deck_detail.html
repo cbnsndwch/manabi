@@ -19,7 +19,7 @@
     <button dojoType="dijit.form.Button">
 	    Create Flashcards
 	    <script type="dojo/connect" event="onClick" args="evt">
-            factAddDialog.show();
+            fact_ui.showFactAddDialog('{{ deck.id }}');
 	    </script>
     </button>
 </p> 

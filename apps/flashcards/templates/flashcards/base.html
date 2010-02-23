@@ -10,7 +10,7 @@
 <div dojoType="dijit.Dialog" jsId="cards_factEditorContainer" title="Edit Flashcard" modal="true">
 </div>
 
-<div dojoType="dijit.Dialog" jsId="factAddDialog">
+<div dojoType="dijit.Dialog" jsId="factAddDialog" title="Create Flashcards">
     <script type="dojo/connect" event="onShow" args="evt">
         dojo.query('textarea', factAddDialog.domNode).forEach(function(node) {
             var widget = dijit.getEnclosingWidget(node);
@@ -25,11 +25,11 @@
                 if (widget.attr('value').trim() != '') {
                     to_hide = false;
                 }
-            }
-            if (to_hide) {
-                node.style.display = 'none';
-                //unhide the 'Add ...' link, which shows this hidden field
-                dojo.query(node).prev()[0].style.display = '';
+                if (to_hide) {
+                    node.style.display = 'none';
+                    //unhide the 'Add ...' link, which shows this hidden field
+                    dojo.query(node).prev()[0].style.display = '';
+                }
             }
         });
     </script>

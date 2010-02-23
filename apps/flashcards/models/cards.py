@@ -16,6 +16,7 @@ import usertagging
 from django.template.loader import render_to_string
 from django.db import transaction
 
+from constants import MAX_NEW_CARD_ORDINAL
 
 #grade IDs (don't change these once they're set)
 GRADE_NONE = 0
@@ -27,7 +28,7 @@ GRADE_EASY = 5
 
 #below is used in the EF equation, but we're going to precompute the EF factors
 #GRADE_FACTORS = {GRADE_NONE: 0, GRADE_HARD: 3, GRADE_GOOD: 4, GRADE_EASY: 5}
-#this is the EF algorithm from which the EF factors are computed:
+#this is the EF algorithm fr* #om which the EF factors are computed:
 #ease_factor = self.ease_factor + (0.1 - (max_grade - grade_factor) * (0.08 + (max_grade - grade_factor) * 0.02))
 
 #MAX_EASE_FACTOR_STEP = 0.1
@@ -224,7 +225,7 @@ class CardManager(models.Manager):
                     # sibling card is due or
                     # sibling card was reviewed recently or
                     # sibling card is failed. Either it's due, or it's not due and it's shown before new cards.
-                    if sibling_card in new_cards or \               
+                    if sibling_card in new_cards or \
                        sibling_card.id in excluded_ids or \
                        sibling_card.is_due(review_time) or \
                        (sibling_card.last_reviewed_at and review_time - sibling_card.last_reviewed_at <= min_space) or \
@@ -406,9 +407,6 @@ class CardManager(models.Manager):
 
 
 
-#used for randomizing new card insertion
-MAX_NEW_CARD_ORDINAL = 10000000
-                      #4294967295 is the upper bound
 
 
 
@@ -533,7 +531,7 @@ class Card(AbstractCard):
             sibling_cards = self.fact.card_set.exclude(id=self.id)
         space_factor  = self.fact.fact_type.space_factor
         min_card_space = self.fact.fact_type.min_card_space
-        sibling_intervals = [card.interval for card in sibling_cards if card.interval != None]
+        sibling_intervals = [card.interval for card in sibling_cards if card.interval is not None]
         if sibling_intervals:
             min_interval  = min(sibling_intervals) #days as float
             min_space = max(self.fact.fact_type.min_card_space, \

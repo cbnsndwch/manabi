@@ -10,9 +10,8 @@ from django.db import transaction
 
 from itertools import chain
 
-from fields import FieldContent, SharedFieldContent
 import cards
-from facts import Fact, SharedFact
+from facts import Fact, SharedFact, FieldContent, SharedFieldContent
 
 import usertagging
 
@@ -178,7 +177,7 @@ class Deck(AbstractDeck):
 
         # copy the facts - just the first few as a buffer
         shared_fact_to_fact = {}
-        for shared_fact in self.fact_set.filter(active=True, parent_fact__isnull=True).order_by('new_fact_ordinal')[10] #TODO dont hardcode value here #chain(self.fact_set.all(), Fact.objects.filter(parent_fact__deck=self)):
+        for shared_fact in self.fact_set.filter(active=True, parent_fact__isnull=True).order_by('new_fact_ordinal')[10]: #TODO dont hardcode value here #chain(self.fact_set.all(), Fact.objects.filter(parent_fact__deck=self)):
             #FIXME get the child facts for this fact too
             #if shared_fact.parent_fact:
             #    #child fact
