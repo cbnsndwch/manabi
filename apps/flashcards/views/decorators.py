@@ -9,12 +9,12 @@ def all_http_methods(view_func):
     never be cached.
     """
     def _wrapped_view_func(request, *args, **kwargs):
-        modified_request = request #shallow copy is enough
-        if modified_request.method == 'POST':
-            if '_method' in modified_request.POST and modified_request.POST['_method'] in ['PUT', 'DELETE', 'GET', 'POST']:
-                method = modified_request.POST['_method']
-                modified_request = request.copy()
-                modified_request.method = method
-        return view_func(modified_request, *args, **kwargs)
+        #modified_request = request #shallow copy is enough
+        if request.method == 'POST':
+            if '_method' in request.POST and request.POST['_method'] in ['PUT', 'DELETE', 'GET', 'POST']:
+                method = request.POST['_method']
+                #modified_request = request.copy()
+                request.method = method
+        return view_func(request, *args, **kwargs)
     return wraps(view_func)(_wrapped_view_func)
 

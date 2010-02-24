@@ -11,7 +11,7 @@ def index(request):
         #assume Japanese fact type
         fact_type = FactType.objects.get(id=1)
         card_templates = fact_type.cardtemplate_set.all()
-        field_types = fact_type.fieldtype_set.all().order_by('ordinal')
+        field_types = fact_type.fieldtype_set.exclude(disabled_in_form=True).order_by('ordinal')
         context['fact_add_form'] = {
             'card_templates': card_templates,
             'field_types': field_types,

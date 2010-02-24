@@ -2,7 +2,7 @@ import os
 
 from django.conf.urls.defaults import *
 from django.conf import settings
-from flashcards.models import SharedDeck, Deck
+from flashcards.models import SharedDeck, Deck, FactType
 from django.views.generic.simple import direct_to_template
 from django.views.generic.list_detail import object_list, object_detail
 
@@ -12,7 +12,8 @@ shared_decks_dict = {
 }
 decks_dict = {
     'queryset': Deck.objects.all(),
-    'template_object_name': 'deck'
+    'template_object_name': 'deck',
+    'extra_context': {'field_types': FactType.objects.get(id=1).fieldtype_set.all().order_by('ordinal'),},
 }
 
 urlpatterns = patterns('flashcards',

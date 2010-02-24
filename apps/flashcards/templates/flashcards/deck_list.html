@@ -4,19 +4,21 @@
 {% block content %}
 <h1>Manage My Decks</h1>
 
-<table cellspacing=2 cellpadding="2" width=500>
-{% for deck in deck_list %}
-	<tr>
-		<td width="350">{{ deck.name }}</td>
+<ul>
+    {% for deck in deck_list %}
+        <li><h3><a href="/flashcards/decks/{{ deck.id }}" class="xhr_link">{{ deck.name }}</a></h3></li>
+    {% endfor %}
+</ul>
+    {% comment %}
         <td><span><a href="/flashcards/decks/{{ deck.id }}/update" class="xhr_link">rename</a> 
         <a href="/flashcards/decks/{{ deck.id }}/share" class="xhr_link">share</a> 
         {% if not only_one_deck_exists %}
             <a href="/flashcards/decks/{{ deck.id }}/delete" class="xhr_link">delete</a></span></td>
         {% endif %}
 	</tr>
-{% endfor %}
-</table>
+    {% endcomment %}
 {% comment %}
+</table>
 <br>
 <br>
 <a href="/flashcards/decks/create" class="xhr_link">Create New Deck</a><br>

@@ -246,7 +246,7 @@ def rest_deck(request, deck_id):
     obj.delete()
     #request.user.message_set.create(message=ugettext("The %(verbose_name)s was deleted.") % {"verbose_name": model._meta.verbose_name})
     return {'success':True}
-  if request.method == 'PUT':
+  elif request.method == 'PUT':
     if Deck.objects.get(id=deck_id).owner_id != request.user.id: #and not request.User.is_staff():
       raise forms.ValidationError('You do not have permission to access this flashcard deck.')
     #TODO replace update_object to get rid of post_save_redirect, it's useless for ajax

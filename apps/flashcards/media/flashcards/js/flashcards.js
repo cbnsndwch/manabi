@@ -232,7 +232,7 @@
   
   var factTypeInputOnChangeHandle = null;
   var lastCardTemplatesInputValue = null;
-  var fieldContentInputCount = 5;//FIXME this is a terrible legacy hack... (was null;)
+  var fieldContentInputCount = 4;//FIXME this is a terrible legacy hack... (was null;)
   
   function appendLineToAddedCardHistory(node, text) {
     //append a line, but if there are too many lines, delete the first line
@@ -394,7 +394,7 @@
     }
 
     fact_ui.facts_url_query = {fact_type: 1};
-    
+
     fact_ui.clearFilter = function(filter_name) {
         var store = cards_factsGrid.store;
         store.close();
