@@ -14,16 +14,44 @@
     </p>
 {% endifnotequal %}
 
-
+<hr>
 <p>
+    <h3>Deck Contents</h3>
+    <br>
     <button dojoType="dijit.form.Button">
 	    Create Flashcards
 	    <script type="dojo/connect" event="onClick" args="evt">
             fact_ui.showFactAddDialog('{{ deck.id }}');
 	    </script>
     </button>
+
+    {% include "flashcards/_facts_grid.html" %}
 </p> 
 
-
-
-{% include "flashcards/_facts_grid.html" %}
+<hr>
+<p>
+    
+    <button dojoType="dijit.form.ToggleButton" iconClass="" checked="{{ deck.shared }}">
+        {% if deck.shared %}Unshare{% else %}Share{% endif %} Deck
+        <script type="dojo/connect" event="onChange" args="evt">
+            if (evt) {
+                this.attr('label', 'Unshare Deck');
+                /*this.attr('iconClass', 'manabi_icon manabi_icon_control_play');*/
+            } else {
+                this.attr('label', 'Share Deck');
+                /*this.attr('iconClass', 'manabi_icon manabi_icon_control_pause');*/
+            }
+        </script>
+        <script type="dojo/connect" event="onClick" args="evt">
+            // Shares or unshares this deck.
+            var share = this.attr('checked');
+            var url = '/flashcards/rest/decks/{{ deck.id }}'; // + share ? 'share' : 'unshare';
+            manabi_ui.xhrPostData(url, {'shared': share});
+        </script>            
+    </button>
+    <button dojoType="dijit.form.Button">
+	    Delete Deck
+	    <script type="dojo/connect" event="onClick" args="evt">
+	    </script>
+    </button>
+</p>

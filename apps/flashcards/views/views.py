@@ -239,20 +239,30 @@ def rest_decks(request):
 @json_response
 @all_http_methods
 def rest_deck(request, deck_id):
-  if request.method == 'DELETE':
-    obj = Deck.objects.get(id=deck_id)
-    if obj.owner_id != request.user.id: #and not request.User.is_staff():
-      raise forms.ValidationError('You do not have permission to access this flashcard deck.')
-    obj.delete()
-    #request.user.message_set.create(message=ugettext("The %(verbose_name)s was deleted.") % {"verbose_name": model._meta.verbose_name})
-    return {'success':True}
-  elif request.method == 'PUT':
-    if Deck.objects.get(id=deck_id).owner_id != request.user.id: #and not request.User.is_staff():
-      raise forms.ValidationError('You do not have permission to access this flashcard deck.')
-    #TODO replace update_object to get rid of post_save_redirect, it's useless for ajax
-    pass#return update_object(request, form_class=DeckForm, object_id=deck_id, post_save_redirect='/flashcards/decks', extra_context={'container_id': 'deckDialog', 'post_save_redirect': '/flashcards/decks'}, template_object_name='deck')
-  elif request.method == 'POST':
-    pass
+    try:
+        deck = Deck.objects.get(id=deck_id)
+        if deck.owner_id != request.user.id: #and not request.User.is_staff():
+            raise forms.ValidationError('You do not have permission to access this flashcard deck.')
+    except Deck.DoesNotExist:
+        raise Http404
+
+    if request.method == 'DELETE':
+        deck.delete()
+        #request.user.message_set.create(message=ugettext("The %(verbose_name)s was deleted.") % {"verbose_name": model._meta.verbose_name})
+        return {'success':True}
+    elif request.method == 'PUT':
+        #TODO replace update_object to get rid of post_save_redirect, it's useless for ajax
+        pass#return update_object(request, form_class=DeckForm, object_id=deck_id, post_save_redirect='/flashcards/decks', extra_context={'container_id': 'deckDialog', 'post_save_redirect': '/flashcards/decks'}, template_object_name='deck')
+    elif request.method == 'POST':
+        # change shared status
+        if 'shared' in request.POST:
+            shared = request.POST['shared'].lower() == 'true'
+            if shared:
+                deck.share()
+            else:
+                deck.unshare()
+        else:
+            raise Http404
 
 
 @login_required

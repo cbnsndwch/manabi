@@ -5,6 +5,7 @@ from django.forms.util import ErrorList
 from dbtemplates.models import Template
 from django.db.models import Avg
 
+import datetime
 import random
 from django.db import transaction
 
@@ -141,6 +142,16 @@ class Deck(AbstractDeck):
             raise TypeError('Cannot share synchronized decks (decks which are already synchronized with shared decks).')
         self.shared = True
         self.shared_at = datetime.datetime.utcnow()
+        self.save()
+
+
+    @transaction.commit_on_success
+    def unshare(self):
+        '''Unshares this deck.
+        '''
+        if not self.shared:
+            raise TypeError('This is not a shared deck, so it cannot be unshared.')
+        self.shared = False
         self.save()
 
 

@@ -29,7 +29,6 @@ manabi_ui.onHashChange = function(hash) {
 dojo.ready(function() {
     dojo.subscribe("/dojo/hashchange", manabi_ui.onHashChange);
     var hash = dojo.hash();
-    console.log(hash);
     if (hash) {
         manabi_ui._xhrLinkLoad(hash);
     } else {
@@ -72,36 +71,48 @@ manabi_ui.xhrLink = function(href) { //, target_pane) {
 }*/
 
 
-
-manabi_ui.xhrPost = function(url, form, post_redirect_url) {
-    if (form == undefined) { form = null; }
+manabi_ui._xhrPostArgs = function(url, post_redirect_url) {
     if (post_redirect_url == undefined) { post_redirect_url = null; }
-
-    manabi_standby.show();
-
+    
     var xhr_args = {
         'url': url,
-        form: form,
         handleAs: 'json',
         load: dojo.hitch(null, function(url, data) {
             if ('post_redirect' in data) {
                 manabi_ui.xhrLink(data.post_redirect);
             } else {
-                if (post_redirect_url) {
-                    manabi_ui.xhrLink(post_redirect_url);
-                }
+                manabi_ui.xhrLink(post_redirect_url ? post_redirect_url : dojo.hash());
             }
         }, post_redirect_url),
         error: function(error) {
             alert('Error: '+error);
+            manabi_ui.xhrLink(post_redirect_url ? post_redirect_url : dojo.hash());
         }
     }
+    return xhr_args;
+};
+manabi_ui._xhrPost = function(url, form, data, post_redirect_url) {
+    if (form == undefined) { form = null; }
+    if (data == undefined) { data = null; }
+    if (post_redirect_url == undefined) { post_redirect_url = null; }
+
+    manabi_standby.show();
+
+    var xhr_args = manabi_ui._xhrPostArgs(url, post_redirect_url);
+    xhr_args.form = form;
+    xhr_args.content = data;
 
     var def = dojo.xhrPost(xhr_args);
     def.addCallback(function() {
         manabi_standby.hide();
     });
     return def;
+};
+manabi_ui.xhrPost = function(url, form, post_redirect_url) {
+    return manabi_ui._xhrPost(url, form, null, post_redirect_url);
+}
+manabi_ui.xhrPostData = function(url, data, post_redirect_url) {
+    return manabi_ui._xhrPost(url, null, data, post_redirect_url);
 }
 
 manabi_ui.convertLinksToXhr = function(container_node) {

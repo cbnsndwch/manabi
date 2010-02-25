@@ -472,7 +472,7 @@
         } else {
             dijit.byId(reading_field).attr('value', '');
         }
-    }
+    };
 
 
     fact_ui.showFactAddDialog = function(deck_id) {
@@ -483,3 +483,5 @@
         }
         factAddDialog.show();
     };
+
+
