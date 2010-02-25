@@ -45,7 +45,8 @@ from decorators import all_http_methods
 @login_required
 def add_decks(request):
     '''Starting point for adding a deck, whether by creating or by downloading a shared deck.'''
-    shared_decks = SharedDeck.objects.all()
+    #shared_decks = SharedDeck.objects.all()
+    shared_decks = Deck.objects.shared_decks()
     context = {'shared_deck_list': shared_decks}
     return render_to_response('flashcards/add.html', context)
     #return object_list(request, queryset=shared_decks, template_object_name='shared_deck')

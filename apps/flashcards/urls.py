@@ -21,8 +21,8 @@ urlpatterns = patterns('flashcards',
 
     # New layout URIs
     (r'^add$', 'views.add_decks'),
-    (r'^shared_decks/(?P<object_id>\d+)$', object_detail, shared_decks_dict),
-    (r'^decks/(?P<object_id>\d+)$', object_detail, decks_dict),
+    #(r'^shared_decks/(?P<object_id>\d+)$', object_detail, shared_decks_dict),
+    (r'^decks/(?P<object_id>\d+)$', object_detail, decks_dict), #TODO add permissions enforcement for viewing
 
     #(r'^$', 'views.index'),
     (r'^decks$', 'views.deck_list'),

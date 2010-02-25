@@ -52,6 +52,10 @@ class DeckManager(models.Manager):
         return deck_values
 
 
+    def shared_decks(self):
+        return self.filter(shared=True)
+
+
     def synchronized_decks(self, user):
         return self.filter(owner=user, synchronized_with__isnull=False)
 

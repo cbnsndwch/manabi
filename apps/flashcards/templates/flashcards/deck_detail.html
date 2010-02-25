@@ -1,57 +1,68 @@
+{% if request.user == deck.owner or deck.shared == True %}
+    <h1>{{ deck.name }}</h1>
 
-<h1>{{ deck.name }}</h1>
+    <p>{{ deck.description }}</p>
 
-<p>{{ deck.description }}</p>
-
-{% ifnotequal deck.card_count 0 %}
     <p>
+        {% if request.user == deck.owner %}
+            {% ifnotequal deck.card_count 0 %}
+                <button dojoType="dijit.form.Button">
+	                Study Now
+	                <script type="dojo/connect" event="onClick" args="evt">
+                        reviews_ui.startSession({{ deck.id }}, 10, 0, '');
+	                </script>
+                </button>
+            {% endifnotequal %}
+        {% else %}
+            <button dojoType="dijit.form.Button">
+	            Add Deck
+	            <script type="dojo/connect" event="onClick" args="evt">
+	            </script>
+            </button>
+        {% endif %}
+    </p>
+
+    <hr>
+    <p>
+        <h3>Deck Contents</h3>
+        <br>
+        {% if request.user == deck.owner %}
+            <button dojoType="dijit.form.Button">
+	            Create Flashcards
+	            <script type="dojo/connect" event="onClick" args="evt">
+                    fact_ui.showFactAddDialog('{{ deck.id }}');
+	            </script>
+            </button>
+        {% endif %}
+
+        {% include "flashcards/_facts_grid.html" %}
+    </p> 
+
+    <hr>
+    <p>
+        
+        <button dojoType="dijit.form.ToggleButton" iconClass="" checked="{{ deck.shared }}">
+            {% if deck.shared %}Unshare{% else %}Share{% endif %} Deck
+            <script type="dojo/connect" event="onChange" args="evt">
+                if (evt) {
+                    this.attr('label', 'Unshare Deck');
+                    /*this.attr('iconClass', 'manabi_icon manabi_icon_control_play');*/
+                } else {
+                    this.attr('label', 'Share Deck');
+                    /*this.attr('iconClass', 'manabi_icon manabi_icon_control_pause');*/
+                }
+            </script>
+            <script type="dojo/connect" event="onClick" args="evt">
+                // Shares or unshares this deck.
+                var share = this.attr('checked');
+                var url = '/flashcards/rest/decks/{{ deck.id }}'; // + share ? 'share' : 'unshare';
+                manabi_ui.xhrPostData(url, {'shared': share});
+            </script>            
+        </button>
         <button dojoType="dijit.form.Button">
-	        Study Now
+	        Delete Deck
 	        <script type="dojo/connect" event="onClick" args="evt">
-                reviews_ui.startSession({{ deck.id }}, 10, 0, '');
 	        </script>
         </button>
     </p>
-{% endifnotequal %}
-
-<hr>
-<p>
-    <h3>Deck Contents</h3>
-    <br>
-    <button dojoType="dijit.form.Button">
-	    Create Flashcards
-	    <script type="dojo/connect" event="onClick" args="evt">
-            fact_ui.showFactAddDialog('{{ deck.id }}');
-	    </script>
-    </button>
-
-    {% include "flashcards/_facts_grid.html" %}
-</p> 
-
-<hr>
-<p>
-    
-    <button dojoType="dijit.form.ToggleButton" iconClass="" checked="{{ deck.shared }}">
-        {% if deck.shared %}Unshare{% else %}Share{% endif %} Deck
-        <script type="dojo/connect" event="onChange" args="evt">
-            if (evt) {
-                this.attr('label', 'Unshare Deck');
-                /*this.attr('iconClass', 'manabi_icon manabi_icon_control_play');*/
-            } else {
-                this.attr('label', 'Share Deck');
-                /*this.attr('iconClass', 'manabi_icon manabi_icon_control_pause');*/
-            }
-        </script>
-        <script type="dojo/connect" event="onClick" args="evt">
-            // Shares or unshares this deck.
-            var share = this.attr('checked');
-            var url = '/flashcards/rest/decks/{{ deck.id }}'; // + share ? 'share' : 'unshare';
-            manabi_ui.xhrPostData(url, {'shared': share});
-        </script>            
-    </button>
-    <button dojoType="dijit.form.Button">
-	    Delete Deck
-	    <script type="dojo/connect" event="onClick" args="evt">
-	    </script>
-    </button>
-</p>
+{% endif %}
