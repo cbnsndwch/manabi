@@ -215,6 +215,7 @@ class Fact(AbstractFact):
     @transaction.commit_on_success    
     def delete(self):
         if self.subscriber_facts.exists():
+            # don't bother with users who don't have this fact yet - we can safely (according to guidelines) delete at this point.
             # if subscriber facts have reviewed or edited anything within this fact,
             # don't delete it for those subscribers.
             active_subscriber_cards = Card.objects.filter(
@@ -234,7 +235,8 @@ class Fact(AbstractFact):
             for fact in active_subscriber_facts:
                 # unsynchronize each fact by copying field contents
                 fact.copy_subscribed_field_contents()
-            active_subscriber_facts.update(synchronized_with=None).save()
+                fact.synchronized_with=None
+                fact.save()
 
             other_subscriber_facts = self.subscriber_decks.exclude(id__in=active_subscriber_facts)
             other_subscriber_facts.delete()
