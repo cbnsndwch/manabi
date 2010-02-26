@@ -20,7 +20,7 @@ def create_default_user_data(sender, instance, created, **kwargs):
     if created:
       user = instance
       
-      my_deck = Deck(name='Sample Deck', owner=user)
+      my_deck = Deck(name='Sample Deck', owner=user, active=True)
       my_deck.save()
 
       my_deck_scheduling = SchedulingOptions(deck=my_deck)

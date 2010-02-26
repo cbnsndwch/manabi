@@ -52,6 +52,26 @@ def add_decks(request):
     #return object_list(request, queryset=shared_decks, template_object_name='shared_deck')
     
 
+@login_required
+@json_response
+@all_http_methods
+def rest_deck_subscribe(request, deck_id):
+    try:
+        deck = Deck.objects.get(id=deck_id)
+        if deck.owner_id == request.user.id: #and not request.User.is_staff():
+            raise forms.ValidationError('You cannot subscribe to a deck which you created yourself. Subscription is for other users.')
+        elif not deck.shared:
+            raise forms.ValidationError('This deck is not shared, so you cannot subscribe to it.')
+    except Deck.DoesNotExist:
+        raise Http404
+
+    if request.method == 'POST':
+        new_deck = deck.subscribe(request.user)
+        return {'success':True, 'deck_id': new_deck.id, 'post_redirect': new_deck.get_absolute_url()}
+    else:
+        raise Http404
+
+
 
 
 #HTML views
@@ -64,7 +84,7 @@ def facts_editor(request):
     fact_type = FactType.objects.get(id=1)
     field_types = fact_type.fieldtype_set.all().order_by('ordinal')
     card_templates = fact_type.cardtemplate_set.all()
-    decks = Deck.objects.filter(owner=request.user)
+    decks = Deck.objects.filter(owner=request.user, active=True)
     context = {'field_types': field_types,
                'card_templates': card_templates,
                'decks': decks}
@@ -77,7 +97,7 @@ def fact_update(request, fact_id):
         fact = Fact.objects.get(id=fact_id) #TODO validation
         fact.edit_string_for_tags = usertagging.utils.edit_string_for_tags(fact.tags)
         fact_type = FactType.objects.get(id=1) #assume japanese for now
-        decks = Deck.objects.filter(owner=request.user)
+        decks = Deck.objects.filter(owner=request.user, active=True)
         card_templates = []
         activated_card_templates = [e.template for e in fact.card_set.filter(active=True)]
         for card_template in fact_type.cardtemplate_set.all():
@@ -93,7 +113,7 @@ def fact_update(request, fact_id):
 #TODO refactor into HTML/AJAX CRUD pattern
 @login_required
 def deck_list(request):
-  decks = Deck.objects.filter(owner=request.user)
+  decks = Deck.objects.filter(owner=request.user, active=True)
   context = {'container_id': 'deckDialog'}
   context['only_one_deck_exists'] = (len(decks) == 1)
 
@@ -127,10 +147,14 @@ def deck_delete(request, deck_id, post_delete_redirect='/flashcards/decks'): #to
     raise forms.ValidationError('You do not have permission to access this flashcard deck.')
   if request.method == 'POST':
     #don't allow the last deck to be deleted
-    if Deck.objects.filter(owner=request.user).count() == 1:
+    if Deck.objects.filter(owner=request.user, active=True).count() == 1:
         return HttpResponse(json_encode({'success':False}, mimetype='text/javascript')) #TODO error message
 
-    obj.delete_cascading()
+    if deck.subscriber_decks.filter(active=True).exists():
+        obj.active = False
+        obj.save()
+    else:
+        obj.delete_cascading()
     #request.user.message_set.create(message=ugettext("The %(verbose_name)s was deleted.") % {"verbose_name": model._meta.verbose_name})
     return HttpResponse(json_encode({'success':True}), mimetype='text/javascript')
   else:
@@ -166,7 +190,7 @@ def deck_create(request, post_save_redirect='/flashcards/decks'):
 
 @login_required
 def shared_deck_list(request):
-  shared_decks = SharedDeck.objects.all()
+  shared_decks = SharedDeck.objects.filter(active=True)
   return object_list(request, queryset=shared_decks, extra_context={'container_id': 'deckDialog'}, template_object_name='shared_deck')
 
 
@@ -197,7 +221,7 @@ def deck_share(request, deck_id, post_redirect='/flashcards/shared_decks'): #tod
 #REST views
 
 def rest_entry_point(request):
-  pass
+    pass
 
 
 @login_required
@@ -213,27 +237,27 @@ def rest_generate_reading(request):
 @login_required
 @json_response
 def rest_decks_with_totals(request):
-  if request.method == "GET":
-    try:
-      #decks = Deck.objects.filter(owner=request.user).values() #TODO fields
-      decks = Deck.objects.values_of_all_with_stats_and_totals(request.user, 
-              fields=['id', 'name'])
-    except Deck.DoesNotExist:
-      decks = []
-    
-    return to_dojo_data(decks, label='name')
+    if request.method == "GET":
+        try:
+            #decks = Deck.objects.filter(owner=request.user).values() #TODO fields
+            decks = Deck.objects.values_of_all_with_stats_and_totals(request.user, 
+                    fields=['id', 'name'])
+        except Deck.DoesNotExist:
+            decks = []
+
+        return to_dojo_data(decks, label='name')
 
 @login_required
 @json_response
 def rest_decks(request):
-  if request.method == "POST":
-    pass
-  elif request.method == "GET":
-    try:
-      ret = Deck.objects.filter(owner=request.user).values('id', 'name', 'description')
-    except Deck.DoesNotExist:
-      ret = []
-    return to_dojo_data(ret, label='name')
+    if request.method == "POST":
+        pass
+    elif request.method == "GET":
+        try:
+            ret = Deck.objects.filter(owner=request.user, active=True).values('id', 'name', 'description')
+        except Deck.DoesNotExist:
+            ret = []
+        return to_dojo_data(ret, label='name')
     
 
 @login_required
@@ -248,7 +272,11 @@ def rest_deck(request, deck_id):
         raise Http404
 
     if request.method == 'DELETE':
-        deck.delete()
+        if deck.subscriber_decks.filter(active=True).exists():
+            deck.active = False
+            deck.save()
+        else:
+            deck.delete_cascading()
         #request.user.message_set.create(message=ugettext("The %(verbose_name)s was deleted.") % {"verbose_name": model._meta.verbose_name})
         return {'success':True}
     elif request.method == 'PUT':
@@ -270,37 +298,37 @@ def rest_deck(request, deck_id):
 @json_response
 @all_http_methods
 def rest_card_templates(request, fact_type_id):
-  "Returns list of CardTemplate objects given a parent FactType id"
-  if request.method == 'GET':
-    try:
-      fact_type = FactType.objects.get(id=fact_type_id) #todo: error handling
-      ret = fact_type.cardtemplate_set.all()
-    except FactType.DoesNotExist:
-      ret = []
-    return to_dojo_data(ret)
+    "Returns list of CardTemplate objects given a parent FactType id"
+    if request.method == 'GET':
+        try:
+            fact_type = FactType.objects.get(id=fact_type_id) #todo: error handling
+            ret = fact_type.cardtemplate_set.all()
+        except FactType.DoesNotExist:
+            ret = []
+        return to_dojo_data(ret)
 
 
 @login_required
 @json_response
 @all_http_methods
 def rest_fields(request, fact_type_id):
-  "Returns list of Field objects given a FactType id"
-  if request.method == 'GET':
-    try:
-      fact_type = FactType.objects.get(id=fact_type_id) #todo: error handling
-      ret = fact_type.fieldtype_set.all().order_by('ordinal')
-    except FactType.DoesNotExist:
-      ret = []
-    return to_dojo_data(ret)
+    "Returns list of Field objects given a FactType id"
+    if request.method == 'GET':
+        try:
+            fact_type = FactType.objects.get(id=fact_type_id) #todo: error handling
+            ret = fact_type.fieldtype_set.all().order_by('ordinal')
+        except FactType.DoesNotExist:
+            ret = []
+        return to_dojo_data(ret)
 
 
 @login_required
 @json_response
 @all_http_methods
 def rest_fact_types(request):
-  if request.method == 'GET':
-    fact_types = FactType.objects.all()#SOMEDAY filter(deck__owner=request.user)
-    return to_dojo_data(fact_types)
+    if request.method == 'GET':
+        fact_types = FactType.objects.all()#SOMEDAY filter(deck__owner=request.user)
+        return to_dojo_data(fact_types)
 
 
 #FIXME add validation for every method, like if obj.owner.id != request.user.id: #and not request.User.is_staff():      raise forms.ValidationError('You do not have permission to access this flashcard deck.')
@@ -311,15 +339,15 @@ def rest_fact_types(request):
 @json_response
 @all_http_methods
 def rest_cards(request): #todo:refactor into facts (no???)
-  if request.method == 'GET':
-    if request.GET['fact']:
-      ret = {}
-      try:
-        fact = Fact.objects.get(id=request.GET['fact'])
-        cards = fact.card_set.get_query_set()
-        return to_dojo_data(cards)
-      except Fact.DoesNotExist:
-        return {'success': False}
+    if request.method == 'GET':
+        if request.GET['fact']:
+            ret = {}
+            try:
+                fact = Fact.objects.get(id=request.GET['fact'])
+                cards = fact.card_set.get_query_set()
+                return to_dojo_data(cards)
+            except Fact.DoesNotExist:
+                return {'success': False}
 
 
 
@@ -355,67 +383,77 @@ def rest_facts_tags(request):
 @json_response
 @all_http_methods
 def rest_facts(request): #todo:refactor into facts (no???)
-  if request.method == 'GET':
-    if request.GET['fact_type']:
-      fact_type_id = request.GET['fact_type']
-      ret = {}
-      try:
-        #facts = Fact.objects.filter(fact_type=FactType.objects.get(id=fact_type_id))
-        #ret = to_dojo_data(facts.fieldcontent_set)
-        fact_type = FactType.objects.get(id=fact_type_id)
-
-
-        #filtering by deck
-        if 'deck' in request.GET and request.GET['deck'].strip():
+    if request.method == 'GET':
+        if request.GET['fact_type']:
+            fact_type_id = request.GET['fact_type'] #TODO allow omitting this option
+            ret = {}
             try:
-                deck = Deck.objects.get(id=int(request.GET['deck']))
-            except Deck.DoesNotExist:
+                #facts = Fact.objects.filter(fact_type=FactType.objects.get(id=fact_type_id))
+                fact_type = FactType.objects.get(id=fact_type_id)
+
+                #filtering by deck
+                if 'deck' in request.GET and request.GET['deck'].strip():
+                   try:
+                       deck = Deck.objects.get(id=int(request.GET['deck']))
+                   except Deck.DoesNotExist:
+                       raise Http404
+                else:
+                    deck = None
+                #    user_facts = fact_type.fact_set.filter(deck=deck)
+                #else:
+                #    user_facts = fact_type.fact_set.filter(deck__owner=request.user)
+
+                #facts = user_facts
+
+                #filtering by tags
+                if 'tags' in request.GET and request.GET['tags'].strip():
+                    tag_ids = [int(tag_id) for tag_id in request.GET['tags'].split(',')]
+                    tags = usertagging.models.Tag.objects.filter(id__in=tag_ids)
+                    #facts = usertagging.models.UserTaggedItem.objects.get_by_model(user_facts, tags)
+                else:
+                    tags = None
+
+                if deck:
+                    user = deck.owner
+                else:
+                    user = request.user
+
+                facts = Fact.objects.with_synchronized(user, deck=deck, tags=tags)
+
+                #is the user searching his facts?
+                if 'search' in request.GET and request.GET['search'].strip():
+                    search_query = request.GET['search']
+                    facts = Fact.objects.search(fact_type, search_query, query_set=facts)
+                    #FIXME add search for synchronized facts too!
+
+                if not facts:
+                    ret = {}
+                else:
+                    preret = []
+                    for fact in facts:
+                        row = {'fact-id': fact.id, 'suspended': all([card.suspended for card in fact.card_set.filter(active=True)])}
+                        ident, name = '', ''
+                        for field_type_id, field_content in fact.field_contents.iteritems(): #.all():
+                            key = 'id{0}'.format(field_type_id) #TODO rename to be clearer, like field_id or SOMETHING
+                            if not ident:
+                                ident = key
+                            elif not name:
+                                name = key
+                            row[key] = field_content.human_readable_content
+                            row['{0}_field-content-id'.format(key)] = field_content.id
+                        if not name:
+                            name = ident
+
+                        preret.append(row)
+                    ret = to_dojo_data(preret)
+                    ret['identifier'] = 'fact-id'#ident
+                    #ret['name'] = name #todo:for <2 cols/fields...?
+                    return ret
+            except FactType.DoesNotExist:
                 ret = {}
-            user_facts = fact_type.fact_set.filter(deck=deck)
-        else:
-            user_facts = fact_type.fact_set.filter(deck__owner=request.user)
-
-        facts = user_facts
-
-        #filtering by tags
-        if 'tags' in request.GET and request.GET['tags'].strip():
-            tag_ids = [int(tag_id) for tag_id in request.GET['tags'].split(',')]
-            tags = usertagging.models.Tag.objects.filter(id__in=tag_ids)
-            facts = usertagging.models.UserTaggedItem.objects.get_by_model(user_facts, tags)
-
-        #is the user searching his facts?
-        if 'search' in request.GET and request.GET['search'].strip():
-            search_query = request.GET['search']
-            facts = Fact.objects.search(fact_type, search_query, query_set=facts)
-
-        if not facts:
-          ret = {}
-        else:
-          preret = []
-          for fact in facts:
-            row = {'fact-id': fact.id, 'suspended': all([card.suspended for card in fact.card_set.filter(active=True)])}
-            ident, name = '', ''
-            for field_content in fact.fieldcontent_set.all():
-              key='id{0}'.format(field_content.field_type_id) #TODO rename to be clearer, like field_id or SOMETHING
-              if not ident:
-                ident = key
-              elif not name:
-                name = key
-              row[key]=field_content.human_readable_content
-              row['{0}_field-content-id'.format(key)] = field_content.id
-            if not name:
-              name = ident
-
-            preret.append(row)
-          ret=to_dojo_data(preret)
-          ret['identifier'] = 'fact-id'#ident
-          #ret['name'] = name #todo:for <2 cols/fields...?
-          return ret
-      except FactType.DoesNotExist:
-          ret = {}
-      return to_dojo_data(ret)
-  elif request.method == 'POST':
-    return _facts_create(request)
+            return to_dojo_data(ret)
+    elif request.method == 'POST':
+        return _facts_create(request)
 
 #@login_required
 #@json_response
@@ -577,6 +615,8 @@ def _facts_create(request):
   
   if card_formset.is_valid() and field_content_formset.is_valid() and fact_form.is_valid():
     new_fact = fact_form.save() #TODO automate the tag saving in forms.py
+    new_fact.active = True
+    new_fact.save()
 
     for field_content_form in field_content_formset.forms:
       #TODO don't create fieldcontent objects for optional fields which were left blank

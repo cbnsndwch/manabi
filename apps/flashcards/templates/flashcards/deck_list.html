@@ -4,11 +4,9 @@
 {% block content %}
 <h1>Manage My Decks</h1>
 
-<ul>
-    {% for deck in deck_list %}
-        <li><h3><a href="/flashcards/decks/{{ deck.id }}" class="xhr_link">{{ deck.name }}</a></h3></li>
-    {% endfor %}
-</ul>
+{% for deck in deck_list %}
+    <h4><a href="/flashcards/decks/{{ deck.id }}" class="xhr_link">{{ deck.name }}</a></h4>
+{% endfor %}
     {% comment %}
         <td><span><a href="/flashcards/decks/{{ deck.id }}/update" class="xhr_link">rename</a> 
         <a href="/flashcards/decks/{{ deck.id }}/share" class="xhr_link">share</a> 

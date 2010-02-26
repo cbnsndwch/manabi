@@ -1,4 +1,4 @@
-{% if request.user == deck.owner or deck.shared == True %}
+{% if request.user == deck.owner or deck.shared %}
     <h1>{{ deck.name }}</h1>
 
     <p>{{ deck.description }}</p>
@@ -17,8 +17,10 @@
             <button dojoType="dijit.form.Button">
 	            Add Deck
 	            <script type="dojo/connect" event="onClick" args="evt">
+                    var url = '/flashcards/rest/decks/{{ deck.id }}/subscribe';
+                    manabi_ui.xhrPostData(url);
 	            </script>
-            </button>
+            </button> Add this deck to your personal deck collection, so that you can start studying it.
         {% endif %}
     </p>
 
@@ -35,34 +37,37 @@
             </button>
         {% endif %}
 
+        
         {% include "flashcards/_facts_grid.html" %}
     </p> 
 
-    <hr>
-    <p>
-        
-        <button dojoType="dijit.form.ToggleButton" iconClass="" checked="{{ deck.shared }}">
-            {% if deck.shared %}Unshare{% else %}Share{% endif %} Deck
-            <script type="dojo/connect" event="onChange" args="evt">
-                if (evt) {
-                    this.attr('label', 'Unshare Deck');
-                    /*this.attr('iconClass', 'manabi_icon manabi_icon_control_play');*/
-                } else {
-                    this.attr('label', 'Share Deck');
-                    /*this.attr('iconClass', 'manabi_icon manabi_icon_control_pause');*/
-                }
-            </script>
-            <script type="dojo/connect" event="onClick" args="evt">
-                // Shares or unshares this deck.
-                var share = this.attr('checked');
-                var url = '/flashcards/rest/decks/{{ deck.id }}'; // + share ? 'share' : 'unshare';
-                manabi_ui.xhrPostData(url, {'shared': share});
-            </script>            
-        </button>
-        <button dojoType="dijit.form.Button">
-	        Delete Deck
-	        <script type="dojo/connect" event="onClick" args="evt">
-	        </script>
-        </button>
-    </p>
+    {% if request.user == deck.owner %}
+        <hr>
+        <p>
+            
+            <button dojoType="dijit.form.ToggleButton" iconClass="" checked="{{ deck.shared }}">
+                {% if deck.shared %}Unshare{% else %}Share{% endif %} Deck
+                <script type="dojo/connect" event="onChange" args="evt">
+                    if (evt) {
+                        this.attr('label', 'Unshare Deck');
+                        /*this.attr('iconClass', 'manabi_icon manabi_icon_control_play');*/
+                    } else {
+                        this.attr('label', 'Share Deck');
+                        /*this.attr('iconClass', 'manabi_icon manabi_icon_control_pause');*/
+                    }
+                </script>
+                <script type="dojo/connect" event="onClick" args="evt">
+                    // Shares or unshares this deck.
+                    var share = this.attr('checked');
+                    var url = '/flashcards/rest/decks/{{ deck.id }}'; // + share ? 'share' : 'unshare';
+                    manabi_ui.xhrPostData(url, {'shared': share});
+                </script>            
+            </button>
+            <button dojoType="dijit.form.Button">
+	            Delete Deck
+	            <script type="dojo/connect" event="onClick" args="evt">
+	            </script>
+            </button>
+        </p>
+    {% endif %}
 {% endif %}
