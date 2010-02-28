@@ -15,18 +15,24 @@
             name="fact-id" 
             value="{{ fact.id }}" 
             type="hidden">
+        <input dojoType="dijit.form.TextBox" 
+            name="fact-deck" 
+            value="{{ fact.deck.id }}" 
+            type="hidden">
+        {% comment %}
         <div>
             <div>
                 <strong>Deck:</strong>
                 <select name="fact-deck" dojoType="dijit.form.Select">
                     {% for deck in decks %}
-                        <option value="{{ deck.id }}"{% ifequal deck.id fact.deck.id %} selected="selected"{% endifequal %}>
-                            {{ deck.name }}
+                        <option value="{{ deck.id }}"{% if deck.id == fact.deck.id or deck.synchronized_with_id == fact.deck_id %} selected="selected"{% endif %}>
+                        {{ deck.name }}
                         </option>
                     {% endfor %}
                 </select>
             </div>
         </div>
+        {% endcomment %}
         <br>
         <div>
             <div><strong style="vertical-align:top">Cards:</strong>
@@ -40,8 +46,7 @@
             </div>
         </div>
         <div class="cards_factFields">
-            {% for field_content in fact.ordered_fieldcontent_set.all %}
-                <br>
+            {% for field_content in field_contents %}
                 {% with field_content.field_type as field_type %}
                     <div>
                         <strong>{{ field_type.name }}:</strong>{% if not field_type.blank %} <em>(required)</em>{% endif %}
@@ -63,11 +68,20 @@
                             </select>
                         {% else %}
                             <div class="field_content_error"></div>
-                            <textarea  
-                                name="field_content-{{ forloop.counter0 }}-content" 
-                                class="cards_fieldContent" 
-                                dojoType="dijit.form.Textarea" 
-                                rows="2" style="width:400px;">{{ field_content.content }}</textarea>
+                            {% if field_type.multi_line %}
+                                <textarea  
+                                    name="field_content-{{ forloop.counter0 }}-content" 
+                                    class="cards_fieldContent" 
+                                    dojoType="dijit.form.Textarea" 
+                                    rows="2" style="width:400px;">{{ field_content.content }}</textarea>
+                            {% else %}
+                                <input  
+                                    name="field_content-{{ forloop.counter0 }}-content" 
+                                    class="cards_fieldContent" 
+                                    dojoType="dijit.form.TextBox" 
+                                    style="width:400px;"
+                                    value="{{ field_content.content }}">
+                            {% endif %}
                             {% if field_type.is_transliteration_field_type %}
                                 <span class="fakeLink" 
                                     onclick="fact_ui.generateReading(dijit.getEnclosingWidget(dojo.query('.cards_fieldContent')[0]).attr('value'), dijit.getEnclosingWidget(dojo.query('.cards_fieldContent')[2]))">Generate Reading</span>
@@ -78,10 +92,12 @@
                             class="cards_fieldContentType" 
                             value="{{ field_type.id }}" 
                             type="hidden">
+                        {% if field_content.fact.owner == fact.deck.owner %}
                         <input dojoType="dijit.form.TextBox" 
                             name="field_content-{{ forloop.counter0 }}-id" 
                             value="{{ field_content.id }}" 
                             type="hidden">
+                        {% endif %}
                     </div>
                 {% endwith %}
             {% endfor %}
@@ -94,6 +110,12 @@
                                     value="{{ fact.edit_string_for_tags }}">
         </div>
         <br>
+
+        <input dojoType="dijit.form.TextBox" 
+            name="field_content-INITIAL_FORMS" 
+            value="{{ fact.fieldcontent_set.count }}" 
+            type="hidden">
+
         <div style="padding-bottom: 10px">
             <span>
                 <button dojoType="dijit.form.Button" type="submit">

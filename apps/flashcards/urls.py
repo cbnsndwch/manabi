@@ -43,7 +43,7 @@ urlpatterns = patterns('flashcards',
     (r'^facts/(\w+)/update', 'views.fact_update'),
     
     #REST
-    (r'^rest$', 'views.rest_entry_point'),
+    #(r'^rest$', 'views.rest_entry_point'),
     (r'^rest/generate_reading$', 'views.rest_generate_reading'),
     (r'^rest/decks$', 'views.rest_decks'),
     (r'^rest/decks/(\w+)$', 'views.rest_deck'), #POST: can set 'shared' field

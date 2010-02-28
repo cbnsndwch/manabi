@@ -4,11 +4,12 @@
 <p>
     Add a flashcard deck from the list below, or create one yourself.
 </p>
-<h3>Public Deck Library</h3>
-{% for shared_deck in shared_deck_list %}
-    <h4><a href="/flashcards/decks/{{ shared_deck.id }}" class="xhr_link">{{ shared_deck.name }}</a></h4><br>
-{% endfor %}
-
+<p>
+    <h3>Public Deck Library</h3>
+    {% for shared_deck in shared_deck_list %}
+    <h4><a href="{{ shared_deck.get_absolute_url }}" class="xhr_link">{{ shared_deck.name }}</a></h4>
+    {% endfor %}
+</p>
 <hr>
 <p>
     <h3><a href="/flashcards/decks/create" class="xhr_link">Create New Deck</a></h3>

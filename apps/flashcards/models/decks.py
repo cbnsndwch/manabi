@@ -145,6 +145,38 @@ class Deck(AbstractDeck):
         super(Deck, self).delete()
 
 
+    def facts(self):
+        '''Returns all Facts for this deck,
+        including subscribed ones.
+        '''
+        if self.synchronized_with:
+            updated_fields = FieldContent.objects.filter(fact__deck=self, fact__active=True, fact__synchronized_with__isnull=False) #fact__in=self.subscriber_facts.all())
+            # 'other' here means non-updated, subscribed
+            other_facts = Fact.objects.filter(id__in=updated_fields.values_list('fact', flat=True))
+            other_fields = FieldContent.objects.filter(fact__deck=self.synchronized_with).exclude(fact__active=True, fact__in=other_facts.values_list('synchronized_with', flat=True))
+            #active_subscribers = active_subscribers | other_fields
+            return updated_fields | other_fields
+        else:
+            return FieldContent.objects.filter(fact__deck=self, fact__active=True)
+
+
+    def field_contents(self):
+        '''Returns all FieldContents for facts in this deck,
+        preferring updated subscriber fields to subscribed ones,
+        when the deck is synchronized.
+        '''
+        #active_subscribers = Fact.objects.filter(id__in=updated_fields.values_list('fact_id', flat=True))
+        if self.synchronized_with:
+            updated_fields = FieldContent.objects.filter(fact__deck=self, fact__active=True, fact__synchronized_with__isnull=False) #fact__in=self.subscriber_facts.all())
+            # 'other' here means non-updated, subscribed
+            other_facts = Fact.objects.filter(id__in=updated_fields.values_list('fact', flat=True))
+            other_fields = FieldContent.objects.filter(fact__deck=self.synchronized_with).exclude(fact__active=True, fact__in=other_facts.values_list('synchronized_with', flat=True))
+            #active_subscribers = active_subscribers | other_fields
+            return updated_fields | other_fields
+        else:
+            return FieldContent.objects.filter(fact__deck=self, fact__active=True)
+
+
     @transaction.commit_on_success    
     def share(self):
         '''Shares this deck publicly.

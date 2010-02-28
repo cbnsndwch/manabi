@@ -130,7 +130,7 @@
   
   function resetFactAddForm() {
       //factAddForm.reset(); //don't reset everything... just the field contents
-      dojo.query('textarea',factAddDialog.domNode).forEach(function(node, index, arr){
+      dojo.query('.dijitTextBox:not([type=hidden]), .dijitTextarea:not([type=hidden])',factAddDialog.domNode).forEach(function(node, index, arr){
               node.value=''; }); //TODO clear via dijit, not dom
 
       //reset multi-choice fields
@@ -149,7 +149,7 @@
       dojo.query('.field_content_error', dojo.byId('factAddFormWrapper')).empty();
 
       //focus the first text field
-      dojo.query('textarea', factAddDialog.domNode)[0].focus();
+      dojo.query('.dijitTextBox:not([type=hidden]), .dijitTextarea:not([type=hidden])', factAddDialog.domNode)[0].focus(); //FIXME for textboxes
   }
   
   function createFieldInputsForUpdate(domNode, factTypeId, factFieldValues, cardTemplatesOnCompleteCallback, factFieldsOnCompleteCallback) { //todo:refactor into 2 meths
@@ -325,6 +325,7 @@
     }
 
     fact_ui.submitFactForm = function(fact_form, fact_id) {
+        // currently used for updating facts
         //factForm must be a dijit form
         //fact_id is optional - if specified, it means we're updating a fact
         //TODO return a deferred instead of taking in success/error callbacks
@@ -351,8 +352,8 @@
         form_values['card-TOTAL_FORMS'] = card_counter.toString();
         form_values['card-INITIAL_FORMS'] = '0';
         form_values['field_content-TOTAL_FORMS'] = field_count.toString();
-        form_values['field_content-INITIAL_FORMS'] = 
-            fact_id ? field_count.toString() : '0';
+        /*form_values['field_content-INITIAL_FORMS'] = 
+            fact_id ? field_count.toString() : '0';*/
 
         //submit the form
         var submit_error_callback = function(data, card_counter) {

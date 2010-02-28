@@ -410,7 +410,6 @@ http://developer.apple.com/mac/library/documentation/UserExperience/Reference/Di
 
 -----------------------
 vim todo:
-
 -----------------------
 stuff for yoshimura sensei:
 make sure there arent bad production cards
@@ -429,3 +428,20 @@ but still allow furigana in meaning fields
 attribute creative commons stuff:
 cancel.png http://www.iconfinder.net/icondetails/14174/16/
 all others http://www.famfamfam.com/lab/icons/
+
+
+
+------------
+new layout deck sync stuff
+------------
+bug with subscribers changing the deck of a card
+-edit subscribed card->deck is wrong
+what to do about messing with subscriber stuff while subscribers are currently reviewing?
+-copy tags from shared facts
+copy decks to subscribers when deck is deleted
+make sure fact constraints check subscribed deck facts too
+click a shared deck, if already subscribed, go to that
+click a shared deck, if not subscribed, 'cards_deleteButton not defined' error
+handle deleting a subscriber fact - should just do active=false or something
+search
+

@@ -54,12 +54,16 @@
                             </select>
                         {% else %}
                             <div id="id_field_content-{{ forloop.counter0 }}-content-errors" class="field_content_error"></div>
-                            <textarea id="id_field_content-{{ forloop.counter0 }}-content" 
-                                name="field_content-{{ forloop.counter0 }}-content" 
-                                dojoType="dijit.form.Textarea" 
-                                style="width:400px;margin-bottom:3px;" 
-                                class="field_content{% if field_type.transliteration_field_type %} kanji_field{% endif %}{% if field_type.fieldtype %} reading_field{% endif %}"
-                                tabIndex="5{{ forloop.counter }}"></textarea>
+                            {% if field_type.multi_line %}
+                                <textarea dojoType="dijit.form.Textarea" 
+                            {% else %}
+                                <input dojoType="dijit.form.TextBox" 
+                            {% endif %}
+                                    id="id_field_content-{{ forloop.counter0 }}-content" 
+                                    name="field_content-{{ forloop.counter0 }}-content" 
+                                    style="width:400px;margin-bottom:3px;" 
+                                    class="field_content{% if field_type.transliteration_field_type %} kanji_field{% endif %}{% if field_type.fieldtype %} reading_field{% endif %}"
+                                    tabIndex="5{{ forloop.counter }}">{% if field_type.multi_line %}</textarea>{% endif %}
                             {% if field_type.transliteration_field_type %}
                                 <script type="text/javascript">
                                     //this field has a corresponding transliteration field

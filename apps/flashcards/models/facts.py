@@ -55,6 +55,29 @@ class FactManager(models.Manager):
         user_facts = self.filter(deck__owner=user).all()
         return usertagging.models.Tag.objects.usage_for_queryset(user_facts)
     
+    
+    def get_for_owner_or_subscriber(self, id, user):
+        '''Returns a Fact object of the given id,
+        or if the user is a subscriber to the deck of that fact,
+        returns the subscriber's copy of that fact, which it 
+        creates if necessary.
+        '''
+        fact = Fact.objects.get(id=id)
+        if fact.owner != user:
+            if not fact.deck.shared:
+                pass #FIXME raise permissions error
+            else:
+                # find the subscriber deck for this user
+                subscriber_deck = Deck.objects.get(owner=user, synchronized_with=fact.deck)
+
+                # check if the fact exists already
+                existent_fact = subscriber_deck.fact_set.filter(synchronized_with=fact)
+                if existent_fact:
+                    fact = existent_fact[0]
+                else:
+                    fact = fact.copy_to_deck(subscriber_deck, synchronize=True)
+        return fact
+
 
     def with_synchronized(self, user, deck=None, tags=None):
         '''Returns a queryset of all Facts which the user owns, or which 
@@ -74,10 +97,12 @@ class FactManager(models.Manager):
         if tags:
             tagged_facts = usertagging.models.UserTaggedItem.objects.get_by_model(Fact, tags)
             user_facts = user_facts.filter(fact__in=tagged_facts)
-        shared_decks = decks.filter(synchronized_with__isnull=False)
+        subscriber_decks = decks.filter(synchronized_with__isnull=False)
+        subscribed_decks = [deck.synchronized_with for deck in subscriber_decks]
         #shared_facts = self.filter(deck_id__in=shared_deck_ids)
-        shared_facts = self.filter(deck__in=shared_decks)# should not be necessary.exclude(id__in=user_facts)
-        return shared_facts | user_facts
+        copied_subscribed_fact_ids = [fact.synchronized_with_id for fact in user_facts]
+        subscribed_facts = self.filter(deck__in=subscribed_decks).exclude(id__in=copied_subscribed_fact_ids) # should not be necessary.exclude(id__in=user_facts)
+        return user_facts | subscribed_facts
 
 
     def search(self, fact_type, query, query_set=None):
@@ -88,19 +113,26 @@ class FactManager(models.Manager):
         query = query.strip()
         if not query_set:
             query_set = self.all()
-        
-        matches = FieldContent.objects.filter( \
-                Q(content__icontains=query) \
-                | Q(cached_transliteration_without_markup__icontains=query) \
-                & Q(fact__fact_type=fact_type)).all()
 
-        return query_set.filter(id__in=set(field_content.fact_id for field_content in matches))
+        subscriber_facts = Fact.objects.filter(synchronized_with__in=query_set)
+
+        matches = FieldContent.objects.filter(
+                Q(content__icontains=query)
+                | Q(cached_transliteration_without_markup__icontains=query)
+                & (Q(fact__in=query_set) | Q(fact__synchronized_with__in=subscriber_facts)))
+                #& Q(fact__fact_type=fact_type)).all()
+
+        #TODO use values_list to be faster
+        match_ids = matches.values_list('fact', flat=True)
+        return query_set.filter(Q(id__in=match_ids) | Q(synchronized_with__in=match_ids))
+        #return query_set.filter(id__in=set(field_content.fact_id for field_content in matches))
 
 
     @transaction.commit_on_success    
     def add_new_facts_from_synchronized_decks(self, user, count, deck=None, tags=None):
         '''Returns a limited queryset of the new facts added, after adding them for the user.
         '''
+        from cards import Card
         if deck:
             if not deck.synchronized_with:
                 return self.none()
@@ -119,39 +151,8 @@ class FactManager(models.Manager):
         
         # copy each fact
         for shared_fact in new_shared_facts:
-            if shared_fact.parent_fact:
-                #child fact
-                fact = Fact(
-                    fact_type_id=shared_fact.fact_type_id,
-                    synchronized_with=shared_fact,
-                    active=shared_fact.active) #TODO should it be here?
-                fact.parent_fact = shared_fact_to_fact[shared_fact.parent_fact]
-                fact.save()
-            else:
-                #regular fact
-                fact = Fact(
-                    deck=deck,
-                    fact_type_id=shared_fact.fact_type_id,
-                    synchronized_with=shared_fact,
-                    active=shared_fact.active, #TODO should it be here?
-                    priority=shared_fact.priority,
-                    notes=shared_fact.notes)
-                fact.save()
-                shared_fact_to_fact[shared_fact] = fact
+            shared_fact.copy_to_deck(deck, synchronize=True)
 
-            # don't copy the field contents - we will get them from the synchronized fact
-            
-            # copy the cards
-            for shared_card in shared_fact.card_set.filter(active=True):
-                card = cards.Card(
-                    fact=fact,
-                    template_id=shared_card.template_id,
-                    priority=shared_card.priority,
-                    leech=False, #shared_card.leech,
-                    active=True, #shared_card.active, #TODO what to do with these ...
-                    suspended=shared_card.suspended,
-                    new_card_ordinal=shared_card.new_card_ordinal)
-                card.save()
         return new_shared_facts
 
 
@@ -171,11 +172,6 @@ class AbstractFact(models.Model):
     created_at = models.DateTimeField(auto_now_add=True, editable=False)
     modified_at = models.DateTimeField(auto_now=True, editable=False)
 
-    @property
-    def ordered_fieldcontent_set(self):
-        #field_types = self.fact_type.fieldtype_set.all()
-        return self.fieldcontent_set.all().order_by('field_type__ordinal')
-        
 
     class Meta:
         app_label = 'flashcards'
@@ -212,37 +208,33 @@ class Fact(AbstractFact):
         super(Fact, self).save()
 
     
-    @transaction.commit_on_success    
+    @transaction.commit_on_success
     def delete(self):
-        if self.subscriber_facts.exists():
+        if self.deck.shared and self.subscriber_facts.all():
             # don't bother with users who don't have this fact yet - we can safely (according to guidelines) delete at this point.
             # if subscriber facts have reviewed or edited anything within this fact,
             # don't delete it for those subscribers.
-            active_subscriber_cards = Card.objects.filter(
-                    Q(active=True) & 
-                    Q(suspended=False) & 
-                    Q(last_reviewed_at__isnull=True)).values_list('fact_id', flat=True)
+            from cards import Card
 
+            # get active subscriber facts
+            active_cards = Card.objects.filter(fact__in=self.subscriber_facts.all(), active=True, suspended=False, last_reviewed_at__isnull=False)
 
-            updated_subscriber_fields = FieldContent.objects.filter(fact__in=self.subscriber_facts.filter()).distinct().values_list('fact_id', flat=True)
+            updated_fields = FieldContent.objects.filter(fact__in=self.subscriber_facts.all())
 
-            active_subscriber_facts = self.subscriber_facts.filter(
-                    Q(id__in=updated_subscriber_fields) |
-                    Q(id__in=active_subscriber_cards))
+            active_subscribers = self.subscriber_facts.filter(
+                    Q(id__in=active_cards.values_list('fact_id', flat=True)) |
+                    Q(id__in=updated_fields.values_list('fact_id', flat=True)))
 
             # de-synchronize the facts which users have updated or reviewed,
             # after making sure they contain the field contents.
-            for fact in active_subscriber_facts:
+            for fact in active_subscribers.iterator():
                 # unsynchronize each fact by copying field contents
                 fact.copy_subscribed_field_contents()
-                fact.synchronized_with=None
+                fact.synchronized_with = None
                 fact.save()
 
-            other_subscriber_facts = self.subscriber_decks.exclude(id__in=active_subscriber_facts)
+            other_subscriber_facts = self.subscriber_facts.exclude(id__in=active_subscribers)
             other_subscriber_facts.delete()
-
-            #Q(fact__in=self.subscriber_facts.filter(active=True)))
-            #self.subscriber_facts.clear()
         super(Fact, self).delete()
 
 
@@ -251,19 +243,22 @@ class Fact(AbstractFact):
         return self.deck.owner
 
 
+
+
     @property
     def field_contents(self):
-        '''Returns a dict of {field_type_id: field_content}
+        '''Returns a queryset of field contents for this fact. #dict of {field_type_id: field_content}
         '''
         fact = self
-        field_contents = self.fieldcontent_set.all()
+        field_contents = self.fieldcontent_set.all().order_by('field_type__ordinal')
         if self.synchronized_with:
             # first see if the user has updated this fact's contents.
             # this would override the synced fact's.
             #TODO only override on a per-field basis when the user updates field contents
             if not len(field_contents):
-                field_contents = self.synchronized_with.fieldcontent_set.all()
-        return dict((field_content.field_type_id, field_content) for field_content in field_contents)
+                field_contents = self.synchronized_with.fieldcontent_set.all().order_by('field_type__ordinal')
+        #return dict((field_content.field_type_id, field_content) for field_content in field_contents)
+        return field_contents
 
 
     @property
@@ -274,7 +269,7 @@ class Fact(AbstractFact):
         '''
         if not self.synchronized_with:
             raise TypeError('This is not a subscriber fact.')
-        return self.fieldcontent_set.all().exists()
+        return self.fieldcontent_set.all().counter() > 0 #.exists()
 
 
     def copy_subscribed_field_contents(self):
@@ -288,9 +283,8 @@ class Fact(AbstractFact):
             raise TypeError('This is not a subscriber fact.')
         for field_content in self.synchronized_with.fieldcontent_set.all():
             # copy if it doesn't already exist
-            if not self.fieldcontent_set.filter(field_type=field_content.field_type).exists():
+            if not self.fieldcontent_set.filter(field_type=field_content.field_type):
                 field_content.copy_to_fact(self)
-
 
 
     def fieldcontent_set_plus_blank_fields(self):
@@ -305,6 +299,47 @@ class Fact(AbstractFact):
         pass
         #field_contents = self.fieldcontent_set.all()
         #TODO add this
+
+
+    @transaction.commit_on_success
+    def copy_to_deck(self, deck, copy_field_contents=False, synchronize=False):
+        '''Creates a copy of this fact and its cards and (optionally, if `synchronize` is False) field contents.
+        If `synchronize` is True, the new fact will be subscribed to this one.
+        Also copies its tags.
+        Returns the newly copied fact.
+        '''
+        copy = Fact(deck=deck, fact_type=self.fact_type, active=self.active, notes=self.notes, new_fact_ordinal=self.new_fact_ordinal)
+        if synchronize:
+            if self.synchronized_with:
+                raise TypeError('Cannot synchronize with a fact that is already a synschronized fact.')
+            elif not self.deck.shared:
+                raise TypeError('This is not a shared fact - cannot synchronize with it.')
+            #TODO enforce deck synchronicity too
+            else:
+                copy.synchronized_with = self
+        copy.save()
+
+        # copy the field contents
+        if copy_field_contents or not synchronize:
+            for field_content in self.fieldcontent_set.all():
+                field_content.copy_to_fact(copy)
+
+        # copy the cards
+        for shared_card in self.card_set.filter(active=True):
+            card = cards.Card(
+                    fact=copy,
+                    template_id=shared_card.template_id,
+                    priority=shared_card.priority,
+                    leech=False,
+                    active=True,
+                    suspended=shared_card.suspended,
+                    new_card_ordinal=shared_card.new_card_ordinal)
+            card.save()
+
+        # copy the tags too
+        copy.tags = usertagging.utils.edit_string_for_tags(self.tags)
+
+        return copy
 
 
     class Meta:
@@ -510,16 +545,16 @@ class FieldContent(AbstractFieldContent):
         '''Returns a new FieldContent copy which belongs 
         to the given fact.
         '''
+        #TODO use meta fields instead
         copy = FieldContent(
                 fact=fact,
+                content=self.content,
                 field_type=self.field_type,
                 media_uri=self.media_uri,
                 media_file=self.media_file,
                 cached_transliteration_without_markup=self.cached_transliteration_without_markup)
         copy.save()
         return copy
-
-
 
 
 

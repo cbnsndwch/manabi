@@ -94,7 +94,8 @@ def facts_editor(request):
 @login_required
 def fact_update(request, fact_id):
     if request.method == 'GET':
-        fact = Fact.objects.get(id=fact_id) #TODO validation
+        # if this is a subscribed fact that the subscriber hasn't copied yet, copy the fact (without its field contents) first
+        fact = Fact.objects.get_for_owner_or_subscriber(fact_id, request.user)
         fact.edit_string_for_tags = usertagging.utils.edit_string_for_tags(fact.tags)
         fact_type = FactType.objects.get(id=1) #assume japanese for now
         decks = Deck.objects.filter(owner=request.user, active=True)
@@ -105,7 +106,7 @@ def fact_update(request, fact_id):
             #card_templates.append({'card_template': card_template, 'activated_for_fact': (card_template in activated_card_templates)})
             card_template.activated_for_fact = (card_template in activated_card_templates)
             card_templates.append(card_template)
-        context = {'fact': fact, 'card_templates': card_templates, 'decks': decks}
+        context = {'fact': fact, 'card_templates': card_templates, 'decks': decks, 'field_contents': fact.field_contents}
         return render_to_response('flashcards/fact_form.html', context)
 
 
@@ -150,7 +151,7 @@ def deck_delete(request, deck_id, post_delete_redirect='/flashcards/decks'): #to
     if Deck.objects.filter(owner=request.user, active=True).count() == 1:
         return HttpResponse(json_encode({'success':False}, mimetype='text/javascript')) #TODO error message
 
-    if deck.subscriber_decks.filter(active=True).exists():
+    if deck.subscriber_decks.filter(active=True).count() > 0: #exists():
         obj.active = False
         obj.save()
     else:
@@ -272,7 +273,7 @@ def rest_deck(request, deck_id):
         raise Http404
 
     if request.method == 'DELETE':
-        if deck.subscriber_decks.filter(active=True).exists():
+        if deck.subscriber_decks.filter(active=True).count() > 0: #exists():
             deck.active = False
             deck.save()
         else:
@@ -382,6 +383,7 @@ def rest_facts_tags(request):
 @login_required
 @json_response
 @all_http_methods
+@transaction.commit_on_success
 def rest_facts(request): #todo:refactor into facts (no???)
     if request.method == 'GET':
         if request.GET['fact_type']:
@@ -418,7 +420,7 @@ def rest_facts(request): #todo:refactor into facts (no???)
                 else:
                     user = request.user
 
-                facts = Fact.objects.with_synchronized(user, deck=deck, tags=tags)
+                facts = Fact.objects.with_synchronized(user, deck=deck, tags=tags).filter(active=True)
 
                 #is the user searching his facts?
                 if 'search' in request.GET and request.GET['search'].strip():
@@ -433,8 +435,8 @@ def rest_facts(request): #todo:refactor into facts (no???)
                     for fact in facts:
                         row = {'fact-id': fact.id, 'suspended': all([card.suspended for card in fact.card_set.filter(active=True)])}
                         ident, name = '', ''
-                        for field_type_id, field_content in fact.field_contents.iteritems(): #.all():
-                            key = 'id{0}'.format(field_type_id) #TODO rename to be clearer, like field_id or SOMETHING
+                        for field_content in fact.field_contents: #.all():
+                            key = 'id{0}'.format(field_content.field_type_id) #TODO rename to be clearer, like field_id or SOMETHING
                             if not ident:
                                 ident = key
                             elif not name:
@@ -474,7 +476,7 @@ def rest_facts(request): #todo:refactor into facts (no???)
 def rest_fact_suspend(request, fact_id):
     if request.method == 'POST':
         try:
-            fact = Fact.objects.get(id=fact_id)
+            fact = Fact.objects.get_for_owner_or_subscriber(id, request.user)
             for card in fact.card_set.all():
                 card.suspended = True
                 card.save()
@@ -488,7 +490,7 @@ def rest_fact_suspend(request, fact_id):
 def rest_fact_unsuspend(request, fact_id):
     if request.method == 'POST':
         try:
-            fact = Fact.objects.get(id=fact_id)
+            fact = Fact.objects.get_for_owner_or_subscriber(id, request.user)
             for card in fact.card_set.all():
                 card.suspended = False
                 card.save()
@@ -509,81 +511,92 @@ def rest_fact(request, fact_id): #todo:refactor into facts
 
 def _fact_delete(request, fact_id):
   try:
-    fact = Fact.objects.get(id=fact_id)
-    fact.delete()
+    fact = Fact.objects.get_for_owner_or_subscriber(id, request.user)
+    if fact.synchronized_with:
+        fact.active = False
+        fact.save()
+    else:
+        fact.delete()
     return {'success': True}
   except Fact.DoesNotExist:
     return {'success': False} #TODO add error message
 
 
 def _fact_update(request, fact_id):
-  ret = {}
-  #FIXME make sure the logged-in user owns this FACT
-  #if Deck.objects.get(id=deck_id).owner.id != request.user.id: #and not request.User.is_staff():
-  #  ret['success'] = False
-  #  raise forms.ValidationError('You do not have permission to access this flashcard deck.')
+    ret = {}
+    #FIXME make sure the logged-in user owns this FACT
+    #if Deck.objects.get(id=deck_id).owner.id != request.user.id: #and not request.User.is_staff():
+    #  ret['success'] = False
+    #  raise forms.ValidationError('You do not have permission to access this flashcard deck.')
 
-  #override the submitted deck ID with the ID from the URL, since this is a RESTful interface
-  post_data = request.POST.copy()
+    #override the submitted deck ID with the ID from the URL, since this is a RESTful interface
+    post_data = request.POST.copy()
 
-  #todo: refactor this into model code
-  
-  fact = Fact.objects.get(id=fact_id)
-  fact_form = FactForm(post_data, prefix='fact', instance=fact)
-  
-  CardFormset = modelformset_factory(Card, exclude=('fact', 'ease_factor', )) #TODO make from CardForm
-  card_formset = CardFormset(post_data, prefix='card', queryset=fact.card_set.get_query_set())
-  
-  FieldContentFormset = modelformset_factory(FieldContent, form=FieldContentForm)
-  field_content_formset = FieldContentFormset(post_data, prefix='field_content', queryset=fact.fieldcontent_set.get_query_set())
-
-
-  #fact_form = FactForm(post_data, prefix='fact', instance=fact) #this isn't updated
-  if card_formset.is_valid() and field_content_formset.is_valid() and fact_form.is_valid():
-    fact = fact_form.save() #TODO needed in future?
+    #todo: refactor this into model code
     
-    #update the fact's assigned deck
-    #FIXME catch error if does not exist
-    #deck_id = int(post_data['fact-deck'])
-    #fact.deck = Deck.objects.get(id=deck_id)
-    #fact.save()
+    # if this fact is a shared fact which the current subscribing user hasn't copied yet, copy it first
+    fact = Fact.objects.get_for_owner_or_subscriber(fact_id, request.user)
 
-    for field_content_form in field_content_formset.forms:
-      field_content = field_content_form.save()
+    fact_form = FactForm(post_data, prefix='fact', instance=fact)
+    
+    CardFormset = modelformset_factory(Card, exclude=('fact', 'ease_factor', )) #TODO make from CardForm
+    card_formset = CardFormset(post_data, prefix='card', queryset=fact.card_set.get_query_set())
+    
+    FieldContentFormset = modelformset_factory(FieldContent, form=FieldContentForm)
+    field_content_queryset = fact.fieldcontent_set.get_query_set() or None
+    if field_content_queryset:
+        #FieldContentFormset = formset_factory(FieldContentForm)
+        field_content_formset = FieldContentFormset(post_data, prefix='field_content', queryset=field_content_queryset)
+    else:
+        #FieldContentFormset = modelformset_factory(FieldContent, form=FieldContentForm)
+        field_content_formset = FieldContentFormset(post_data, prefix='field_content')
 
-    #disable any existing cards that weren't selected in the update, or enable if selected and create if needed
-    card_form_template_ids = dict((card_form.cleaned_data['template'].id, card_form) for card_form in card_formset.forms)
-    for card_template in fact.fact_type.cardtemplate_set.all():
-      if card_template.id in card_form_template_ids.keys():
-        try:
-          card = fact.card_set.get(template=card_template)
-          card.active = True
-          card.save()
-        except Card.DoesNotExist:
-          #card_form = card_formset.get_queryset().get(template=card_template)
-          card_form = card_form_template_ids[card_template.id]
-          new_card = card_form.save(commit=False)
-          new_card.fact = fact
-          new_card.active = True
-          new_card.save()
-      else:
-        #card was not selected in update, so disable it if it exists
-        try:
-          card = fact.card_set.get(template=card_template)
-          card.active = False
-          card.save()
-        except Card.DoesNotExist:
-          pass
-          
-    ret['success'] = True
 
-  else:
-    ret['success'] = False
-    ret['errors'] = {'card': card_formset.errors,
-                     'field_content': field_content_formset.errors,
-                     }
-                     #'fact': [fact_form.errors]}
-  return ret
+    #fact_form = FactForm(post_data, prefix='fact', instance=fact) #this isn't updated
+    if card_formset.is_valid() and field_content_formset.is_valid() and fact_form.is_valid():
+        fact = fact_form.save() #TODO needed in future?
+        
+        #update the fact's assigned deck
+        #FIXME catch error if does not exist
+        #deck_id = int(post_data['fact-deck'])
+        #fact.deck = Deck.objects.get(id=deck_id)
+        #fact.save()
+
+        for field_content_form in field_content_formset.forms:
+            field_content = field_content_form.save(commit=False)
+            field_content.fact = fact
+            field_content_form.save()
+
+        #disable any existing cards that weren't selected in the update, or enable if selected and create if needed
+        card_form_template_ids = dict((card_form.cleaned_data['template'].id, card_form) for card_form in card_formset.forms)
+        for card_template in fact.fact_type.cardtemplate_set.all():
+            if card_template.id in card_form_template_ids.keys():
+                try:
+                    card = fact.card_set.get(template=card_template)
+                    card.active = True
+                    card.save()
+                except Card.DoesNotExist:
+                    #card_form = card_formset.get_queryset().get(template=card_template)
+                    card_form = card_form_template_ids[card_template.id]
+                    new_card = card_form.save(commit=False)
+                    new_card.fact = fact
+                    new_card.active = True
+                    new_card.save()
+            else:
+                #card was not selected in update, so disable it if it exists
+                try:
+                    card = fact.card_set.get(template=card_template)
+                    card.active = False
+                    card.save()
+                except Card.DoesNotExist:
+                    pass
+        ret['success'] = True
+    else:
+        ret['success'] = False
+        ret['errors'] = {'card': card_formset.errors,
+                        'field_content': field_content_formset.errors, }
+                        #'fact': [fact_form.errors]}
+    return ret
 
 
 def _facts_create(request):
