@@ -473,10 +473,13 @@ def rest_facts(request): #todo:refactor into facts (no???)
 
 @login_required
 @json_response
+@transaction.commit_on_success
 def rest_fact_suspend(request, fact_id):
     if request.method == 'POST':
         try:
-            fact = Fact.objects.get_for_owner_or_subscriber(id, request.user)
+            fact = Fact.objects.get_for_owner_or_subscriber(fact_id, request.user)
+            #fact.suspended = True
+            #fact.save()
             for card in fact.card_set.all():
                 card.suspended = True
                 card.save()
@@ -487,10 +490,13 @@ def rest_fact_suspend(request, fact_id):
 
 @login_required
 @json_response
+@transaction.commit_on_success
 def rest_fact_unsuspend(request, fact_id):
     if request.method == 'POST':
         try:
-            fact = Fact.objects.get_for_owner_or_subscriber(id, request.user)
+            fact = Fact.objects.get_for_owner_or_subscriber(fact_id, request.user)
+            #fact.suspended = False
+            #fact.save()
             for card in fact.card_set.all():
                 card.suspended = False
                 card.save()
@@ -511,7 +517,7 @@ def rest_fact(request, fact_id): #todo:refactor into facts
 
 def _fact_delete(request, fact_id):
   try:
-    fact = Fact.objects.get_for_owner_or_subscriber(id, request.user)
+    fact = Fact.objects.get_for_owner_or_subscriber(fact_id, request.user)
     if fact.synchronized_with:
         fact.active = False
         fact.save()

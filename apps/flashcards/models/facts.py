@@ -56,17 +56,19 @@ class FactManager(models.Manager):
         return usertagging.models.Tag.objects.usage_for_queryset(user_facts)
     
     
-    def get_for_owner_or_subscriber(self, id, user):
+    def get_for_owner_or_subscriber(self, fact_id, user):
         '''Returns a Fact object of the given id,
         or if the user is a subscriber to the deck of that fact,
         returns the subscriber's copy of that fact, which it 
         creates if necessary.
+        It will also create the associated cards.
         '''
-        fact = Fact.objects.get(id=id)
+        fact = Fact.objects.get(id=fact_id)
         if fact.owner != user:
             if not fact.deck.shared:
                 pass #FIXME raise permissions error
             else:
+                from decks import Deck
                 # find the subscriber deck for this user
                 subscriber_deck = Deck.objects.get(owner=user, synchronized_with=fact.deck)
 
@@ -166,6 +168,7 @@ class AbstractFact(models.Model):
     fact_type = models.ForeignKey(FactType)
     
     active = models.BooleanField(default=True, blank=True)
+    #suspended = models.BooleanField(default=False, blank=True)
     priority = models.IntegerField(default=0, null=True, blank=True) #TODO how to reconcile with card priorities?
     notes = models.CharField(max_length=1000, blank=True)
     
@@ -272,6 +275,7 @@ class Fact(AbstractFact):
         return self.fieldcontent_set.all().counter() > 0 #.exists()
 
 
+    @transaction.commit_on_success
     def copy_subscribed_field_contents(self):
         '''Only call this for subscriber facts.
         Copies all the field contents for the synchronized fact,
@@ -325,8 +329,9 @@ class Fact(AbstractFact):
                 field_content.copy_to_fact(copy)
 
         # copy the cards
+        from cards import Card
         for shared_card in self.card_set.filter(active=True):
-            card = cards.Card(
+            card = Card(
                     fact=copy,
                     template_id=shared_card.template_id,
                     priority=shared_card.priority,

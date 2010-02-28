@@ -445,6 +445,8 @@ click a shared deck, if not subscribed, 'cards_deleteButton not defined' error
 -handle deleting a subscriber fact - should just do active=false or something
 -search
 
+changing cards for shared fact
+
 -delete subscriber deck
 -delete shared deck
 

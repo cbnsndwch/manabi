@@ -66,7 +66,7 @@ class FactForm(ModelForm):
 
     class Meta:
         model = Fact
-        exclude = ('active', 'synchronized_with', 'new_fact_ordinal', 'parent_fact',)
+        exclude = ('active', 'synchronized_with', 'new_fact_ordinal', 'parent_fact', 'suspended',)
 
 
 class FieldContentForm(ModelForm):
