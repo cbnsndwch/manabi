@@ -67,6 +67,11 @@
             <button dojoType="dijit.form.Button">
 	            Delete Deck
 	            <script type="dojo/connect" event="onClick" args="evt">
+                    var delete_response = window.confirm('Really delete this deck, and all the flashcards it contains? This action cannot be undone.');
+                    if (delete_response) {
+                        var url = '{{ deck.get_absolute_url }}/delete';
+                        manabi_ui.xhrPostData(url, null, '/flashcards/decks');
+                    }
 	            </script>
             </button>
         </p>

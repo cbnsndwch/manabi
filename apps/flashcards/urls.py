@@ -11,7 +11,7 @@ shared_decks_dict = {
     'template_object_name': 'shared_deck'
 }
 decks_dict = {
-    'queryset': Deck.objects.all(),
+    'queryset': Deck.objects.filter(active=True),
     'template_object_name': 'deck',
     'extra_context': {'field_types': FactType.objects.get(id=1).fieldtype_set.all().order_by('ordinal'),},
 }

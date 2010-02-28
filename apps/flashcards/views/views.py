@@ -151,7 +151,7 @@ def deck_delete(request, deck_id, post_delete_redirect='/flashcards/decks'): #to
     if Deck.objects.filter(owner=request.user, active=True).count() == 1:
         return HttpResponse(json_encode({'success':False}, mimetype='text/javascript')) #TODO error message
 
-    if deck.subscriber_decks.filter(active=True).count() > 0: #exists():
+    if obj.subscriber_decks.filter(active=True).count() > 0: #exists():
         obj.active = False
         obj.save()
     else:
