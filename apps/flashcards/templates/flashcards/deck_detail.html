@@ -1,4 +1,11 @@
 {% if request.user == deck.owner or deck.shared %}
+    {% comment %}
+    <p>
+        {% if request.user == deck.owner %}<a href="/flashcards/decks" class="xhr_link">&laquo; Back to Manage</a>
+        {% else %}<a href="/flashcards/add" class="xhr_link">&laquo; Back to Add</a>{% endif %}
+    </p>
+    {% endcomment %}
+
     <h1>{{ deck.name }}</h1>
 
     <p>{{ deck.description }}</p>

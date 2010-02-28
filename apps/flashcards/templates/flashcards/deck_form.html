@@ -17,14 +17,14 @@
             manabi_ui.refreshDeckInput();
         });
 	</script>
-
-	{{ form.as_p }}
-
+    <table>
+	    {{ form.as_table }}
+    </table>
 	<button dojoType="dijit.form.Button" type="submit">Ok</button>
 	<button dojoType="dijit.form.Button" jsId="deckDeleteCancelButton">
 		Cancel
 		<script type="dojo/connect" event="onClick" args="evt">
-            manabi_ui.xhrLink('/flashcards/decks');
+            manabi_ui.xhrLink('/flashcards/add');
 		</script>
 	</button>
 </div>

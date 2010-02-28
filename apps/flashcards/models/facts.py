@@ -138,15 +138,16 @@ class FactManager(models.Manager):
         if deck:
             if not deck.synchronized_with:
                 return self.none()
-            decks = [deck]
+            from decks import Deck
+            decks = Deck.objects.filter(id=deck.id)
         else:
             decks = Deck.objects.synchronized_decks(user)
         user_facts = self.filter(deck__owner=user, deck__in=decks)
         if tags:
             tagged_facts = usertagging.models.UserTaggedItem.objects.get_by_model(Fact, tags)
             user_facts = user_facts.filter(fact__in=tagged_facts)
-        shared_deck_ids = [deck.synchronized_with_id for deck in decks if deck.synchronized_with_id]
-        new_shared_facts = self.filter(deck_id__in=shared_deck_ids).exclude(id__in=user_facts)
+        #shared_deck_ids = [deck.synchronized_with_id for deck in decks if deck.synchronized_with_id]
+        new_shared_facts = self.filter(deck__in=decks.filter(synchronized_with__isnull=False)).exclude(id__in=user_facts)
         new_shared_facts = new_shared_facts.order_by('new_fact_ordinal')
         new_shared_facts = new_shared_facts[:count]
         #FIXME handle 0 ret

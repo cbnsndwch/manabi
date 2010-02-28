@@ -12,6 +12,7 @@
   dojo.require("dojox.form.CheckedMultiSelect");
   dojo.require("dijit.form.Form");
   dojo.require("dijit.layout.ContentPane");
+  dojo.require("dojox.layout.ContentPane");
   //dojo.require("dojox.form.BusyButton");
   dojo.require("dojox.widget.Standby");
   dojo.require("dojox.grid.DataGrid");

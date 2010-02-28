@@ -446,6 +446,7 @@ click a shared deck, if not subscribed, 'cards_deleteButton not defined' error
 -search
 
 changing cards for shared fact
+actually studying the cards is broken - fieldcontents aren't shown for back or front sometimes, etc
 
 -delete subscriber deck
 -delete shared deck

@@ -1,3 +1,6 @@
+{% block back_link %}
+{% if back_link %}<p><a href="{{ back_link.href }}">&laquo; Back to {{ back_link.name }}</a></p>{% endif %}
+{% endblock %}
 {% block content %}
 {% endblock %}
 {% comment %}

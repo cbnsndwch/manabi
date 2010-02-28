@@ -39,7 +39,7 @@ class DeckForm(ModelForm):
     
     class Meta:
         model = Deck
-        fields = ('name',)
+        fields = ('name','description',)
         #exclude = ('owner', 'description', 'priority', 'textbook_source', 'picture',)
         
 
