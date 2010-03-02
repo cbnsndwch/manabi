@@ -145,6 +145,10 @@ class Deck(AbstractDeck):
         super(Deck, self).delete()
 
 
+    def card_count(self):
+        return self.fact_set.filter(active=True, suspended=False).count()
+
+
     def facts(self):
         '''Returns all Facts for this deck,
         including subscribed ones.
@@ -175,6 +179,14 @@ class Deck(AbstractDeck):
             return updated_fields | other_fields
         else:
             return FieldContent.objects.filter(fact__deck=self, fact__active=True)
+
+
+    @property
+    def has_subscribers(self):
+        '''Returns whether there are subscribers to this deck, because
+        it is shared, or it had been shared before.
+        '''
+        return self.subscriber_decks.count() > 0
 
 
     @transaction.commit_on_success    

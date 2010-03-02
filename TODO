@@ -21,11 +21,11 @@ SUPER CRITICAL BUGS:
 --------------------
 early review cut short
 
-change email on page to manabi.org@gmail.com
+-change email on page to manabi.org@gmail.com
 
 -dont show duplicate kana in reviews. (same word in reading)
 
-NY isnt default timezone
+-NY isnt default timezone
 
 ensure the next card up is the one that was undone
 
@@ -438,16 +438,20 @@ bug with subscribers changing the deck of a card
 -edit subscribed card->deck is wrong
 what to do about messing with subscriber stuff while subscribers are currently reviewing?
 -copy tags from shared facts
-copy decks to subscribers when deck is deleted
 make sure fact constraints check subscribed deck facts too
 click a shared deck, if already subscribed, go to that
 click a shared deck, if not subscribed, 'cards_deleteButton not defined' error
 -handle deleting a subscriber fact - should just do active=false or something
 -search
 
-changing cards for shared fact
+-changing cards for shared fact
 actually studying the cards is broken - fieldcontents aren't shown for back or front sometimes, etc
 'study now' per deck should restrict to that deck only (bug)
+
+how to deal with unsharing decks? let subscribed users stay subscribed i guess
+
+change review session finish dialog..
+
 
 -delete subscriber deck
 -delete shared deck

@@ -288,8 +288,12 @@ def rest_deck(request, deck_id):
         if 'shared' in request.POST:
             shared = request.POST['shared'].lower() == 'true'
             if shared:
+                if deck.synchronized_with:
+                    return {'success':False}
                 deck.share()
             else:
+                if not deck.shared:
+                    return {'success':False}
                 deck.unshare()
         else:
             raise Http404
@@ -508,6 +512,7 @@ def rest_fact_unsuspend(request, fact_id):
 @login_required
 @json_response
 @all_http_methods
+@transaction.commit_on_success
 def rest_fact(request, fact_id): #todo:refactor into facts
   if request.method == 'PUT':
     return _fact_update(request, fact_id)
@@ -573,29 +578,40 @@ def _fact_update(request, fact_id):
             field_content.fact = fact
             field_content_form.save()
 
-        #disable any existing cards that weren't selected in the update, or enable if selected and create if needed
-        card_form_template_ids = dict((card_form.cleaned_data['template'].id, card_form) for card_form in card_formset.forms)
-        for card_template in fact.fact_type.cardtemplate_set.all():
-            if card_template.id in card_form_template_ids.keys():
-                try:
-                    card = fact.card_set.get(template=card_template)
-                    card.active = True
-                    card.save()
-                except Card.DoesNotExist:
-                    #card_form = card_formset.get_queryset().get(template=card_template)
-                    card_form = card_form_template_ids[card_template.id]
-                    new_card = card_form.save(commit=False)
-                    new_card.fact = fact
-                    new_card.active = True
-                    new_card.save()
-            else:
-                #card was not selected in update, so disable it if it exists
-                try:
-                    card = fact.card_set.get(template=card_template)
-                    card.active = False
-                    card.save()
-                except Card.DoesNotExist:
-                    pass
+        # disable any existing cards that weren't selected in the update, or enable if selected and create if needed
+        #
+        # do for subscribers too
+        facts = Fact.objects.filter(id=fact.id)
+        if fact.subscriber_facts.all():
+            facts = facts | fact.subscriber_facts.all()
+        for fact2 in facts.iterator():
+            card_form_template_ids = dict((card_form.cleaned_data['template'].id, card_form) for card_form in card_formset.forms)
+            for card_template in fact.fact_type.cardtemplate_set.all():
+                if card_template.id in card_form_template_ids.keys():
+                    try:
+                        card = fact2.card_set.get(template=card_template)
+                        card.active = True
+                        card.save()
+                    except Card.DoesNotExist:
+                        card_form = card_form_template_ids[card_template.id]
+                        new_card = card_form.save(commit=False)
+                        new_card.fact = fact2
+                        new_card.active = True
+                        new_card.save()
+                else:
+                    #card was not selected in update, so disable it if it exists
+                    try:
+                        card = fact2.card_set.get(template=card_template)
+                        if not card.active:
+                            continue
+                        elif fact2.synchronized_with and card.review_count:
+                            # don't disable subscriber cards which have already been reviewed
+                            continue
+                        card.active = False
+                        card.save()
+                    except Card.DoesNotExist:
+                        pass
+                        
         ret['success'] = True
     else:
         ret['success'] = False

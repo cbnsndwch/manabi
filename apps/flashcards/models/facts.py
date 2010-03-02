@@ -65,7 +65,7 @@ class FactManager(models.Manager):
         '''
         fact = Fact.objects.get(id=fact_id)
         if fact.owner != user:
-            if not fact.deck.shared:
+            if not fact.deck.shared_at:
                 pass #FIXME raise permissions error
             else:
                 from decks import Deck
@@ -214,7 +214,7 @@ class Fact(AbstractFact):
     
     @transaction.commit_on_success
     def delete(self):
-        if self.deck.shared and self.subscriber_facts.all():
+        if self.deck.shared_at and self.subscriber_facts.all():
             # don't bother with users who don't have this fact yet - we can safely (according to guidelines) delete at this point.
             # if subscriber facts have reviewed or edited anything within this fact,
             # don't delete it for those subscribers.
@@ -317,7 +317,7 @@ class Fact(AbstractFact):
         if synchronize:
             if self.synchronized_with:
                 raise TypeError('Cannot synchronize with a fact that is already a synschronized fact.')
-            elif not self.deck.shared:
+            elif not self.deck.shared_at:
                 raise TypeError('This is not a shared fact - cannot synchronize with it.')
             #TODO enforce deck synchronicity too
             else:
