@@ -276,7 +276,11 @@
                 <button dojoType="dijit.form.Button" type="button" jsId="reviews_beginEarlyReviewButton">
                     Review Early
                     <script type="dojo/connect" event="onClick" args="evt">
-                        reviews_ui.submitReviewOptionsDialog(true);
+                        //reviews_ui.submitReviewOptionsDialog(true);
+                        var args = dojo.clone(reviews_ui.last_session_args);
+                        args.review_early = true;
+                        args.learn_more = false;
+                        reviews_ui.startSession(args);
                     </script>
                 </button><br>
             </span>
@@ -286,14 +290,20 @@
                 <button dojoType="dijit.form.Button" type="button" jsId="reviews_learnMoreButton">
                     Learn More
                     <script type="dojo/connect" event="onClick" args="evt">
-                        reviews_ui.submitReviewOptionsDialog(true, true); // learn more, and learn new cards early if necessary
+                        //reviews_ui.submitReviewOptionsDialog(true, true); // learn more, and learn new cards early if necessary
+                        var args = dojo.clone(reviews_ui.last_session_args);
+                        args.review_early = true;
+                        args.learn_more = true;
+                        reviews_ui.startSession(args);
                     </script>
                 </button><br>
                 <span style="color:gray">Learn new cards.</span>
             </span>
         </div>
         <br>
+        {% comment %}
         <span class="fakeLink" onclick="reviews_ui.showReviewOptions()">Back to study options</span>
+        {% endcomment %}
     </div>
     <div id="reviews_beginReview">
         <button dojoType="dijit.form.Button" type="button" iconClass="manabi_icon manabi_icon_clock_play" jsId="reviews_beginReviewButton">
@@ -336,7 +346,8 @@
         Review More
         <script type="dojo/connect" event="onClick" args="evt">
             reviews_sessionOverDialog.hide();
-            reviews_ui.openDialog();
+            reviews_ui.startSession(reviews_ui.last_session_args); //reuse whatever args were used last to start a study session //{{ deck.id }});
+            //reviews_ui.openDialog();
         </script>
     </button>
 </div>

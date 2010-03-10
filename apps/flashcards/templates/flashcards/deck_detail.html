@@ -16,7 +16,7 @@
                 <button dojoType="dijit.form.Button">
 	                Study Now
 	                <script type="dojo/connect" event="onClick" args="evt">
-                        reviews_ui.startSession({{ deck.id }}, 10, 0, '');
+                        reviews_ui.startSession({ deck_id: {{ deck.id }} });//, 10, 0, '');
 	                </script>
                 </button>
             {% endifnotequal %}

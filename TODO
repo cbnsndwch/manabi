@@ -448,7 +448,11 @@ click a shared deck, if not subscribed, 'cards_deleteButton not defined' error
 actually studying the cards is broken - fieldcontents aren't shown for back or front sometimes, etc
 'study now' per deck should restrict to that deck only (bug)
 
-how to deal with unsharing decks? let subscribed users stay subscribed i guess
+have a feedback box in the home page
+
+server-side-generated review options/review early etc dialogs, for study now buttons
+
+-how to deal with unsharing decks? let subscribed users stay subscribed i guess. what about cards added after that?
 
 change review session finish dialog..
 

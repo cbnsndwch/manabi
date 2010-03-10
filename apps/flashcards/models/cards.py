@@ -302,7 +302,7 @@ class CardManager(models.Manager):
         if excluded_ids:
             user_cards = user_cards.exclude(id__in=excluded_ids)
 
-        new_cards = user_cards.filter(due_at__isnull=True)
+        new_cards = user_cards.filter(last_reviewed_at__isnull=True) #due_at__isnull=True)
         return new_cards.count()
 
         
@@ -484,7 +484,9 @@ class Card(AbstractCard):
 
     
     def _render(self, template_name):
-        card_context = {'fields': self.fact.field_contents}
+        # map fieldtype-id to fieldcontents
+        fields = dict((field.field_type.id, field) for field in self.fact.field_contents)
+        card_context = {'fields': fields}
         return render_to_string(template_name, card_context)
 
 
