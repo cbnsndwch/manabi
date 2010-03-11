@@ -110,6 +110,14 @@ class CardManager(models.Manager):
     #    return self.filter(interval__gt=MATURE_INTERVAL_MIN)
     
 
+    def spaced_cards_new_count(self, user, deck=None):
+        threshold_at = datetime.datetime.utcnow() - datetime.timedelta(minutes=30)
+        recently_reviewed = self.filter(fact__deck__owner=user, fact__deck=deck, last_reviewed_at__lte=threshold_at)
+        facts = Fact.objects.filter(id__in=recently_reviewed.values_list('fact', flat=True))
+        new_cards_count = self.new_cards(user, deck).exclude(fact__in=facts).count()
+        return new_cards_count
+
+
     def cards_new_count(self, user, deck=None):
         new_cards_count = self.new_cards(user, deck).count()
         return new_cards_count
@@ -214,6 +222,8 @@ class CardManager(models.Manager):
             # Count the number of new cards in the `excluded_ids`, which the user already has queued up
             new_excluded_cards_count = Card.objects.filter(id__in=excluded_ids, due_at__isnull=True).count()
             new_count_left_for_today = daily_new_card_limit - new_reviews_today - new_excluded_cards_count
+        else:
+            new_count_left_for_today = None
 
         def _next_new_cards2():
             new_cards = []
@@ -235,7 +245,7 @@ class CardManager(models.Manager):
                     new_cards.append(card)
                     # Got enough cards?
                     if len(new_cards) == count or \
-                       (not early_review and len(new_cards) == new_count_left_for_today):
+                       (new_count_left_for_today is not None and not early_review and len(new_cards) == new_count_left_for_today):
                         break
             return new_cards
 
@@ -344,7 +354,52 @@ class CardManager(models.Manager):
         return card.due_at
         
 
-    def next_cards(self, user, count, excluded_ids, session_start, deck=None, tags=None, early_review=False, daily_new_card_limit=None):
+    def _next_cards(self, early_review=False, daily_new_card_limit=None):
+        card_funcs = [
+            self._next_failed_due_cards,        # due, failed
+            self._next_not_failed_due_cards,    # due, not failed
+            self._next_failed_not_due_cards]    # failed, not due
+
+        if early_review and daily_new_card_limit:
+            card_funcs.extend([
+                self._next_due_soon_cards,
+                self._next_due_soon_cards2]) # due soon, not yet, but next in the future
+        else:
+            card_funcs.extend([self._next_new_cards]) # new cards at end
+        return card_funcs
+
+
+    def _user_cards(self, user, deck=None, tags=None, excluded_ids=None):
+        user_cards = self.of_user(user)
+
+        if deck:
+            user_cards = user_cards.filter(fact__deck=deck)
+
+        if tags:
+            facts = usertagging.models.UserTaggedItem.objects.get_by_model(Fact, tags)
+            user_cards = user_cards.filter(fact__in=facts)
+
+        if excluded_ids:
+            user_cards = user_cards.exclude(id__in=excluded_ids)
+        return user_cards
+    
+
+    def next_cards_count(self, user, excluded_ids=[], session_start=False, deck=None, tags=None, early_review=False, daily_new_card_limit=None):
+        now = datetime.datetime.utcnow()
+        card_funcs = self._next_cards(early_review=early_review, daily_new_card_limit=daily_new_card_limit)
+        user_cards = self._user_cards(user, deck=deck, excluded_ids=excluded_ids, tags=tags)
+        count = 0
+        cards_left = 99999 #TODO find a more elegant approach
+        for card_func in card_funcs:
+            cards = card_func(user, user_cards, cards_left, now, excluded_ids, daily_new_card_limit, \
+                    early_review=early_review,
+                    deck=deck,
+                    tags=tags)
+            count += cards.count()
+        return count
+
+
+    def next_cards(self, user, count, excluded_ids=[], session_start=False, deck=None, tags=None, early_review=False, daily_new_card_limit=None):
         '''
         Returns `count` cards to be reviewed, in order.
         count should not be any more than a short session of cards
@@ -357,37 +412,14 @@ class CardManager(models.Manager):
 
         The return format is
         '''
-        card_queries = []
-        now = datetime.datetime.utcnow()
-
-        user_cards = self.of_user(user)
-
-        if deck:
-            user_cards = user_cards.filter(fact__deck=deck)
-
-        if tags:
-            facts = usertagging.models.UserTaggedItem.objects.get_by_model(Fact, tags)
-            user_cards = user_cards.filter(fact__in=facts)
-
-        if excluded_ids:
-            user_cards = user_cards.exclude(id__in=excluded_ids)
-
-        card_funcs = [
-            self._next_failed_due_cards,        # due, failed
-            self._next_not_failed_due_cards,    # due, not failed
-            self._next_failed_not_due_cards]    # failed, not due
-
-        if early_review and daily_new_card_limit:
-            card_funcs.extend([
-                self._next_due_soon_cards,
-                self._next_due_soon_cards2]) # due soon, not yet, but next in the future
-        else:
-            card_funcs.extend([self._next_new_cards]) # new cards at end
 
         #TODO somehow spread some new cards into the early review cards if early_review==True
         #TODO use args instead, like *kwargs etc for these funcs
-
+        now = datetime.datetime.utcnow()
+        card_funcs = self._next_cards(early_review=early_review, daily_new_card_limit=daily_new_card_limit)
+        user_cards = self._user_cards(user, deck=deck, excluded_ids=excluded_ids, tags=tags)
         cards_left = count
+        card_queries = []
         for card_func in card_funcs:
             if not cards_left:
                 break

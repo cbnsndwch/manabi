@@ -14,15 +14,15 @@ def home(request):
 
     # New card count for today.
     # estimate adjusted count of new cards that can be reviewed now, after spacing, by just counting the unique facts
-    new_card_count = Fact.objects.filter(id__in=Card.objects.new_cards(request.user).values_list('fact', flat=True)).distinct().count()
+    spaced_new_card_count = Card.objects.next_cards_count(request.user) #Fact.objects.filter(id__in=Card.objects.new_cards(request.user).values_list('fact', flat=True)).distinct()
     daily_new_card_limit = NEW_CARDS_PER_DAY
     new_reviews_today = request.user.reviewstatistics.get_new_reviews_today()
     if daily_new_card_limit:
-        if new_card_count:
+        if spaced_new_card_count:
             new_cards_left_for_today = daily_new_card_limit - new_reviews_today
             if new_cards_left_for_today < 0:
                 new_cards_left_for_today = 0
-            new_cards_left_for_today = min(new_cards_left_for_today, new_card_count)
+            new_cards_left_for_today = min(new_cards_left_for_today, spaced_new_card_count)
         else:
             new_cards_left_for_today = 0
     else:
@@ -34,7 +34,8 @@ def home(request):
 
             'card_count': Card.objects.of_user(request.user).count(),
             'due_card_count': Card.objects.due_cards(request.user).count(),
-            'new_card_count': new_card_count,
+            'new_card_count': Card.objects.new_cards(request.user).count(),
+            'spaced_new_card_count': spaced_new_card_count,
             'deck_count': Deck.objects.of_user(request.user).count(),
 
             'next_card_due_at': next_card_due_at,
