@@ -424,7 +424,10 @@ def rest_facts(request): #todo:refactor into facts (no???)
                 else:
                     preret = []
                     for fact in facts:
-                        row = {'fact-id': fact.id, 'suspended': all([card.suspended for card in fact.card_set.filter(active=True)])}
+                        row = {
+                                'fact-id': fact.id, 
+                                'suspended': len(fact.card_set.filter(active=True)) and all([card.suspended for card in fact.card_set.filter(active=True)])
+                        }
                         ident, name = '', ''
                         for field_content in fact.field_contents: #.all():
                             key = 'id{0}'.format(field_content.field_type_id) #TODO rename to be clearer, like field_id or SOMETHING

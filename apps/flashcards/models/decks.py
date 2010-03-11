@@ -149,8 +149,9 @@ class Deck(AbstractDeck):
         super(Deck, self).delete(*args, **kwargs)
 
 
-    def card_count(self):
-        return self.fact_set.filter(active=True, suspended=False).count()
+    #def card_count(self):
+    #    return cards.Card.objects.filter(fact__deck=self, active=True, suspended=False).count()
+    #    #return self.fact_set.filter(active=True, suspended=False).count()
 
 
     def facts(self):
@@ -298,16 +299,16 @@ class Deck(AbstractDeck):
     @property
     def card_count(self):
         deck = self.synchronized_with if self.synchronized_with else self
-        return cards.Card.objects.filter(fact__deck=deck).count()
+        return cards.Card.objects.filter(fact__deck=deck, active=True, suspended=False).count()
 
     @property
     def new_card_count(self):
         #FIXME do for sync'd decks
-        return cards.Card.objects.cards_new_count(self.owner, deck=self)
+        return cards.Card.objects.cards_new_count(self.owner, deck=self, active=True, suspended=False)
 
     @property
     def due_card_count(self):
-        return cards.Card.objects.cards_due_count(self.owner, deck=self)
+        return cards.Card.objects.cards_due_count(self.owner, deck=self, active=True, suspended=False)
 
     def average_ease_factor(self):
         deck_cards = cards.Card.objects.filter(fact__deck=self, active=True, suspended=False, ease_factor__isnull=False)
