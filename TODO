@@ -444,11 +444,11 @@ click a shared deck, if not subscribed, 'cards_deleteButton not defined' error
 -handle deleting a subscriber fact - should just do active=false or something
 -search
 
-new card estimate is wrong
+-new card estimate is wrong
 
 'No cards due right now' dialog has to change
 
-refresh home page, if loaded, after review
+-refresh home page, if loaded, after review
 
 -changing cards for shared fact
 -actually studying the cards is broken - fieldcontents aren't shown for back or front sometimes, etc

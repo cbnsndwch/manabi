@@ -15,6 +15,7 @@ class FieldTypeAdmin(admin.ModelAdmin):
 admin.site.register(Deck)
 admin.site.register(SharedDeck)
 admin.site.register(CardHistory)
+admin.site.register(ReviewStatistics)
 admin.site.register(FactType, FactTypeAdmin)
 admin.site.register(Fact)
 admin.site.register(CardTemplate)

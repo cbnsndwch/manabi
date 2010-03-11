@@ -48,7 +48,7 @@ def add_decks(request):
     #shared_decks = SharedDeck.objects.all()
     shared_decks = Deck.objects.shared_decks()
     context = {'shared_deck_list': shared_decks}
-    return render_to_response('flashcards/add.html', context)
+    return render_to_response('flashcards/add.html', context, context_instance=RequestContext(request))
     #return object_list(request, queryset=shared_decks, template_object_name='shared_deck')
     
 
@@ -148,9 +148,9 @@ def deck_delete(request, deck_id, post_delete_redirect='/flashcards/decks'): #to
   if obj.owner_id != request.user.id: #and not request.User.is_staff():
     raise forms.ValidationError('You do not have permission to access this flashcard deck.')
   if request.method == 'POST':
-    #don't allow the last deck to be deleted
-    if Deck.objects.filter(owner=request.user, active=True).count() == 1:
-        return HttpResponse(json_encode({'success':False}, mimetype='text/javascript')) #TODO error message
+    #DO ALLOW #don't allow the last deck to be deleted
+    #if Deck.objects.filter(owner=request.user, active=True).count() == 1:
+    #    return HttpResponse(json_encode({'success':False}, mimetype='text/javascript')) #TODO error message
 
     if obj.subscriber_decks.filter(active=True).count() > 0: #exists():
         obj.active = False
@@ -190,22 +190,6 @@ def deck_create(request, post_save_redirect='/flashcards/decks'):
 
 #shared decks
 
-@login_required
-def shared_deck_list(request):
-  shared_decks = SharedDeck.objects.filter(active=True)
-  return object_list(request, queryset=shared_decks, extra_context={'container_id': 'deckDialog'}, template_object_name='shared_deck')
-
-
-#@login_required
-#def shared_deck_download(request, shared_deck_id, post_download_redirect='/flashcards/decks'): #todo: pass post_*_redirect from urls.py
-#  obj = SharedDeck.objects.get(id=shared_deck_id)
-#  if request.method == 'POST':
-#    deck = download_shared_deck(request.user, obj)
-#    return HttpResponse(json_encode({'success': True, 'post_redirect': deck.get_absolute_url() }), mimetype='text/javascript')
-#  else:
-#    return render_to_response('flashcards/shareddeck_download_form.html', {'shared_deck': obj,
-#                                                                            'post_download_redirect': post_download_redirect,
-#                                                                            'container_id': 'deckDialog'})
 
 @login_required
 def deck_share(request, deck_id, post_redirect='/flashcards/shared_decks'): #todo: pass post_*_redirect from urls.py
@@ -513,7 +497,6 @@ def rest_fact_unsuspend(request, fact_id):
 @login_required
 @json_response
 @all_http_methods
-@transaction.commit_on_success
 def rest_fact(request, fact_id): #todo:refactor into facts
   if request.method == 'PUT':
     return _fact_update(request, fact_id)
@@ -598,7 +581,7 @@ def _fact_update(request, fact_id):
                         new_card = card_form.save(commit=False)
                         new_card.fact = fact2
                         new_card.active = True
-                        new_card.save()
+                        new_card.save(force_insert=True)
                 else:
                     #card was not selected in update, so disable it if it exists
                     try:

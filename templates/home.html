@@ -15,11 +15,11 @@ more importantly, retain your memory of what you've already learned.<br>
 <p>
 {% if deck_count == 0 %}
     <h3>Wondering what next?</h3>
-    Get started by <a href="flashcards/shared_decks" class="xhr_link">adding some pre-made flashcard decks</a>.
+    Get started by <a href="flashcards/add" class="xhr_link">adding some pre-made flashcard decks</a>.
 {% else %}{% if card_count == 0 %}
     <h3>Wondering what next?</h3>
-    Get started by <a href="flashcards/add" class="xhr_link">adding some pre-made flashcard decks</a>, 
-    or by creating new flashcards in <a href="flashcards/decks" class="xhr_link">one of your existing decks</a>.
+    Get started by <a href="flashcards/add" class="xhr_link">adding some pre-made flashcard decks</a>{% if deck_count > 0 %}, 
+    or by creating new flashcards in <a href="flashcards/decks" class="xhr_link">one of your existing decks</a>{% endif %}.
 {% else %}
     
     {% if due_card_count > 0 or new_cards_left_for_today > 0 %}

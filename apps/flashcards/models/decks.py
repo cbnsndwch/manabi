@@ -143,10 +143,10 @@ class Deck(AbstractDeck):
         return '/flashcards/decks/{0}'.format(self.id)
 
 
-    def delete(self):
+    def delete(self, *args, **kwargs):
         # You shouldn't delete a shared deck - just set active=False
         self.subscriber_decks.clear()
-        super(Deck, self).delete()
+        super(Deck, self).delete(*args, **kwargs)
 
 
     def card_count(self):

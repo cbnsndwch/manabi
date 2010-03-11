@@ -206,14 +206,14 @@ class Fact(AbstractFact):
     parent_fact = models.ForeignKey('self', blank=True, null=True, related_name='child_facts')
 
 
-    def save(self):
+    def save(self, *args, **kwargs):
         if not self.new_fact_ordinal:
             self.new_fact_ordinal = random.randrange(0, MAX_NEW_CARD_ORDINAL)
-        super(Fact, self).save()
+        super(Fact, self).save(*args, **kwargs)
 
     
     @transaction.commit_on_success
-    def delete(self):
+    def delete(self, *args, **kwargs):
         if self.deck.shared_at and self.subscriber_facts.all():
             # don't bother with users who don't have this fact yet - we can safely (according to guidelines) delete at this point.
             # if subscriber facts have reviewed or edited anything within this fact,
@@ -239,7 +239,7 @@ class Fact(AbstractFact):
 
             other_subscriber_facts = self.subscriber_facts.exclude(id__in=active_subscribers)
             other_subscriber_facts.delete()
-        super(Fact, self).delete()
+        super(Fact, self).delete(*args, **kwargs)
 
 
     @property
@@ -535,12 +535,12 @@ class SharedFieldContent(AbstractFieldContent):
 class FieldContent(AbstractFieldContent):
     fact = models.ForeignKey('flashcards.Fact', db_index=True)
     
-    def save(self):
+    def save(self, *args, **kwargs):
         # If this is a transliteration field,
         # update the transliteration cache.
         if self.field_type.is_transliteration_field_type():
             self.cached_transliteration_without_markup = self.strip_ruby_bottom()
-        super(FieldContent, self).save()
+        super(FieldContent, self).save(*args, **kwargs)
 
     class Meta:
         #TODO unique_together = (('fact', 'field_type'), ) #one field content per field per fact

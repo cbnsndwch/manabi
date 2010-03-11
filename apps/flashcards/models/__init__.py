@@ -19,13 +19,10 @@ def create_default_user_data(sender, instance, created, **kwargs):
     """
     if created:
       user = instance
-      
-      my_deck = Deck(name='Sample Deck', owner=user, active=True)
-      my_deck.save()
-
-      my_deck_scheduling = SchedulingOptions(deck=my_deck)
-      my_deck_scheduling.save()
-
+#      my_deck = Deck(name='Sample Deck', owner=user, active=True)
+#      my_deck.save()
+#      my_deck_scheduling = SchedulingOptions(deck=my_deck)
+#      my_deck_scheduling.save()
       review_stats = ReviewStatistics(user=user)
       review_stats.save()
       
