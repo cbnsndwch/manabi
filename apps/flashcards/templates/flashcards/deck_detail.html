@@ -12,14 +12,14 @@
 
     <p>
         {% if request.user == deck.owner %}
-            {% ifnotequal deck.card_count 0 %}
+            {% if deck.card_count != 0 %}
                 <button dojoType="dijit.form.Button">
 	                Study Now
 	                <script type="dojo/connect" event="onClick" args="evt">
                         reviews_ui.startSession({ deck_id: {{ deck.id }} });//, 10, 0, '');
 	                </script>
                 </button>
-            {% endifnotequal %}
+            {% endif %}
         {% else %}
             <button dojoType="dijit.form.Button">
 	            Add Deck

@@ -10,14 +10,69 @@
 <h2>Welcome</h2>
 Thanks for joining my site. I hope that it will help you learn vocab and kanji from your class and, 
 more importantly, retain your memory of what you've already learned.<br>
+<hr>
 <br>
 <p>
-    <strong style="font-size:120%">Wondering what next?</strong><br>
-    Get started by <a href="flashcards/shared_decks" class="xhr_link">downloading some pre-made decks</a>. Then study them by hitting the <span class="fakeLink" onclick="reviews_ui.openDialog()">Start Learning</span> button on the toolbar.
+{% if deck_count == 0 %}
+    <h3>Wondering what next?</h3>
+    Get started by <a href="flashcards/shared_decks" class="xhr_link">adding some pre-made flashcard decks</a>.
+{% else %}{% if card_count == 0 %}
+    <h3>Wondering what next?</h3>
+    Get started by <a href="flashcards/add" class="xhr_link">adding some pre-made flashcard decks</a>, 
+    or by creating new flashcards in <a href="flashcards/decks" class="xhr_link">one of your existing decks</a>.
+{% else %}
+    
+    {% if due_card_count > 0 or new_cards_left_for_today > 0 %}
+        <button dojoType="dijit.form.Button">
+	        <div style="margin:.7em 1.7em;"><h3>Study now!</h3></div>
+	        <script type="dojo/connect" event="onClick" args="evt">
+                reviews_ui.startSession({ });//, 10, 0, '');
+	        </script>
+        </button>
+        <span style="font-size:1.1em;padding-left:.5em;">
+            {% if due_card_count > 0 %}
+                You have <strong>{{ due_card_count }}</strong> cards due for review.
+            {% else %}
+                You have <strong>{{ new_cards_left_for_today }}</strong> cards due for review.
+            {% endif %} 
+        </span>
+    {% else %}
+        <p>
+            <strong><span style="font-size:1.2em">No cards are due for review.</span></strong><br>
+            {% include "flashcards/_next_card_due_at.html" %}
+        </p>
+        <button dojoType="dijit.form.Button">
+	        <div style="margin:.7em 1.7em;"><h3>Review early</h3></div>
+	        <script type="dojo/connect" event="onClick" args="evt">
+                var args = {};
+                args.early_review = true;
+                args.learn_more = false;
+                reviews_ui.startSession(args);
+	        </script>
+        </button>
+        <span style="font-size:1em;padding-left:.5em;">Start reviewing cards before they're due.</span>
+        <br>
+        {% if new_card_count > 0 %}
+            <button dojoType="dijit.form.Button">
+	            <div style="margin:.7em .58em;"><h3>Learn new cards</h3></div>
+	            <script type="dojo/connect" event="onClick" args="evt">
+                    var args = {};
+                    args.early_review = true;
+                    args.learn_more = true;
+                    reviews_ui.startSession(args);
+	            </script>
+            </button>
+            <span style="font-size:1em;padding-left:.5em;">See more new cards. You have <strong>{{ new_card_count }}</strong> new cards waiting.</span><br>
+            <br>
+        {% endif %}
+        
+    {% endif %}
+
+{% endif %} {% endif %}
 </p>
-<br>
+
 <p>
-    Please email me if you have any problems, questions or suggestions: <a href="mailto:jehlke@student.umass.edu">jehlke@student.umass.edu</a>
+{% comment %}    Please email me if you have any problems, questions or suggestions: <a href="mailto:">jehlke@student.umass.edu</a>{% endcomment %}
 </p>
 {% comment %}<em>Hint:</em> You can press 1-4 on your keyboard to grade cards instead of clicking the buttons (1=wrong, 2=hard, 3=good, 4=too easy). You can also show the flashcard answer by pressing the spacebar.
 {% endcomment %}

@@ -5,7 +5,8 @@
 <h1>Manage My Decks</h1>
 
 {% for deck in deck_list %}
-    <h4><a href="/flashcards/decks/{{ deck.id }}" class="xhr_link">{{ deck.name }}</a></h4>
+    <span style="font-size:120%"><a href="{{ deck.get_absolute_url }}" class="xhr_link">{{ deck.name }}</a></span>
+    <span style="color:gray;font-size:90%;">({% if deck.card_count %}{{ deck.card_count }} facts{% else %}empty{% endif %}{% if deck.shared %}, shared{% endif %})</span><br>
 {% endfor %}
     {% comment %}
         <td><span><a href="/flashcards/decks/{{ deck.id }}/update" class="xhr_link">rename</a> 

@@ -135,10 +135,10 @@ class FactManager(models.Manager):
         '''Returns a limited queryset of the new facts added, after adding them for the user.
         '''
         from cards import Card
+        from decks import Deck
         if deck:
             if not deck.synchronized_with:
                 return self.none()
-            from decks import Deck
             decks = Deck.objects.filter(id=deck.id)
         else:
             decks = Deck.objects.synchronized_decks(user)

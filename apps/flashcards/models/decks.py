@@ -52,6 +52,10 @@ class DeckManager(models.Manager):
         return deck_values
 
 
+    def of_user(self, user):
+        return self.filter(owner=user, active=True)
+
+
     def shared_decks(self):
         return self.filter(shared=True, active=True)
 

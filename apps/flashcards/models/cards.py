@@ -91,7 +91,7 @@ class CardManager(models.Manager):
         return self.filter(fact__deck__owner=user, suspended=False, active=True)
 
     def new_cards(self, user, deck=None):
-        new_cards = self.filter(fact__deck__owner=user, due_at__isnull=True, suspended=False, active=True)
+        new_cards = self.filter(fact__deck__owner=user, last_reviewed_at__isnull=True, suspended=False, active=True)
         if deck:
             new_cards = new_cards.filter(fact__deck=deck)
         return new_cards

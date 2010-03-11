@@ -192,7 +192,7 @@
         var k = dojo.keys;
         switch(evt.charOrCode) {
             case k.ENTER:
-                reviews_ui.submitReviewOptionsDialog();
+                //FIXME shouldnt be active for early review dialog //reviews_ui.submitReviewOptionsDialog();
                 break;
         }
 	</script>
@@ -278,7 +278,7 @@
                     <script type="dojo/connect" event="onClick" args="evt">
                         //reviews_ui.submitReviewOptionsDialog(true);
                         var args = dojo.clone(reviews_ui.last_session_args);
-                        args.review_early = true;
+                        args.early_review = true;
                         args.learn_more = false;
                         reviews_ui.startSession(args);
                     </script>
@@ -292,16 +292,23 @@
                     <script type="dojo/connect" event="onClick" args="evt">
                         //reviews_ui.submitReviewOptionsDialog(true, true); // learn more, and learn new cards early if necessary
                         var args = dojo.clone(reviews_ui.last_session_args);
-                        args.review_early = true;
+                        args.early_review = true;
                         args.learn_more = true;
                         reviews_ui.startSession(args);
                     </script>
                 </button><br>
-                <span style="color:gray">Learn new cards.</span>
+                <span style="color:gray">Learn new cards.</span><br>
             </span>
         </div>
         <br>
+        <div dojoType="dijit.form.Button">
+            Done
+            <script type="dojo/connect" event="onClick" args="evt">
+                reviews_reviewDialog.hide();
+            </script>
+        </div>
         {% comment %}
+        <br>
         <span class="fakeLink" onclick="reviews_ui.showReviewOptions()">Back to study options</span>
         {% endcomment %}
     </div>
@@ -342,13 +349,18 @@
             reviews_sessionOverDialog.hide();
         </script>
     </button>
+    {% comment %}
     <button dojoType="dijit.form.Button" type="button">
         Review More
         <script type="dojo/connect" event="onClick" args="evt">
             reviews_sessionOverDialog.hide();
-            reviews_ui.startSession(reviews_ui.last_session_args); //reuse whatever args were used last to start a study session //{{ deck.id }});
+            var args = dojo.clone(reviews_ui.last_session_args);
+            args.early_review = false;
+            args.learn_more = false;
+            reviews_ui.startSession(args); //reuse whatever args were used last to start a study session //{{ deck.id }});
             //reviews_ui.openDialog();
         </script>
     </button>
+    {% endcomment %}
 </div>
 

@@ -445,10 +445,16 @@ click a shared deck, if not subscribed, 'cards_deleteButton not defined' error
 -search
 
 -changing cards for shared fact
-actually studying the cards is broken - fieldcontents aren't shown for back or front sometimes, etc
-'study now' per deck should restrict to that deck only (bug)
+-actually studying the cards is broken - fieldcontents aren't shown for back or front sometimes, etc
+-'study now' per deck should restrict to that deck only (bug)
+
+allow 0 decks (get rid of Sample Deck)
 
 have a feedback box in the home page
+
+Undo Review isnt disabled at first (on 2nd start of review)
+
+if quitting review with 0 reviews, dont show congrats screen
 
 server-side-generated review options/review early etc dialogs, for study now buttons
 

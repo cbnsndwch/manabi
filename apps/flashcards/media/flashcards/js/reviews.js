@@ -533,7 +533,6 @@ reviews_ui.showNoCardsDue = function(can_learn_more, empty_query) {
         reviews_ui._showNoCardsDue();
     } else {
         reviews.timeUntilNextCardDue(reviews_ui.last_session_args.deck_id, reviews_ui.last_session_args.tag_id).addCallback(function(time_until) {
-                console.log(time_until);
             if (parseInt(time_until['hours_until_next_card_due']) > 24) {
                 reviews.nextCardDueAt().addCallback(function(next_due_at) {
                     dojo.byId('reviews_noCardsDueNextDueAt').innerHTML = 'The next card is due at: ' + next_due_at;
@@ -555,7 +554,8 @@ reviews_ui.showNoCardsDue = function(can_learn_more, empty_query) {
 };
 
 reviews_ui.showReviewOptions = function() {
-    dojo.byId('reviews_beginReview').style.display = '';
+    //FIXME temp fix dojo.byId('reviews_beginReview').style.display = '';
+    dojo.byId('reviews_beginReview').style.display = 'none';
     dojo.byId('reviews_reviewOptions').style.display = '';
     dojo.byId('reviews_noCardsDue').style.display = 'none';
     dojo.byId('reviews_emptyQuery').style.display = 'none';
@@ -880,10 +880,11 @@ reviews_ui.startSession = function(args) { //deck_id, session_time_limit, sessio
 
     reviews_ui.session_over_after_current_card = false;
 
+    reviews_undoReviewButton.attr('disabled', true);
+
     reviews_ui.last_session_args = dojo.clone(args);
 
     //start a review session with the server
-    //var session_def = reviews.startSession(deck_id, 20, session_card_limit, session_time_limit, tag_id, early_review, learn_more); //FIXME use the user-defined session limits
     var session_def = reviews.startSession(
             args.deck_id||'-1', 
             20, 

@@ -52,6 +52,7 @@ def add_decks(request):
     #return object_list(request, queryset=shared_decks, template_object_name='shared_deck')
     
 
+
 @login_required
 @json_response
 @all_http_methods
@@ -794,8 +795,8 @@ def cards_new_count(request):
         return {'cards_new_count': count}
 
 
-    (r'^rest/cards_for_review/due_tomorrow_count$', 'views.cards_due_tomorrow_count'),
-    (r'^rest/cards_for_review/next_card_due_at$', 'views.next_card_due_at'),
+    #(r'^rest/cards_for_review/due_tomorrow_count$', 'views.cards_due_tomorrow_count'),
+    #(r'^rest/cards_for_review/next_card_due_at$', 'views.next_card_due_at'),
 
 @json_response
 @login_required
