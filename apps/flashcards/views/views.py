@@ -1,4 +1,5 @@
 from flashcards.models import FactType, Fact, Deck, CardTemplate, FieldType, FieldContent, Card, SharedDeck, GRADE_NONE, GRADE_HARD, GRADE_GOOD, GRADE_EASY, SchedulingOptions, NEW_CARDS_PER_DAY
+from flashcards.models.constants import MAX_NEW_CARD_ORDINAL
 from flashcards.forms import DeckForm, FactForm, FieldContentForm, CardTemplateForm, FactTypeForm, CardForm
 from django.http import HttpResponseRedirect, HttpResponse
 from django.shortcuts import render_to_response
@@ -14,6 +15,7 @@ from django.contrib.humanize.templatetags.humanize import naturalday
 #from flashcards.models.decks import download_shared_deck, share_deck
 from flashcards.models.undo import UndoCardReview
 from apps.utils import japanese
+import random
 
 from django.template.loader import render_to_string
 
@@ -577,11 +579,13 @@ def _fact_update(request, fact_id):
                         card.active = True
                         card.save()
                     except Card.DoesNotExist:
-                        card_form = card_form_template_ids[card_template.id]
-                        new_card = card_form.save(commit=False)
+                        #card_form = card_form_template_ids[card_template.id]
+                        #new_card = card_form.save(commit=False)
+                        new_card = Card(template=card_template)
                         new_card.fact = fact2
                         new_card.active = True
-                        new_card.save(force_insert=True)
+                        new_card.new_card_ordinal = random.randrange(0, MAX_NEW_CARD_ORDINAL)
+                        new_card.save()
                 else:
                     #card was not selected in update, so disable it if it exists
                     try:
@@ -647,6 +651,7 @@ def _facts_create(request):
       new_card = card_form.save(commit=False)
       new_card.fact = new_fact
       new_card.active = True
+      new_card.new_card_ordinal = random.randrange(0, MAX_NEW_CARD_ORDINAL)
       new_card.priority = 0
       new_card.save()
   else:
