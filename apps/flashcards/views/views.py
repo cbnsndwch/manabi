@@ -499,6 +499,7 @@ def rest_fact_unsuspend(request, fact_id):
 @login_required
 @json_response
 @all_http_methods
+@transaction.commit_on_success
 def rest_fact(request, fact_id): #todo:refactor into facts
   if request.method == 'PUT':
     return _fact_update(request, fact_id)
