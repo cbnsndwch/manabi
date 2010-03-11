@@ -37,6 +37,12 @@ dojo.ready(function() {
 });
 
 
+manabi_ui.xhrReload = function() {
+    // reloads the currently open page, 
+    // without polluting the history
+
+    manabi_ui._xhrLinkLoad(dojo.hash());
+};
 
 
 manabi_ui._xhrLinkLoad = function(hash) {

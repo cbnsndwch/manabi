@@ -635,6 +635,9 @@ reviews_ui.endSession = function() {
 
     if (review_count) {
         reviews_ui.openSessionOverDialog(review_count);
+
+        // refresh the active page, in case it has due card counts etc
+        manabi_ui.xhrReload();
     }
 };
 
