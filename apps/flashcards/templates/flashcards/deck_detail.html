@@ -12,13 +12,8 @@
 
     <p>
         {% if request.user == deck.owner %}
-            {% if deck.card_count != 0 %}
-                <button dojoType="dijit.form.Button">
-	                Study Now
-	                <script type="dojo/connect" event="onClick" args="evt">
-                        reviews_ui.startSession({ deck_id: {{ deck.id }} });//, 10, 0, '');
-	                </script>
-                </button>
+            {% if deck.card_count %}
+                {% include "flashcards/_reviews_start_buttons.html" %}
             {% endif %}
         {% else %}
             <button dojoType="dijit.form.Button">
@@ -52,7 +47,7 @@
         <hr>
         <p>
             {% if not deck.synchronized_with %}
-                <button dojoType="dijit.form.ToggleButton" iconClass="" checked="{{ deck.shared }}">
+                <button dojoType="dijit.form.ToggleButton" id="flashcards_shareDeckInput" iconClass="" checked="{{ deck.shared }}">
                     {% if deck.shared %}Unshare{% else %}Share{% endif %} Deck
                     <script type="dojo/connect" event="onChange" args="evt">
                         if (evt) {
@@ -70,6 +65,10 @@
                         manabi_ui.xhrPostData(url, {'shared': share});
                     </script>            
                 </button>
+                <span dojoType="dijit.Tooltip" connectId="flashcards_shareDeckInput" showDelay="0">
+                    Choose whether to make this deck publicly available to other users on this site.<br>
+                    If you share this deck, then other users can subscribe to it and receive your updates to it.
+                </span>
             {% endif %}
             <button dojoType="dijit.form.Button">
 	            Delete Deck

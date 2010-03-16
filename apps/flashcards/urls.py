@@ -2,7 +2,7 @@ import os
 
 from django.conf.urls.defaults import *
 from django.conf import settings
-from flashcards.models import SharedDeck, Deck, FactType
+from flashcards.models import SharedDeck, Deck, FactType, Card
 from django.views.generic.simple import direct_to_template
 from django.views.generic.list_detail import object_list, object_detail
 
@@ -10,11 +10,7 @@ shared_decks_dict = {
     'queryset': SharedDeck.objects.all(),
     'template_object_name': 'shared_deck'
 }
-decks_dict = {
-    'queryset': Deck.objects.filter(active=True),
-    'template_object_name': 'deck',
-    'extra_context': {'field_types': FactType.objects.get(id=1).fieldtype_set.all().order_by('ordinal'),},
-}
+
 
 urlpatterns = patterns('flashcards',
     #TODO named URIs
@@ -22,7 +18,7 @@ urlpatterns = patterns('flashcards',
     # New layout URIs
     (r'^add$', 'views.add_decks'),
     #(r'^shared_decks/(?P<object_id>\d+)$', object_detail, shared_decks_dict),
-    (r'^decks/(?P<object_id>\d+)$', object_detail, decks_dict), #TODO add permissions enforcement for viewing
+    (r'^decks/(?P<deck_id>\d+)$', 'views.deck_detail'), # object_detail, decks_dict), #TODO add permissions enforcement for viewing
     (r'^rest/decks/(\w+)/subscribe$', 'views.rest_deck_subscribe'),
 
     #(r'^$', 'views.index'),

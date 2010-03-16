@@ -17,6 +17,7 @@ from flashcards.models.undo import UndoCardReview
 from apps.utils import japanese
 import random
 
+from flashcards.contextprocessors import study_options_context
 from django.template.loader import render_to_string
 
 import usertagging
@@ -73,6 +74,19 @@ def rest_deck_subscribe(request, deck_id):
         return {'success':True, 'deck_id': new_deck.id, 'post_redirect': new_deck.get_absolute_url()}
     else:
         raise Http404
+
+
+def deck_detail(request, deck_id=None):
+    detail_args = {
+        'queryset': Deck.objects.filter(active=True),
+        'template_object_name': 'deck',
+        'extra_context': {
+            'field_types': FactType.objects.get(id=1).fieldtype_set.all().order_by('ordinal'),
+        },
+        'object_id': deck_id,
+    }
+    detail_args['extra_context'].update(study_options_context(request, deck_id=deck_id))
+    return object_detail(request, **detail_args)
 
 
 

@@ -21,52 +21,8 @@ more importantly, retain your memory of what you've already learned.<br>
     Get started by <a href="flashcards/add" class="xhr_link">adding some pre-made flashcard decks</a>{% if deck_count > 0 %}, 
     or by creating new flashcards in <a href="flashcards/decks" class="xhr_link">one of your existing decks</a>{% endif %}.
 {% else %}
-    
-    {% if due_card_count > 0 or new_cards_left_for_today > 0 %}
-        <button dojoType="dijit.form.Button">
-	        <div style="margin:.7em 1.7em;"><h3>Study now!</h3></div>
-	        <script type="dojo/connect" event="onClick" args="evt">
-                reviews_ui.startSession({ });//, 10, 0, '');
-	        </script>
-        </button>
-        <span style="font-size:1.1em;padding-left:.5em;">
-            {% if due_card_count > 0 %}
-                You have <strong>{{ due_card_count }}</strong> cards due for review.
-            {% else %}
-                You have <strong>{{ new_cards_left_for_today }}</strong> cards due for review.
-            {% endif %} 
-        </span>
-    {% else %}
-        <p>
-            <strong><span style="font-size:1.2em">No cards are due for review.</span></strong><br>
-            {% include "flashcards/_next_card_due_at.html" %}
-        </p>
-        <button dojoType="dijit.form.Button">
-	        <div style="margin:.7em 1.7em;"><h3>Review early</h3></div>
-	        <script type="dojo/connect" event="onClick" args="evt">
-                var args = {};
-                args.early_review = true;
-                args.learn_more = false;
-                reviews_ui.startSession(args);
-	        </script>
-        </button>
-        <span style="font-size:1em;padding-left:.5em;">Start reviewing cards before they're due.</span>
-        <br>
-        {% if new_card_count > 0 %}
-            <button dojoType="dijit.form.Button">
-	            <div style="margin:.7em .58em;"><h3>Learn new cards</h3></div>
-	            <script type="dojo/connect" event="onClick" args="evt">
-                    var args = {};
-                    args.early_review = true;
-                    args.learn_more = true;
-                    reviews_ui.startSession(args);
-	            </script>
-            </button>
-            <span style="font-size:1em;padding-left:.5em;">See more new cards. You have <strong>{{ new_card_count }}</strong> new cards waiting.</span><br>
-            <br>
-        {% endif %}
-        
-    {% endif %}
+
+    {% include "flashcards/_reviews_start_buttons.html" %}
 
 {% endif %} {% endif %}
 </p>
