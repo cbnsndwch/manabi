@@ -82,7 +82,7 @@ class FactManager(models.Manager):
 
 
     def with_synchronized(self, user, deck=None, tags=None):
-        '''Returns a queryset of all Facts which the user owns, or which 
+        '''Returns a queryset of all active Facts which the user owns, or which 
         the user is subscribed to (via a subscribed deck).
         Optionally filter by deck and tags too.
         '''
@@ -142,7 +142,7 @@ class FactManager(models.Manager):
             decks = Deck.objects.filter(id=deck.id)
         else:
             decks = Deck.objects.synchronized_decks(user)
-        user_facts = self.filter(deck__owner=user, deck__in=decks)
+        user_facts = self.filter(deck__owner=user, deck__in=decks, active=True)
         if tags:
             tagged_facts = usertagging.models.UserTaggedItem.objects.get_by_model(Fact, tags)
             user_facts = user_facts.filter(fact__in=tagged_facts)
@@ -530,7 +530,7 @@ class SharedFieldContent(AbstractFieldContent):
     class Meta:
         #TODO unique_together = (('fact', 'field_type'), ) #one field content per field per fact
         app_label = 'flashcards'
-    
+
 
 class FieldContent(AbstractFieldContent):
     fact = models.ForeignKey('flashcards.Fact', db_index=True)

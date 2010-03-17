@@ -47,8 +47,6 @@ allow adding unsorted/orphan cards/items
 
 change the page title when the hash changes, somehow
 
-inline deck title, description editing (via dojo inline widgets - click to edit)
-
 user feedback link thing
 
 use 'term' instead of 'expression'
@@ -411,6 +409,7 @@ http://developer.apple.com/mac/library/documentation/UserExperience/Reference/Di
 -----------------------
 vim todo:
 -----------------------
+
 stuff for yoshimura sensei:
 make sure there arent bad production cards
 and make sure no cards are in the wrong deck ;)
@@ -456,9 +455,9 @@ click a shared deck, if not subscribed, 'cards_deleteButton not defined' error
 
 -allow 0 decks (get rid of Sample Deck)
 
-have the same system as home, for each deck's buttons
+-have the same system as home, for each deck's buttons
 
-deck card counts arent accurate for 'hybrid' shared/annotated decks
+?deck card counts arent accurate for 'hybrid' shared/annotated decks
 
 have a feedback box in the home page
 

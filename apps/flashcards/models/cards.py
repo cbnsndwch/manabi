@@ -81,23 +81,25 @@ class CardManager(models.Manager):
             cards = cards.filter(fact__deck=deck)
         if tags:
             facts = usertagging.models.UserTaggedItem.objects.get_by_model(Fact, tags)
-            cards = user_cards.filter(fact__in=facts)
+            cards = cards.filter(fact__in=facts)
         return cards.count()
             
 
-
     def of_user(self, user):
         #TODO this is probably really slow
-        return self.filter(fact__deck__owner=user, suspended=False, active=True)
+        user_cards = self.filter(suspended=False, active=True)
+        facts = Fact.objects.with_synchronized(user)
+        user_cards = self.filter(fact__in=facts)
+        return user_cards
 
     def new_cards(self, user, deck=None):
-        new_cards = self.filter(fact__deck__owner=user, last_reviewed_at__isnull=True, suspended=False, active=True)
+        new_cards = self.of_user(user).filter(last_reviewed_at__isnull=True)
         if deck:
             new_cards = new_cards.filter(fact__deck=deck)
         return new_cards
 
     def due_cards(self, user, deck=None):
-        due_cards = self.filter(fact__deck__owner=user, due_at__lte=datetime.datetime.utcnow(), suspended=False, active=True).order_by('-interval')
+        due_cards = self.of_user(user).filter(due_at__lte=datetime.datetime.utcnow()).order_by('-interval')
         if deck:
             due_cards = due_cards.filter(fact__deck=deck)
         return due_cards
@@ -278,7 +280,7 @@ class CardManager(models.Manager):
         '''
         if not count:
             return []
-        priority_cutoff = review_time - datetime.timedelta(minutes=30)
+        priority_cutoff = review_time - datetime.timedelta(minutes=60)
         cards = initial_query.exclude(last_review_grade=GRADE_NONE).filter(due_at__gt=review_time).order_by('due_at')
         staler_cards = cards.filter(last_reviewed_at__gt=priority_cutoff).order_by('due_at')
         return self._space_cards(staler_cards, count, review_time, early_review=True)
@@ -287,7 +289,7 @@ class CardManager(models.Manager):
     def _next_due_soon_cards2(self, user, initial_query, count, review_time, excluded_ids=[], daily_new_card_limit=None, early_review=False, deck=None, tags=None):
         if not count:
             return []
-        priority_cutoff = review_time - datetime.timedelta(minutes=30)
+        priority_cutoff = review_time - datetime.timedelta(minutes=60)
         cards = initial_query.exclude(last_review_grade=GRADE_NONE).filter(due_at__gt=review_time).order_by('due_at')
         fresher_cards = cards.filter(last_reviewed_at__lte=priority_cutoff).order_by('due_at')
         return self._space_cards(fresher_cards, count, review_time, early_review=True)

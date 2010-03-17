@@ -51,10 +51,10 @@
 
 {% block subnav %}
     <ul>
-        <li><a href="{% url home_inline %}" class="xhr_link">Home</a>
+        <li><a href="{% url home_inline %}" id="subnav_home_link" class="xhr_link">Home</a>
         {% if user.is_authenticated %}
-            <li><a href="/flashcards/add" class="xhr_link">Add</a>
-            <li><a href="/flashcards/decks" class="xhr_link">Manage</a>
+            <li><a href="/flashcards/add" id="subnav_add_link" class="xhr_link">Add</a>
+            <li><a href="/flashcards/decks" id="subnav_manage_link" class="xhr_link">Manage</a>
         {% endif %}
     </ul>
 {% endblock %}
