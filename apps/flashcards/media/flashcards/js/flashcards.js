@@ -79,23 +79,30 @@
   
   
   
-  function factFormSubmit(submitSuccessCallback, submitErrorCallback, _cardTemplatesInput, _factAddForm, factId, showStandby) {
+  function factFormSubmit(submitSuccessCallback, submitErrorCallback, _factAddForm, factId, showStandby) {
       if (showStandby) {
           //factAddDialogStandby.attr('target', factAddFormDialog);
           factAddFormSubmitButton.attr('disabled', true);
       }
-      var cardTemplatesValue = _cardTemplatesInput.attr('value');
-      var tempCardCounter = 0;
-      var newCardTemplatesValue = {};
+      //var cardTemplatesValue = _cardTemplatesInput.attr('value');
+      //var tempCardCounter = 0;
+      //var newCardTemplatesValue = {};
       var factAddFormValue = _factAddForm.attr('value');
-      cardTemplatesValue = dojo.forEach(cardTemplatesValue, function(val){
+      
+      /*cardTemplatesValue = dojo.forEach(cardTemplatesValue, function(val){
           var newKey = 'card-'+(tempCardCounter++)+'-template';
           factAddFormValue[newKey] = val;
-      });
-      
+      });*/
+      var tempCardCounter = 0;
+      for (var key in factAddFormValue) {
+          if (key.indexOf('card_template') == 0 && factAddFormValue[key].length) {
+            tempCardCounter++;
+          }
+      }
+
       factAddFormValue['fact-fact_type'] = 1; //FIXME temp hack - assume Japanese
-      factAddFormValue['card-TOTAL_FORMS'] = tempCardCounter.toString();
-      factAddFormValue['card-INITIAL_FORMS'] = '0'; //tempCounter; //todo:if i allow adding card templates in this dialog, must update this
+      //factAddFormValue['card-TOTAL_FORMS'] = tempCardCounter.toString();
+      //factAddFormValue['card-INITIAL_FORMS'] = '0'; //tempCounter; //todo:if i allow adding card templates in this dialog, must update this
       factAddFormValue['field_content-TOTAL_FORMS'] = fieldContentInputCount.toString();
       factAddFormValue['field_content-INITIAL_FORMS'] = factId ? fieldContentInputCount.toString() : '0'; //fieldContentInputCount; //todo:if i allow adding card templates in this dialog, must update this
       //factAddFormValue['fact-id']
@@ -105,7 +112,7 @@
           url: factId ? '/flashcards/rest/facts/'+factId : '/flashcards/rest/facts',//url: '/flashcards/rest/decks/'+factAddFormValue['fact-deck']+'/facts', //TODO get URI restfully
           content: factAddFormValue,
           handleAs: 'json',
-          load: function(data){
+          load: dojo.hitch(null, function(tempCardCounter, data){
               if (data.success) {
                   submitSuccessCallback(data, tempCardCounter);
                   //if the fact editing grid is open, update it
@@ -118,7 +125,7 @@
               } else {
                   submitErrorCallback(data, tempCardCounter);
               }
-          },
+          }, tempCardCounter),
           error: function(error){
               submitErrorCallback(data, tempCardCounter); //TODO other callback
           }
@@ -279,7 +286,7 @@
           dojo.query('#fact-tag-errors').empty();
       }
       factAddFormSubmitButton.attr('disabled', false);
-    }, cardTemplatesInput, factAddForm, null, true);
+    }, factAddForm, null, true);
   }
   
   //connect to Add Fact form submit
@@ -448,10 +455,14 @@
     };
 
     fact_ui.generateReading = function(expression, reading_field, show_standby) {
+        var reading_field = dijit.byId(reading_field);
         if (expression.trim() != '') {
+            reading_field.attr('disabled', true);        
+
             var def = fact_ui._generateReading(expression);
 
             var standby = null;
+
             if (show_standby) {
                 standby = new dojox.widget.Standby({
                     target: dijit.byId(reading_field).domNode.id
@@ -460,9 +471,8 @@
                 standby.startup();
                 standby.show();
             }
-            dijit.byId(reading_field).attr('disabled', true);        
             def.addCallback(dojo.hitch(null, function(reading_field, expression, standby, reading) {
-                if (reading.trim() != expression.trim()) {
+                if (reading.trim()) { // != expression.trim()) {
                     reading_field.attr('value', reading);
                 }
                 if (standby) {

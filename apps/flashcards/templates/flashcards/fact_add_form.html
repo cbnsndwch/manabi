@@ -7,24 +7,13 @@
 
 <div id="factAddFormWrapper">
     <div dojoType="dijit.form.Form" jsId="factAddForm" encType="multipart/form-data" action="" method="" style="margin-bottom:0em">
-        <div>
-            <strong>Deck:</strong>
-            <span id="deckInputContainer">
-            <input name="fact-deck" jsId="deckInput" 
-                dojoType="dijit.form.Select" tabIndex="49">
-                </span>
-            {% comment %}Model: <input name="fact-fact_type" jsId="factTypeInput" dojoType="dojox.form.DropDownSelect">{% endcomment %}
-        </div>
-        <div style="margin-top:7px;margin-bottom:7px;"><strong style="vertical-align:top">Cards:</strong>
-            <select multiple="true" dojoType="dojox.form.CheckedMultiSelect" 
-                jsId="cardTemplatesInput" style="height:6.2em;">
-                {% for card_template in fact_add_form.card_templates %}
-                    <option value="{{ card_template.id }}"{% if card_template.generate_by_default %} selected="selected"{% endif %}>
-                        {{ card_template.name }}
-                    </option>
-                {% endfor %}
-            </select>
-        </div>
+        <span id="deckInputContainer" style="display:none">
+        <input name="fact-deck" jsId="deckInput" 
+            dojoType="dijit.form.Select" tabIndex="49">
+        </span>
+        {% comment %}
+        <div> <strong>Deck:</strong> <span id="deckInputContainer"> <input name="fact-deck" jsId="deckInput" dojoType="dijit.form.Select" tabIndex="49"> </span> </div>
+        {% endcomment %}
         <div id="factFields">
             {% for field_type in fact_add_form.field_types %}
                 {% if not field_type.disabled_in_form %}
@@ -33,10 +22,16 @@
                         <span class="fakeLink hiddenFieldLink" onClick="this.style.display='none';var c=dojo.byId('field_content_container_{{ forloop.counter0 }}');c.style.display='';var d=dijit.getEnclosingWidget(dojo.query('textarea',c)[0]);d.resize();d.focus();">Add {{ field_type.name }}</span>
                     {% endif %}
                     <div id="field_content_container_{{ forloop.counter0 }}"{% if field_type.hidden_in_form %} class="hidden_in_form"{% endif %}>
-                        <strong>{{ field_type.name }}:</strong>{% if not field_type.blank %} <em>(required)</em>{% endif %}
                         {% if field_type.is_transliteration_field_type %}
-                            (<span class="fakeLink" 
-                                onclick="fact_ui.generateReading(dijit.byId('id_field_content-0-content').attr('value'),'id_field_content-2-content')">Generate Reading</span>)
+                        <span{% comment %} style="float:left;clear:left;display:block;line-height:33px;"{% endcomment %}><strong><label>{{ field_type.name }}:</label></strong>{% if not field_type.blank %} <span style="font-size:80%; color:gray">(required)</span>{% endif %}
+                            {% spaceless %}
+                                <span class="fakeLink" onclick="fact_ui.generateReading(dijit.byId('id_field_content-0-content').attr('value'),'id_field_content-1-content')">
+                                    <img src="{{ MEDIA_URL }}static/css/dojo_themes/tundra/images/icons/arrow_refresh.png">
+                                </span>
+                                {% endspaceless %}
+                        </span>
+                        {% else %}
+                        <strong><label>{{ field_type.name }}:</label></strong>{% if not field_type.blank %} <span style="font-size:80%; color:gray">(required)</span>{% endif %}
                         {% endif %}
                         {% if field_type.choices %}
                             <select id="id_field_content-{{ forloop.counter0 }}-content" 
@@ -53,7 +48,8 @@
                                 {% endfor %}
                             </select>
                         {% else %}
-                            <div id="id_field_content-{{ forloop.counter0 }}-content-errors" class="field_content_error"></div>
+                            <div id="id_field_content-{{ forloop.counter0 }}-content-errors" class="field_content_error"{% if field_type.is_transliteration_field_type %} style="display:inline"{% endif %}></div>
+                            <div style="overflow:hidden;">
                             {% if field_type.multi_line %}
                                 <textarea dojoType="dijit.form.Textarea" 
                             {% else %}
@@ -61,9 +57,9 @@
                             {% endif %}
                                     id="id_field_content-{{ forloop.counter0 }}-content" 
                                     name="field_content-{{ forloop.counter0 }}-content" 
-                                    style="width:400px;margin-bottom:3px;" 
+                                    style="width:99%;margin-bottom:3px;" 
                                     class="field_content{% if field_type.transliteration_field_type %} kanji_field{% endif %}{% if field_type.fieldtype %} reading_field{% endif %}"
-                                    tabIndex="5{{ forloop.counter }}">{% if field_type.multi_line %}</textarea>{% endif %}
+                                    tabIndex="{% if field_type.is_transliteration_field_type %}-1{% else %}3{{ forloop.counter }}{% endif %}">{% if field_type.multi_line %}</textarea>{% endif %}
                             {% if field_type.transliteration_field_type %}
                                 <script type="text/javascript">
                                     //this field has a corresponding transliteration field
@@ -83,6 +79,7 @@
                                 </script>
                             {% else %}
                             {% endif %}
+                            </div>
                         {% endif %}
                         <input dojoType="dijit.form.TextBox" 
                             name="field_content-{{ forloop.counter0 }}-field_type" 
@@ -103,11 +100,23 @@
             <input type="text" name="fact-tags" dojoType="dijit.form.TextBox" 
             id="cardTagsInput" style="width:362px" tabIndex="58">
         </div>
-        <br>
-        <div>
+        <div style="margin-top:7px;margin-bottom:7px;">
+            <strong style="vertical-align:top">Cards:</strong>
+            {% comment %}<select multiple="true" dojoType="dojox.form.CheckedMultiSelect" 
+                jsId="cardTemplatesInput" style="height:6.2em;">
+                </select>
+                {% endcomment %}
+            <div style="margin-top:.2em; margin-below:.2em;">
+                {% for card_template in fact_add_form.card_templates %}
+                    <input name="card_template-{{ card_template.id }}" id="id_card_template-{{ card_template.id }}" dojoType="dijit.form.CheckBox" value="{{ card_template.id }}"{% if card_template.generate_by_default %} checked{% endif %}>
+                    <label for="id_card_template-{{ card_template.id }}">{{ card_template.name }}</label>
+                {% endfor %}
+            </div>
+        </div>
+        <div style="margin-top:1em;">
             <span>
                 <button dojoType="dijit.form.Button" type="submit" 
-                    jsId="factAddFormSubmitButton" tabIndex="59" iconClass="manabi_icon manabi_icon_add">
+                    jsId="factAddFormSubmitButton" tabIndex="59" iconClass="manabi_icon manabi_icon_disk">
                     Create Flashcards
                     </button> <button dojoType="dijit.form.Button">
                     Close

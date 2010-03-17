@@ -647,8 +647,9 @@ def _facts_create(request):
   
   #todo: refactor this into model code
   
-  CardFormset = modelformset_factory(Card, exclude=('fact', 'ease_factor', )) #TODO make from CardForm
-  card_formset = CardFormset(post_data, prefix='card')
+  #CardFormset = modelformset_factory(Card, exclude=('fact', 'ease_factor', )) #TODO make from CardForm
+  #card_formset = CardFormset(post_data, prefix='card')
+  card_templates = CardTemplate.objects.filter(id__in=[e[1] for e in post_data.items() if e[0].find('card_template') == 0])
   
   #FieldContentFormset = modelformset_factory(FieldContent, exclude=('fact', ))
   FieldContentFormset = formset_factory(FieldContentForm)
@@ -656,7 +657,7 @@ def _facts_create(request):
   
   fact_form = FactForm(post_data, prefix='fact')
   
-  if card_formset.is_valid() and field_content_formset.is_valid() and fact_form.is_valid():
+  if field_content_formset.is_valid() and fact_form.is_valid():
     new_fact = fact_form.save() #TODO automate the tag saving in forms.py
     new_fact.active = True
     new_fact.save()
@@ -667,19 +668,21 @@ def _facts_create(request):
       new_field_content.fact = new_fact
       new_field_content.save()
     
-    for card_form in card_formset.forms:
-      new_card = card_form.save(commit=False)
-      new_card.fact = new_fact
-      new_card.active = True
-      new_card.new_card_ordinal = random.randrange(0, MAX_NEW_CARD_ORDINAL)
-      new_card.priority = 0
+    for card_template in card_templates: #card_form in card_formset.forms:
+      new_card = Card(
+              template=card_template,
+              fact=new_fact,
+              active=True,
+              new_card_ordinal=random.randrange(0, MAX_NEW_CARD_ORDINAL),
+              priority = 0)
       new_card.save()
   else:
     print field_content_formset.errors
     ret['success'] = False
-    ret['errors'] = {'card': card_formset.errors,
-                     'field_content': field_content_formset.errors,
-                     'fact': [fact_form.errors]}
+    ret['errors'] = {
+            #'card': card_formset.errors,
+             'field_content': field_content_formset.errors,
+             'fact': [fact_form.errors]}
   return ret
 
 

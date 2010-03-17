@@ -3259,5 +3259,7 @@ div.dijitTabBtnDisabled, .dj_ie div.dijitTabBtnDisabled {
 }
 .tundra .manabi_icon_information {
 	background-image: url(images/icons/information.png);
-
+}
+.tundra .manabi_icon_disk {
+	background-image: url(images/icons/disk.png);
 }

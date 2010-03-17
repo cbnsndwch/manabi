@@ -468,6 +468,9 @@ server-side-generated review options/review early etc dialogs, for study now but
 change review session finish dialog..
 
 
+allow tabbing to the reading field, but if it's disabled, tab to the next field
+
+
 -delete subscriber deck
 -delete shared deck
 

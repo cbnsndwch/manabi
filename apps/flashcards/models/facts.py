@@ -31,7 +31,7 @@ class FactType(models.Model):
     parent_fact_type = models.ForeignKey('self', blank=True, null=True, related_name='child_fact_types')
     many_children_per_fact = models.NullBooleanField(blank=True, null=True)
 
-    #not used for child fact types
+    #not used for child fact types (?)
     min_card_space = models.FloatField(default=seconds_to_days(600), help_text="Duration expressed in (partial) days.") #separate the cards of this fact initially
     space_factor = models.FloatField(default=.1) #minimal interval multiplier between two cards of the same fact
     
@@ -245,8 +245,6 @@ class Fact(AbstractFact):
     @property
     def owner(self):
         return self.deck.owner
-
-
 
 
     @property
