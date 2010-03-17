@@ -3257,3 +3257,7 @@ div.dijitTabBtnDisabled, .dj_ie div.dijitTabBtnDisabled {
 .tundra .manabi_icon_application_form_edit {
 	background-image: url(images/icons/application_form_edit.png);
 }
+.tundra .manabi_icon_information {
+	background-image: url(images/icons/information.png);
+
+}
