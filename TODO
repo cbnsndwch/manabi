@@ -334,6 +334,9 @@ field for word type - verb, na-adj, etc
 ---------------------
 Scheduling ideas:
 ---------------------
+consider 'due very soon' cards due now when in a review session
+(depending on their interval too)
+
 scenario: reviewing a card that was failed just a few minutes ago.
 the meaning of 'too easy' for example really changes here. With new cards, the grades show how well you already 
 knew the card. But for a recently failed card, 'too easy' is kind of expected
@@ -469,6 +472,9 @@ change review session finish dialog..
 
 
 allow tabbing to the reading field, but if it's disabled, tab to the next field
+
+
+disable study now button when first clicked
 
 
 -delete subscriber deck

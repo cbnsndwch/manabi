@@ -156,12 +156,12 @@ class Deck(AbstractDeck):
 
     def facts(self):
         '''Returns all Facts for this deck,
-        including subscribed ones.
+        including subscribed ones, not including subfacts.
         '''
         if self.synchronized_with:
             updated_fields = FieldContent.objects.filter(fact__deck=self, fact__active=True, fact__synchronized_with__isnull=False) #fact__in=self.subscriber_facts.all())
             # 'other' here means non-updated, subscribed
-            other_facts = Fact.objects.filter(id__in=updated_fields.values_list('fact', flat=True))
+            other_facts = Fact.objects.filter(parent_fact__isnull=True, id__in=updated_fields.values_list('fact', flat=True))
             other_fields = FieldContent.objects.filter(fact__deck=self.synchronized_with).exclude(fact__active=True, fact__in=other_facts.values_list('synchronized_with', flat=True))
             #active_subscribers = active_subscribers | other_fields
             return updated_fields | other_fields
@@ -174,11 +174,10 @@ class Deck(AbstractDeck):
         preferring updated subscriber fields to subscribed ones,
         when the deck is synchronized.
         '''
-        #active_subscribers = Fact.objects.filter(id__in=updated_fields.values_list('fact_id', flat=True))
         if self.synchronized_with:
             updated_fields = FieldContent.objects.filter(fact__deck=self, fact__active=True, fact__synchronized_with__isnull=False) #fact__in=self.subscriber_facts.all())
             # 'other' here means non-updated, subscribed
-            other_facts = Fact.objects.filter(id__in=updated_fields.values_list('fact', flat=True))
+            other_facts = Fact.objects.filter(parent_fact__isnull=True, id__in=updated_fields.values_list('fact', flat=True))
             other_fields = FieldContent.objects.filter(fact__deck=self.synchronized_with).exclude(fact__active=True, fact__in=other_facts.values_list('synchronized_with', flat=True))
             #active_subscribers = active_subscribers | other_fields
             return updated_fields | other_fields
@@ -380,200 +379,4 @@ class SchedulingOptions(models.Model):
 
 
 
-#@transaction.commit_on_success    
-#def share_deck(deck):
-#    '''Makes the '''
-    
-#    #copy the deck
-#    shared_deck = SharedDeck(
-#        name=deck.name,
-#        description=deck.description,
-#        #TODO implement textbook_source=deck.textbook_source, #TODO picture too
-#        priority=deck.priority,
-#        owner_id=deck.owner_id)
-#    shared_deck.save()
-
-#    # Copy the tags
-#    shared_deck.tags = usertagging.utils.edit_string_for_tags(deck.tags)
-
-#    #copy the facts and child facts
-#    fact_to_shared_fact = {} #maps fact to shared_fact
-#    for fact in chain(deck.fact_set.all(), Fact.objects.filter(parent_fact__deck=deck)):
-#        if fact.parent_fact:
-#            #child fact
-#            shared_fact = SharedFact(
-#                fact_type=fact.fact_type,
-#                active=fact.active) #TODO should it be here?
-#            shared_fact.save()
-#            shared_fact.parent_fact = fact_to_shared_fact[fact.parent_fact]
-#        else:
-#            #regular fact
-#            shared_fact = SharedFact(
-#                deck=shared_deck,
-#                fact_type_id=fact.fact_type_id,
-#                active=fact.active, #TODO should it be here?
-#                priority=fact.priority,
-#                notes=fact.notes)
-#            shared_fact.save()
-#            fact_to_shared_fact[fact] = shared_fact
-
-#        #copy the field contents for this fact
-#        for field_content in fact.fieldcontent_set.all():
-#            shared_field_content = SharedFieldContent(
-#                fact=shared_fact,
-#                field_type_id=field_content.field_type_id,
-#                content=field_content.content,
-#                cached_transliteration_without_markup=field_content.cached_transliteration_without_markup,
-#                media_uri=field_content.media_uri,
-#                media_file=field_content.media_file)
-#            shared_field_content.save()
-
-#        #copy the cards
-#        for card in fact.card_set.filter(active=True):
-#            shared_card = cards.SharedCard(
-#                fact=shared_fact,
-#                template=card.template,
-#                priority=card.priority,
-#                leech=card.leech,
-#                active=True,#card.active,
-#                suspended=card.suspended,
-#                new_card_ordinal=card.new_card_ordinal)
-#            shared_card.save()
-
-#    #done!
-#    return shared_deck
-
-
-
-
-#@transaction.commit_on_success    
-#def share_deck_copy(deck):
-#    '''Creates a SharedDeck containing all the facts and cards and their contents, given a user's Deck.''' 
-    
-#    #copy the deck
-#    shared_deck = SharedDeck(
-#        name=deck.name,
-#        description=deck.description,
-#        #TODO implement textbook_source=deck.textbook_source, #TODO picture too
-#        priority=deck.priority,
-#        owner_id=deck.owner_id)
-#    shared_deck.save()
-
-#    # Copy the tags
-#    shared_deck.tags = usertagging.utils.edit_string_for_tags(deck.tags)
-
-#    #copy the facts and child facts
-#    fact_to_shared_fact = {} #maps fact to shared_fact
-#    for fact in chain(deck.fact_set.all(), Fact.objects.filter(parent_fact__deck=deck)):
-#        if fact.parent_fact:
-#            #child fact
-#            shared_fact = SharedFact(
-#                fact_type=fact.fact_type,
-#                active=fact.active) #TODO should it be here?
-#            shared_fact.save()
-#            shared_fact.parent_fact = fact_to_shared_fact[fact.parent_fact]
-#        else:
-#            #regular fact
-#            shared_fact = SharedFact(
-#                deck=shared_deck,
-#                fact_type_id=fact.fact_type_id,
-#                active=fact.active, #TODO should it be here?
-#                priority=fact.priority,
-#                notes=fact.notes)
-#            shared_fact.save()
-#            fact_to_shared_fact[fact] = shared_fact
-
-#        #copy the field contents for this fact
-#        for field_content in fact.fieldcontent_set.all():
-#            shared_field_content = SharedFieldContent(
-#                fact=shared_fact,
-#                field_type_id=field_content.field_type_id,
-#                content=field_content.content,
-#                cached_transliteration_without_markup=field_content.cached_transliteration_without_markup,
-#                media_uri=field_content.media_uri,
-#                media_file=field_content.media_file)
-#            shared_field_content.save()
-
-#        #copy the cards
-#        for card in fact.card_set.filter(active=True):
-#            shared_card = cards.SharedCard(
-#                fact=shared_fact,
-#                template=card.template,
-#                priority=card.priority,
-#                leech=card.leech,
-#                active=True,#card.active,
-#                suspended=card.suspended,
-#                new_card_ordinal=card.new_card_ordinal)
-#            shared_card.save()
-
-#    #done!
-#    return shared_deck
-
-
-#@transaction.commit_on_success    
-#def download_shared_deck_copy(user, shared_deck):
-#    '''Copies a shared deck and all its contents to a user's own deck library.'''
-
-#    #copy the deck
-#    deck = Deck(
-#        name=shared_deck.name,
-#        description=shared_deck.description,
-#        #TODO implement textbook=shared_deck.textbook, #picture too...
-#        priority=shared_deck.priority,
-#        owner_id=user.id)
-#    deck.save()
-
-#    # Copy the tags
-#    deck.tags = usertagging.utils.edit_string_for_tags(shared_deck.tags)
-
-#    #create default deck scheduling options
-#    scheduling_options = SchedulingOptions(deck=deck)
-#    scheduling_options.save()
-
-#    #copy the facts
-#    shared_fact_to_fact = {}
-#    for shared_fact in chain(shared_deck.sharedfact_set.all(), SharedFact.objects.filter(parent_fact__deck=shared_deck)):
-#        if shared_fact.parent_fact:
-#            #child fact
-#            fact = Fact(
-#                fact_type=shared_fact.fact_type,
-#                active=shared_fact.active) #TODO should it be here?
-#            fact.parent_fact = shared_fact_to_fact[shared_fact.parent_fact]
-#            fact.save()
-#        else:
-#            #regular fact
-#            fact = Fact(
-#                deck=deck,
-#                fact_type_id=shared_fact.fact_type_id,
-#                active=shared_fact.active, #TODO should it be here?
-#                priority=shared_fact.priority,
-#                notes=shared_fact.notes)
-#            fact.save()
-#            shared_fact_to_fact[shared_fact] = fact
-
-#        #copy the field contents for this fact
-#        for shared_field_content in shared_fact.sharedfieldcontent_set.all():
-#            field_content = FieldContent(
-#                fact=fact,
-#                field_type_id=shared_field_content.field_type_id,
-#                content=shared_field_content.content,
-#                cached_transliteration_without_markup=shared_field_content.cached_transliteration_without_markup,
-#                media_uri=shared_field_content.media_uri,
-#                media_file=shared_field_content.media_file)
-#            field_content.save()
-                                                      
-#        #copy the cards
-#        for shared_card in shared_fact.sharedcard_set.filter(active=True):
-#            card = cards.Card(
-#                fact=fact,
-#                template_id=shared_card.template_id,
-#                priority=shared_card.priority,
-#                leech=shared_card.leech,
-#                active=True,# shared_card.active,
-#                suspended=shared_card.suspended,
-#                new_card_ordinal=shared_card.new_card_ordinal)
-#            card.save()
-
-#    #done!
-#    return deck
 

@@ -87,7 +87,7 @@ class FactManager(models.Manager):
         Optionally filter by deck and tags too.
         '''
         from decks import Deck
-        user_facts = self.filter(deck__owner=user)
+        user_facts = self.filter(deck__owner=user, parent_fact__isnull=True)
 
         if deck:
             #if not deck.synchronized_with:
@@ -114,7 +114,7 @@ class FactManager(models.Manager):
         #TODO or is in_bulk() faster?
         query = query.strip()
         if not query_set:
-            query_set = self.all()
+            query_set = self.filter(parent_fact__isnull=True) #all()
 
         subscriber_facts = Fact.objects.filter(synchronized_with__in=query_set)
 
@@ -142,7 +142,7 @@ class FactManager(models.Manager):
             decks = Deck.objects.filter(id=deck.id)
         else:
             decks = Deck.objects.synchronized_decks(user)
-        user_facts = self.filter(deck__owner=user, deck__in=decks, active=True)
+        user_facts = self.filter(deck__owner=user, deck__in=decks, active=True, parent_fact__isnull=True)
         if tags:
             tagged_facts = usertagging.models.UserTaggedItem.objects.get_by_model(Fact, tags)
             user_facts = user_facts.filter(fact__in=tagged_facts)

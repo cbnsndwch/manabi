@@ -679,7 +679,7 @@ def _facts_create(request):
                     new_subfact = Fact(
                             fact_type=new_field_content.field_type.fact_type,
                             active=True,
-                            deck=new_fact.deck,
+                            #deck=new_fact.deck,
                             parent_fact=new_fact,
                     )
                     new_subfact.save()
