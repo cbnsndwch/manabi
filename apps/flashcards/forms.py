@@ -1,6 +1,6 @@
 from django.db import models
 from django.contrib.auth.models import User
-from django.forms import ModelForm
+from django import forms
 from django.forms.util import ErrorList
 from dbtemplates.models import Template
 from django.db.models.signals import post_save  
@@ -14,13 +14,13 @@ from models import Card, CardHistory, Fact, FactType, FieldType, FieldContent, D
 #todo:row-level authentication (subclassing formset)
 
 
-class CardForm(ModelForm):
+class CardForm(forms.ModelForm):
     class Meta:
         model = Card
         exclude = ('fact', 'ease_factor', )
         
 
-class DeckForm(ModelForm):
+class DeckForm(forms.ModelForm):
     tags = usertagging.forms.TagField(required=False)
 
     def __init__(self, *args, **kwargs):
@@ -43,17 +43,17 @@ class DeckForm(ModelForm):
         #exclude = ('owner', 'description', 'priority', 'textbook_source', 'picture',)
         
 
-class FactTypeForm(ModelForm):
+class FactTypeForm(forms.ModelForm):
     class Meta:
         model = FactType
 
 
-class CardTemplateForm(ModelForm):
+class CardTemplateForm(forms.ModelForm):
     class Meta:
         model = CardTemplate
         
 
-class FactForm(ModelForm):
+class FactForm(forms.ModelForm):
     tags = usertagging.forms.TagField(required=False)
 
     def save(self, force_insert=False, force_update=False, commit=True):
@@ -69,7 +69,9 @@ class FactForm(ModelForm):
         exclude = ('active', 'synchronized_with', 'new_fact_ordinal', 'parent_fact', 'suspended',)
 
 
-class FieldContentForm(ModelForm):
+class FieldContentForm(forms.ModelForm):
+    subfact_group = forms.IntegerField(required=False)
+
     def clean(self): #TODO if any(self.errors):return NO:thats just for formsets
         cleaned_data = self.cleaned_data
         content = cleaned_data.get('content') or ''

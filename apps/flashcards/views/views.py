@@ -630,60 +630,79 @@ def _fact_update(request, fact_id):
 
 
 def _facts_create(request):
-  #create fact in deck, including its fields and cards. POST method.
-  #todo: unicode support
-  #TODO refactor into other module probably
-  ret = {}
-  deck_id = request.POST['fact-deck'] #TODO just get this from the form
+    #create fact in deck, including its fields and cards. POST method.
+    #todo: unicode support
+    #TODO refactor into other module probably
+    ret = {}
+    deck_id = request.POST['fact-deck'] #TODO just get this from the form
   
-  # make sure the logged-in user owns this deck
-  if Deck.objects.get(id=deck_id).owner_id != request.user.id: #and not request.User.is_staff():
-    ret['success'] = False
-    raise forms.ValidationError('You do not have permission to access this flashcard deck.')
+    # make sure the logged-in user owns this deck
+    if Deck.objects.get(id=deck_id).owner_id != request.user.id: #and not request.User.is_staff():
+        ret['success'] = False
+        raise forms.ValidationError('You do not have permission to access this flashcard deck.')
 
-  #override the submitted deck ID with the ID from the URL, since this is a RESTful interface
-  post_data = request.POST.copy()
-  #post_data['fact-deck'] = deck_id
+    #override the submitted deck ID with the ID from the URL, since this is a RESTful interface
+    post_data = request.POST.copy()
+    #post_data['fact-deck'] = deck_id
   
-  #todo: refactor this into model code
+    #todo: refactor this into model code
   
-  #CardFormset = modelformset_factory(Card, exclude=('fact', 'ease_factor', )) #TODO make from CardForm
-  #card_formset = CardFormset(post_data, prefix='card')
-  card_templates = CardTemplate.objects.filter(id__in=[e[1] for e in post_data.items() if e[0].find('card_template') == 0])
+    #CardFormset = modelformset_factory(Card, exclude=('fact', 'ease_factor', )) #TODO make from CardForm
+    #card_formset = CardFormset(post_data, prefix='card')
+    card_templates = CardTemplate.objects.filter(id__in=[e[1] for e in post_data.items() if e[0].find('card_template') == 0])
   
-  #FieldContentFormset = modelformset_factory(FieldContent, exclude=('fact', ))
-  FieldContentFormset = formset_factory(FieldContentForm)
-  field_content_formset = FieldContentFormset(post_data, prefix='field_content')
+    #FieldContentFormset = modelformset_factory(FieldContent, exclude=('fact', ))
+    FieldContentFormset = modelformset_factory(FieldContent, form=FieldContentForm)
+    field_content_formset = FieldContentFormset(post_data, prefix='field_content')
   
-  fact_form = FactForm(post_data, prefix='fact')
+    fact_form = FactForm(post_data, prefix='fact')
   
-  if field_content_formset.is_valid() and fact_form.is_valid():
-    new_fact = fact_form.save() #TODO automate the tag saving in forms.py
-    new_fact.active = True
-    new_fact.save()
+    if field_content_formset.is_valid() and fact_form.is_valid():
+        new_fact = fact_form.save() #TODO automate the tag saving in forms.py
+        new_fact.active = True
+        new_fact.save()
 
-    for field_content_form in field_content_formset.forms:
-      #TODO don't create fieldcontent objects for optional fields which were left blank
-      new_field_content = field_content_form.save(commit=False)
-      new_field_content.fact = new_fact
-      new_field_content.save()
+        group_to_subfact = {} # maps subfact group numbers to the subfact object
+
+        for field_content_form in field_content_formset.forms:
+            #TODO don't create fieldcontent objects for optional fields which were left blank
+            new_field_content = field_content_form.save(commit=False)
+            # is this a field of the parent fact, or a subfact?
+            if new_field_content.field_type.fact_type == new_fact.fact_type:
+                # parent fact
+                new_field_content.fact = new_fact
+            else:
+                # subfact
+                group = field_content_form.cleaned_data['subfact_group']
+                if group not in group_to_subfact.keys():
+                    # create the new subfact
+                    new_subfact = Fact(
+                            fact_type=new_field_content.field_type.fact_type,
+                            active=True,
+                            deck=new_fact.deck,
+                            parent_fact=new_fact,
+                    )
+                    new_subfact.save()
+                    group_to_subfact[group] = new_subfact
+                new_field_content.fact = group_to_subfact[group]
+            new_field_content.save()
     
-    for card_template in card_templates: #card_form in card_formset.forms:
-      new_card = Card(
-              template=card_template,
-              fact=new_fact,
-              active=True,
-              new_card_ordinal=random.randrange(0, MAX_NEW_CARD_ORDINAL),
-              priority = 0)
-      new_card.save()
-  else:
-    print field_content_formset.errors
-    ret['success'] = False
-    ret['errors'] = {
-            #'card': card_formset.errors,
-             'field_content': field_content_formset.errors,
-             'fact': [fact_form.errors]}
-  return ret
+        for card_template in card_templates: #card_form in card_formset.forms:
+            new_card = Card(
+                  template=card_template,
+                  fact=new_fact,
+                  active=True,
+                  new_card_ordinal=random.randrange(0, MAX_NEW_CARD_ORDINAL),
+                  priority = 0)
+            new_card.save()
+    else:
+        print field_content_formset.errors
+        ret['success'] = False
+        ret['errors'] = {
+                #'card': card_formset.errors,
+                'field_content': field_content_formset.errors,
+                'fact': [fact_form.errors]}
+    return ret
 
 
   

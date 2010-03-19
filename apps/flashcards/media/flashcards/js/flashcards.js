@@ -32,6 +32,9 @@
   dojo.require("dojox.timing");
   dojo.require("dojox.widget.Dialog");
   dojo.require("dojo.hash");
+  dojo.require("dojo.string");
+  dojo.require("dojo.fx.easing"); 
+  dojo.require("dojox.fx.scroll");
   
   
 
@@ -100,11 +103,15 @@
           }
       }
 
+      //get count of field contents
+      var field_content_count = dojo.query('.field_content', _factAddForm.domNode).length;
+      console.log(field_content_count);
+
       factAddFormValue['fact-fact_type'] = 1; //FIXME temp hack - assume Japanese
       //factAddFormValue['card-TOTAL_FORMS'] = tempCardCounter.toString();
       //factAddFormValue['card-INITIAL_FORMS'] = '0'; //tempCounter; //todo:if i allow adding card templates in this dialog, must update this
-      factAddFormValue['field_content-TOTAL_FORMS'] = fieldContentInputCount.toString();
-      factAddFormValue['field_content-INITIAL_FORMS'] = factId ? fieldContentInputCount.toString() : '0'; //fieldContentInputCount; //todo:if i allow adding card templates in this dialog, must update this
+      factAddFormValue['field_content-TOTAL_FORMS'] = field_content_count.toString(); //fieldContentInputCount.toString();
+      factAddFormValue['field_content-INITIAL_FORMS'] = factId ? field_content_count.toString() : '0'; //fieldContentInputCount; //todo:if i allow adding card templates in this dialog, must update this
       //factAddFormValue['fact-id']
       //alert('submitted w/args:\n' + dojo.toJson(factAddFormValue));
       
@@ -152,6 +159,9 @@
               node.style.display = '';
               dojo.query(node).next()[0].style.display = 'none';
       });
+
+      //reset example sentence fields
+      dijit.byId('cardSubfactFormsContainer').attr('content', '');
 
       //destroy any error messages
       dojo.query('.field_content_error', dojo.byId('factAddFormWrapper')).empty();
@@ -269,6 +279,7 @@
     }, function(data, tempCardCounter) {
       //show field_content errors
       fieldContentErrors = data.errors.field_content;//[errors][field_content];
+      factAddFormSubmitButton.attr('disabled', false);
       dojo.forEach(fieldContentErrors, function(errorMsg, idx) {
           if ('content' in errorMsg) {
               dojo.byId('id_field_content-'+idx+'-content-errors').innerHTML = '<font color="red"><em>'+errorMsg.content.join('<br>')+'</em></font>';
@@ -494,6 +505,56 @@
             deckInput.attr('value', deck_id.toString());
         }
         factAddDialog.show();
+    };
+
+
+    fact_ui._addSubfactForm = function(target_pane, field_content_offset, subfact_form_template, subfact_form_field_count) {
+        index_array = Array();
+        for (var i=field_content_offset; i<subfact_form_field_count+field_content_offset; i++) {
+            index_array.push(i);
+        };
+        //console.log(index_array);
+        var subfact_form_string = dojo.string.substitute(subfact_form_template, index_array);
+        target_pane = dijit.byId(target_pane);
+        //console.log(target_pane);
+        target_pane.domNode.style.display = '';
+        //console.log(target_pane.containerNode);
+        var new_pane = new dojox.layout.ContentPane({content: subfact_form_string});
+        new_pane.placeAt(target_pane.containerNode, 'last');
+        new_pane.startup();
+        dojo.query('input,textarea', new_pane.containerNode).first()[0].scrollIntoView();
+        // scroll to the bottom of the parent pane
+        //var anim = dojox.fx.smoothScroll({
+        //    node: dojo.query('input,textarea', new_pane.containerNode).first(),
+        //    win: target_pane,
+        //    duration:300,
+        //    easing:dojo.fx.easing.easeOut
+        //}).play();
+        //console.log(anim);
+        
+        //dojo.place(dojo.create('div', {innerHTML:subfact_form_string}), target_pane.containerNode, 'last'); //attr('content', target_pane.attr('content') + subfact_form_string);
+        //target_pane.attr('content', target_pane.attr('content') + subfact_form_string);
+    };
+
+    fact_ui.addSubfactFormLink = function(target_pane, fact_form_node, subfact_form_template, subfact_form_field_count) {
+        // onclick function for link that adds a subfact form (like for example
+        // sentences)
+
+        // count field contents already in the form
+        var field_content_offset = dojo.query('[name^=field_content-][name$=-content]', fact_form_node).length;
+        //console.log(field_content_offset);
+        
+        fact_ui._addSubfactForm(target_pane, field_content_offset, subfact_form_template, subfact_form_field_count);
+    };
+
+    fact_ui.removeSubfactForm = function(subfact_node) {
+        // get the contentpane which contains the subfact node
+        var cp = dijit.getEnclosingWidget(dojo.query(subfact_node).closest('.dijitContentPane')[0]);
+        var parent_cp = dijit.getEnclosingWidget(dojo.query(cp.containerNode).parent().closest('.dijitContentPane')[0]);
+        cp.destroyRecursive();
+        if (!parent_cp.attr('content').trim()) {
+            parent_cp.containerNode.style.display = 'none';
+        }
     };
 
 

@@ -3,6 +3,23 @@ from flashcards.models import FactType, Fact, Deck, CardTemplate, FieldType, Fie
 
 import datetime
 
+
+def subfact_form_context(request, fact=None):
+    context = {}
+    sentence_fact_type = FactType.objects.get(id=2)
+    field_types = sentence_fact_type.fieldtype_set.exclude(disabled_in_form=True).order_by('ordinal')
+    if fact:
+        pass
+    else:
+        context.update({
+            'fact_type': sentence_fact_type,
+            'field_types': field_types,
+            'is_js_template': True,
+        })
+    return {'subfact_form': context}
+
+
+
 def study_options_context(request, deck_id=None):
     '''Returns a dictionary for studying either all decks, or a single deck.
     '''

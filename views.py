@@ -3,7 +3,7 @@ from flashcards.models import FactType, Fact, Deck, CardTemplate, FieldType, Fie
 from django.shortcuts import render_to_response
 from django.template import RequestContext
 from django.db.models import F
-from flashcards.contextprocessors import study_options_context
+from flashcards.contextprocessors import study_options_context, subfact_form_context
 
 from django.contrib.auth.decorators import login_required
 
@@ -28,6 +28,9 @@ def index(request):
             'card_templates': card_templates,
             'field_types': field_types,
         }
+
+        context.update(subfact_form_context(request))
+        
 
     return render_to_response('homepage.html', 
                               context, 

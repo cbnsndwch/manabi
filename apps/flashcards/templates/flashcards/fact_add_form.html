@@ -5,7 +5,7 @@
 </div>
 
 
-<div id="factAddFormWrapper">
+<div id="factAddFormWrapper" style="width:35em">
     <div dojoType="dijit.form.Form" jsId="factAddForm" encType="multipart/form-data" action="" method="" style="margin-bottom:0em">
         <span id="deckInputContainer" style="display:none">
         <input name="fact-deck" jsId="deckInput" 
@@ -17,21 +17,21 @@
         <div id="factFields">
             {% for field_type in fact_add_form.field_types %}
                 {% if not field_type.disabled_in_form %}
-                <div style="margin-top:4px;margin-bottom:4px;">
+                <div style="{% if not forloop.counter0 == 0 %}margin-top:4px;{% endif %}margin-bottom:4px;">
                     {% if field_type.hidden_in_form and not field_type.disabled_in_form %}
                         <span class="fakeLink hiddenFieldLink" onClick="this.style.display='none';var c=dojo.byId('field_content_container_{{ forloop.counter0 }}');c.style.display='';var d=dijit.getEnclosingWidget(dojo.query('textarea',c)[0]);d.resize();d.focus();">Add {{ field_type.name }}</span>
                     {% endif %}
                     <div id="field_content_container_{{ forloop.counter0 }}"{% if field_type.hidden_in_form %} class="hidden_in_form"{% endif %}>
                         {% if field_type.is_transliteration_field_type %}
-                        <span{% comment %} style="float:left;clear:left;display:block;line-height:33px;"{% endcomment %}><strong><label>{{ field_type.name }}:</label></strong>{% if not field_type.blank %} <span style="font-size:80%; color:gray">(required)</span>{% endif %}
-                            {% spaceless %}
-                                <span class="fakeLink" onclick="fact_ui.generateReading(dijit.byId('id_field_content-0-content').attr('value'),'id_field_content-1-content')">
-                                    <img src="{{ MEDIA_URL }}static/css/dojo_themes/tundra/images/icons/arrow_refresh.png">
-                                </span>
-                                {% endspaceless %}
-                        </span>
+                            <span{% comment %} style="float:left;clear:left;display:block;line-height:33px;"{% endcomment %}><strong><label>{{ field_type.name }}:</label></strong>{% if not field_type.blank %} <span style="font-size:80%; color:gray">(required)</span>{% endif %}
+                                {% spaceless %}
+                                    <span class="fakeLink" onclick="fact_ui.generateReading(dijit.byId('id_field_content-0-content').attr('value'),'id_field_content-1-content')">
+                                        <img src="{{ MEDIA_URL }}static/css/dojo_themes/tundra/images/icons/arrow_refresh.png" alt="Refresh transliteration field">
+                                    </span>
+                                    {% endspaceless %}
+                            </span>
                         {% else %}
-                        <strong><label>{{ field_type.name }}:</label></strong>{% if not field_type.blank %} <span style="font-size:80%; color:gray">(required)</span>{% endif %}
+                            <strong><label>{{ field_type.name }}:</label></strong>{% if not field_type.blank %} <span style="font-size:80%; color:gray">(required)</span>{% endif %}
                         {% endif %}
                         {% if field_type.choices %}
                             <select id="id_field_content-{{ forloop.counter0 }}-content" 
@@ -50,35 +50,35 @@
                         {% else %}
                             <div id="id_field_content-{{ forloop.counter0 }}-content-errors" class="field_content_error"{% if field_type.is_transliteration_field_type %} style="display:inline"{% endif %}></div>
                             <div style="overflow:hidden;">
-                            {% if field_type.multi_line %}
-                                <textarea dojoType="dijit.form.Textarea" 
-                            {% else %}
-                                <input dojoType="dijit.form.TextBox" 
-                            {% endif %}
-                                    id="id_field_content-{{ forloop.counter0 }}-content" 
-                                    name="field_content-{{ forloop.counter0 }}-content" 
-                                    style="width:99%;margin-bottom:3px;" 
-                                    class="field_content{% if field_type.transliteration_field_type %} kanji_field{% endif %}{% if field_type.fieldtype %} reading_field{% endif %}"
-                                    tabIndex="{% if field_type.is_transliteration_field_type %}-1{% else %}3{{ forloop.counter }}{% endif %}">{% if field_type.multi_line %}</textarea>{% endif %}
-                            {% if field_type.transliteration_field_type %}
-                                <script type="text/javascript">
-                                    //this field has a corresponding transliteration field
-                                    dojo.addOnLoad(function() {
-                                        var field_widget = dijit.byId('id_field_content-{{ forloop.counter0 }}-content');
-                                        dojo.connect(field_widget, 'onBlur', function() {
-                                            //automatically generate this kanji field's reading
-                                            //TODO unless the newly focused field is the reading field (how to detect new focus?)
-                                            var reading_field_node = dojo.query('.reading_field', dojo.byId('factFields'))[0];
-                                            if (reading_field_node) {
-                                                fact_ui.generateReading(
-                                                    this.attr('value'),
-                                                    dijit.getEnclosingWidget(reading_field_node));
-                                            }
+                                {% if field_type.multi_line %}
+                                    <textarea dojoType="dijit.form.Textarea" 
+                                {% else %}
+                                    <input dojoType="dijit.form.TextBox" 
+                                {% endif %}
+                                        id="id_field_content-{{ forloop.counter0 }}-content" 
+                                        name="field_content-{{ forloop.counter0 }}-content" 
+                                        style="width:99%;margin-bottom:3px;" 
+                                        class="field_content{% if field_type.transliteration_field_type %} kanji_field{% endif %}{% if field_type.fieldtype %} reading_field{% endif %}"
+                                        tabIndex="{% if field_type.is_transliteration_field_type %}-1{% else %}3{{ forloop.counter }}{% endif %}">{% if field_type.multi_line %}</textarea>{% endif %}
+                                {% if field_type.transliteration_field_type %}
+                                    <script type="text/javascript">
+                                        //this field has a corresponding transliteration field
+                                        dojo.addOnLoad(function() {
+                                            var field_widget = dijit.byId('id_field_content-{{ forloop.counter0 }}-content');
+                                            dojo.connect(field_widget, 'onBlur', function() {
+                                                //automatically generate this kanji field's reading
+                                                //TODO unless the newly focused field is the reading field (how to detect new focus?)
+                                                var reading_field_node = dojo.query('.reading_field', dojo.byId('factFields'))[0];
+                                                if (reading_field_node) {
+                                                    fact_ui.generateReading(
+                                                        this.attr('value'),
+                                                        dijit.getEnclosingWidget(reading_field_node));
+                                                }
+                                            });
                                         });
-                                    });
-                                </script>
-                            {% else %}
-                            {% endif %}
+                                    </script>
+                                {% else %}
+                                {% endif %}
                             </div>
                         {% endif %}
                         <input dojoType="dijit.form.TextBox" 
@@ -91,6 +91,12 @@
                 {% endif %}
             {% endfor %}
 
+        </div>
+        <br>
+        <div>
+            {% comment %}{% include "flashcards/example_sentence_form.html" %}{% endcomment %}
+            <div id="cardSubfactFormsContainer" dojoType="dojox.layout.ContentPane" style="height:9.5em;display:none;"></div>
+            <span class="fakeLink" onClick="fact_ui.addSubfactFormLink(dijit.byId('cardSubfactFormsContainer'), factAddForm.domNode, '{% filter escapejs %}{% include "flashcards/subfact_form.html" %}{% endfilter %}', {{ subfact_form.field_types|length }});factAddDialog._position();">Add {{ subfact_form.fact_type.name }}</span>
         </div>
 
         <br>
