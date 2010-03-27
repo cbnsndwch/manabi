@@ -161,7 +161,9 @@
       });
 
       //reset example sentence fields
-      dijit.byId('cardSubfactFormsContainer').attr('content', '');
+      var subfact_container = dijit.byId('cardSubfactFormsContainer');
+      subfact_container.attr('content', '');
+      subfact_container.domNode.style.display = 'none';
 
       //destroy any error messages
       dojo.query('.field_content_error', dojo.byId('factAddFormWrapper')).empty();
@@ -367,7 +369,7 @@
         field_count = dojo.query('.cards_fieldContent', fact_form.domNode).length;
 
         //assemble the form submission values
-        form_values['fact-fact_type'] = '1'; //TODO temp hack - assume Japanese
+        //form_values['fact-fact_type'] = '1'; //TODO temp hack - assume Japanese
         form_values['card-TOTAL_FORMS'] = card_counter.toString();
         form_values['card-INITIAL_FORMS'] = '0';
         form_values['field_content-TOTAL_FORMS'] = field_count.toString();
@@ -508,19 +510,20 @@
     };
 
 
-    fact_ui._addSubfactForm = function(target_pane, field_content_offset, subfact_form_template, subfact_form_field_count) {
+    fact_ui._addSubfactForm = function(target_node, field_content_offset, subfact_form_template, subfact_form_field_count) {
         index_array = Array();
         for (var i=field_content_offset; i<subfact_form_field_count+field_content_offset; i++) {
             index_array.push(i);
         };
         //console.log(index_array);
         var subfact_form_string = dojo.string.substitute(subfact_form_template, index_array);
-        target_pane = dijit.byId(target_pane);
+        //target_node = dijit.byId(target_node);
+
         //console.log(target_pane);
-        target_pane.domNode.style.display = '';
+        target_node.style.display = '';
         //console.log(target_pane.containerNode);
         var new_pane = new dojox.layout.ContentPane({content: subfact_form_string});
-        new_pane.placeAt(target_pane.containerNode, 'last');
+        new_pane.placeAt(target_node, 'last');
         new_pane.startup();
         dojo.query('input,textarea', new_pane.containerNode).first()[0].scrollIntoView();
         // scroll to the bottom of the parent pane
@@ -536,7 +539,7 @@
         //target_pane.attr('content', target_pane.attr('content') + subfact_form_string);
     };
 
-    fact_ui.addSubfactFormLink = function(target_pane, fact_form_node, subfact_form_template, subfact_form_field_count) {
+    fact_ui.addSubfactFormLink = function(target_node, fact_form_node, subfact_form_template, subfact_form_field_count) {
         // onclick function for link that adds a subfact form (like for example
         // sentences)
 
@@ -544,16 +547,34 @@
         var field_content_offset = dojo.query('[name^=field_content-][name$=-content]', fact_form_node).length;
         //console.log(field_content_offset);
         
-        fact_ui._addSubfactForm(target_pane, field_content_offset, subfact_form_template, subfact_form_field_count);
+        fact_ui._addSubfactForm(target_node, field_content_offset, subfact_form_template, subfact_form_field_count);
     };
 
-    fact_ui.removeSubfactForm = function(subfact_node) {
+    fact_ui.removeSubfactForm = function(subfact_node, subfact_pane) {
+        // Removes a subfact form from a fact editor form.
+        // If it's for a bound form (for a subfact which already exists), it
+        // hides that form and sets that fact to DELETE.
+
         // get the contentpane which contains the subfact node
-        var cp = dijit.getEnclosingWidget(dojo.query(subfact_node).closest('.dijitContentPane')[0]);
-        var parent_cp = dijit.getEnclosingWidget(dojo.query(cp.containerNode).parent().closest('.dijitContentPane')[0]);
-        cp.destroyRecursive();
-        if (!parent_cp.attr('content').trim()) {
-            parent_cp.containerNode.style.display = 'none';
+        var cp = null;
+        var container_node = dojo.query(subfact_node).parent();
+        var parent_container = container_node.closest('.subfact_container_pane')[0];
+        var delete_field = dojo.query(subfact_node).query('[name^=fact-][name$=-DELETE]:first');
+
+        if (delete_field.length) {
+            delete_field.attr('value', 'on');
+            container_node[0].style.display = 'none';
+            // move the cp out of its parent
+            container_node.place(parent_container, 'before');
+        } else {
+            if (cp) {
+                cp.destroyRecursive();
+            } else {
+                dojo.destroy(subfact_node[0]);
+            }
+        }
+        if (!dojo.query(parent_container).children().length) { //!dojo.query(parent_container).attr('content').trim()) {
+            parent_container.style.display = 'none';
         }
     };
 

@@ -20,6 +20,7 @@ urlpatterns = patterns('flashcards',
     #(r'^shared_decks/(?P<object_id>\d+)$', object_detail, shared_decks_dict),
     (r'^decks/(?P<deck_id>\d+)$', 'views.deck_detail'), # object_detail, decks_dict), #TODO add permissions enforcement for viewing
     (r'^rest/decks/(\w+)/subscribe$', 'views.rest_deck_subscribe'),
+    (r'^facts/(\w+)/subfacts', 'views.subfacts'),
 
     #(r'^$', 'views.index'),
     (r'^decks$', 'views.deck_list'),

@@ -25,10 +25,11 @@ GRADE_NONE = 0
 GRADE_HARD = 3
 GRADE_GOOD = 4
 GRADE_EASY = 5
+ALL_GRADES = [GRADE_NONE, GRADE_HARD, GRADE_GOOD, GRADE_EASY,] #{GRADE_NONE:GRADE_NONE, GRADE_HARD:GRADE_HARD, GRADE_GOOD:GRADE_GOOD, GRADE_EASY:GRADE_EASY}
 
 #below is used in the EF equation, but we're going to precompute the EF factors
 #GRADE_FACTORS = {GRADE_NONE: 0, GRADE_HARD: 3, GRADE_GOOD: 4, GRADE_EASY: 5}
-#this is the EF algorithm fr* #om which the EF factors are computed:
+#this is the EF algorithm from which the EF factors are computed:
 #ease_factor = self.ease_factor + (0.1 - (max_grade - grade_factor) * (0.08 + (max_grade - grade_factor) * 0.02))
 
 #MAX_EASE_FACTOR_STEP = 0.1
@@ -650,6 +651,21 @@ class Card(AbstractCard):
         return datetime.datetime.utcnow() - last_sibling_reviewed_at
             
 
+    @property
+    def next_due_at(self):
+        '''Returns a dict of {grade: {due_in:datetime, ease_factor:float} } for each grade.
+        '''
+        reviewed_at = datetime.datetime.utcnow()
+        due_times = {}
+        for grade in ALL_GRADES:
+            next_ef = self._next_ease_factor(grade, reviewed_at)
+            next_interval = self._next_interval(grade, next_ef, reviewed_at)
+            due_at = self._next_due_at(grade, reviewed_at, next_interval)
+            duration = due_at - reviewed_at
+            days = duration.days + (duration.seconds / 86400.0)
+            due_times[grade] = {'due_in': days, 'due_at': due_at, 'ease_factor': next_ef, 'interval': next_interval}
+        return due_times
+
     def _next_interval(self, grade, ease_factor, reviewed_at, do_fuzz=True):
         '''
         Returns an interval, measured in days.
@@ -665,8 +681,8 @@ class Card(AbstractCard):
         last_reviewed_sibling = self._last_reviewed_sibling()
         if last_reviewed_sibling:
             time_since_last_sibling_review = datetime.datetime.utcnow() - last_reviewed_sibling.last_reviewed_at
-            print 'last_reviewed_sibling.last_reviewed_at: '+str(last_reviewed_sibling.last_reviewed_at)
-            print 'time_since_last_sibling_review: '+str(time_since_last_sibling_review)
+            #print 'last_reviewed_sibling.last_reviewed_at: '+str(last_reviewed_sibling.last_reviewed_at)
+            #print 'time_since_last_sibling_review: '+str(time_since_last_sibling_review)
             if time_since_last_sibling_review < datetime.timedelta(minutes=60): #TODO don't hardcode here
                 last_sibling_grade = last_reviewed_sibling.last_review_grade
                 percentage_waited_for_sibling = timedelta_to_float(time_since_last_sibling_review) / timedelta_to_float(datetime.timedelta(minutes=60))
@@ -683,8 +699,8 @@ class Card(AbstractCard):
             #FIXME need a better solution for this. dependent on the status of the sibling card.
             if grade > GRADE_NONE:
                 if is_early_review_due_to_sibling:
-                    print 'next_interval was to be: ' + str(next_interval)
-                    print 'percentage_waited_for_sibling: ' + str(percentage_waited_for_sibling)
+                    #print 'next_interval was to be: ' + str(next_interval)
+                    #print 'percentage_waited_for_sibling: ' + str(percentage_waited_for_sibling)
                     #if grade < last_sibling_grade:
                     #    next_interval *= self._adjustment_curve(percentage_waited_for_sibling)
                     #else:
@@ -693,7 +709,7 @@ class Card(AbstractCard):
                     if grade > last_sibling_grade:
                         difference = next_interval - self.fact.deck.schedulingoptions.initial_interval(last_sibling_grade)
                         next_interval -= difference * self._adjustment_curve(1 - percentage_waited_for_sibling)
-                    print 'next_interval became: ' + str(next_interval)
+                    #print 'next_interval became: ' + str(next_interval)
         # Old card.
         else:
             current_interval = self.interval
@@ -737,10 +753,13 @@ class Card(AbstractCard):
                             interval_bonus /= 4.0
                         elif grade == GRADE_GOOD:
                             interval_bonus /= 2.0
-                        #current_interval += interval_bonus
                         # Cap the bonus.
                         if grade < GRADE_EASY:
-                            interval_bonus = min(interval_bonus, timedelta_to_float(datetime.timedelta(4 * current_interval))) #TODO don't hardcode
+                            bonus_cap_factor = 4.0 #TODO don't hardcode
+                        else:
+                            # cap less severely for easy grades
+                            bonus_cap_factor = 10.0 #TODO don't hardcode
+                        interval_bonus = min(interval_bonus, timedelta_to_float(datetime.timedelta(bonus_cap_factor * current_interval)))
 
                     current_interval += interval_bonus
 
@@ -830,23 +849,28 @@ class Card(AbstractCard):
 
             # Lessen the ease if this card was reviewed very soon after a sibling card.
             if is_early_review_due_to_sibling:
-                print 'grade: '+str(grade)
-                print 'last_sibling_grade: '+str(last_sibling_grade)
+                #print 'grade: '+str(grade)
+                #print 'last_sibling_grade: '+str(last_sibling_grade)
                 if grade <= last_sibling_grade:
                     # Rated lower than expected since sibling was reviewed recently,
                     # yet rated higher than this.
-                    print 'next EF was to be: ' + str(next_ease_factor)
-                    print 'percentage_waited_for_sibling: ' + str(percentage_waited_for_sibling)
+                    #print 'next EF was to be: ' + str(next_ease_factor)
+                    #print 'percentage_waited_for_sibling: ' + str(percentage_waited_for_sibling)
                     next_ease_factor -= (1 - self._adjustment_curve(percentage_waited_for_sibling)) * 0.1 #TODO don't hardcode here
-                    print 'next EF became: ' + str(next_ease_factor)
+                    #print 'next EF became: ' + str(next_ease_factor)
                 else:
                     # This was probably rated higher than needed, 
                     # so let's just put it the sibling's EF, plus the modifier, brought it down 1 grade for calculating ease.
-                    print 'next EF was to be: ' + str(next_ease_factor)
-                    print 'percentage_waited_for_sibling: ' + str(percentage_waited_for_sibling)
-                    next_ease_factor = last_reviewed_sibling.ease_factor + EASE_FACTOR_MODIFIERS[grade - 1]
+                    #print 'next EF was to be: ' + str(next_ease_factor)
+                    #print 'percentage_waited_for_sibling: ' + str(percentage_waited_for_sibling)
+                    new_grade = grade - 1
+                    if grade in [GRADE_NONE, GRADE_HARD]:
+                        new_grade = GRADE_NONE
+                    else:
+                        new_grade = grade - 1
+                    next_ease_factor = last_reviewed_sibling.ease_factor + EASE_FACTOR_MODIFIERS[new_grade]
                     #self.fact.deck.average_ease_factor()# + EASE_FACTOR_MODIFIERS[grade - 1]
-                    print 'next EF became: ' + str(next_ease_factor)
+                    #print 'next EF became: ' + str(next_ease_factor)
         # Old card.
         else:
             # Only make the ease factor harder if the last review grade was better than this review (for young cards only)

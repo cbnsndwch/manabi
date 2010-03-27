@@ -12,6 +12,9 @@
 
 <div dojoType="dijit.Dialog" jsId="factAddDialog" title="Create Flashcards">
     <script type="dojo/connect" event="onShow" args="evt">
+        manabi_ui.xhrReload();
+    </script>
+    <script type="dojo/connect" event="onShow" args="evt">
         dojo.query('textarea', factAddDialog.domNode).forEach(function(node) {
             var widget = dijit.getEnclosingWidget(node);
             widget.resize();

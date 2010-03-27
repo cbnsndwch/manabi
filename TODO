@@ -481,3 +481,9 @@ disable study now button when first clicked
 -delete shared deck
 
 
+show 'study' button after adding facts to a deck
+
+
+subfact stuff:
+it may not be working for updated subscriber subfacts
+

@@ -65,7 +65,7 @@ class FactManager(models.Manager):
         '''
         fact = Fact.objects.get(id=fact_id)
         if fact.owner != user:
-            if not fact.deck.shared_at:
+            if False: #FIXME sometimes fact.parent_fact not fact.deck.shared_at:
                 pass #FIXME raise permissions error
             else:
                 from decks import Deck
@@ -130,7 +130,7 @@ class FactManager(models.Manager):
         #return query_set.filter(id__in=set(field_content.fact_id for field_content in matches))
 
 
-    @transaction.commit_on_success    
+    @transaction.commit_on_success
     def add_new_facts_from_synchronized_decks(self, user, count, deck=None, tags=None):
         '''Returns a limited queryset of the new facts added, after adding them for the user.
         '''
@@ -176,7 +176,6 @@ class AbstractFact(models.Model):
     created_at = models.DateTimeField(auto_now_add=True, editable=False)
     modified_at = models.DateTimeField(auto_now=True, editable=False)
 
-
     class Meta:
         app_label = 'flashcards'
         abstract = True
@@ -214,7 +213,9 @@ class Fact(AbstractFact):
     
     @transaction.commit_on_success
     def delete(self, *args, **kwargs):
-        if self.deck.shared_at and self.subscriber_facts.all():
+        deck = self.parent_fact.deck if self.parent_fact else self.deck
+        # don't necessarily delete for any subscribers of this fact
+        if self.subscriber_facts.all():
             # don't bother with users who don't have this fact yet - we can safely (according to guidelines) delete at this point.
             # if subscriber facts have reviewed or edited anything within this fact,
             # don't delete it for those subscribers.
@@ -223,9 +224,11 @@ class Fact(AbstractFact):
             # get active subscriber facts
             active_cards = Card.objects.filter(fact__in=self.subscriber_facts.all(), active=True, suspended=False, last_reviewed_at__isnull=False)
 
-            updated_fields = FieldContent.objects.filter(fact__in=self.subscriber_facts.all())
+            updated_fields = FieldContent.objects.filter(fact__in=self.subscriber_facts.all()) | \
+                    FieldContent.objects.filter(fact__parent_fact__in=self.subscriber_facts.all())
 
             active_subscribers = self.subscriber_facts.filter(
+                    Q(id__in=updated_fields.values_list('parent_fact_id', flat=True)) |
                     Q(id__in=active_cards.values_list('fact_id', flat=True)) |
                     Q(id__in=updated_fields.values_list('fact_id', flat=True)))
 
@@ -233,8 +236,11 @@ class Fact(AbstractFact):
             # after making sure they contain the field contents.
             for fact in active_subscribers.iterator():
                 # unsynchronize each fact by copying field contents
-                fact.copy_subscribed_field_contents()
+                fact.copy_subscribed_field_contents_and_subfacts()
                 fact.synchronized_with = None
+                for subfact in fact.child_facts.all():
+                    subfact.synchronized_with = None
+                    subfact.save()
                 fact.save()
 
             other_subscriber_facts = self.subscriber_facts.exclude(id__in=active_subscribers)
@@ -244,20 +250,39 @@ class Fact(AbstractFact):
 
     @property
     def owner(self):
-        return self.deck.owner
+        if self.parent_fact:
+            return self.parent_fact.deck.owner
+        else:
+            return self.deck.owner
+
+
+    @property
+    def subfacts(self):
+        '''Returns subfacts (via the child_facts relation) of this fact.
+        Includes subfacts of the subscribed fact if this is synchronized with a shared deck.
+        Only includes active subfacts.
+        '''
+        subfacts = self.child_facts.all()
+        if self.synchronized_with:
+            synchronized_subfacts = self.synchronized_with.child_facts.all()
+            synchronized_subfacts.exclude(id__in=subfacts.values_list('synchronized_with_id', flat=True))
+            subfacts = subfacts | synchronized_subfacts
+        return subfacts.filter(active=True)
 
 
     @property
     def field_contents(self):
         '''Returns a queryset of field contents for this fact. #dict of {field_type_id: field_content}
+        #Includes field contents of any subfacts of this fact.
         '''
         fact = self
         field_contents = self.fieldcontent_set.all().order_by('field_type__ordinal')
+        #sub_field_contents = FieldContent.objects.filter(fact__in=self.child_facts.all())
         if self.synchronized_with:
             # first see if the user has updated this fact's contents.
             # this would override the synced fact's.
             #TODO only override on a per-field basis when the user updates field contents
-            if not len(field_contents):
+            if not field_contents:
                 field_contents = self.synchronized_with.fieldcontent_set.all().order_by('field_type__ordinal')
         #return dict((field_content.field_type_id, field_content) for field_content in field_contents)
         return field_contents
@@ -275,19 +300,26 @@ class Fact(AbstractFact):
 
 
     @transaction.commit_on_success
-    def copy_subscribed_field_contents(self):
+    def copy_subscribed_field_contents_and_subfacts(self):
         '''Only call this for subscriber facts.
         Copies all the field contents for the synchronized fact,
         so that it will not longer receive updates to field 
         contents when the subscribed fact is updated. (including deletes)
+        Also copies any subfacts, and their field contents.
         Effectively unsubscribes just for this fact.
         '''
         if not self.synchronized_with:
             raise TypeError('This is not a subscriber fact.')
+        #elif self.parent_fact:
+            #raise TypeError('This must be called on parent facts, not subfacts.')
         for field_content in self.synchronized_with.fieldcontent_set.all():
             # copy if it doesn't already exist
             if not self.fieldcontent_set.filter(field_type=field_content.field_type):
                 field_content.copy_to_fact(self)
+        if not self.parent_fact:
+            for subfact in self.synchronized_with.child_facts.all():
+                # copy (if it doesn't already exist - but that's handled by the copy method)
+                subfact.copy_to_parent_fact(self, copy_field_contents=True)
 
 
     def fieldcontent_set_plus_blank_fields(self):
@@ -305,12 +337,44 @@ class Fact(AbstractFact):
 
 
     @transaction.commit_on_success
-    def copy_to_deck(self, deck, copy_field_contents=False, synchronize=False):
+    def copy_to_parent_fact(self, parent_fact, copy_field_contents=False):
+        '''Copies a subfact to a parent fact.
+        Returns the new copy, or the already existant one.
+        If it already existed, it still copies the field contents, if needed.
+        '''
+        if not self.parent_fact:
+            raise TypeError('This is not a subfact, so it cannot be copied to a parent fact.')
+        # only copy if it doesn't already exist
+        synchronize = parent_fact.synchronized_with == this.parent_fact
+        if parent_fact.child_facts.filter(synchronized_with=this):
+            subfact_copy = parent_fact.child_facts.get(synchronized_with=this)
+        else:
+            subfact_copy = Fact(
+                    parent_fact=parent_fact,
+                    fact_type=subfact.fact_type,
+                    active=True,
+                    notes=subfact.notes,
+                    new_fact_ordinal=subfact.new_fact_ordinal)
+            if synchronize:
+                subfact_copy.synchronized_with = this
+            subfact_copy.save()
+
+        # copy the field contents
+        if copy_field_contents or not synchronize:
+            for field_content in subfact.fieldcontent_set.all():
+                field_content.copy_to_fact(subfact_copy)
+        return subfact_copy
+
+
+    @transaction.commit_on_success
+    def copy_to_deck(self, deck, copy_field_contents=False, copy_subfacts=False, synchronize=False):
         '''Creates a copy of this fact and its cards and (optionally, if `synchronize` is False) field contents.
         If `synchronize` is True, the new fact will be subscribed to this one.
         Also copies its tags.
         Returns the newly copied fact.
         '''
+        if self.parent_fact:
+            raise TypeError('Cannot call this on a subfact.')
         copy = Fact(deck=deck, fact_type=self.fact_type, active=self.active, notes=self.notes, new_fact_ordinal=self.new_fact_ordinal)
         if synchronize:
             if self.synchronized_with:
@@ -343,6 +407,10 @@ class Fact(AbstractFact):
         # copy the tags too
         copy.tags = usertagging.utils.edit_string_for_tags(self.tags)
 
+        # copy any subfacts
+        if copy_subfacts or not synchronize:
+            for subfact in self.child_facts.filter(active=True):
+                subfact.copy_to_parent_fact(copy, copy_field_contents=True)
         return copy
 
 
@@ -389,7 +457,7 @@ class FieldType(models.Model):
     fact_type = models.ForeignKey('flashcards.FactType')
 
     #fk to the FieldType which contains a transliteration of this FieldType
-    transliteration_field_type = models.OneToOneField('self', blank=True, null=True)
+    transliteration_field_type = models.OneToOneField('self', blank=True, null=True, related_name='reverse_transliteration_field_type')
     
     #constraints
     unique = models.BooleanField(default=True)
@@ -474,6 +542,17 @@ class AbstractFieldContent(models.Model):
             return None
 
     @property
+    def reverse_transliteration_field_content(self):
+        '''Returns the field which this field is the transliteration of.
+        If one doesn't exist, returns None.
+        '''
+        try:
+            return self.fact.fieldcontent_set.get(field_type=self.field_type)
+        except self.DoesNotExist:
+            return None
+
+
+    @property
     def human_readable_content(self):
         '''
         Returns content, but if this is a multi-choice field, 
@@ -490,6 +569,7 @@ class AbstractFieldContent(models.Model):
             return self.strip_ruby_bottom()
         else:
             return self.content
+
             
     def strip_ruby_text(self):
         '''
@@ -512,7 +592,10 @@ class AbstractFieldContent(models.Model):
         Returns True if the corresponding transliteration field is 
         identical, once any ruby text markup is removed.
         '''
-        return self.content.strip() == self.transliteration_field_content.strip_ruby_text().strip()
+        if self.transliteration_field_content:
+            return self.content.strip() == self.transliteration_field_content.strip_ruby_text().strip()
+        else:
+            return False
 
     def __unicode__(self):
         return self.content
@@ -548,8 +631,11 @@ class FieldContent(AbstractFieldContent):
     def copy_to_fact(self, fact):
         '''Returns a new FieldContent copy which belongs 
         to the given fact.
+        Returns None if a corresponding FieldContent already exists.
         '''
         #TODO use meta fields instead
+        if fact.fieldcontent_set.filter(field_type=self.field_type):
+            return None
         copy = FieldContent(
                 fact=fact,
                 content=self.content,

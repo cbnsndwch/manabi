@@ -77,6 +77,9 @@
                     <div style="font-size:32px; padding:20px;" dojoType="dijit.layout.ContentPane" jsId="reviews_cardBack" id="reviews_cardBack"></div>
                 </div>
             </div>
+            
+            <div style="margin-left:auto;margin-right:auto;width:30em;height:8em;overflow:auto;display:none;" dojoType="dojox.layout.ContentPane" jsId="reviews_subfactPane" id="reviews_subfactPane"></div>
+
             <div id="reviews_gradeButtonsContainer">
                 {% comment %}
                 <div style="font-size:32px;text-align:center;">
@@ -174,9 +177,11 @@
 
 
 
+{% comment %}
 <div dojoType="dojo.data.ItemFileReadStore" jsId="reviews_decksStore" 
     url="/flashcards/rest/decks_with_totals" clearOnClose="true">
 </div>
+{% endcomment %}
 
 
 <div dojoType="dijit.Dialog" jsId="reviews_reviewDialog" id="reviews_reviewDialog" title="Flashcards">
@@ -198,13 +203,8 @@
 	</script>
 
     <div id="reviews_reviewOptions">
-        {% comment %}
-        <p style="display:none">
-            Cards due: <span id="reviews_cardsDueCount"></span><br>
-            New cards: <span id="reviews_cardsNewCount"></span>
-        </p>
-        {% endcomment %}
         
+{% comment %}
         <strong style="font-size:120%">Study Options</strong><br><br>
         <strong>Decks to review:</strong><br>
         <div dojoType="dojox.grid.DataGrid" store="reviews_decksStore" 
@@ -217,6 +217,7 @@
                     reviews_beginReviewButton.attr('disabled', false);
                 </script>
         </div>
+{% endcomment %}
         <br>
         <div>
             <strong>Filter cards by tag:</strong> <em>(optional)</em><br>

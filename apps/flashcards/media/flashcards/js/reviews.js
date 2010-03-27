@@ -461,6 +461,7 @@ reviews_ui = {};
 dojo.addOnLoad(function() {
     reviews_ui.review_options_dialog = dijit.byId('reviews_reviewDialog');
     reviews_ui.review_dialog = dijit.byId('reviews_fullscreenContainer');
+    reviews_ui.session_started = false;
 
 });
 
@@ -639,6 +640,8 @@ reviews_ui.endSession = function() {
         // refresh the active page, in case it has due card counts etc
         manabi_ui.xhrReload();
     }
+
+    reviews_ui.session_started = false;
 };
 
 
@@ -659,6 +662,8 @@ reviews_ui.displayCard = function(card, show_card_back) {
     dojo.byId('reviews_showCardBack').style.display = '';
     reviews_cardBack.attr('content', card.back);
     reviews_cardBack.domNode.style.display = 'none';
+    reviews_subfactPane.attr('content', '');
+    reviews_subfactPane.domNode.style.display = 'none';
     dojo.byId('reviews_gradeButtonsContainer').style.visibility = 'hidden';
     if (show_card_back) {
         reviews_ui.showCardBack(card);
@@ -880,6 +885,14 @@ reviews_ui.startSession = function(args) { //deck_id, session_time_limit, sessio
     //if (session_time_limit == undefined) { var session_time_limit = 10; }
     //if (session_card_limit == undefined) { var session_card_limit = 0; }
     //if (tag_id == undefined) { var tag_id = '-1'; }
+
+    // raise error (FIXME we just ignore it for now) if the session is already
+    // in progress
+    if (reviews_ui.session_started) {
+        return;
+    }
+
+    reviews_ui.session_started = true;
 
     reviews_ui.session_over_after_current_card = false;
 

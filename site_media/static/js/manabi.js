@@ -175,12 +175,12 @@ manabi_ui.refreshDeckInput = function() {
         }
     });
 
-    reviews_decksStore.close();
-    reviews_decksStore.fetch({
+    ///reviews_decksStore.close();
+    /*reviews_decksStore.fetch({
         onComplete: function() {
             reviews_decksGrid.sort();
         }
-    });
+    });*/
 }
 
 

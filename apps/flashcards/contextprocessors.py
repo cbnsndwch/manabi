@@ -4,16 +4,27 @@ from flashcards.models import FactType, Fact, Deck, CardTemplate, FieldType, Fie
 import datetime
 
 
-def subfact_form_context(request, fact=None):
+def subfact_form_context(request, subfact=None, field_content_offset=0, fact_form_ordinal=1):
+    '''
+    `form_ordinal` is the offset to use for e.g. fact-1-id
+    '''
     context = {}
     sentence_fact_type = FactType.objects.get(id=2)
     field_types = sentence_fact_type.fieldtype_set.exclude(disabled_in_form=True).order_by('ordinal')
-    if fact:
-        pass
+    context.update({
+        'fact_type': sentence_fact_type,
+        'field_types': field_types,
+    })
+    if subfact:
+        context.update({
+            'field_content_for_field_types': dict((field_type, subfact.field_contents.get(field_type=field_type),) for field_type in field_types),
+            'field_content_offset': field_content_offset,
+            'fact_form_ordinal': fact_form_ordinal,
+            'is_js_template': False,
+            'subfact': subfact,
+        })
     else:
         context.update({
-            'fact_type': sentence_fact_type,
-            'field_types': field_types,
             'is_js_template': True,
         })
     return {'subfact_form': context}
