@@ -450,15 +450,9 @@ click a shared deck, if not subscribed, 'cards_deleteButton not defined' error
 
 'No cards due right now' dialog has to change
 
--refresh home page, if loaded, after review
-
 -changing cards for shared fact
 -actually studying the cards is broken - fieldcontents aren't shown for back or front sometimes, etc
 -'study now' per deck should restrict to that deck only (bug)
-
--allow 0 decks (get rid of Sample Deck)
-
--have the same system as home, for each deck's buttons
 
 ?deck card counts arent accurate for 'hybrid' shared/annotated decks
 
@@ -480,8 +474,7 @@ disable study now button when first clicked
 -delete subscriber deck
 -delete shared deck
 
-
-show 'study' button after adding facts to a deck
+tabindexes are screwed up
 
 
 subfact stuff:

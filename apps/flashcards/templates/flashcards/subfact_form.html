@@ -18,12 +18,12 @@
             <div style="overflow:hidden;">
                 {% if field_type.multi_line %} <textarea dojoType="dijit.form.Textarea" {% else %} <input dojoType="dijit.form.TextBox" {% endif %}
                         name="field_content-{% if subfact_form.is_js_template %}${% templatetag openbrace %}{{ forloop.counter0 }}{% templatetag closebrace %}{% else %}{{ forloop.counter0|add:subfact_form.field_content_offset }}{% endif %}-content" 
-                        class="cards_fieldContent" 
+                        class="cards_fieldContent field_content" 
                         {% if is_js_template %}id="id_field_content-{% if subfact_form.is_js_template %}${% templatetag openbrace %}{{ forloop.counter0 }}{% templatetag closebrace %}{% else %}{{ forloop.counter0|add:subfact_form.field_content_offset }}{% endif %}-content" {% endif %}
                         style="width:99%;margin-bottom:3px;" 
                         {% if not field_type.multi_line and field_content %}value="{{ field_content.content }}"{% endif %}
                         class="field_content{% if field_type.transliteration_field_type %} kanji_field{% endif %}{% if field_type.fieldtype %} reading_field{% endif %}"
-                        tabIndex="{% if field_type.is_transliteration_field_type %}-1{% else %}4{% if subfact_form.is_js_template %}${% templatetag openbrace %}{{ forloop.counter0 }}{% templatetag closebrace %}{% else %}{{ forloop.counter0|add:subfact_form.field_content_offset }}{% endif %}{% endif %}">{% if field_type.multi_line %}{{ field_content.content }}</textarea>{% endif %}
+                        tabIndex="4{% if subfact_form.is_js_template %}${% templatetag openbrace %}{{ forloop.counter0 }}{% templatetag closebrace %}{% else %}{{ forloop.counter0|add:subfact_form.field_content_offset }}{% endif %}">{% if field_type.multi_line %}{{ field_content.content }}</textarea>{% endif %}
             </div>
 
             <input dojoType="dijit.form.TextBox" 

@@ -58,7 +58,7 @@
                                         id="id_field_content-{{ forloop.counter0 }}-content" 
                                         name="field_content-{{ forloop.counter0 }}-content" 
                                         style="width:99%;margin-bottom:3px;" 
-                                        class="field_content{% if field_type.transliteration_field_type %} kanji_field{% endif %}{% if field_type.fieldtype %} reading_field{% endif %}"
+                                        class="field_content{% if field_type.transliteration_field_type %} kanji_field{% endif %}{% if field_type.reverse_transliteration_field_type %} reading_field{% endif %}"
                                         tabIndex="{% if field_type.is_transliteration_field_type %}-1{% else %}3{{ forloop.counter }}{% endif %}">{% if field_type.multi_line %}</textarea>{% endif %}
                                 {% if field_type.transliteration_field_type %}
                                     <script type="text/javascript">

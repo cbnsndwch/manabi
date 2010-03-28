@@ -88,6 +88,7 @@
                                     name="field_content-{{ forloop.counter0 }}-content" 
                                     class="cards_fieldContent" 
                                     dojoType="dijit.form.Textarea" 
+                                    tabIndex="5{{ forloop.counter }}"
                                     rows="2" style="width:400px;">{{ field_content.content }}</textarea>
                             {% else %}
                                 <input  
@@ -95,6 +96,7 @@
                                     class="cards_fieldContent" 
                                     dojoType="dijit.form.TextBox" 
                                     style="width:400px;"
+                                    tabIndex="5{{ forloop.counter }}"
                                     value="{{ field_content.content }}">
                             {% endif %}
                         {% endif %}
@@ -103,12 +105,9 @@
                             class="cards_fieldContentType" 
                             value="{{ field_type.id }}" 
                             type="hidden">
-                        {% if field_content.fact.owner == fact.deck.owner %}
-                            <input dojoType="dijit.form.TextBox" 
-                                name="field_content-{{ forloop.counter0 }}-id" 
-                                value="{{ field_content.id }}" 
-                                type="hidden">
-                        {% endif %}
+                        <input dojoType="dijit.form.TextBox" 
+                            name="field_content-{{ forloop.counter0 }}-id" 
+                            value="{{ field_content.id }}" >
                     </div>
                 {% endwith %}
             {% endfor %}

@@ -147,7 +147,7 @@ def fact_update(request, fact_id):
         # subfact forms
         context.update(subfact_form_context(request))
         context['subfact_forms'] = []
-        context['initial_field_content_form_count'] = len(fact.field_contents) + sum([len(subfact.field_contents) for subfact in fact.subfacts.all()])
+        context['initial_field_content_form_count'] = fact.fieldcontent_set.count() + sum([subfact.fieldcontent_set.count() for subfact in fact.subfacts.all() if subfact.owner == request.user])
         i = 1
         field_content_offset = len(fact.field_contents)
         for subfact in fact.subfacts.all():
@@ -661,8 +661,19 @@ def _fact_update(request, fact_id):
         for subfact_form in fact_formset.deleted_forms:
             subfact = subfact_form.cleaned_data['id']
             # make sure it's a subfact
-            if subfact.parent_fact == fact:
-                subfact.delete()
+            if subfact.parent_fact:# == fact:
+                if subfact.synchronized_with or subfact.parent_fact != fact:
+                    # this is a subscriber fact
+                    if subfact.synchronized_with:
+                        subfact.active = False
+                        subfact.save()
+                    else:
+                        # the user doesn't have his own copy of this subfact yet
+                        new_subfact = subfact.copy_to_parent_fact(fact, copy_field_contents=False)
+                        new_subfact.active = False
+                        new_subfact.save()
+                else:
+                    subfact.delete()
 
 
         # disable any existing cards that weren't selected in the update, or enable if selected and create if needed

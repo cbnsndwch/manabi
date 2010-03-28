@@ -528,8 +528,7 @@ class AbstractFieldContent(models.Model):
 
     @property
     def transliteration_field_content(self):
-        '''
-        Returns the transliteration field for this field.
+        ''' Returns the transliteration field for this field.
         If one doesn't exist, returns None.
         '''
         if self.field_type.transliteration_field_type:
@@ -538,8 +537,7 @@ class AbstractFieldContent(models.Model):
                 return self.fact.fieldcontent_set.get(field_type=self.field_type.transliteration_field_type)
             except self.DoesNotExist:
                 return None
-        else:
-            return None
+        return None
 
     @property
     def reverse_transliteration_field_content(self):
@@ -554,8 +552,7 @@ class AbstractFieldContent(models.Model):
 
     @property
     def human_readable_content(self):
-        '''
-        Returns content, but if this is a multi-choice field, 
+        ''' Returns content, but if this is a multi-choice field, 
         returns the name of the choice rather than its value.
 
         If this is a transliteration field, this returns 
@@ -567,20 +564,17 @@ class AbstractFieldContent(models.Model):
             return choices.get(self.content) or ''
         elif self.field_type.is_transliteration_field_type:
             return self.strip_ruby_bottom()
-        else:
-            return self.content
+        return self.content
 
             
     def strip_ruby_text(self):
-        '''
-        Returns this field's content with any ruby text removed.
+        ''' Returns this field's content with any ruby text removed.
         <ta|ta>beru becomes taberu
         '''
         return strip_ruby_text(self.content)
 
     def strip_ruby_bottom(self):
-        '''
-        Returns this field's content, with just the ruby text instead of
+        ''' Returns this field's content, with just the ruby text instead of
         what's beneath it, and the other text.
         <TA|ta>beru becomes taberu
         '''
@@ -588,8 +582,7 @@ class AbstractFieldContent(models.Model):
 
 
     def has_identical_transliteration_field(self):
-        '''
-        Returns True if the corresponding transliteration field is 
+        ''' Returns True if the corresponding transliteration field is 
         identical, once any ruby text markup is removed.
         '''
         if self.transliteration_field_content:

@@ -161,9 +161,10 @@
       });
 
       //reset example sentence fields
-      var subfact_container = dijit.byId('cardSubfactFormsContainer');
-      subfact_container.attr('content', '');
-      subfact_container.domNode.style.display = 'none';
+      var subfact_container = dojo.byId('cardSubfactFormsContainer');
+      dojo.query('#cardSubfactFormsContainer').empty().style('display', 'none');
+      //subfact_container.attr('content', '');
+      //subfact_container.domNode.style.display = 'none';
 
       //destroy any error messages
       dojo.query('.field_content_error', dojo.byId('factAddFormWrapper')).empty();
@@ -570,7 +571,7 @@
             if (cp) {
                 cp.destroyRecursive();
             } else {
-                dojo.destroy(subfact_node[0]);
+                dojo.destroy(container_node[0]);//subfact_node[0]);
             }
         }
         if (!dojo.query(parent_container).children().length) { //!dojo.query(parent_container).attr('content').trim()) {
