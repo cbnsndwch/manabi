@@ -142,11 +142,11 @@ reviews._stop_session_timer = function() {
 };
 
 reviews.startSession = function(deck_id, daily_new_card_limit, session_card_limit, session_time_limit, tag_id, early_review, learn_more) {
-    if (early_review == undefined) {
-        early_review = false;
+    if (typeof early_review == 'undefined') {
+        var early_review = false;
     }
-    if (learn_more == undefined) {
-        learn_more = false;
+    if (typeof learn_more == 'undefined') {
+        var learn_more = false;
     }
     //Use deck_id = -1 for all decks
     //Use tag_id = -1 for no tag filter
@@ -392,7 +392,7 @@ reviews._simpleXHRValueFetch = function(url, value_name) {
         handleAs: 'json',
         load: dojo.hitch(null, function(def, data) {
             if (data.success) {
-                if (value_name == undefined) {
+                if (typeof value_name == 'undefined') {
                     def.callback(data);
                 } else {
                     def.callback(data[value_name]);
@@ -740,8 +740,8 @@ reviews_ui.displayNextCard = function() {
 
 
 reviews_ui._disableReviewScreenUI = function(disable) {
-    if (disable == undefined) {
-        disable = true;
+    if (typeof disable == 'undefined') {
+        var disable = true;
     }
     dojo.query('.dijitButton', dojo.byId('reviews_fullscreenContainer')).forEach(function(item) {
         dijit.getEnclosingWidget(item).attr('disabled', disable);
@@ -941,11 +941,11 @@ reviews_ui.startSession = function(args) { //deck_id, session_time_limit, sessio
 }
 
 reviews_ui.submitReviewOptionsDialog = function(early_review, learn_more) {
-    if (early_review == undefined) {
-        early_review = false;
+    if (typeof early_review == 'undefined') {
+        var early_review = false;
     }
-    if (learn_more == undefined) {
-        learn_more = false;
+    if (typeof learn_more == 'undefined') {
+        var learn_more = false;
     }
 
     //hide this options screen

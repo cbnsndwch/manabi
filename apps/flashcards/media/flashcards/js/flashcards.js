@@ -502,7 +502,7 @@
 
 
     fact_ui.showFactAddDialog = function(deck_id) {
-        if (deck_id == undefined) { deck_id = null; }
+        if (typeof deck_id == 'undefined') { deck_id = null; }
         if (deck_id) {
             //FIXME set it, hide the select
             deckInput.attr('value', deck_id.toString());

@@ -50,10 +50,15 @@ manabi_ui._xhrLinkLoad = function(hash) {
     // load the page
     var target_pane = manabi_ui.body_pane;
     var href = hash;
-    if (href[0] == '/') {
-        href = href.substring(1);
+
+    if (href) {
+        if (href[0] == '/') {
+            href = href.substring(1);
+        }
+    } else {
+        href = 'home';
     }
-    target_pane.attr('href', hash);
+    target_pane.attr('href', href);
 };
 
 manabi_ui.xhrLink = function(href) { //, target_pane) {
@@ -78,7 +83,7 @@ manabi_ui.xhrLink = function(href) { //, target_pane) {
 
 
 manabi_ui._xhrPostArgs = function(url, post_redirect_url) {
-    if (post_redirect_url == undefined) { post_redirect_url = null; }
+    if (typeof post_redirect_url == 'undefined') { post_redirect_url = null; }
     
     var xhr_args = {
         'url': url,
@@ -98,9 +103,9 @@ manabi_ui._xhrPostArgs = function(url, post_redirect_url) {
     return xhr_args;
 };
 manabi_ui._xhrPost = function(url, form, data, post_redirect_url) {
-    if (form == undefined) { form = null; }
-    if (data == undefined) { data = null; }
-    if (post_redirect_url == undefined) { post_redirect_url = null; }
+    if (typeof form == 'undefined') { form = null; }
+    if (typeof data == 'undefined') { data = null; }
+    if (typeof post_redirect_url == 'undefined') { post_redirect_url = null; }
 
     manabi_standby.show();
 

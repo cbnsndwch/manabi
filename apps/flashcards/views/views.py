@@ -150,7 +150,7 @@ def fact_update(request, fact_id):
         context['initial_field_content_form_count'] = fact.fieldcontent_set.count() + sum([subfact.fieldcontent_set.count() for subfact in fact.subfacts.all() if subfact.owner == request.user])
         i = 1
         field_content_offset = len(fact.field_contents)
-        for subfact in fact.subfacts.all():
+        for subfact in fact.subfacts:
             context['subfact_forms'].append(subfact_form_context(request, subfact=subfact, field_content_offset=field_content_offset, fact_form_ordinal=i)['subfact_form'])
             i += 1
             field_content_offset += len(subfact.field_contents)
@@ -593,7 +593,6 @@ def _fact_update(request, fact_id):
     field_content_queryset = fact.fieldcontent_set.get_query_set() or None
     field_content_formset = FieldContentFormset(post_data, prefix='field_content') #, queryset=field_content_queryset)
 
-
     #fact_form = FactForm(post_data, prefix='fact', instance=fact) #this isn't updated
     if card_formset.is_valid() and field_content_formset.is_valid() and fact_formset.is_valid():
         #fact = fact_form.save() #TODO needed in future?
@@ -618,17 +617,18 @@ def _fact_update(request, fact_id):
                 # Does this subfact already belong to the user?
                 # If not, create it, only if anything's changed.
                 # Or, create it, if it's new.
-                if field_content.id: #field_content_form.cleaned_data['id']:
+                if field_content_form.cleaned_data['id']:
                     # existing field content
 
                     # if it's part of a subfact that's being deleted in this form, ignore the field.
-                    if field_content.fact in [fact_form.cleaned_data['id'] for fact_form in fact_formset.deleted_forms]:
+                    if field_content_form.cleaned_data['id'].fact in [fact_form.cleaned_data['id'] for fact_form in fact_formset.deleted_forms]:
                         continue
 
-                    if field_content.fact.owner == request.user:
+                    if field_content_form.cleaned_data['id'].fact.owner == request.user:
+                        field_content.fact = fact
                         field_content.save()
                     else:
-                        original = FieldContent.objects.get(id=field_content_form['id'])
+                        original = field_content_form.cleaned_data['id']
                         if field_content_form['content'] != original.content:
                             # user updated subscribed subfact content - so create his own subscriber subfact to hold it
                             new_subfact = original.fact.copy_to_parent_fact(fact, copy_field_contents=True)

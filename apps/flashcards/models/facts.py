@@ -264,9 +264,8 @@ class Fact(AbstractFact):
         '''
         subfacts = self.child_facts.all()
         if self.synchronized_with:
-            synchronized_subfacts = self.synchronized_with.child_facts.all()
-            synchronized_subfacts.exclude(id__in=subfacts.values_list('synchronized_with_id', flat=True))
-            subfacts = subfacts | synchronized_subfacts
+            synchronized_subfacts = self.synchronized_with.child_facts
+            subfacts = subfacts | synchronized_subfacts.exclude(id__in=subfacts.values_list('synchronized_with_id', flat=True))
         return subfacts.filter(active=True)
 
 
@@ -345,23 +344,23 @@ class Fact(AbstractFact):
         if not self.parent_fact:
             raise TypeError('This is not a subfact, so it cannot be copied to a parent fact.')
         # only copy if it doesn't already exist
-        synchronize = parent_fact.synchronized_with == this.parent_fact
-        if parent_fact.child_facts.filter(synchronized_with=this):
-            subfact_copy = parent_fact.child_facts.get(synchronized_with=this)
+        synchronize = parent_fact.synchronized_with == self.parent_fact
+        if parent_fact.child_facts.filter(synchronized_with=self):
+            subfact_copy = parent_fact.child_facts.get(synchronized_with=self)
         else:
             subfact_copy = Fact(
                     parent_fact=parent_fact,
-                    fact_type=subfact.fact_type,
+                    fact_type=self.fact_type,
                     active=True,
-                    notes=subfact.notes,
-                    new_fact_ordinal=subfact.new_fact_ordinal)
+                    notes=self.notes,
+                    new_fact_ordinal=self.new_fact_ordinal)
             if synchronize:
-                subfact_copy.synchronized_with = this
+                subfact_copy.synchronized_with = self
             subfact_copy.save()
 
         # copy the field contents
         if copy_field_contents or not synchronize:
-            for field_content in subfact.fieldcontent_set.all():
+            for field_content in self.fieldcontent_set.all():
                 field_content.copy_to_fact(subfact_copy)
         return subfact_copy
 
