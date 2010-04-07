@@ -469,6 +469,10 @@ right now it's creating all subscriber facts because of _next_new_cards2 as part
 -delete subscriber deck
 -delete shared deck
 
+move 'edit' and 'suspend card' into some dropdown menu
+
+sentence reading field in subfacts.html shows up as 'sentence' when it does show up
+
 -session over dialog shows 'this time tomorrow x due' for ALL decks not just the one deck
 
 tabindexes are screwed up

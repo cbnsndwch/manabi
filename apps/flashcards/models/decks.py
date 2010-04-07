@@ -190,7 +190,7 @@ class Deck(AbstractDeck):
         '''Returns whether there are subscribers to this deck, because
         it is shared, or it had been shared before.
         '''
-        return self.subscriber_decks.count() > 0
+        return self.subscriber_decks.filter(active=True).count() > 0
 
 
     @transaction.commit_on_success    
