@@ -625,7 +625,7 @@ def _fact_update(request, fact_id):
                         continue
 
                     if field_content_form.cleaned_data['id'].fact.owner == request.user:
-                        field_content.fact = fact
+                        field_content.fact = field_content_form.cleaned_data['id'].fact #TODO is this necessary?
                         field_content.save()
                     else:
                         original = field_content_form.cleaned_data['id']
@@ -923,8 +923,8 @@ def cards_new_count(request):
         return {'cards_new_count': count}
 
 
-    #(r'^rest/cards_for_review/due_tomorrow_count$', 'views.cards_due_tomorrow_count'),
-    #(r'^rest/cards_for_review/next_card_due_at$', 'views.next_card_due_at'),
+#(r'^rest/cards_for_review/due_tomorrow_count$', 'views.cards_due_tomorrow_count'),
+#(r'^rest/cards_for_review/next_card_due_at$', 'views.next_card_due_at'),
 
 @json_response
 @login_required
@@ -956,6 +956,7 @@ def cards_due_tomorrow_count(request):
         
         count = Card.objects.count_of_cards_due_tomorrow(request.user, deck=deck, tags=tags)
         return {'cards_due_tomorrow_count': count}
+
 
 @json_response
 @login_required

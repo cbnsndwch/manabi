@@ -507,12 +507,6 @@ class Card(AbstractCard):
         return strip_tags(u'{0} | {1}'.format(front, back))
 
 
-    #def save(self, *args, **kwargs):
-    #    if not self.new_card_ordinal:
-    #        self.new_card_ordinal = random.randrange(0, MAX_NEW_CARD_ORDINAL)
-    #    super(Card, self).save(*args, **kwargs)
-
-
     @property
     def owner(self):
         return self.fact.deck.owner

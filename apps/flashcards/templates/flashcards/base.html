@@ -12,7 +12,7 @@
 
 <div dojoType="dijit.Dialog" jsId="factAddDialog" title="Create Flashcards">
     <script type="dojo/connect" event="onHide" args="evt">
-        manabi_ui.xhrReload();
+        manabi_ui.xhrReload(); //TODO only reload the due count, or only if new cards were actually added
     </script>
     <script type="dojo/connect" event="onShow" args="evt">
         dojo.query('textarea', factAddDialog.domNode).forEach(function(node) {

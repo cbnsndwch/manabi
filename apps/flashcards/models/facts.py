@@ -88,10 +88,8 @@ class FactManager(models.Manager):
         '''
         from decks import Deck
         user_facts = self.filter(deck__owner=user, parent_fact__isnull=True)
-
+        
         if deck:
-            #if not deck.synchronized_with:
-            #    return self.none()
             decks = Deck.objects.filter(id=deck.id)
             user_facts = user_facts.filter(deck__in=decks)
         else:
@@ -100,9 +98,9 @@ class FactManager(models.Manager):
             tagged_facts = usertagging.models.UserTaggedItem.objects.get_by_model(Fact, tags)
             user_facts = user_facts.filter(fact__in=tagged_facts)
         subscriber_decks = decks.filter(synchronized_with__isnull=False)
-        subscribed_decks = [deck.synchronized_with for deck in subscriber_decks]
+        subscribed_decks = [deck.synchronized_with for deck in subscriber_decks if deck.synchronized_with is not None]
         #shared_facts = self.filter(deck_id__in=shared_deck_ids)
-        copied_subscribed_fact_ids = [fact.synchronized_with_id for fact in user_facts]
+        copied_subscribed_fact_ids = [fact.synchronized_with_id for fact in user_facts if fact.synchronized_with_id is not None]
         subscribed_facts = self.filter(deck__in=subscribed_decks).exclude(id__in=copied_subscribed_fact_ids) # should not be necessary.exclude(id__in=user_facts)
         return user_facts | subscribed_facts
 
@@ -147,7 +145,7 @@ class FactManager(models.Manager):
             tagged_facts = usertagging.models.UserTaggedItem.objects.get_by_model(Fact, tags)
             user_facts = user_facts.filter(fact__in=tagged_facts)
         #shared_deck_ids = [deck.synchronized_with_id for deck in decks if deck.synchronized_with_id]
-        new_shared_facts = self.filter(deck__in=decks.filter(synchronized_with__isnull=False)).exclude(id__in=user_facts)
+        new_shared_facts = self.filter(active=True, deck__in=decks.filter(synchronized_with__isnull=False)).exclude(id__in=user_facts)
         new_shared_facts = new_shared_facts.order_by('new_fact_ordinal')
         new_shared_facts = new_shared_facts[:count]
         #FIXME handle 0 ret
@@ -224,11 +222,16 @@ class Fact(AbstractFact):
             # get active subscriber facts
             active_cards = Card.objects.filter(fact__in=self.subscriber_facts.all(), active=True, suspended=False, last_reviewed_at__isnull=False)
 
-            updated_fields = FieldContent.objects.filter(fact__in=self.subscriber_facts.all()) | \
-                    FieldContent.objects.filter(fact__parent_fact__in=self.subscriber_facts.all())
+            updated_fields = FieldContent.objects.filter(fact__in=self.subscriber_facts.all())# | \
+            #FieldContent.objects.filter(fact__parent_fact__in=self.subscriber_facts.all())
+
+            updated_subfacts = Fact.objects.filter(
+                    id__in=FieldContent.objects.filter(
+                        fact__parent_fact__in=self.subscriber_facts.all()).values_list('fact_id', flat=True))
 
             active_subscribers = self.subscriber_facts.filter(
-                    Q(id__in=updated_fields.values_list('parent_fact_id', flat=True)) |
+                    #Q(id__in=updated_fields.values_list('parent_fact_id', flat=True)) |
+                    Q(id__in=updated_subfacts.values_list('parent_fact_id', flat=True)) |
                     Q(id__in=active_cards.values_list('fact_id', flat=True)) |
                     Q(id__in=updated_fields.values_list('fact_id', flat=True)))
 
@@ -265,7 +268,7 @@ class Fact(AbstractFact):
         subfacts = self.child_facts.all()
         if self.synchronized_with:
             synchronized_subfacts = self.synchronized_with.child_facts
-            subfacts = subfacts | synchronized_subfacts.exclude(id__in=subfacts.values_list('synchronized_with_id', flat=True))
+            subfacts = subfacts | synchronized_subfacts.exclude(id__in=subfacts.exclude(synchronized_with__isnull=True).values_list('synchronized_with_id', flat=True))
         return subfacts.filter(active=True)
 
 

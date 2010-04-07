@@ -455,27 +455,25 @@ click a shared deck, if not subscribed, 'cards_deleteButton not defined' error
 -'study now' per deck should restrict to that deck only (bug)
 
 ?deck card counts arent accurate for 'hybrid' shared/annotated decks
-
 have a feedback box in the home page
-
 server-side-generated review options/review early etc dialogs, for study now buttons
-
 -how to deal with unsharing decks? let subscribed users stay subscribed i guess. what about cards added after that?
-
 change review session finish dialog..
-
 
 allow tabbing to the reading field, but if it's disabled, tab to the next field
 
+right now it's creating all subscriber facts because of _next_new_cards2 as part of the next_cards_count method.
 
-disable study now button when first clicked
-
+-sorta-disable study now button when first clicked
 
 -delete subscriber deck
 -delete shared deck
 
+-session over dialog shows 'this time tomorrow x due' for ALL decks not just the one deck
+
 tabindexes are screwed up
 
+if a subscribed deck is deleted, and then the last subscriber deletes it too, then it should actually delete the original subscribed deck too
 
 subfact stuff:
 it may not be working for updated subscriber subfacts

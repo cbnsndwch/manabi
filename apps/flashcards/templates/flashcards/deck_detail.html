@@ -20,7 +20,7 @@
 	            Add Deck
 	            <script type="dojo/connect" event="onClick" args="evt">
                     var url = '/flashcards/rest/decks/{{ deck.id }}/subscribe';
-                    manabi_ui.xhrPostData(url);
+                    manabi_ui.xhrPostData(url).addCallback(function() { manabi_ui.refreshDeckInput(); });
 	            </script>
             </button> Add this deck to your personal deck collection, so that you can start studying it.
         {% endif %}
@@ -39,7 +39,6 @@
             <br>
             <br>
         {% endif %}
-
         
         {% include "flashcards/_facts_grid.html" %}
     </p> 
@@ -77,7 +76,7 @@
                     var delete_response = window.confirm('Really delete this deck, and all the flashcards it contains? This action cannot be undone.');
                     if (delete_response) {
                         var url = '{{ deck.get_absolute_url }}/delete';
-                        manabi_ui.xhrPostData(url, null, '/flashcards/decks');
+                        manabi_ui.xhrPostData(url, null, '/flashcards/decks').addCallback(function(){ manabi_ui.refreshDeckInput(); });
                     }
 	            </script>
             </button>

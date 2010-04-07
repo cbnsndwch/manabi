@@ -433,8 +433,12 @@ reviews.timeUntilNextCardDue = function(deck, tags) {
 //   return {hours: data['hours_until_next_card_due'], minutes: data['minutes_until_next_card_due']};
 };
 
-reviews.countOfCardsDueTomorrow = function() {
-    return reviews._simpleXHRValueFetch('/flashcards/rest/cards_for_review/due_tomorrow_count', 'cards_due_tomorrow_count');
+reviews.countOfCardsDueTomorrow = function(deck) {
+    var url = '/flashcards/rest/cards_for_review/due_tomorrow_count';
+    if (typeof deck != 'undefined' && deck) {
+        url += '?deck='+deck;
+    }
+    return reviews._simpleXHRValueFetch(url, 'cards_due_tomorrow_count');
 };
 
 
@@ -601,7 +605,7 @@ reviews_ui.openDialog = function() {
 
 reviews_ui.openSessionOverDialog = function(review_count) {
     // get the # due tomorrow to display
-    reviews.countOfCardsDueTomorrow().addCallback(function(count) {
+    reviews.countOfCardsDueTomorrow(reviews_ui.last_session_args.deck_id).addCallback(function(count) {
         if (count == 0) {
             // None due by this time tomorrow, so we'll get the time when one
             // is next due.
