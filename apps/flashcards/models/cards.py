@@ -230,7 +230,7 @@ class CardManager(models.Manager):
 
         def _next_new_cards2():
             new_cards = []
-            for card in new_card_query.iterator():
+            for card in new_card_query.select_related().iterator():
                 min_space = card.min_space_from_siblings()
                 for sibling_card in card.siblings():
                     # sibling card is already included as a new card to be shown or
@@ -387,9 +387,12 @@ class CardManager(models.Manager):
         return user_cards
     
 
-    def next_cards_count(self, user, excluded_ids=[], session_start=False, deck=None, tags=None, early_review=False, daily_new_card_limit=None):
+    def next_cards_count(self, user, excluded_ids=[], session_start=False, deck=None, tags=None, early_review=False, daily_new_card_limit=None, new_cards_only=False):
         now = datetime.datetime.utcnow()
-        card_funcs = self._next_cards(early_review=early_review, daily_new_card_limit=daily_new_card_limit)
+        if new_cards_only:
+            card_funcs = [self._next_new_cards]
+        else:
+            card_funcs = self._next_cards(early_review=early_review, daily_new_card_limit=daily_new_card_limit)
         user_cards = self._user_cards(user, deck=deck, excluded_ids=excluded_ids, tags=tags)
         count = 0
         cards_left = 99999 #TODO find a more elegant approach

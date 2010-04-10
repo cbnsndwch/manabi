@@ -491,8 +491,14 @@ it may not be working for updated subscriber subfacts
 put 'learn new cards' button above 'review early' - it's more important
 
 
+'learn new cards' i saw this: 10hours/11hours/10hours
+
+got a timeout on posting a card review...
+
+'review early' for my sample deck is only giving me 1 card
 
 ----
 server stuff
 
 make sure gzip is enabled
+use tarsnap for deployed package history instead of storing on the vps

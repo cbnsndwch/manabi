@@ -56,9 +56,9 @@ def study_options_context(request, deck_id=None):
     if deck or deck_count:
         due_card_count = Card.objects.due_cards(request.user, deck=deck).count()
         new_card_count = Card.objects.new_cards(request.user, deck=deck).count()
-        spaced_new_card_count = Card.objects.next_cards_count(request.user, deck=deck)
         new_reviews_today = request.user.reviewstatistics.get_new_reviews_today()
         if daily_new_card_limit:
+            spaced_new_card_count = Card.objects.next_cards_count(request.user, deck=deck, new_cards_only=True)
             if spaced_new_card_count:
                 new_cards_left_for_today = daily_new_card_limit - new_reviews_today
                 if new_cards_left_for_today < 0:
@@ -77,7 +77,7 @@ def study_options_context(request, deck_id=None):
                 'card_count': Card.objects.of_user(request.user).count(),
                 'due_card_count': due_card_count,
                 'new_card_count': new_card_count,
-                'spaced_new_card_count': spaced_new_card_count,
+                #'spaced_new_card_count': spaced_new_card_count,
 
                 'count_of_cards_due_tomorrow': Card.objects.count_of_cards_due_tomorrow(request.user, deck=deck),
 
