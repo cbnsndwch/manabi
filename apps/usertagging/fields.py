@@ -77,7 +77,7 @@ class TagField(CharField):
 
     def _update(self, **kwargs): #signal, sender, instance):
         """
-        Update tag cache from TaggedItem objects.
+        Update tag cache from UserTaggedItem objects.
         """
         instance = kwargs['instance']
         self._update_instance_tag_cache(instance)

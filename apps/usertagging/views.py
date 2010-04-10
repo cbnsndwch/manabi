@@ -5,7 +5,7 @@ from django.http import Http404
 from django.utils.translation import ugettext as _
 from django.views.generic.list_detail import object_list
 
-from usertagging.models import Tag, TaggedItem
+from usertagging.models import Tag, UserTaggedItem
 from usertagging.utils import get_tag, get_queryset_and_model
 
 def tagged_object_list(request, queryset_or_model=None, tag=None,
@@ -41,7 +41,7 @@ def tagged_object_list(request, queryset_or_model=None, tag=None,
     tag_instance = get_tag(tag)
     if tag_instance is None:
         raise Http404(_('No Tag found matching "%s".') % tag)
-    queryset = TaggedItem.objects.get_by_model(queryset_or_model, tag_instance)
+    queryset = UserTaggedItem.objects.get_by_model(queryset_or_model, tag_instance)
     if not kwargs.has_key('extra_context'):
         kwargs['extra_context'] = {}
     kwargs['extra_context']['tag'] = tag_instance

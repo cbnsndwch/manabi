@@ -5,7 +5,7 @@ application.
 from django.contrib.contenttypes.models import ContentType
 from django.db import models
 
-from usertagging.models import Tag, TaggedItem
+from usertagging.models import Tag, UserTaggedItem
 
 class ModelTagManager(models.Manager):
     """
@@ -31,21 +31,21 @@ class ModelTaggedItemManager(models.Manager):
     """
     def related_to(self, obj, queryset=None, num=None):
         if queryset is None:
-            return TaggedItem.objects.get_related(obj, self.model, num=num)
+            return UserTaggedItem.objects.get_related(obj, self.model, num=num)
         else:
-            return TaggedItem.objects.get_related(obj, queryset, num=num)
+            return UserTaggedItem.objects.get_related(obj, queryset, num=num)
 
     def with_all(self, tags, queryset=None):
         if queryset is None:
-            return TaggedItem.objects.get_by_model(self.model, tags)
+            return UserTaggedItem.objects.get_by_model(self.model, tags)
         else:
-            return TaggedItem.objects.get_by_model(queryset, tags)
+            return UserTaggedItem.objects.get_by_model(queryset, tags)
 
     def with_any(self, tags, queryset=None):
         if queryset is None:
-            return TaggedItem.objects.get_union_by_model(self.model, tags)
+            return UserTaggedItem.objects.get_union_by_model(self.model, tags)
         else:
-            return TaggedItem.objects.get_union_by_model(queryset, tags)
+            return UserTaggedItem.objects.get_union_by_model(queryset, tags)
 
 class TagDescriptor(object):
     """

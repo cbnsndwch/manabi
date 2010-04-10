@@ -77,6 +77,9 @@
                     <div style="font-size:32px; padding:20px;" dojoType="dijit.layout.ContentPane" jsId="reviews_cardBack" id="reviews_cardBack"></div>
                 </div>
             </div>
+            
+            <div style="margin-left:auto;margin-right:auto;width:30em;height:8em;overflow:auto;display:none;" dojoType="dojox.layout.ContentPane" jsId="reviews_subfactPane" id="reviews_subfactPane"></div>
+
             <div id="reviews_gradeButtonsContainer">
                 {% comment %}
                 <div style="font-size:32px;text-align:center;">
@@ -141,7 +144,7 @@
                         <div style="clear:both"></div>
                     </div>
                     <div style="margin-top:1em;text-align:center;">
-                        <span class="fakeLink" id="reviews_gradesHelpLink" style="font-size:12px;color:gray" onclick="dijit.byId('reviews_gradesHelpDialog').show()">What do these buttons mean?</span>
+                        <img src="{{ MEDIA_URL }}static/css/dojo_themes/tundra/images/icons/information.png" align="top"> <span class="fakeLink" id="reviews_gradesHelpLink" style="font-size:12px;color:#0174DF" onclick="dijit.byId('reviews_gradesHelpDialog').show()">What do these buttons mean?</span>
                     </div>
                     <div id="reviews_gradesHelpDialog" dojoType="dojox.widget.Dialog" dimensions="[570,430]">
                         <div style="padding-left:15px;padding-right:15px;">
@@ -174,9 +177,11 @@
 
 
 
+{% comment %}
 <div dojoType="dojo.data.ItemFileReadStore" jsId="reviews_decksStore" 
     url="/flashcards/rest/decks_with_totals" clearOnClose="true">
 </div>
+{% endcomment %}
 
 
 <div dojoType="dijit.Dialog" jsId="reviews_reviewDialog" id="reviews_reviewDialog" title="Flashcards">
@@ -192,19 +197,14 @@
         var k = dojo.keys;
         switch(evt.charOrCode) {
             case k.ENTER:
-                reviews_ui.submitReviewOptionsDialog();
+                //FIXME shouldnt be active for early review dialog //reviews_ui.submitReviewOptionsDialog();
                 break;
         }
 	</script>
 
     <div id="reviews_reviewOptions">
-        {% comment %}
-        <p style="display:none">
-            Cards due: <span id="reviews_cardsDueCount"></span><br>
-            New cards: <span id="reviews_cardsNewCount"></span>
-        </p>
-        {% endcomment %}
         
+{% comment %}
         <strong style="font-size:120%">Study Options</strong><br><br>
         <strong>Decks to review:</strong><br>
         <div dojoType="dojox.grid.DataGrid" store="reviews_decksStore" 
@@ -217,6 +217,7 @@
                     reviews_beginReviewButton.attr('disabled', false);
                 </script>
         </div>
+{% endcomment %}
         <br>
         <div>
             <strong>Filter cards by tag:</strong> <em>(optional)</em><br>
@@ -276,7 +277,11 @@
                 <button dojoType="dijit.form.Button" type="button" jsId="reviews_beginEarlyReviewButton">
                     Review Early
                     <script type="dojo/connect" event="onClick" args="evt">
-                        reviews_ui.submitReviewOptionsDialog(true);
+                        //reviews_ui.submitReviewOptionsDialog(true);
+                        var args = dojo.clone(reviews_ui.last_session_args);
+                        args.early_review = true;
+                        args.learn_more = false;
+                        reviews_ui.startSession(args);
                     </script>
                 </button><br>
             </span>
@@ -286,14 +291,27 @@
                 <button dojoType="dijit.form.Button" type="button" jsId="reviews_learnMoreButton">
                     Learn More
                     <script type="dojo/connect" event="onClick" args="evt">
-                        reviews_ui.submitReviewOptionsDialog(true, true); // learn more, and learn new cards early if necessary
+                        //reviews_ui.submitReviewOptionsDialog(true, true); // learn more, and learn new cards early if necessary
+                        var args = dojo.clone(reviews_ui.last_session_args);
+                        args.early_review = true;
+                        args.learn_more = true;
+                        reviews_ui.startSession(args);
                     </script>
                 </button><br>
-                <span style="color:gray">Learn new cards.</span>
+                <span style="color:gray">Learn new cards.</span><br>
             </span>
         </div>
         <br>
+        <div dojoType="dijit.form.Button">
+            Done
+            <script type="dojo/connect" event="onClick" args="evt">
+                reviews_reviewDialog.hide();
+            </script>
+        </div>
+        {% comment %}
+        <br>
         <span class="fakeLink" onclick="reviews_ui.showReviewOptions()">Back to study options</span>
+        {% endcomment %}
     </div>
     <div id="reviews_beginReview">
         <button dojoType="dijit.form.Button" type="button" iconClass="manabi_icon manabi_icon_clock_play" jsId="reviews_beginReviewButton">
@@ -332,12 +350,18 @@
             reviews_sessionOverDialog.hide();
         </script>
     </button>
+    {% comment %}
     <button dojoType="dijit.form.Button" type="button">
         Review More
         <script type="dojo/connect" event="onClick" args="evt">
             reviews_sessionOverDialog.hide();
-            reviews_ui.openDialog();
+            var args = dojo.clone(reviews_ui.last_session_args);
+            args.early_review = false;
+            args.learn_more = false;
+            reviews_ui.startSession(args); //reuse whatever args were used last to start a study session //{{ deck.id }});
+            //reviews_ui.openDialog();
         </script>
     </button>
+    {% endcomment %}
 </div>
 

@@ -1,9 +1,17 @@
+{% block back_link %}
+{% if back_link %}<p><a href="{{ back_link.href }}">&laquo; Back to {{ back_link.name }}</a></p>{% endif %}
+{% endblock %}
 {% block content %}
 {% endblock %}
 {% comment %}
 <script type="text/javascript">
     dojo.addOnLoad(function() {
         manabi_ui.convertLinksToXhr(body_pane.domNode);
+    });
+</script>
+
+<script type="text/javascript">
+    dojo.ready(function() {
     });
 </script>
 {% endcomment %}

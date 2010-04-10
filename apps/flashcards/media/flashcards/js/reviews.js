@@ -142,11 +142,11 @@ reviews._stop_session_timer = function() {
 };
 
 reviews.startSession = function(deck_id, daily_new_card_limit, session_card_limit, session_time_limit, tag_id, early_review, learn_more) {
-    if (early_review == undefined) {
-        early_review = false;
+    if (typeof early_review == 'undefined') {
+        var early_review = false;
     }
-    if (learn_more == undefined) {
-        learn_more = false;
+    if (typeof learn_more == 'undefined') {
+        var learn_more = false;
     }
     //Use deck_id = -1 for all decks
     //Use tag_id = -1 for no tag filter
@@ -392,7 +392,7 @@ reviews._simpleXHRValueFetch = function(url, value_name) {
         handleAs: 'json',
         load: dojo.hitch(null, function(def, data) {
             if (data.success) {
-                if (value_name == undefined) {
+                if (typeof value_name == 'undefined') {
                     def.callback(data);
                 } else {
                     def.callback(data[value_name]);
@@ -419,14 +419,26 @@ reviews.nextCardDueAt = function() {
     return reviews._simpleXHRValueFetch('/flashcards/rest/cards_for_review/next_due_at', 'next_card_due_at');
 };
 
-reviews.timeUntilNextCardDue = function() {
-    return reviews._simpleXHRValueFetch('/flashcards/rest/cards_for_review/hours_until_next_due');
+reviews.timeUntilNextCardDue = function(deck, tags) {
+    var args = {};
+    args.deck = deck || null;
+    args.tags = tags || null;
+    var query = dojo.objectToQuery(args);
+    var url = '/flashcards/rest/cards_for_review/hours_until_next_due';
+    if (query) {
+        url += '?' + query;
+    }
+    return reviews._simpleXHRValueFetch(url);
 //    console.log(data);
 //   return {hours: data['hours_until_next_card_due'], minutes: data['minutes_until_next_card_due']};
 };
 
-reviews.countOfCardsDueTomorrow = function() {
-    return reviews._simpleXHRValueFetch('/flashcards/rest/cards_for_review/due_tomorrow_count', 'cards_due_tomorrow_count');
+reviews.countOfCardsDueTomorrow = function(deck) {
+    var url = '/flashcards/rest/cards_for_review/due_tomorrow_count';
+    if (typeof deck != 'undefined' && deck) {
+        url += '?deck='+deck;
+    }
+    return reviews._simpleXHRValueFetch(url, 'cards_due_tomorrow_count');
 };
 
 
@@ -453,6 +465,7 @@ reviews_ui = {};
 dojo.addOnLoad(function() {
     reviews_ui.review_options_dialog = dijit.byId('reviews_reviewDialog');
     reviews_ui.review_dialog = dijit.byId('reviews_fullscreenContainer');
+    reviews_ui.session_started = false;
 
 });
 
@@ -500,10 +513,13 @@ reviews_ui._showNoCardsDue = function() {
 
 
 reviews_ui._humanizedTimeUntil = function(time_until) {
-    if (parseInt(time_until['hours_until_next_card_due']) > 0) {
-        return time_until['hours_until_next_card_due'] + ' hours';
-    } else if (parseInt(time_until['minutes_until_next_card_due']) > 0) {
-        return ['minutes_until_next_card_due'] + ' minutes';
+    var minutes_until = parseInt(time_until['minutes_until_next_card_due']) || -1;
+    var hours_until = parseInt(time_until['hours_until_next_card_due']) || -1;
+    if (hours_until > 0) {
+    //if (parseInt(time_until['hours_until_next_card_due']) > 0) {
+        return hours_until + ' hours'; //time_until['hours_until_next_card_due'] + ' hours';
+    } else if (minutes_until > 0) { //parseInt(time_until['minutes_until_next_card_due']) > 0) {
+        return minutes_until + ' minutes'; //time_until['minutes_until_next_card_due'] + ' minutes';
     } else {
         return 'under a minute';
     }
@@ -512,15 +528,17 @@ reviews_ui._humanizedTimeUntil = function(time_until) {
 
 reviews_ui.showNoCardsDue = function(can_learn_more, empty_query) {
     reviews_beginReviewButton.attr('disabled', true);
-
+    if (!reviews_ui.review_options_dialog.attr('open')) {
+        //reviews_ui.review_options_dialog.show();
+        reviews_ui.openDialog();
+    }
     if (!can_learn_more && empty_query) {
         reviews_beginEarlyReviewButton.attr('disabled', true);
         dojo.byId('reviews_emptyQuery').style.display = '';
         reviews_ui._showNoCardsDue();
     } else {
-        reviews.timeUntilNextCardDue().addCallback(function(time_until) {
-                console.log(time_until);
-            if (parseInt(time_until['hours']) > 24) {
+        reviews.timeUntilNextCardDue(reviews_ui.last_session_args.deck_id, reviews_ui.last_session_args.tag_id).addCallback(function(time_until) {
+            if (parseInt(time_until['hours_until_next_card_due']) > 24) {
                 reviews.nextCardDueAt().addCallback(function(next_due_at) {
                     dojo.byId('reviews_noCardsDueNextDueAt').innerHTML = 'The next card is due at: ' + next_due_at;
                     dojo.byId('reviews_noCardsDue').style.display = '';
@@ -541,7 +559,8 @@ reviews_ui.showNoCardsDue = function(can_learn_more, empty_query) {
 };
 
 reviews_ui.showReviewOptions = function() {
-    dojo.byId('reviews_beginReview').style.display = '';
+    //FIXME temp fix dojo.byId('reviews_beginReview').style.display = '';
+    dojo.byId('reviews_beginReview').style.display = 'none';
     dojo.byId('reviews_reviewOptions').style.display = '';
     dojo.byId('reviews_noCardsDue').style.display = 'none';
     dojo.byId('reviews_emptyQuery').style.display = 'none';
@@ -586,11 +605,11 @@ reviews_ui.openDialog = function() {
 
 reviews_ui.openSessionOverDialog = function(review_count) {
     // get the # due tomorrow to display
-    reviews.countOfCardsDueTomorrow().addCallback(function(count) {
+    reviews.countOfCardsDueTomorrow(reviews_ui.last_session_args.deck_id).addCallback(function(count) {
         if (count == 0) {
             // None due by this time tomorrow, so we'll get the time when one
             // is next due.
-            reviews.timeUntilNextCardDue().addCallback(function(time_until) {
+            reviews.timeUntilNextCardDue(reviews_ui.last_session_args.deck_id, reviews_ui.last_session_args.tag_id).addCallback(function(time_until) {
                 dojo.byId('reviews_sessionOverDialogNextDue').innerHTML = 'The next card is due in ' + reviews_ui._humanizedTimeUntil(time_until);
                 dojo.byId('reviews_sessionOverDialogReviewCount').innerHTML = review_count;
                 reviews_sessionOverDialog.show();
@@ -621,7 +640,12 @@ reviews_ui.endSession = function() {
 
     if (review_count) {
         reviews_ui.openSessionOverDialog(review_count);
+
+        // refresh the active page, in case it has due card counts etc
+        manabi_ui.xhrReload();
     }
+
+    reviews_ui.session_started = false;
 };
 
 
@@ -642,6 +666,8 @@ reviews_ui.displayCard = function(card, show_card_back) {
     dojo.byId('reviews_showCardBack').style.display = '';
     reviews_cardBack.attr('content', card.back);
     reviews_cardBack.domNode.style.display = 'none';
+    reviews_subfactPane.attr('content', '');
+    reviews_subfactPane.domNode.style.display = 'none';
     dojo.byId('reviews_gradeButtonsContainer').style.visibility = 'hidden';
     if (show_card_back) {
         reviews_ui.showCardBack(card);
@@ -718,8 +744,8 @@ reviews_ui.displayNextCard = function() {
 
 
 reviews_ui._disableReviewScreenUI = function(disable) {
-    if (disable == undefined) {
-        disable = true;
+    if (typeof disable == 'undefined') {
+        var disable = true;
     }
     dojo.query('.dijitButton', dojo.byId('reviews_fullscreenContainer')).forEach(function(item) {
         dijit.getEnclosingWidget(item).attr('disabled', disable);
@@ -857,18 +883,36 @@ reviews_ui._unsubscribe_from_session_events = function() {
     });
 }
 
-reviews_ui.startSession = function(deck_id, session_time_limit, session_card_limit, tag_id, early_review, learn_more) { //, daily_new_card_limit) {
-    if (early_review == undefined) {
-        early_review = false;
+reviews_ui.startSession = function(args) { //deck_id, session_time_limit, session_card_limit, tag_id, early_review, learn_more) { //, daily_new_card_limit) {
+    //args//if (.early_review == undefined) { var early_review = false; }
+    //if (learn_more == undefined) { var learn_more = false; }
+    //if (session_time_limit == undefined) { var session_time_limit = 10; }
+    //if (session_card_limit == undefined) { var session_card_limit = 0; }
+    //if (tag_id == undefined) { var tag_id = '-1'; }
+
+    // raise error (FIXME we just ignore it for now) if the session is already
+    // in progress
+    if (reviews_ui.session_started) {
+        return;
     }
-    if (learn_more == undefined) {
-        learn_more = false;
-    }
+
+    reviews_ui.session_started = true;
 
     reviews_ui.session_over_after_current_card = false;
 
+    reviews_undoReviewButton.attr('disabled', true);
+
+    reviews_ui.last_session_args = dojo.clone(args);
+
     //start a review session with the server
-    var session_def = reviews.startSession(deck_id, 20, session_card_limit, session_time_limit, tag_id, early_review, learn_more); //FIXME use the user-defined session limits
+    var session_def = reviews.startSession(
+            args.deck_id||'-1', 
+            20, 
+            args.session_card_limit||0, 
+            args.session_time_limit||10,
+            args.tag_id||'-1',
+            args.early_review||false, 
+            args.learn_more||false); //FIXME use the user-defined session limits
 
     reviews_ui._subscribe_to_session_events();
 
@@ -876,7 +920,7 @@ reviews_ui.startSession = function(deck_id, session_time_limit, session_card_lim
     session_def.addCallback(function(initial_card_prefetch) {
         //show the first card
         var next_card_def = reviews.nextCard();
-        next_card_def.addCallback(function(next_card) {
+        next_card_def.addCallback(dojo.hitch(null, function(initial_card_prefetch, next_card) {
 
             if (next_card) {
                 //hide this dialog and show the review screen
@@ -891,21 +935,21 @@ reviews_ui.startSession = function(deck_id, session_time_limit, session_card_lim
                 //are there new cards left to learn today? (decide whether to
                 //show learn more button).
                 //can_learn_more = initial_card_prefetch.new_cards_left_for_today == '0' && initial_card_prefetch.new_cards_left != '0'; //TODO better api for this
-                can_learn_more = initial_card_prefetch.new_cards_left != '0'; //TODO better api for this
-                empty_query = initial_card_prefetch.total_card_count_for_query == '0';
+                can_learn_more = initial_card_prefetch.new_cards_left > 0; //TODO better api for this
+                empty_query = initial_card_prefetch.total_card_count_for_query <= 0;
                 reviews_ui.showNoCardsDue(can_learn_more, empty_query);
             }
-        });
+        }, initial_card_prefetch));
     });
 
 }
 
 reviews_ui.submitReviewOptionsDialog = function(early_review, learn_more) {
-    if (early_review == undefined) {
-        early_review = false;
+    if (typeof early_review == 'undefined') {
+        var early_review = false;
     }
-    if (learn_more == undefined) {
-        learn_more = false;
+    if (typeof learn_more == 'undefined') {
+        var learn_more = false;
     }
 
     //hide this options screen
@@ -929,7 +973,14 @@ reviews_ui.submitReviewOptionsDialog = function(early_review, learn_more) {
         tag_id = '-1';
     }
 
-    reviews_ui.startSession(deck_id, time_limit, card_limit, tag_id, early_review, learn_more); //, daily_new_card_limit);
+    var args = {
+        deck_id: deck_id,
+        time_limit: time_limit,
+        card_limit: card_limit,
+        early_review: early_review,
+        learn_more: learn_more};
+
+    reviews_ui.startSession(args); //deck_id, time_limit, card_limit, tag_id, early_review, learn_more); //, daily_new_card_limit);
 };
 
 

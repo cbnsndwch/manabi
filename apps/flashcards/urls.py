@@ -2,13 +2,26 @@ import os
 
 from django.conf.urls.defaults import *
 from django.conf import settings
-
+from flashcards.models import SharedDeck, Deck, FactType, Card
 from django.views.generic.simple import direct_to_template
+from django.views.generic.list_detail import object_list, object_detail
 
-from django.views.generic.list_detail import object_list
+shared_decks_dict = {
+    'queryset': SharedDeck.objects.all(),
+    'template_object_name': 'shared_deck'
+}
+
 
 urlpatterns = patterns('flashcards',
     #TODO named URIs
+
+    # New layout URIs
+    (r'^add$', 'views.add_decks'),
+    #(r'^shared_decks/(?P<object_id>\d+)$', object_detail, shared_decks_dict),
+    (r'^decks/(?P<deck_id>\d+)$', 'views.deck_detail'), # object_detail, decks_dict), #TODO add permissions enforcement for viewing
+    (r'^rest/decks/(\w+)/subscribe$', 'views.rest_deck_subscribe'),
+    (r'^facts/(\w+)/subfacts', 'views.subfacts'),
+
     #(r'^$', 'views.index'),
     (r'^decks$', 'views.deck_list'),
     #(r'^decks/(\w+)', 'views.deck_show')
@@ -19,18 +32,18 @@ urlpatterns = patterns('flashcards',
 
     #shared decks
     #(r'^shared_decks$', 'views.shared_deck_list'),
-    (r'^shared_decks/(\w+)/download$', 'views.shared_deck_download'),
+    #FIXME(r'^shared_decks/(\w+)/download$', 'views.shared_deck_download'),
     (r'^decks/(\w+)/share$', 'views.deck_share'),
-    (r'^shared_decks$', 'views.shared_deck_list'),
+    #(r'^shared_decks$', 'views.shared_deck_list'),
 
     (r'^facts$', 'views.facts_editor'),
     (r'^facts/(\w+)/update', 'views.fact_update'),
     
     #REST
-    (r'^rest$', 'views.rest_entry_point'),
+    #(r'^rest$', 'views.rest_entry_point'),
     (r'^rest/generate_reading$', 'views.rest_generate_reading'),
     (r'^rest/decks$', 'views.rest_decks'),
-    (r'^rest/decks/(\w+)$', 'views.rest_deck'),
+    (r'^rest/decks/(\w+)$', 'views.rest_deck'), #POST: can set 'shared' field
     (r'^rest/decks_with_totals$', 'views.rest_decks_with_totals'),
     (r'^rest/fact_types$', 'views.rest_fact_types'),
     (r'^rest/fact_types/(\w+)/card_templates$', 'views.rest_card_templates'),
@@ -65,6 +78,7 @@ urlpatterns = patterns('flashcards',
 
     #url(r'^$', direct_to_template, {"template": "flashcards/base.html"}, name="flashcards"),
 )
+
 
 #if settings.DEBUG:
 #    # serving the media files for dojango / dojo (js/css/...)

@@ -3,7 +3,7 @@ from django.contrib.contenttypes.models import ContentType
 def fetch_content_objects(tagged_items, select_related_for=None):
     """
     Retrieves ``ContentType`` and content objects for the given list of
-    ``TaggedItems``, grouping the retrieval of content objects by model
+    ``UserTaggedItems``, grouping the retrieval of content objects by model
     type to reduce the number of queries executed.
 
     This results in ``number_of_content_types + 1`` queries rather than

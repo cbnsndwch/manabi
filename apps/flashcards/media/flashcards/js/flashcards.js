@@ -12,6 +12,7 @@
   dojo.require("dojox.form.CheckedMultiSelect");
   dojo.require("dijit.form.Form");
   dojo.require("dijit.layout.ContentPane");
+  dojo.require("dojox.layout.ContentPane");
   //dojo.require("dojox.form.BusyButton");
   dojo.require("dojox.widget.Standby");
   dojo.require("dojox.grid.DataGrid");
@@ -30,6 +31,10 @@
   dojo.require("dijit.Tooltip");
   dojo.require("dojox.timing");
   dojo.require("dojox.widget.Dialog");
+  dojo.require("dojo.hash");
+  dojo.require("dojo.string");
+  dojo.require("dojo.fx.easing"); 
+  dojo.require("dojox.fx.scroll");
   
   
 
@@ -77,25 +82,36 @@
   
   
   
-  function factFormSubmit(submitSuccessCallback, submitErrorCallback, _cardTemplatesInput, _factAddForm, factId, showStandby) {
+  function factFormSubmit(submitSuccessCallback, submitErrorCallback, _factAddForm, factId, showStandby) {
       if (showStandby) {
           //factAddDialogStandby.attr('target', factAddFormDialog);
           factAddFormSubmitButton.attr('disabled', true);
       }
-      var cardTemplatesValue = _cardTemplatesInput.attr('value');
-      var tempCardCounter = 0;
-      var newCardTemplatesValue = {};
+      //var cardTemplatesValue = _cardTemplatesInput.attr('value');
+      //var tempCardCounter = 0;
+      //var newCardTemplatesValue = {};
       var factAddFormValue = _factAddForm.attr('value');
-      cardTemplatesValue = dojo.forEach(cardTemplatesValue, function(val){
+      
+      /*cardTemplatesValue = dojo.forEach(cardTemplatesValue, function(val){
           var newKey = 'card-'+(tempCardCounter++)+'-template';
           factAddFormValue[newKey] = val;
-      });
-      
+      });*/
+      var tempCardCounter = 0;
+      for (var key in factAddFormValue) {
+          if (key.indexOf('card_template') == 0 && factAddFormValue[key].length) {
+            tempCardCounter++;
+          }
+      }
+
+      //get count of field contents
+      var field_content_count = dojo.query('.field_content', _factAddForm.domNode).length;
+      console.log(field_content_count);
+
       factAddFormValue['fact-fact_type'] = 1; //FIXME temp hack - assume Japanese
-      factAddFormValue['card-TOTAL_FORMS'] = tempCardCounter.toString();
-      factAddFormValue['card-INITIAL_FORMS'] = '0'; //tempCounter; //todo:if i allow adding card templates in this dialog, must update this
-      factAddFormValue['field_content-TOTAL_FORMS'] = fieldContentInputCount.toString();
-      factAddFormValue['field_content-INITIAL_FORMS'] = factId ? fieldContentInputCount.toString() : '0'; //fieldContentInputCount; //todo:if i allow adding card templates in this dialog, must update this
+      //factAddFormValue['card-TOTAL_FORMS'] = tempCardCounter.toString();
+      //factAddFormValue['card-INITIAL_FORMS'] = '0'; //tempCounter; //todo:if i allow adding card templates in this dialog, must update this
+      factAddFormValue['field_content-TOTAL_FORMS'] = field_content_count.toString(); //fieldContentInputCount.toString();
+      factAddFormValue['field_content-INITIAL_FORMS'] = factId ? field_content_count.toString() : '0'; //fieldContentInputCount; //todo:if i allow adding card templates in this dialog, must update this
       //factAddFormValue['fact-id']
       //alert('submitted w/args:\n' + dojo.toJson(factAddFormValue));
       
@@ -103,7 +119,7 @@
           url: factId ? '/flashcards/rest/facts/'+factId : '/flashcards/rest/facts',//url: '/flashcards/rest/decks/'+factAddFormValue['fact-deck']+'/facts', //TODO get URI restfully
           content: factAddFormValue,
           handleAs: 'json',
-          load: function(data){
+          load: dojo.hitch(null, function(tempCardCounter, data){
               if (data.success) {
                   submitSuccessCallback(data, tempCardCounter);
                   //if the fact editing grid is open, update it
@@ -116,7 +132,7 @@
               } else {
                   submitErrorCallback(data, tempCardCounter);
               }
-          },
+          }, tempCardCounter),
           error: function(error){
               submitErrorCallback(data, tempCardCounter); //TODO other callback
           }
@@ -129,7 +145,7 @@
   
   function resetFactAddForm() {
       //factAddForm.reset(); //don't reset everything... just the field contents
-      dojo.query('textarea',factAddDialog.domNode).forEach(function(node, index, arr){
+      dojo.query('.dijitTextBox:not([type=hidden]), .dijitTextarea:not([type=hidden])',factAddDialog.domNode).forEach(function(node, index, arr){
               node.value=''; }); //TODO clear via dijit, not dom
 
       //reset multi-choice fields
@@ -144,11 +160,17 @@
               dojo.query(node).next()[0].style.display = 'none';
       });
 
+      //reset example sentence fields
+      var subfact_container = dojo.byId('cardSubfactFormsContainer');
+      dojo.query('#cardSubfactFormsContainer').empty().style('display', 'none');
+      //subfact_container.attr('content', '');
+      //subfact_container.domNode.style.display = 'none';
+
       //destroy any error messages
       dojo.query('.field_content_error', dojo.byId('factAddFormWrapper')).empty();
 
       //focus the first text field
-      dojo.query('textarea', factAddDialog.domNode)[0].focus();
+      dojo.query('.dijitTextBox:not([type=hidden]), .dijitTextarea:not([type=hidden])', factAddDialog.domNode)[0].focus(); //FIXME for textboxes
   }
   
   function createFieldInputsForUpdate(domNode, factTypeId, factFieldValues, cardTemplatesOnCompleteCallback, factFieldsOnCompleteCallback) { //todo:refactor into 2 meths
@@ -164,7 +186,7 @@
           hiddenFactField = new dijit.form.TextBox({value:factTypeId, name:'fact-id', type:'hidden'});//dojo.place('<input type=\"hidden\" name=\"fact\" value=\"'+factTypeId+'\">', domNode, 'last');
           hiddenFactField.placeAt(domNode, 'last');
           cardUpdateTemplatesButton.placeAt(domNode, 'last');
-            //todo:pull values from the fact store for that id*/
+            //todo:pull values from the fact store for that id
           var formPrefix = 'form_'+factTypeId+'-';
           var cardTemplateCounter = 0;
           cardUpdateTemplatesStore.fetch({
@@ -231,7 +253,7 @@
   
   var factTypeInputOnChangeHandle = null;
   var lastCardTemplatesInputValue = null;
-  var fieldContentInputCount = 5;//FIXME this is a terrible legacy hack... (was null;)
+  var fieldContentInputCount = 4;//FIXME this is a terrible legacy hack... (was null;)
   
   function appendLineToAddedCardHistory(node, text) {
     //append a line, but if there are too many lines, delete the first line
@@ -260,6 +282,7 @@
     }, function(data, tempCardCounter) {
       //show field_content errors
       fieldContentErrors = data.errors.field_content;//[errors][field_content];
+      factAddFormSubmitButton.attr('disabled', false);
       dojo.forEach(fieldContentErrors, function(errorMsg, idx) {
           if ('content' in errorMsg) {
               dojo.byId('id_field_content-'+idx+'-content-errors').innerHTML = '<font color="red"><em>'+errorMsg.content.join('<br>')+'</em></font>';
@@ -277,7 +300,7 @@
           dojo.query('#fact-tag-errors').empty();
       }
       factAddFormSubmitButton.attr('disabled', false);
-    }, cardTemplatesInput, factAddForm, null, true);
+    }, factAddForm, null, true);
   }
   
   //connect to Add Fact form submit
@@ -324,6 +347,7 @@
     }
 
     fact_ui.submitFactForm = function(fact_form, fact_id) {
+        // currently used for updating facts
         //factForm must be a dijit form
         //fact_id is optional - if specified, it means we're updating a fact
         //TODO return a deferred instead of taking in success/error callbacks
@@ -346,12 +370,12 @@
         field_count = dojo.query('.cards_fieldContent', fact_form.domNode).length;
 
         //assemble the form submission values
-        form_values['fact-fact_type'] = '1'; //TODO temp hack - assume Japanese
+        //form_values['fact-fact_type'] = '1'; //TODO temp hack - assume Japanese
         form_values['card-TOTAL_FORMS'] = card_counter.toString();
         form_values['card-INITIAL_FORMS'] = '0';
         form_values['field_content-TOTAL_FORMS'] = field_count.toString();
-        form_values['field_content-INITIAL_FORMS'] = 
-            fact_id ? field_count.toString() : '0';
+        /*form_values['field_content-INITIAL_FORMS'] = 
+            fact_id ? field_count.toString() : '0';*/
 
         //submit the form
         var submit_error_callback = function(data, card_counter) {
@@ -393,7 +417,7 @@
     }
 
     fact_ui.facts_url_query = {fact_type: 1};
-    
+
     fact_ui.clearFilter = function(filter_name) {
         var store = cards_factsGrid.store;
         store.close();
@@ -445,10 +469,14 @@
     };
 
     fact_ui.generateReading = function(expression, reading_field, show_standby) {
+        var reading_field = dijit.byId(reading_field);
         if (expression.trim() != '') {
+            reading_field.attr('disabled', true);        
+
             var def = fact_ui._generateReading(expression);
 
             var standby = null;
+
             if (show_standby) {
                 standby = new dojox.widget.Standby({
                     target: dijit.byId(reading_field).domNode.id
@@ -457,9 +485,8 @@
                 standby.startup();
                 standby.show();
             }
-            dijit.byId(reading_field).attr('disabled', true);        
             def.addCallback(dojo.hitch(null, function(reading_field, expression, standby, reading) {
-                if (reading.trim() != expression.trim()) {
+                if (reading.trim()) { // != expression.trim()) {
                     reading_field.attr('value', reading);
                 }
                 if (standby) {
@@ -471,5 +498,85 @@
         } else {
             dijit.byId(reading_field).attr('value', '');
         }
-    }
+    };
+
+
+    fact_ui.showFactAddDialog = function(deck_id) {
+        if (typeof deck_id == 'undefined') { deck_id = null; }
+        if (deck_id) {
+            //FIXME set it, hide the select
+            deckInput.attr('value', deck_id.toString());
+        }
+        factAddDialog.show();
+    };
+
+
+    fact_ui._addSubfactForm = function(target_node, field_content_offset, subfact_form_template, subfact_form_field_count) {
+        index_array = Array();
+        for (var i=field_content_offset; i<subfact_form_field_count+field_content_offset; i++) {
+            index_array.push(i);
+        };
+        //console.log(index_array);
+        var subfact_form_string = dojo.string.substitute(subfact_form_template, index_array);
+        //target_node = dijit.byId(target_node);
+
+        //console.log(target_pane);
+        target_node.style.display = '';
+        //console.log(target_pane.containerNode);
+        var new_pane = new dojox.layout.ContentPane({content: subfact_form_string});
+        new_pane.placeAt(target_node, 'last');
+        new_pane.startup();
+        dojo.query('input,textarea', new_pane.containerNode).first()[0].scrollIntoView();
+        // scroll to the bottom of the parent pane
+        //var anim = dojox.fx.smoothScroll({
+        //    node: dojo.query('input,textarea', new_pane.containerNode).first(),
+        //    win: target_pane,
+        //    duration:300,
+        //    easing:dojo.fx.easing.easeOut
+        //}).play();
+        //console.log(anim);
+        
+        //dojo.place(dojo.create('div', {innerHTML:subfact_form_string}), target_pane.containerNode, 'last'); //attr('content', target_pane.attr('content') + subfact_form_string);
+        //target_pane.attr('content', target_pane.attr('content') + subfact_form_string);
+    };
+
+    fact_ui.addSubfactFormLink = function(target_node, fact_form_node, subfact_form_template, subfact_form_field_count) {
+        // onclick function for link that adds a subfact form (like for example
+        // sentences)
+
+        // count field contents already in the form
+        var field_content_offset = dojo.query('[name^=field_content-][name$=-content]', fact_form_node).length;
+        //console.log(field_content_offset);
+        
+        fact_ui._addSubfactForm(target_node, field_content_offset, subfact_form_template, subfact_form_field_count);
+    };
+
+    fact_ui.removeSubfactForm = function(subfact_node, subfact_pane) {
+        // Removes a subfact form from a fact editor form.
+        // If it's for a bound form (for a subfact which already exists), it
+        // hides that form and sets that fact to DELETE.
+
+        // get the contentpane which contains the subfact node
+        var cp = null;
+        var container_node = dojo.query(subfact_node).parent();
+        var parent_container = container_node.closest('.subfact_container_pane')[0];
+        var delete_field = dojo.query(subfact_node).query('[name^=fact-][name$=-DELETE]:first');
+
+        if (delete_field.length) {
+            delete_field.attr('value', 'on');
+            container_node[0].style.display = 'none';
+            // move the cp out of its parent
+            container_node.place(parent_container, 'before');
+        } else {
+            if (cp) {
+                cp.destroyRecursive();
+            } else {
+                dojo.destroy(container_node[0]);//subfact_node[0]);
+            }
+        }
+        if (!dojo.query(parent_container).children().length) { //!dojo.query(parent_container).attr('content').trim()) {
+            parent_container.style.display = 'none';
+        }
+    };
+
 

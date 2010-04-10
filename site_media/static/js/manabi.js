@@ -1,6 +1,7 @@
 
 manabi_ui = {}
 
+
 dojo.addOnLoad(function() {
     manabi_ui.body_pane = body_pane; //dijit.byId('body_pane');
 
@@ -8,12 +9,67 @@ dojo.addOnLoad(function() {
     manabi_ui.convertLinksToXhr(dojo.body());
 });
 
-manabi_ui.xhrLink = function(href) { //, target_pane) {
-    //TODO support other target panes
-    target_pane = manabi_ui.body_pane;
 
+// history support (via hash change)
+if (document.URL.indexOf('#') != -1) {
+    manabi_ui._baseURL = document.URL.substring(0, document.URL.indexOf('#'));
+} else {
+    manabi_ui._baseURL = document.URL;
+}
+
+manabi_ui.onHashChange = function(hash) {
+    if (!hash) {
+        manabi_ui._xhrLinkLoad('/home');
+    } else if (manabi_ui._currentPageHash != hash) {
+        // load the page given in the hash
+        manabi_ui._xhrLinkLoad(hash);
+    }
+};
+
+dojo.ready(function() {
+    dojo.subscribe("/dojo/hashchange", manabi_ui.onHashChange);
+    var hash = dojo.hash();
+    if (hash) {
+        manabi_ui._xhrLinkLoad(hash);
+    } else {
+        manabi_ui._xhrLinkLoad('/home');
+    }
+});
+
+
+manabi_ui.xhrReload = function() {
+    // reloads the currently open page, 
+    // without polluting the history
+
+    manabi_ui._xhrLinkLoad(dojo.hash());
+};
+
+
+manabi_ui._xhrLinkLoad = function(hash) {
+    manabi_ui._currentPageHash = hash;
+    // load the page
+    var target_pane = manabi_ui.body_pane;
+    var href = hash;
+
+    if (href) {
+        if (href[0] == '/') {
+            href = href.substring(1);
+        }
+    } else {
+        href = 'home';
+    }
     target_pane.attr('href', href);
+};
 
+manabi_ui.xhrLink = function(href) { //, target_pane) {
+    // set the URL hash for browser history
+    var hash = href.replace(manabi_ui._baseURL, '');
+    if (hash[0] != '/') {
+        hash = '/' + hash;
+    }
+    dojo.hash(hash);
+
+    manabi_ui._xhrLinkLoad(hash);
     //TODO scroll to top when page loads?
     //TODO error page too (onDownloadError)
 }
@@ -26,27 +82,48 @@ manabi_ui.xhrLink = function(href) { //, target_pane) {
 }*/
 
 
-
-manabi_ui.xhrPost = function(url, form, post_redirect_url) {
-    manabi_standby.show();
-
+manabi_ui._xhrPostArgs = function(url, post_redirect_url) {
+    if (typeof post_redirect_url == 'undefined') { post_redirect_url = null; }
+    
     var xhr_args = {
         'url': url,
-        form: form,
-        handleAs: 'text',
-        load: dojo.hitch(null, function(data) {
-                             manabi_ui.xhrLink(post_redirect_url)
-                         }, post_redirect_url),
+        handleAs: 'json',
+        load: dojo.hitch(null, function(url, data) {
+            if ('post_redirect' in data) {
+                manabi_ui.xhrLink(data.post_redirect);
+            } else {
+                manabi_ui.xhrLink(post_redirect_url ? post_redirect_url : dojo.hash());
+            }
+        }, post_redirect_url),
         error: function(error) {
             alert('Error: '+error);
+            manabi_ui.xhrLink(post_redirect_url ? post_redirect_url : dojo.hash());
         }
     }
+    return xhr_args;
+};
+manabi_ui._xhrPost = function(url, form, data, post_redirect_url) {
+    if (typeof form == 'undefined') { form = null; }
+    if (typeof data == 'undefined') { data = null; }
+    if (typeof post_redirect_url == 'undefined') { post_redirect_url = null; }
+
+    manabi_standby.show();
+
+    var xhr_args = manabi_ui._xhrPostArgs(url, post_redirect_url);
+    xhr_args.form = form;
+    xhr_args.content = data;
 
     var def = dojo.xhrPost(xhr_args);
     def.addCallback(function() {
         manabi_standby.hide();
     });
     return def;
+};
+manabi_ui.xhrPost = function(url, form, post_redirect_url) {
+    return manabi_ui._xhrPost(url, form, null, post_redirect_url);
+}
+manabi_ui.xhrPostData = function(url, data, post_redirect_url) {
+    return manabi_ui._xhrPost(url, null, data, post_redirect_url);
 }
 
 manabi_ui.convertLinksToXhr = function(container_node) {
@@ -61,8 +138,9 @@ manabi_ui.convertLinksToXhr = function(container_node) {
 }
 
 
+
 manabi_ui.refreshSelectInput = function(input_id, options) {
-    select = dijit.byId(input_id);
+    var select = dijit.byId(input_id);
     select.removeOption(select.getOptions());
     select.reset();
     options.forEach(function(option) {
@@ -76,7 +154,8 @@ manabi_ui._getOptionsFromStore = function(store) {
     store.close();
     store.fetch({
         onItem: dojo.hitch(this, function(store, item) {
-            options.push({value: store.getValue(item, 'id'), label: store.getValue(item, 'name')});
+            var val = store.getValue(item, 'id');
+            options.push({value: val.toString(), label: store.getValue(item, 'name')});
         }, store),
         onComplete: dojo.hitch(this, function(def, options) {
             def.callback(options);
@@ -101,12 +180,12 @@ manabi_ui.refreshDeckInput = function() {
         }
     });
 
-    reviews_decksStore.close();
-    reviews_decksStore.fetch({
+    ///reviews_decksStore.close();
+    /*reviews_decksStore.fetch({
         onComplete: function() {
             reviews_decksGrid.sort();
         }
-    });
+    });*/
 }
 
 
@@ -119,4 +198,7 @@ if(typeof(String.prototype.trim) === "undefined")
         return String(this).replace(/^\s+|\s+$/g, '');
     };
 }
+
+
+
 

@@ -8,19 +8,24 @@ resize grid when window is resized!!! otherwise scrollbars get lost
 should all those connects be disconnected somehow? particularly in body_pane (do they leak memory)
 
 
-database backup plan!!!!!
+database backup plan!!!!! backup-manager, rsync
 
+
+need some way to specify which cardtemplates are active for a given fact,
+so that subscribing to a deck doesnt necessitate creating a ton of card objects
+just create the card object upon first review.
+is there a good way to get new cards without knowing if a user has his own card or not yet
 
 
 SUPER CRITICAL BUGS:
 --------------------
 early review cut short
 
-change email on page to manabi.org@gmail.com
+-change email on page to manabi.org@gmail.com
 
 -dont show duplicate kana in reviews. (same word in reading)
 
-NY isnt default timezone
+-NY isnt default timezone
 
 ensure the next card up is the one that was undone
 
@@ -38,6 +43,16 @@ make field uniqueness per-deck
 ---------------------
 TODO:
 ---------------------
+allow adding unsorted/orphan cards/items
+
+change the page title when the hash changes, somehow
+
+user feedback link thing
+
+use 'term' instead of 'expression'
+
+don't allow viewing a deck which you don't own
+
 confirmed account page should have link to login
 
 delete unused tags
@@ -63,8 +78,6 @@ the longer interval things should come up too.
 despite intervals not being increased much by early review, there should be some delay/spacing so that 
 short intervals are delayed a bit for a longer one to come up first.
 or maintain a list of the due dates for an entire session or something? idk
-
-hashes for back/forwards
 
 dont reset cards completely upon failure
 
@@ -321,6 +334,9 @@ field for word type - verb, na-adj, etc
 ---------------------
 Scheduling ideas:
 ---------------------
+consider 'due very soon' cards due now when in a review session
+(depending on their interval too)
+
 scenario: reviewing a card that was failed just a few minutes ago.
 the meaning of 'too easy' for example really changes here. With new cards, the grades show how well you already 
 knew the card. But for a recently failed card, 'too easy' is kind of expected
@@ -374,6 +390,12 @@ comment tags:
 #IDEA
 
 
+-----------------
+site theme/layout
+
+discussion on good colors for srs/learning:
+http://forum.koohii.com/viewtopic.php?id=5574
+
 
 -----------------------
 Sites for inspiration:
@@ -395,8 +417,8 @@ http://developer.apple.com/mac/library/documentation/UserExperience/Reference/Di
 
 -----------------------
 vim todo:
-
 -----------------------
+
 stuff for yoshimura sensei:
 make sure there arent bad production cards
 and make sure no cards are in the wrong deck ;)
@@ -414,3 +436,56 @@ but still allow furigana in meaning fields
 attribute creative commons stuff:
 cancel.png http://www.iconfinder.net/icondetails/14174/16/
 all others http://www.famfamfam.com/lab/icons/
+
+
+
+------------
+new layout deck sync stuff
+------------
+bug with subscribers changing the deck of a card
+-edit subscribed card->deck is wrong
+what to do about messing with subscriber stuff while subscribers are currently reviewing?
+-copy tags from shared facts
+make sure fact constraints check subscribed deck facts too
+click a shared deck, if already subscribed, go to that
+click a shared deck, if not subscribed, 'cards_deleteButton not defined' error
+-handle deleting a subscriber fact - should just do active=false or something
+-search
+
+-new card estimate is wrong
+
+'No cards due right now' dialog has to change
+
+-changing cards for shared fact
+-actually studying the cards is broken - fieldcontents aren't shown for back or front sometimes, etc
+-'study now' per deck should restrict to that deck only (bug)
+
+?deck card counts arent accurate for 'hybrid' shared/annotated decks
+have a feedback box in the home page
+server-side-generated review options/review early etc dialogs, for study now buttons
+-how to deal with unsharing decks? let subscribed users stay subscribed i guess. what about cards added after that?
+change review session finish dialog..
+
+allow tabbing to the reading field, but if it's disabled, tab to the next field
+
+right now it's creating all subscriber facts because of _next_new_cards2 as part of the next_cards_count method.
+
+-sorta-disable study now button when first clicked
+
+-delete subscriber deck
+-delete shared deck
+
+move 'edit' and 'suspend card' into some dropdown menu
+
+sentence reading field in subfacts.html shows up as 'sentence' when it does show up
+
+-session over dialog shows 'this time tomorrow x due' for ALL decks not just the one deck
+
+tabindexes are screwed up
+
+if a subscribed deck is deleted, and then the last subscriber deletes it too, then it should actually delete the original subscribed deck too
+
+subfact stuff:
+it may not be working for updated subscriber subfacts
+
+put 'learn new cards' button above 'review early' - it's more important

@@ -11,13 +11,26 @@
 Thanks for joining my site. I hope that it will help you learn vocab and kanji from your class and, 
 more importantly, retain your memory of what you've already learned.<br>
 <br>
-<p>
-    <strong style="font-size:120%">Wondering what next?</strong><br>
-    Get started by <a href="flashcards/shared_decks" class="xhr_link">downloading some pre-made decks</a>. Then study them by hitting the <span class="fakeLink" onclick="reviews_ui.openDialog()">Start Learning</span> button on the toolbar.
-</p>
+Manabi uses a <a href="http://en.wikipedia.org/wiki/Spaced_repetition" target="_blank">spaced repetition system</a> to remind you when you need to review, by keeping track of your <a href="http://en.wikipedia.org/wiki/Forgetting_curve" target="_blank">forgetting curve</a>.
+<hr>
 <br>
 <p>
-    Please email me if you have any problems, questions or suggestions: <a href="mailto:jehlke@student.umass.edu">jehlke@student.umass.edu</a>
+{% if deck_count == 0 %}
+    <h3>Wondering what next?</h3>
+    Get started by <a href="flashcards/add" class="xhr_link">adding some pre-made flashcard decks</a>.
+{% else %}{% if card_count == 0 %}
+    <h3>Wondering what next?</h3>
+    Get started by <a href="flashcards/add" class="xhr_link">adding some pre-made flashcard decks</a>{% if deck_count > 0 %}, 
+    or by creating new flashcards in <a href="flashcards/decks" class="xhr_link">one of your existing decks</a>{% endif %}.
+{% else %}
+
+    {% include "flashcards/_reviews_start_buttons.html" %}
+
+{% endif %} {% endif %}
+</p>
+
+<p>
+{% comment %}    Please email me if you have any problems, questions or suggestions: <a href="mailto:">jehlke@student.umass.edu</a>{% endcomment %}
 </p>
 {% comment %}<em>Hint:</em> You can press 1-4 on your keyboard to grade cards instead of clicking the buttons (1=wrong, 2=hard, 3=good, 4=too easy). You can also show the flashcard answer by pressing the spacebar.
 {% endcomment %}

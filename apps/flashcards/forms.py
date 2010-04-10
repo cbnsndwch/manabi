@@ -1,6 +1,6 @@
 from django.db import models
 from django.contrib.auth.models import User
-from django.forms import ModelForm
+from django import forms
 from django.forms.util import ErrorList
 from dbtemplates.models import Template
 from django.db.models.signals import post_save  
@@ -14,12 +14,14 @@ from models import Card, CardHistory, Fact, FactType, FieldType, FieldContent, D
 #todo:row-level authentication (subclassing formset)
 
 
-class CardForm(ModelForm):
+
+class CardForm(forms.ModelForm):
     class Meta:
         model = Card
         exclude = ('fact', 'ease_factor', )
         
-class DeckForm(ModelForm):
+
+class DeckForm(forms.ModelForm):
     tags = usertagging.forms.TagField(required=False)
 
     def __init__(self, *args, **kwargs):
@@ -38,17 +40,29 @@ class DeckForm(ModelForm):
     
     class Meta:
         model = Deck
-        exclude = ('owner', 'description', 'priority', 'textbook_source', 'picture',)
+        fields = ('name','description',)
+        #exclude = ('owner', 'description', 'priority', 'textbook_source', 'picture',)
         
-class FactTypeForm(ModelForm):
+
+
+class SubfactForm(forms.ModelForm):
+
+    class Meta:
+        model = Fact
+        exclude = ('active', 'synchronized_with', 'new_fact_ordinal', 'parent_fact', 'suspended',)
+
+
+class FactTypeForm(forms.ModelForm):
     class Meta:
         model = FactType
 
-class CardTemplateForm(ModelForm):
+
+class CardTemplateForm(forms.ModelForm):
     class Meta:
         model = CardTemplate
         
-class FactForm(ModelForm):
+
+class FactForm(forms.ModelForm):
     tags = usertagging.forms.TagField(required=False)
 
     def save(self, force_insert=False, force_update=False, commit=True):
@@ -61,9 +75,12 @@ class FactForm(ModelForm):
 
     class Meta:
         model = Fact
+        exclude = ('active', 'synchronized_with', 'new_fact_ordinal', 'parent_fact', 'suspended',)
 
 
-class FieldContentForm(ModelForm):
+class FieldContentForm(forms.ModelForm):
+    subfact_group = forms.IntegerField(required=False)
+
     def clean(self): #TODO if any(self.errors):return NO:thats just for formsets
         cleaned_data = self.cleaned_data
         content = cleaned_data.get('content') or ''
@@ -92,7 +109,14 @@ class FieldContentForm(ModelForm):
             if content.strip(): #if it's blank, don't bother checking if it's unique
                 if unique: #TODO can a field be blank and unique? probably yes, since blank is like null
                     #dirty hack to get this deck's owner
-                    other_field_contents = FieldContent.objects.filter(field_type=field_type, content__exact=content, fact__deck=self.data['fact-deck'])
+                    if 'fact-deck' in self.data:
+                        deck_id = self.data['fact-deck']
+                    elif 'fact-0-deck' in self.data:
+                        deck_id = self.data['fact-0-deck']
+                    else:
+                        msg = u'Corresponding deck not found.'
+                        error_list.append(msg)
+                    other_field_contents = FieldContent.objects.filter(field_type=field_type, content__exact=content, fact__deck=deck_id)
                     if cleaned_data.get('id'): #exclude the existing field content if this is an update
                         #this is an update form (the FieldContent object already exists)
                         other_field_contents = other_field_contents.exclude(id=cleaned_data.get('id').id)

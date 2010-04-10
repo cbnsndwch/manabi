@@ -2,7 +2,7 @@ from django.db.models import get_model
 from django.template import Library, Node, TemplateSyntaxError, Variable, resolve_variable
 from django.utils.translation import ugettext as _
 
-from usertagging.models import Tag, TaggedItem
+from usertagging.models import Tag, UserTaggedItem
 from usertagging.utils import LINEAR, LOGARITHMIC
 
 register = Library()
@@ -55,7 +55,7 @@ class TaggedObjectsNode(Node):
         if model is None:
             raise TemplateSyntaxError(_('tagged_objects tag was given an invalid model: %s') % self.model)
         context[self.context_var] = \
-            TaggedItem.objects.get_by_model(model, self.tag.resolve(context))
+            UserTaggedItem.objects.get_by_model(model, self.tag.resolve(context))
         return ''
 
 def do_tags_for_model(parser, token):

@@ -1,0 +1,6 @@
+{% load xhrlinks %}
+{% for shared_deck in shared_deck_list %}
+    <span style="font-size:120%"><a href="{{ shared_deck.get_absolute_url }}" class="xhr_link">{{ shared_deck.name }}</a></span> 
+    <span style="color:gray;font-size:90%;">({{ shared_deck.card_count }} cards, shared by 
+        {% if request.user == shared_deck.owner %}you{% else %}{{ shared_deck.owner }}{% endif %})</span><br>
+{% endfor %}

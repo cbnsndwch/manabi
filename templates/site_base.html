@@ -38,7 +38,7 @@
 {% endblock %}
 
 {% block logo_link_image %}
-<div style="font-size:40px;font-family:Helvetica;position:relative;text-decoration:none;padding-left:13px;line-height:50px">
+<div style="font-size:2.4em;font-family:Helvetica;position:relative;text-decoration:none;padding-left:6px">
     {% if user.is_authenticated %}
         <a style="color:white;text-decoration:none;" href="{% url home_inline %}" onclick="manabi_ui.xhrLink(this.href);return false;">
             m a n a b i
@@ -47,6 +47,16 @@
         <a style="color:white;text-decoration:none;" href="{% url home %}">m a n a b i</a>
     {% endif %}
 </div>
+{% endblock %}
+
+{% block subnav %}
+    <ul>
+        <li><a href="{% url home_inline %}" id="subnav_home_link" class="xhr_link">Home</a>
+        {% if user.is_authenticated %}
+            <li><a href="/flashcards/add" id="subnav_add_link" class="xhr_link">Add</a>
+            <li><a href="/flashcards/decks" id="subnav_manage_link" class="xhr_link">Manage</a>
+        {% endif %}
+    </ul>
 {% endblock %}
 
 {% block right_tabs %}
@@ -61,32 +71,35 @@
 {% endblock %}
 
 {% block body_outer %}
-    {% if user.is_authenticated %}
-        <div class="sidebar" id="sidebar">
-            {% include 'sidebar.html' %}
+    <div id="column_wrap" style="background-color:#52676D">
+        <div style="float:right">
+            {% if user.is_authenticated %}
+                <div class="sidebar" id="sidebar"><div style="display:none">
+                    {% include 'sidebar.html' %}
+                </div></div>
+                {% include 'flashcards/base.html' %}
+            {% endif %}
         </div>
-        {% include 'flashcards/base.html' %}
-    {% endif %}
-    
-    <div id="body_contents">
-        {% block body %}
-        <div dojoType="dijit.layout.ContentPane" jsId="body_pane" href="home">
-            <script type="dojo/connect" event="onDownloadEnd">
-                manabi_ui.convertLinksToXhr(body_pane.domNode);            
-            </script>
-            {% block body_contents %}
+        
+        <div id="body_contents">
+            {% block body %}
+            <div dojoType="dojox.layout.ContentPane" jsId="body_pane" style="overflow:hidden" executeScripts="true" scriptHasHooks="true">
+                <script type="dojo/connect" event="onDownloadEnd">
+                    manabi_ui.convertLinksToXhr(body_pane.domNode);            
+                </script>
+                {% block body_contents %}
+                {% endblock %}
+            </div>
             {% endblock %}
         </div>
-        {% endblock %}
     </div>
-
     <div jsId="manabi_standby" target="body_contents" dojoType="dojox.widget.Standby"></div>
 {% endblock %}
 
 {% block footer %}
 <div class="legal">
     {% trans "&copy; Alex Ehlke 2010" %}{% if user.is_authenticated %}. 
-    Contact me: jehlke<span style="color:lightgray">(at)</span>student<span style="color:lightgray">(dot)</span>umass<span style="color:lightgray">(dot)</span>edu
+    Feedback or support: <a href="mailto:manabi.org@gmail.com">manabi.org@gmail.com</a>
     {% endif %}
 {% comment %}    - <a href="{% url about %}">{% trans "About" %}</a>
     - <a href="{% url terms %}">{% trans "Terms of Service" %}</a>

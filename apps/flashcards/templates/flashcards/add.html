@@ -1,0 +1,19 @@
+{% extends 'body_pane_base.html' %}
+
+{% load xhrlinks %}
+
+{% block content %}
+<h1>Add Decks</h1>
+<p>
+    Add a flashcard deck from the list below, or create one yourself.
+</p>
+<p>
+    <h3>Public Deck Library</h3>
+    {% include "flashcards/_shareddeck_list.html" %}
+</p>
+<hr>
+<p>
+    <h3><a href="/flashcards/decks/create" class="xhr_link">Create New Deck</a></h3>
+</p>
+
+{% endblock %}

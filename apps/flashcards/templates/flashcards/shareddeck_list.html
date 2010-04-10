@@ -4,11 +4,11 @@
 <h1>Shared Deck Library</h1>
 
 <table cellspacing=2 cellpadding=2 width=500>
-{% for shared_deck in shared_deck_list %}
-	<tr>
-		<td>{{ shared_deck.name }}</td>
-        <td><a href="/flashcards/shared_decks/{{ shared_deck.id }}/download" class="xhr_link">download</a></td>
-	</tr>
-{% endfor %}
+    {% for shared_deck in shared_deck_list %}
+	    <tr>
+		    <td>{{ shared_deck.name }}</td>
+            <td><a href="/flashcards/shared_decks/{{ shared_deck.id }}/download" class="xhr_link">download</a></td>
+	    </tr>
+    {% endfor %}
 </table>
 {% endblock %}

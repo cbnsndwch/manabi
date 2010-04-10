@@ -41,7 +41,7 @@ class TagManager(models.Manager):
         tags_for_removal = [tag for tag in current_tags \
                             if tag.name not in updated_tag_names]
         if len(tags_for_removal):
-            TaggedItem._default_manager.filter(content_type__pk=ctype.pk,
+            UserTaggedItem._default_manager.filter(content_type__pk=ctype.pk,
                                                object_id=obj.pk,
                                                tag__in=tags_for_removal).delete()
         # Add new tags
@@ -49,7 +49,7 @@ class TagManager(models.Manager):
         for tag_name in updated_tag_names:
             if tag_name not in current_tag_names:
                 tag, created = self.get_or_create(name=tag_name, owner=owner)
-                TaggedItem._default_manager.create(tag=tag, object=obj)
+                UserTaggedItem._default_manager.create(tag=tag, object=obj)
 
     def add_tag(self, obj, tag_name, owner=None):
         """
@@ -65,7 +65,7 @@ class TagManager(models.Manager):
             tag_name = tag_name.lower()
         tag, created = self.get_or_create(name=tag_name, owner=owner)
         ctype = ContentType.objects.get_for_model(obj)
-        TaggedItem._default_manager.get_or_create(
+        UserTaggedItem._default_manager.get_or_create(
             tag=tag, content_type=ctype, object_id=obj.pk)
 
     def get_for_object(self, obj):
@@ -102,7 +102,7 @@ class TagManager(models.Manager):
         ORDER BY %(tag)s.name ASC""" % {
             'tag': qn(self.model._meta.db_table),
             'count_sql': counts and (', COUNT(%s)' % model_pk) or '',
-            'tagged_item': qn(TaggedItem._meta.db_table),
+            'tagged_item': qn(UserTaggedItem._meta.db_table),
             'model': model_table,
             'model_pk': model_pk,
             'content_type_id': ContentType.objects.get_for_model(model).pk,
@@ -188,7 +188,7 @@ class TagManager(models.Manager):
         if min_count is not None: counts = True
         tags = get_tag_list(tags)
         tag_count = len(tags)
-        tagged_item_table = qn(TaggedItem._meta.db_table)
+        tagged_item_table = qn(UserTaggedItem._meta.db_table)
         query = """
         SELECT %(tag)s.id, %(tag)s.name%(count_sql)s
         FROM %(tagged_item)s INNER JOIN %(tag)s ON %(tagged_item)s.tag_id = %(tag)s.id
@@ -259,7 +259,7 @@ class TagManager(models.Manager):
                                          min_count=min_count))
         return calculate_cloud(tags, steps, distribution)
 
-class TaggedItemManager(models.Manager):
+class UserTaggedItemManager(models.Manager):
     """
     FIXME There's currently no way to get the ``GROUP BY`` and ``HAVING``
           SQL clauses required by many of this manager's methods into
@@ -464,7 +464,7 @@ class Tag(models.Model):
     def __unicode__(self):
         return self.name
 
-class TaggedItem(models.Model):
+class UserTaggedItem(models.Model):
     """
     Holds the relationship between a tag and the item being tagged.
     """
@@ -473,7 +473,7 @@ class TaggedItem(models.Model):
     object_id    = models.PositiveIntegerField(_('object id'), db_index=True)
     object       = generic.GenericForeignKey('content_type', 'object_id')
 
-    objects = TaggedItemManager()
+    objects = UserTaggedItemManager()
 
     class Meta:
         # Enforce unique tag association per object
