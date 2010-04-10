@@ -489,3 +489,10 @@ subfact stuff:
 it may not be working for updated subscriber subfacts
 
 put 'learn new cards' button above 'review early' - it's more important
+
+
+
+----
+server stuff
+
+make sure gzip is enabled

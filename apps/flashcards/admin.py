@@ -3,10 +3,11 @@ from django.contrib import admin
 
 
 class CardAdmin(admin.ModelAdmin):
-    exclude = ('synchronized_with',)
+    raw_id_fields = ('fact',)
     list_display = ('__unicode__', 'last_due_at', 'due_at', 'last_reviewed_at',)
 
 class FactAdmin(admin.ModelAdmin):
+    raw_id_fields = ('synchronized_with', 'parent_fact',)
     list_display = ('__unicode__', 'owner',)
     list_filter = ('deck',)
 
