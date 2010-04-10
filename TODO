@@ -502,3 +502,4 @@ server stuff
 
 make sure gzip is enabled
 use tarsnap for deployed package history instead of storing on the vps
+link flashcards media to the site media so django doesnt serve it (fix urls too then)
