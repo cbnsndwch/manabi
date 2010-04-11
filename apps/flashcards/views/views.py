@@ -49,7 +49,7 @@ from decorators import all_http_methods
 def add_decks(request):
     '''Starting point for adding a deck, whether by creating or by downloading a shared deck.'''
     #shared_decks = SharedDeck.objects.all()
-    shared_decks = Deck.objects.shared_decks()
+    shared_decks = Deck.objects.shared_decks().order_by('name')
     context = {
             'shared_deck_list': shared_decks
     }
