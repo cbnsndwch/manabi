@@ -969,10 +969,10 @@ reviews_ui.submitReviewOptionsDialog = function(early_review, learn_more) {
     var card_limit = reviews_cardLimitInput.attr('value');
     //var daily_new_card_limit = reviews_newCardLimitInput.attr('value');
 
-    var tag_id = reviews_filterByTagInput.attr('value');
-    if (reviews_filterByTagInput.attr('displayedValue') == '') {
-        tag_id = '-1';
-    }
+    //! var tag_id = reviews_filterByTagInput.attr('value');
+    //! if (reviews_filterByTagInput.attr('displayedValue') == '') {
+        //tag_id = '-1';
+    //! }
 
     var args = {
         deck_id: deck_id,

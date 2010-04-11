@@ -45,6 +45,7 @@ h1, h2, h3, h4, h5 {
 }
 #footer {
     color: #36606D; /* footer text colour */
+    background-color: #003344;
     /*margin: 50px auto;*/
     padding: 10px;
     clear: both;

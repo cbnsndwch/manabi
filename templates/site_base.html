@@ -72,7 +72,7 @@
 
 {% block body_outer %}
     <div id="column_wrap" style="background-color:#52676D">
-        <div style="float:right">
+        <div{% comment %} style="float:right"{% endcomment %}>
             {% if user.is_authenticated %}
                 <div class="sidebar" id="sidebar"><div style="display:none">
                     {% include 'sidebar.html' %}
