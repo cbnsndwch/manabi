@@ -204,7 +204,7 @@
 
     <div id="reviews_reviewOptions">
         
-{% comment %}
+        {% comment %}
         <strong style="font-size:120%">Study Options</strong><br><br>
         <strong>Decks to review:</strong><br>
         <div dojoType="dojox.grid.DataGrid" store="reviews_decksStore" 
@@ -344,12 +344,12 @@
     <span id="reviews_sessionOverDialogNextDue">
     </span><br>
     <br>
-    <button dojoType="dijit.form.Button" type="button">
+    <div dojoType="dijit.form.Button" type="button">
         Done
         <script type="dojo/connect" event="onClick" args="evt">
             reviews_sessionOverDialog.hide();
         </script>
-    </button>
+    </div>
     {% comment %}
     <button dojoType="dijit.form.Button" type="button">
         Review More
