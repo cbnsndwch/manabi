@@ -149,7 +149,7 @@ class CardManager(models.Manager):
         delayed_cards = [] # Keep track of new cards we want to skip, since we shouldn't set their due_at (via delay())
         while True:
             cards_delayed = 0
-            cards = card_query.exclude(id__in=[card.id for card in delayed_cards])[:count]
+            cards = card_query.exclude(id__in=[card.id for card in delayed_cards]).select_related()[:count]
             if early_review and len(cards) == 0:
                 return delayed_cards[:count]
             for card in cards:
@@ -265,7 +265,7 @@ class CardManager(models.Manager):
 
         if early_review and len(eligible_ids) < count:
             # queue up spaced cards if needed for early review
-            eligible_ids.extend([card.id for card in new_card_query.exclude(id__in=eligible_ids)[:count - len(eligible_ids)]])
+            eligible_ids.extend([card.id for card in new_card_query.exclude(id__in=eligible_ids).select_related()[:count - len(eligible_ids)]])
 
         # Return a query containing the eligible cards.
         ret = self.filter(id__in=eligible_ids).order_by('new_card_ordinal')

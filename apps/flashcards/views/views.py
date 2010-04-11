@@ -463,32 +463,31 @@ def rest_facts(request): #todo:refactor into facts (no???)
                     facts = Fact.objects.search(fact_type, search_query, query_set=facts)
                     #FIXME add search for synchronized facts too!
 
-                if not facts:
-                    ret = {}
-                else:
-                    preret = []
-                    for fact in facts:
-                        row = {
-                                'fact-id': fact.id, 
-                                'suspended': len(fact.card_set.filter(active=True)) and all([card.suspended for card in fact.card_set.filter(active=True)])
-                        }
-                        ident, name = '', ''
-                        for field_content in fact.field_contents: #.all():
-                            key = 'id{0}'.format(field_content.field_type_id) #TODO rename to be clearer, like field_id or SOMETHING
-                            if not ident:
-                                ident = key
-                            elif not name:
-                                name = key
-                            row[key] = field_content.human_readable_content
-                            row['{0}_field-content-id'.format(key)] = field_content.id
-                        if not name:
-                            name = ident
-
-                        preret.append(row)
+                preret = []
+                for fact in facts.iterator():
+                    row = {
+                            'fact-id': fact.id, 
+                            'suspended': len(fact.card_set.filter(active=True)) and all([card.suspended for card in fact.card_set.filter(active=True)])
+                    }
+                    ident, name = '', ''
+                    for field_content in fact.field_contents: #.all():
+                        key = 'id{0}'.format(field_content.field_type_id) #TODO rename to be clearer, like field_id or SOMETHING
+                        if not ident:
+                            ident = key
+                        elif not name:
+                            name = key
+                        row[key] = field_content.human_readable_content
+                        row['{0}_field-content-id'.format(key)] = field_content.id
+                    if not name:
+                        name = ident
+                    preret.append(row)
+                if preret:
                     ret = to_dojo_data(preret)
                     ret['identifier'] = 'fact-id'#ident
                     #ret['name'] = name #todo:for <2 cols/fields...?
-                    return ret
+                else:
+                    ret = {}
+                return ret
             except FactType.DoesNotExist:
                 ret = {}
             return to_dojo_data(ret)
