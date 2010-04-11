@@ -892,16 +892,16 @@ def next_cards_for_review(request):
         ret = {'success': True, 'cards': formatted_cards}
 
         # New card count for today.
-        new_reviews_today = request.user.reviewstatistics.get_new_reviews_today()
-        if daily_new_card_limit:
-            new_cards_left_for_today = daily_new_card_limit - new_reviews_today
-            if new_cards_left_for_today < 0:
-                new_cards_left_for_today = 0
-            ret['new_cards_left_for_today'] = new_cards_left_for_today
+        #new_reviews_today = request.user.reviewstatistics.get_new_reviews_today()
+        #if daily_new_card_limit:
+        #    new_cards_left_for_today = daily_new_card_limit - new_reviews_today
+        #    if new_cards_left_for_today < 0:
+        #        new_cards_left_for_today = 0
+        #    ret['new_cards_left_for_today'] = new_cards_left_for_today
 
-            # New cards left for this query. #TODO rename it
-            ret['new_cards_left'] = Card.objects.new_cards_count(request.user, excluded_card_ids, deck=deck, tags=tags)
-        ret['total_card_count_for_query'] = Card.objects.count(request.user, deck=deck, tags=tags)
+        #    # New cards left for this query. #TODO rename it
+        #    ret['new_cards_left'] = Card.objects.new_cards_count(request.user, excluded_card_ids, deck=deck, tags=tags)
+        #ret['total_card_count_for_query'] = Card.objects.count(request.user, deck=deck, tags=tags)
 
         return ret
 

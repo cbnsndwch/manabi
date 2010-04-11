@@ -935,9 +935,10 @@ reviews_ui.startSession = function(args) { //deck_id, session_time_limit, sessio
                 //are there new cards left to learn today? (decide whether to
                 //show learn more button).
                 //can_learn_more = initial_card_prefetch.new_cards_left_for_today == '0' && initial_card_prefetch.new_cards_left != '0'; //TODO better api for this
-                can_learn_more = initial_card_prefetch.new_cards_left > 0; //TODO better api for this
-                empty_query = initial_card_prefetch.total_card_count_for_query <= 0;
-                reviews_ui.showNoCardsDue(can_learn_more, empty_query);
+                // ! can_learn_more = initial_card_prefetch.new_cards_left > 0; //TODO better api for this
+                // ! empty_query = initial_card_prefetch.total_card_count_for_query <= 0;
+                // ! reviews_ui.showNoCardsDue(can_learn_more, empty_query);
+                reviews_ui.showNoCardsDue(false, false); //FIXME do we need this dialog anymore, or just show some error
             }
         }, initial_card_prefetch));
     });
