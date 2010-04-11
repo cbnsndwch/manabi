@@ -161,7 +161,7 @@ def fact_update(request, fact_id):
 #TODO refactor into HTML/AJAX CRUD pattern
 @login_required
 def deck_list(request):
-    decks = Deck.objects.filter(owner=request.user, active=True)
+    decks = Deck.objects.filter(owner=request.user, active=True).order_by('name')
     context = {'container_id': 'deckDialog'}
     context['only_one_deck_exists'] = (len(decks) == 1)
 
