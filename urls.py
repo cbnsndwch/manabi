@@ -16,6 +16,9 @@ if settings.ACCOUNT_OPEN_SIGNUP:
 else:
     signup_view = "signup_codes.views.signup"
 
+class ManabiConsumer(PinaxConsumer):
+    def get_registration_form_class(self, request):
+        return OpenIDSignupForm
 
 urlpatterns = patterns('',
     #url(r'^$', direct_to_template, {
@@ -30,7 +33,7 @@ urlpatterns = patterns('',
     
     (r'^about/', include('about.urls')),
     (r'^account/', include('account.urls')),
-    (r'^openid/(.*)', PinaxConsumer()),
+    (r'^openid/(.*)', ManabiConsumer()),
     (r'^profiles/', include('basic_profiles.urls')),
     (r'^notices/', include('notification.urls')),
     (r'^announcements/', include('announcements.urls')),

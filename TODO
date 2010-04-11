@@ -497,6 +497,11 @@ got a timeout on posting a card review...
 
 'review early' for my sample deck is only giving me 1 card
 
+some user emails cut off the signup link which adds a = or something - need to have some better way to handle this
+one became 'http://manabi.org/account/confirm_email/4=8a4ceddb5fe736a0db209c8ed3cbfa8b5b615e9/'
+
+move the include flashcards/base.html to homepage.html
+
 ----
 server stuff
 
