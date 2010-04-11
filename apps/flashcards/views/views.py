@@ -481,12 +481,9 @@ def rest_facts(request): #todo:refactor into facts (no???)
                     if not name:
                         name = ident
                     preret.append(row)
-                if preret:
-                    ret = to_dojo_data(preret)
-                    ret['identifier'] = 'fact-id'#ident
-                    #ret['name'] = name #todo:for <2 cols/fields...?
-                else:
-                    ret = {}
+                ret = to_dojo_data(preret)
+                ret['identifier'] = 'fact-id'#ident
+                #ret['name'] = name #todo:for <2 cols/fields...?
                 return ret
             except FactType.DoesNotExist:
                 ret = {}
