@@ -19,6 +19,8 @@ is there a good way to get new cards without knowing if a user has his own card 
 
 SUPER CRITICAL BUGS:
 --------------------
+broken on firefox 3.0.x on mac
+
 early review cut short
 
 -change email on page to manabi.org@gmail.com
@@ -308,6 +310,12 @@ only constrain unique deck names when creating a new deck, not downloading (for 
 
 have some hidden 'extra fields' which will be left blank for most cards, to avoid cluttering the dialogs
 
+do things with tags like show when a tag group is getting strong, to motivate them. or a way to see weak ones to suggest being worked on
+
+also perhaps a way to find 'unbalanced' cards - where both recall and prod. are enabled, but one is neglected, or one is far worse than the other
+
+have preset suggested tags like grammar etc for encouraging sharing
+
 ---------------------
 SOMEDAY TODO:
 ---------------------
@@ -364,6 +372,13 @@ which side they overlap on. and taking interval into account.
 
 cards with similar intervals & due dates should have their order randomized a bit,
 to avoid clustering after a week etc.
+
+bury option
+
+
+really need separate delay times/rules depending on card type.
+and an ordering for which to show first, especially for new siblings, but also for similar interval siblings.
+think about my kanji quiz prep in anki...
 
 
 ------------
@@ -501,6 +516,22 @@ some user emails cut off the signup link which adds a = or something - need to h
 one became 'http://manabi.org/account/confirm_email/4=8a4ceddb5fe736a0db209c8ed3cbfa8b5b615e9/'
 
 move the include flashcards/base.html to homepage.html
+
+openid associating with existing accnt doesnt work
+
+make usernames case insensitive
+
+need fact grid sort options/defaults (especially for adding cards to a subscribed deck)
+
+early review is maybe broken!!!!!!!
+
+count due as urgent is often incorrect. it doesn't take spacing into account! i had a deck with 1 fact, 2 cards, it said 2 urgent due, only gave me 1 of course.
+also this deck's single fact has all 4 cards enabled. hmmmmmmmmm. (deck 246 on production). only 1 of these cards is New.
+
+nose for unit testing
+
+show "What's the reading?" etc on the back side of the flashcard in grey - then hide and replace with answer when they show back
+
 
 ----
 server stuff

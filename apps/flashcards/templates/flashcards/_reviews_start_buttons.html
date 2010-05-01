@@ -47,7 +47,7 @@
     </div>
     <div style="font-size:1.1em;">
         {% if due_card_count > 0 %}
-            You have <strong>{{ due_card_count|add:new_cards_left_for_today }}</strong> card{{ due_card_count|pluralize }} due for review.
+            You have <strong>{{ due_card_count|add:new_cards_left_for_today }}</strong> card{{ due_card_count|add:new_cards_left_for_today|pluralize }} due for review.
         {% else %}
             You have <strong>{{ new_cards_left_for_today }}</strong> card{{ new_cards_left_for_today|pluralize }} due for review.
         {% endif %}<br>

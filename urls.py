@@ -41,6 +41,7 @@ urlpatterns = patterns('',
     (r'^admin/(.*)', admin.site.root),
     
     # my own
+    (r'^reports/', include('reports.urls')),
     (r'^dojango/', include('dojango.urls')),
     (r'^flashcards/', include('flashcards.urls')),
 )

@@ -1018,11 +1018,17 @@ class CardStatistics(models.Model):
         app_label = 'flashcards'
 
 
+class CardHistoryManager(models.Manager):
+    def of_user(self, user):
+        return self.filter(card__fact__deck__owner=user)
 
 class CardHistory(models.Model):
+    objects = CardHistoryManager()
+
     card = models.ForeignKey(Card)
     response = models.PositiveIntegerField(editable=False)
     reviewed_at = models.DateTimeField()
+
 
     class Meta:
         app_label = 'flashcards'

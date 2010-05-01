@@ -1,0 +1,18 @@
+<html>
+    <body>
+        <h1>Spring Break usage report</h1>
+        <table border="1">
+            <th>
+                <td>Review count</td>
+                <td>Unique card count</td>
+            </th>
+            {% for user, reviews in user_reviews.items %}
+                <tr>
+                    <td><strong>{{ user }}</strong></td>
+                    <td align="right">{{ reviews.count }}</td>
+                    <td></td>
+                </tr>
+            {% endfor %}
+        </table>
+    </body>
+</html>
