@@ -1,16 +1,17 @@
 <html>
     <body>
         <h1>Spring Break usage report</h1>
+        <p>Date range: {% for date in date_range %}{{ date }}{% if forloop.first %} - {% endif %}{% endfor %}</p>
         <table border="1">
             <th>
                 <td>Review count</td>
                 <td>Unique card count</td>
             </th>
-            {% for user, reviews in user_reviews.items %}
+            {% for user, data in users.items %}
                 <tr>
                     <td><strong>{{ user }}</strong></td>
-                    <td align="right">{{ reviews.count }}</td>
-                    <td></td>
+                    <td align="right">{{ data.reviews.count }}</td>
+                    <td align="right">{{ data.unique_cards.count }}</td>
                 </tr>
             {% endfor %}
         </table>

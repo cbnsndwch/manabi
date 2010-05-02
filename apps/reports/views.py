@@ -1,5 +1,5 @@
 import datetime
-from flashcards.models.cards import CardHistory
+from flashcards.models.cards import CardHistory, Card
 from django.contrib.auth.models import User
 from django.shortcuts import render_to_response
 from django.template import RequestContext
@@ -14,11 +14,16 @@ def spring_break_usage(request):
     context = {}
 
     date_range = (datetime.date(2010, 3, 12), datetime.date(2010, 3, 22),)
+    context['date_range'] = date_range
 
-    all_reviews = context['user_reviews'] = {}
-    users = User.objects.filter(is_active=True)
-    for user in users:
+    users = context['users'] = {}
+
+    for user in User.objects.filter(is_active=True).iterator():
+        users[user] = {}
         user_reviews = CardHistory.objects.of_user(user)
         user_reviews = user_reviews.filter(reviewed_at__gte=date_range[0], reviewed_at__lte=date_range[1])
-        all_reviews[user] = user_reviews
+        users[user]['reviews'] = user_reviews
+        
+        users[user]['unique_cards'] = Card.objects.filter(id__in=user_reviews.values_list('card_id', flat=True)).distinct()
+
     return render_to_response('reports/usage.html', context, context_instance=RequestContext(request))
