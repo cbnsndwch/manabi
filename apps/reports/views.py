@@ -13,7 +13,7 @@ def staff_required(login_url=None):
 def spring_break_usage(request):
     context = {}
 
-    date_range = (datetime.date(2010, 3, 12), datetime.date(2010, 3, 22),)
+    date_range = (datetime.datetime(2010, 3, 12), datetime.datetime(2010, 3, 23, 5),)
     context['date_range'] = date_range
 
     users = context['users'] = {}
