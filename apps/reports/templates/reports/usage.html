@@ -4,14 +4,18 @@
         <p>Date range: {% for date in date_range %}{{ date }}{% if forloop.first %} - {% endif %}{% endfor %}</p>
         <table border="1">
             <th>
-                <td>Review count</td>
-                <td>Unique card count</td>
+                <td>Cards</td>
+                <td>Reviews</td>
+                <td>Reviews before spring break</td>
+                <td>Reviews after spring break</td>
             </th>
             {% for user, data in users.items %}
                 <tr>
                     <td><strong>{{ user }}</strong></td>
-                    <td align="right">{{ data.reviews.count }}</td>
                     <td align="right">{{ data.unique_cards.count }}</td>
+                    <td align="right">{{ data.reviews.count }}</td>
+                    <td align="right">{{ data.reviews_before.count }}</td>
+                    <td align="right">{{ data.reviews_since.count }}</td>
                 </tr>
             {% endfor %}
         </table>

@@ -18,11 +18,12 @@ def spring_break_usage(request):
 
     users = context['users'] = {}
 
-    for user in User.objects.filter(is_active=True).iterator():
+    for user in User.objects.filter(is_active=True).order_by('username').iterator():
         users[user] = {}
         user_reviews = CardHistory.objects.of_user(user)
-        user_reviews = user_reviews.filter(reviewed_at__gte=date_range[0], reviewed_at__lte=date_range[1])
-        users[user]['reviews'] = user_reviews
+        users[user]['reviews'] = user_reviews.filter(reviewed_at__gte=date_range[0], reviewed_at__lte=date_range[1])
+        users[user]['reviews_before'] = user_reviews.filter(reviewed_at__lt=date_range[0])
+        users[user]['reviews_since'] = user_reviews.filter(reviewed_at__gt=date_range[1])
         
         users[user]['unique_cards'] = Card.objects.filter(id__in=user_reviews.values_list('card_id', flat=True)).distinct()
 
