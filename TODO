@@ -21,6 +21,10 @@ SUPER CRITICAL BUGS:
 --------------------
 broken on firefox 3.0.x on mac
 
+reading generation for sentences is broken (see firebug, js error)
+
+'x due this time tomorrow' is screwed up - it shouldnt include new cards probably
+
 early review cut short
 
 -change email on page to manabi.org@gmail.com
@@ -380,6 +384,7 @@ really need separate delay times/rules depending on card type.
 and an ordering for which to show first, especially for new siblings, but also for similar interval siblings.
 think about my kanji quiz prep in anki...
 
+failed cards should be sorted randomly, if theyre within similar due times or w/e
 
 ------------
 Early Review
