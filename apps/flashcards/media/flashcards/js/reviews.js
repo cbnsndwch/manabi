@@ -18,7 +18,7 @@ dojo.addOnLoad(function() {
     //without a response yet.
     //It's a list of card IDs.
     reviews.card_buffer_count = 5;
-    reviews.grades = {GRADE_NONE: 0, GRADE_HARD: 3, GRADE_GOOD: 4, GRADE_EASY: 5}
+    reviews.grades = {GRADE_NONE: 0, GRADE_HARD: 3, GRADE_GOOD: 4, GRADE_EASY: 5};
     //reviews.session_over_def = null; //subscribe to this to know when the session is over,
                                      //particularly because the time/card limit ran out
 });
