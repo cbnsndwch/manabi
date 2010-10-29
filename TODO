@@ -1,6 +1,20 @@
 manabi notes
 
 
+good color inspiration:
+http://veerle-v2.duoh.com/blog/comments/a_css_styled_table/
+
+
+
+
+brand new refactor todo
+---------
+upgrade dojo to 1.5
+
+
+
+
+
 ~new stuff~
 -----------
 resize grid when window is resized!!! otherwise scrollbars get lost
