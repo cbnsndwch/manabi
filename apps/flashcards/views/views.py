@@ -944,38 +944,43 @@ def _rest_review_card(request, card_id):
 @all_http_methods
 def rest_card(request, card_id): #todo:refactor into facts (no???)
     if request.method == 'GET':
-        ret = {}
-        try:
-            card = Card.objects.get(id=int(card_id))
+        card = get_object_or_404(Card, pk=card_id)
 
-            #TODO refactor the below into a model - it's not DRY
-            reviewed_at = datetime.datetime.utcnow()
+        #TODO refactor the below into a model - it's not DRY
+        reviewed_at = datetime.datetime.utcnow()
 
-            field_contents = dict((field_content.field_type_id, field_content,) for field_content in card.fact.fieldcontent_set.all())
-            card_context = {
-                    'card': card,
-                    'fields': field_contents,
-                    'fact': card.fact,
-                    'card_back_template': card.template.back_template_name,
-            }
-            due_times = {}
-            for grade in [GRADE_NONE, GRADE_HARD, GRADE_GOOD, GRADE_EASY,]:
-                due_at = card._next_due_at(grade, reviewed_at, card._next_interval(grade, card._next_ease_factor(grade, reviewed_at), reviewed_at))
-                duration = due_at - reviewed_at
-                days = duration.days + (duration.seconds / 86400.0)
-                due_times[grade] = days
-            formatted_card = {
-                'id': card.id,
-                'fact_id': card.fact_id,
-                'front': render_to_string(card.template.front_template_name, card_context),
-                'back': render_to_string('flashcards/card_back.html',  card_context),
-                'next_due_at_per_grade': due_times
-            }
+        field_contents = \
+            dict((field_content.field_type_id, field_content,) \
+            for field_content in card.fact.fieldcontent_set.all())
+        card_context = {
+                'card': card,
+                'fields': field_contents,
+                'fact': card.fact,
+                'card_back_template': card.template.back_template_name,
+        }
 
-            return {'success': True, 'card': formatted_card}
-            #return to_dojo_data(formatted_card)
-        except Card.DoesNotExist:
-            return {'success': False}
+        due_times = {}
+        for grade in [GRADE_NONE, GRADE_HARD, GRADE_GOOD, GRADE_EASY,]:
+            due_at = card._next_due_at(grade, reviewed_at, \
+                card._next_interval(grade, \
+                    card._next_ease_factor(grade, reviewed_at), \
+                    reviewed_at))
+            duration = due_at - reviewed_at
+            days = duration.days + (duration.seconds / 86400.0)
+            due_times[grade] = days
+
+        formatted_card = {
+            'id': card.id,
+            'fact_id': card.fact_id,
+            'front': render_to_string(\
+                card.template.front_template_name, card_context),
+            'back': render_to_string(\
+                'flashcards/card_back.html', card_context),
+            'next_due_at_per_grade': due_times,
+        }
+
+        return {'success': True, 'card': formatted_card}
+        #return to_dojo_data(formatted_card)
     elif request.method == 'POST':
         if 'grade' in request.POST:
             # this is a card review
