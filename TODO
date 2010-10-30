@@ -9,14 +9,30 @@ http://veerle-v2.duoh.com/blog/comments/a_css_styled_table/
 
 brand new refactor todo
 ---------
+named URLs
+update pinax
+update django to 1.2.3
 upgrade dojo to 1.5
+get rid of jquery deps
 
 
+refactoring order:
+views
+js
+forms
+models
+
+
+views.py: refactor GET/POST methods
+
+==========
 
 
 
 ~new stuff~
 -----------
+"show hints" checkbox option in study - toggle all extra info
+
 resize grid when window is resized!!! otherwise scrollbars get lost
 
 should all those connects be disconnected somehow? particularly in body_pane (do they leak memory)

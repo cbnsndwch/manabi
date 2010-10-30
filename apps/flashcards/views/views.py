@@ -1,38 +1,33 @@
 from flashcards.models import FactType, Fact, Deck, CardTemplate, FieldType, FieldContent, Card, SharedDeck, GRADE_NONE, GRADE_HARD, GRADE_GOOD, GRADE_EASY, SchedulingOptions, NEW_CARDS_PER_DAY
-from flashcards.models.constants import MAX_NEW_CARD_ORDINAL
-from flashcards.forms import DeckForm, FactForm, FieldContentForm, CardTemplateForm, FactTypeForm, CardForm
-from django.http import HttpResponseRedirect, HttpResponse
-from django.shortcuts import render_to_response
-from django.template import RequestContext
+from apps.utils import japanese
+from decorators import all_http_methods
+from django.contrib.auth.decorators import login_required
+from django.contrib.humanize.templatetags.humanize import naturalday
+from django.db import transaction
 from django.forms import forms
 from django.forms.models import modelformset_factory, formset_factory
 from django.http import Http404
+from django.http import HttpResponseRedirect, HttpResponse
+from django.shortcuts import get_object_or_404
+from django.shortcuts import render_to_response
+from django.template import RequestContext
+from django.template import RequestContext, loader
+from django.template.loader import render_to_string
+from django.views.generic.create_update import update_object, delete_object, create_object
+from django.views.generic.list_detail import object_list, object_detail
 from dojango.decorators import json_response
 from dojango.util import to_dojo_data, json_decode, json_encode
-from django.template import RequestContext, loader
-from django.contrib.auth.decorators import login_required
-from django.contrib.humanize.templatetags.humanize import naturalday
-#from flashcards.models.decks import download_shared_deck, share_deck
-from flashcards.models.undo import UndoCardReview
-from apps.utils import japanese
-import random
-
 from flashcards.contextprocessors import study_options_context, subfact_form_context
-from django.template.loader import render_to_string
-
-import usertagging
-
+from flashcards.forms import DeckForm, FactForm, FieldContentForm, CardTemplateForm, FactTypeForm, CardForm
+from flashcards.models.constants import MAX_NEW_CARD_ORDINAL
+from flashcards.models.undo import UndoCardReview
+from viewdecorators import has_card_query_filters
 import datetime
+import jcconv
+import random
 import string
 import subprocess
-import jcconv
-
-from django.db import transaction
-
-from django.views.generic.list_detail import object_list, object_detail
-from django.views.generic.create_update import update_object, delete_object, create_object
-
-from decorators import all_http_methods
+import usertagging
 
 
 
@@ -819,16 +814,10 @@ def next_cards_for_review(request):
         count = int(request.GET.get('count', 5))
 
         # Deck.
-        try:
-            deck_id = int(request.GET.get('deck', -1))
-        except ValueError:
-            deck_id = -1
-        deck = None
-        if deck_id != -1:
-            try:
-                deck = Deck.objects.get(id=deck_id)
-            except Deck.DoesNotExist:
-                pass #TODO return error instead
+        if 'deck' in request.GET:
+            deck = get_object_or_404(Deck, pk=request.GET['deck'])
+        else:
+            deck = None
 
         # Tags.
         try:
@@ -856,10 +845,10 @@ def next_cards_for_review(request):
         # Beginning of review session?
         session_start = string.lower(request.GET.get('session_start', 'false')) == 'true'
 
-        try:
-            excluded_card_ids = [int(e) for e in request.GET.get('excluded_cards', '').split()]
-        except ValueError:
-            excluded_card_ids = []
+        #try:
+        excluded_card_ids = [int(e) for e in request.GET.get('excluded_cards', '').split()]
+        #except ValueError:
+            #excluded_card_ids = []
 
         next_cards = Card.objects.next_cards(request.user, count, excluded_card_ids, session_start, \
                 deck=deck, tags=tags, early_review=early_review, daily_new_card_limit=daily_new_card_limit)
@@ -870,8 +859,6 @@ def next_cards_for_review(request):
         formatted_cards = []
         reviewed_at = datetime.datetime.utcnow()
         for card in next_cards:
-            #field_contents = dict((field_content.field_type_id, field_content) for field_content in card.fact.fieldcontent_set.all())
-            #card_context = {'fields': field_contents}
             card_context = {
                     'card': card,
                     'fields': card.fact.field_contents,
@@ -887,140 +874,55 @@ def next_cards_for_review(request):
              })
 
         ret = {'success': True, 'cards': formatted_cards}
-
-        # New card count for today.
-        #new_reviews_today = request.user.reviewstatistics.get_new_reviews_today()
-        #if daily_new_card_limit:
-        #    new_cards_left_for_today = daily_new_card_limit - new_reviews_today
-        #    if new_cards_left_for_today < 0:
-        #        new_cards_left_for_today = 0
-        #    ret['new_cards_left_for_today'] = new_cards_left_for_today
-
-        #    # New cards left for this query. #TODO rename it
-        #    ret['new_cards_left'] = Card.objects.new_cards_count(request.user, excluded_card_ids, deck=deck, tags=tags)
-        #ret['total_card_count_for_query'] = Card.objects.count(request.user, deck=deck, tags=tags)
-
         return ret
 
 
 @json_response
 @login_required
 def cards_due_count(request):
-    if request.method == 'GET':
-        count = Card.objects.cards_due_count(request.user)
-        return {'cards_due_count': count}
+    count = Card.objects.cards_due_count(request.user)
+    return {'cards_due_count': count}
 
 
 @json_response
 @login_required
 def cards_new_count(request):
-    if request.method == 'GET':
-        count = Card.objects.cards_new_count(request.user)
-        return {'cards_new_count': count}
+    count = Card.objects.cards_new_count(request.user)
+    return {'cards_new_count': count}
 
 
 #(r'^rest/cards_for_review/due_tomorrow_count$', 'views.cards_due_tomorrow_count'),
 #(r'^rest/cards_for_review/next_card_due_at$', 'views.next_card_due_at'),
 
-@json_response
-@login_required
-def cards_due_tomorrow_count(request):
-    if request.method == 'GET':
-        #TODO refactor request parameters somehow
-        # Deck.
-        try:
-            deck_id = int(request.GET.get('deck', -1))
-        except ValueError:
-            deck_id = -1
-        deck = None
-        if deck_id != -1:
-            try:
-                deck = Deck.objects.get(id=deck_id)
-            except Deck.DoesNotExist:
-                pass #TODO return error instead
-
-        # Tags.
-        try:
-            tag_id = int(request.GET.get('tag', -1))
-        except ValueError:
-            tag_id = -1
-        if tag_id != -1:
-            tag_ids = [tag_id] #TODO support multiple tags
-            tags = usertagging.models.Tag.objects.filter(id__in=tag_ids)
-        else:
-            tags = None
-        
-        count = Card.objects.count_of_cards_due_tomorrow(request.user, deck=deck, tags=tags)
-        return {'cards_due_tomorrow_count': count}
 
 
 @json_response
 @login_required
-def hours_until_next_card_due(request):
-    if request.method == 'GET':
-        #TODO refactor request parameters somehow
-        # Deck.
-        try:
-            deck_id = int(request.GET.get('deck', -1))
-        except ValueError:
-            deck_id = -1
-        deck = None
-        if deck_id != -1:
-            try:
-                deck = Deck.objects.get(id=deck_id)
-            except Deck.DoesNotExist:
-                pass #TODO return error instead
-
-        # Tags.
-        try:
-            tag_id = int(request.GET.get('tag', -1))
-        except ValueError:
-            tag_id = -1
-        if tag_id != -1:
-            tag_ids = [tag_id] #TODO support multiple tags
-            tags = usertagging.models.Tag.objects.filter(id__in=tag_ids)
-        else:
-            tags = None
-        
-        due_at = Card.objects.next_card_due_at(request.user, deck=deck, tags=tags)
-        difference = due_at - datetime.datetime.utcnow()
-        hours_from_now = difference.days * 24 + difference.seconds / (60 * 60)
-        minutes_from_now = difference.days * 24 + difference.seconds / 60
-        return {'hours_until_next_card_due': hours_from_now, 'minutes_until_next_card_due': minutes_from_now}
+@has_card_query_filters
+def cards_due_tomorrow_count(request, deck=None, tags=None):
+    count = Card.objects.count_of_cards_due_tomorrow(request.user, deck=deck, tags=tags)
+    return {'cards_due_tomorrow_count': count}
 
 
 @json_response
 @login_required
-def next_card_due_at(request):
+@has_card_query_filters
+def hours_until_next_card_due(request, deck=None, tags=None):
+    due_at = Card.objects.next_card_due_at(request.user, deck=deck, tags=tags)
+    difference = due_at - datetime.datetime.utcnow()
+    hours_from_now = difference.days * 24 + difference.seconds / (60 * 60)
+    minutes_from_now = difference.days * 24 + difference.seconds / 60
+    return {'hours_until_next_card_due': hours_from_now, 'minutes_until_next_card_due': minutes_from_now}
+
+
+@json_response
+@login_required
+@has_card_query_filters
+def next_card_due_at(request, deck=None, tags=None):
     '''Returns a human-readable format of the next date that the card is due.'''
-    if request.method == 'GET':
-        #TODO refactor request parameters somehow
-        # Deck.
-        try:
-            deck_id = int(request.GET.get('deck', -1))
-        except ValueError:
-            deck_id = -1
-        deck = None
-        if deck_id != -1:
-            try:
-                deck = Deck.objects.get(id=deck_id)
-            except Deck.DoesNotExist:
-                pass #TODO return error instead
-
-        # Tags.
-        try:
-            tag_id = int(request.GET.get('tag', -1))
-        except ValueError:
-            tag_id = -1
-        if tag_id != -1:
-            tag_ids = [tag_id] #TODO support multiple tags
-            tags = usertagging.models.Tag.objects.filter(id__in=tag_ids)
-        else:
-            tags = None
-        
-        due_at = Card.objects.next_card_due_at(request.user, deck=deck, tags=tags)
-        due_at = naturalday(due_at.date())
-        return {'next_card_due_at': due_at}
+    due_at = Card.objects.next_card_due_at(request.user, deck=deck, tags=tags)
+    due_at = naturalday(due_at.date())
+    return {'next_card_due_at': due_at}
 
 
 @all_http_methods
@@ -1041,43 +943,43 @@ def _rest_review_card(request, card_id):
 @json_response
 @all_http_methods
 def rest_card(request, card_id): #todo:refactor into facts (no???)
-  if request.method == 'GET':
-    ret = {}
-    try:
-      card = Card.objects.get(id=int(card_id))
+    if request.method == 'GET':
+        ret = {}
+        try:
+            card = Card.objects.get(id=int(card_id))
 
-      #TODO refactor the below into a model - it's not DRY
-      reviewed_at = datetime.datetime.utcnow()
+            #TODO refactor the below into a model - it's not DRY
+            reviewed_at = datetime.datetime.utcnow()
 
-      field_contents = dict((field_content.field_type_id, field_content,) for field_content in card.fact.fieldcontent_set.all())
-      card_context = {
-              'card': card,
-              'fields': field_contents,
-              'fact': card.fact,
-              'card_back_template': card.template.back_template_name,
-      }
-      due_times = {}
-      for grade in [GRADE_NONE, GRADE_HARD, GRADE_GOOD, GRADE_EASY,]:
-          due_at = card._next_due_at(grade, reviewed_at, card._next_interval(grade, card._next_ease_factor(grade, reviewed_at), reviewed_at))
-          duration = due_at - reviewed_at
-          days = duration.days + (duration.seconds / 86400.0)
-          due_times[grade] = days
-      formatted_card = {
-          'id': card.id,
-          'fact_id': card.fact_id,
-          'front': render_to_string(card.template.front_template_name, card_context),
-          'back': render_to_string('flashcards/card_back.html',  card_context),
-          'next_due_at_per_grade': due_times
-      }
+            field_contents = dict((field_content.field_type_id, field_content,) for field_content in card.fact.fieldcontent_set.all())
+            card_context = {
+                    'card': card,
+                    'fields': field_contents,
+                    'fact': card.fact,
+                    'card_back_template': card.template.back_template_name,
+            }
+            due_times = {}
+            for grade in [GRADE_NONE, GRADE_HARD, GRADE_GOOD, GRADE_EASY,]:
+                due_at = card._next_due_at(grade, reviewed_at, card._next_interval(grade, card._next_ease_factor(grade, reviewed_at), reviewed_at))
+                duration = due_at - reviewed_at
+                days = duration.days + (duration.seconds / 86400.0)
+                due_times[grade] = days
+            formatted_card = {
+                'id': card.id,
+                'fact_id': card.fact_id,
+                'front': render_to_string(card.template.front_template_name, card_context),
+                'back': render_to_string('flashcards/card_back.html',  card_context),
+                'next_due_at_per_grade': due_times
+            }
 
-      return {'success': True, 'card': formatted_card}
-      #return to_dojo_data(formatted_card)
-    except Card.DoesNotExist:
-      return {'success': False}
-  elif request.method == 'POST':
-    if 'grade' in request.POST:
-        # this is a card review
-        return _rest_review_card(request, int(card_id))
+            return {'success': True, 'card': formatted_card}
+            #return to_dojo_data(formatted_card)
+        except Card.DoesNotExist:
+            return {'success': False}
+    elif request.method == 'POST':
+        if 'grade' in request.POST:
+            # this is a card review
+            return _rest_review_card(request, int(card_id))
 
 
 
