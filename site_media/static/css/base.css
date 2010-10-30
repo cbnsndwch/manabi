@@ -126,7 +126,8 @@ h1, h2, h3, h4, h5 {
 #subnav {
     margin: 0;
     padding: 0;
-    background: #36606D /*#DEF*/; /* tab colour */
+    background-color: #36606D; /*#DEF;*/ /* tab colour */
+    /*background-color: #055b5a;*/
     border-bottom: 0px solid #003344;
 }
 #subnav ul {
@@ -150,6 +151,10 @@ h1, h2, h3, h4, h5 {
     background: #9BC;
 }
 
+#column_wrap {
+    /*background-color: #52676D;*/
+    background-color: #ccc;
+}
 
 /* FORMS */
 
