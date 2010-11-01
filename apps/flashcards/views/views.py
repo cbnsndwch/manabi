@@ -57,20 +57,19 @@ def add_decks(request):
 @json_response
 @all_http_methods
 def rest_deck_subscribe(request, deck_id):
-    try:
-        deck = Deck.objects.get(id=deck_id)
+    if request.method == 'POST':
+        deck = get_object_or_404(Deck, pk=deck_id)
+
         if deck.owner_id == request.user.id: #and not request.User.is_staff():
             raise forms.ValidationError('You cannot subscribe to a deck which you created yourself. Subscription is for other users.')
         elif not deck.shared:
             raise forms.ValidationError('This deck is not shared, so you cannot subscribe to it.')
-    except Deck.DoesNotExist:
-        raise Http404
 
-    if request.method == 'POST':
         new_deck = deck.subscribe(request.user)
-        return {'success':True, 'deck_id': new_deck.id, 'post_redirect': new_deck.get_absolute_url()}
-    else:
-        raise Http404
+
+        return {'success':True, 
+                'deck_id': new_deck.id,
+                'post_redirect': new_deck.get_absolute_url()}
 
 
 @login_required
@@ -89,10 +88,7 @@ def deck_detail(request, deck_id=None):
 
 @login_required
 def subfacts(request, parent_fact_id):
-    try:
-        parent_fact = Fact.objects.get(id=parent_fact_id)
-    except Fact.DoesNotExist:
-        raise Http404
+    parent_fact = get_object_or_404(Fact, pk=parent_fact_id)
     context = {'subfacts': parent_fact.subfacts.all()}
     return render_to_response('flashcards/subfacts.html', context)
 
@@ -274,29 +270,25 @@ def rest_decks_with_totals(request):
 
         return to_dojo_data(decks, label='name')
 
+
 @login_required
 @json_response
 def rest_decks(request):
-    if request.method == 'POST':
-        pass
-    elif request.method == 'GET':
-        try:
-            ret = Deck.objects.filter(owner=request.user, active=True).values('id', 'name', 'description')
-        except Deck.DoesNotExist:
-            ret = []
-        return to_dojo_data(ret, label='name')
+    #if request.method == 'POST':
+        #raise Http404
+    #elif request.method == 'GET':
+    ret = Deck.objects.filter(owner=request.user, active=True).values('id', 'name', 'description')
+    return to_dojo_data(ret, label='name')
     
 
 @login_required
 @json_response
 @all_http_methods
 def rest_deck(request, deck_id):
-    try:
-        deck = Deck.objects.get(id=deck_id)
-        if deck.owner_id != request.user.id: #and not request.User.is_staff():
-            raise forms.ValidationError('You do not have permission to access this flashcard deck.')
-    except Deck.DoesNotExist:
-        raise Http404
+    deck = get_object_or_404(Deck, pk=deck_id)
+    if deck.owner_id != request.user.id: #and not request.User.is_staff():
+        #TODO should be a permissions error instead
+        raise forms.ValidationError('You do not have permission to access this flashcard deck.')
 
     if request.method == 'DELETE':
         if deck.subscriber_decks.filter(active=True).count() > 0: #exists():
@@ -483,16 +475,12 @@ def rest_facts(request, deck=None, tags=None): #todo:refactor into facts (no???)
 @transaction.commit_on_success
 def rest_fact_suspend(request, fact_id):
     if request.method == 'POST':
-        try:
-            fact = Fact.objects.get_for_owner_or_subscriber(fact_id, request.user)
-            #fact.suspended = True
-            #fact.save()
-            for card in fact.card_set.all():
-                card.suspended = True
-                card.save()
-            return {'success': True}
-        except Fact.DoesNotExist:
-            raise Http404
+        fact = Fact.objects.get_for_owner_or_subscriber(fact_id, request.user)
+        #TODO add fact.suspend() method
+        for card in fact.card_set.all():
+            card.suspended = True
+            card.save()
+        return {'success': True}
 
 
 @login_required
@@ -500,16 +488,13 @@ def rest_fact_suspend(request, fact_id):
 @transaction.commit_on_success
 def rest_fact_unsuspend(request, fact_id):
     if request.method == 'POST':
-        try:
-            fact = Fact.objects.get_for_owner_or_subscriber(fact_id, request.user)
-            #fact.suspended = False
-            #fact.save()
-            for card in fact.card_set.all():
-                card.suspended = False
-                card.save()
-            return {'success': True}
-        except Fact.DoesNotExist:
-            raise Http404
+        fact = Fact.objects.get_for_owner_or_subscriber(fact_id, request.user)
+        #fact.suspended = False
+        #fact.save()
+        for card in fact.card_set.all():
+            card.suspended = False
+            card.save()
+        return {'success': True}
 
 
 @login_required
@@ -524,16 +509,13 @@ def rest_fact(request, fact_id): #todo:refactor into facts
 
 
 def _fact_delete(request, fact_id):
-    try:
-        fact = Fact.objects.get_for_owner_or_subscriber(fact_id, request.user)
-        if fact.synchronized_with:
-            fact.active = False
-            fact.save()
-        else:
-            fact.delete()
-        return {'success': True}
-    except Fact.DoesNotExist:
-        raise Http404
+    fact = Fact.objects.get_for_owner_or_subscriber(fact_id, request.user)
+    if fact.synchronized_with:
+        fact.active = False
+        fact.save()
+    else:
+        fact.delete()
+    return {'success': True}
 
 
 def _fact_update(request, fact_id):
