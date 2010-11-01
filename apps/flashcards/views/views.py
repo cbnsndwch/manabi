@@ -264,7 +264,7 @@ def rest_generate_reading(request):
 @login_required
 @json_response
 def rest_decks_with_totals(request):
-    if request.method == "GET":
+    if request.method == 'GET':
         try:
             #decks = Deck.objects.filter(owner=request.user).values() #TODO fields
             decks = Deck.objects.values_of_all_with_stats_and_totals(request.user, 
@@ -277,9 +277,9 @@ def rest_decks_with_totals(request):
 @login_required
 @json_response
 def rest_decks(request):
-    if request.method == "POST":
+    if request.method == 'POST':
         pass
-    elif request.method == "GET":
+    elif request.method == 'GET':
         try:
             ret = Deck.objects.filter(owner=request.user, active=True).values('id', 'name', 'description')
         except Deck.DoesNotExist:
@@ -327,39 +327,33 @@ def rest_deck(request, deck_id):
 
 @login_required
 @json_response
-@all_http_methods
 def rest_card_templates(request, fact_type_id):
     "Returns list of CardTemplate objects given a parent FactType id"
-    if request.method == 'GET':
-        try:
-            fact_type = FactType.objects.get(id=fact_type_id) #todo: error handling
-            ret = fact_type.cardtemplate_set.all()
-        except FactType.DoesNotExist:
-            ret = []
-        return to_dojo_data(ret)
+    try:
+        fact_type = FactType.objects.get(id=fact_type_id) #todo: error handling
+        ret = fact_type.cardtemplate_set.all()
+    except FactType.DoesNotExist:
+        ret = []
+    return to_dojo_data(ret)
 
 
 @login_required
 @json_response
-@all_http_methods
 def rest_fields(request, fact_type_id):
     "Returns list of Field objects given a FactType id"
-    if request.method == 'GET':
-        try:
-            fact_type = FactType.objects.get(id=fact_type_id) #todo: error handling
-            ret = fact_type.fieldtype_set.all().order_by('ordinal')
-        except FactType.DoesNotExist:
-            ret = []
-        return to_dojo_data(ret)
+    try:
+        fact_type = FactType.objects.get(id=fact_type_id) #todo: error handling
+        ret = fact_type.fieldtype_set.all().order_by('ordinal')
+    except FactType.DoesNotExist:
+        ret = []
+    return to_dojo_data(ret)
 
 
 @login_required
 @json_response
-@all_http_methods
 def rest_fact_types(request):
-    if request.method == 'GET':
-        fact_types = FactType.objects.all()#SOMEDAY filter(deck__owner=request.user)
-        return to_dojo_data(fact_types)
+    fact_types = FactType.objects.all()#SOMEDAY filter(deck__owner=request.user)
+    return to_dojo_data(fact_types)
 
 
 #FIXME add validation for every method, like if obj.owner.id != request.user.id: #and not request.User.is_staff():      raise forms.ValidationError('You do not have permission to access this flashcard deck.')
@@ -368,53 +362,49 @@ def rest_fact_types(request):
 
 @login_required
 @json_response
-@all_http_methods
 def rest_cards(request): #todo:refactor into facts (no???)
-    if request.method == 'GET':
-        if request.GET['fact']:
-            ret = {}
-            try:
-                fact = Fact.objects.get(id=request.GET['fact'])
-                cards = fact.card_set.get_query_set()
-                return to_dojo_data(cards)
-            except Fact.DoesNotExist:
-                return {'success': False}
-
+    '''
+    Returns the cards for a given fact.
+    Excepts `fact` in the GET params.
+    '''
+    if request.GET['fact']:
+        ret = {}
+        fact = get_object_or_404(Fact, pk=request.GET['fact'])
+        cards = fact.card_set.get_query_set()
+        return to_dojo_data(cards)
 
 
 @login_required
 @json_response
-@all_http_methods
 def rest_card_templates_for_fact(request, fact_id):
-  'Returns a list of card templates for which the given fact has corresponding cards activated'
-  if request.method == 'GET':
-    ret = {}
-    try:
-      card_templates = []
-      fact = Fact.objects.get(id=fact_id)
-      activated_card_templates = [e.template for e in fact.card_set.filter(active=True)]
-      for card_template in fact.fact_type.cardtemplate_set.all():
+    '''
+    Returns a list of card templates for which the given fact has corresponding cards activated.
+    '''
+    card_templates = []
+    fact = get_object_or_404(Fact, pk=fact_id)
+    activated_card_templates = [e.template for e in fact.card_set.filter(active=True)]
+
+    for card_template in fact.fact_type.cardtemplate_set.all():
         #TODO only send the id(uri)/name/status
         card_templates.append({'card_template': card_template, 'activated_for_fact': (card_template in activated_card_templates)})
-      return to_dojo_data(card_templates, identifier=None)
-    except Fact.DoesNotExist:
-      return {'success': False}
+
+    return to_dojo_data(card_templates, identifier=None)
 
 
 @login_required
 @json_response
 def rest_facts_tags(request):
-  if request.method == 'GET':
-      tags = Fact.objects.all_tags_per_user(request.user)
-      tags = [{'name': tag.name, 'id': tag.id} for tag in tags]
-      return to_dojo_data(tags)
+    tags = Fact.objects.all_tags_per_user(request.user)
+    tags = [{'name': tag.name, 'id': tag.id} for tag in tags]
+    return to_dojo_data(tags)
 
 
 @login_required
 @json_response
 @all_http_methods
 @transaction.commit_on_success
-def rest_facts(request): #todo:refactor into facts (no???)
+@has_card_query_filters
+def rest_facts(request, deck=None, tags=None): #todo:refactor into facts (no???)
     if request.method == 'GET':
         if request.GET['fact_type']:
             fact_type_id = request.GET['fact_type'] #TODO allow omitting this option
@@ -423,32 +413,20 @@ def rest_facts(request): #todo:refactor into facts (no???)
                 #facts = Fact.objects.filter(fact_type=FactType.objects.get(id=fact_type_id))
                 fact_type = FactType.objects.get(id=fact_type_id)
 
-                #filtering by deck
-                if 'deck' in request.GET and request.GET['deck'].strip():
-                   try:
-                       deck = Deck.objects.get(id=int(request.GET['deck']))
-                   except Deck.DoesNotExist:
-                       raise Http404
-                else:
-                    deck = None
                 #    user_facts = fact_type.fact_set.filter(deck=deck)
                 #else:
                 #    user_facts = fact_type.fact_set.filter(deck__owner=request.user)
-
                 #facts = user_facts
 
-                #filtering by tags
-                if 'tags' in request.GET and request.GET['tags'].strip():
-                    tag_ids = [int(tag_id) for tag_id in request.GET['tags'].split(',')]
-                    tags = usertagging.models.Tag.objects.filter(id__in=tag_ids)
-                    #facts = usertagging.models.UserTaggedItem.objects.get_by_model(user_facts, tags)
-                else:
-                    tags = None
+                ##filtering by tags
+                #if 'tags' in request.GET and request.GET['tags'].strip():
+                #    tag_ids = [int(tag_id) for tag_id in request.GET['tags'].split(',')]
+                #    tags = usertagging.models.Tag.objects.filter(id__in=tag_ids)
+                #    #facts = usertagging.models.UserTaggedItem.objects.get_by_model(user_facts, tags)
+                #else:
+                #    tags = None
 
-                if deck:
-                    user = deck.owner
-                else:
-                    user = request.user
+                user = deck.owner if deck else request.user
 
                 facts = Fact.objects.with_synchronized(user, deck=deck, tags=tags).filter(active=True)
 
@@ -514,7 +492,7 @@ def rest_fact_suspend(request, fact_id):
                 card.save()
             return {'success': True}
         except Fact.DoesNotExist:
-            return {'success': False}
+            raise Http404
 
 
 @login_required
@@ -531,7 +509,7 @@ def rest_fact_unsuspend(request, fact_id):
                 card.save()
             return {'success': True}
         except Fact.DoesNotExist:
-            return {'success': False}
+            raise Http404
 
 
 @login_required
@@ -555,7 +533,7 @@ def _fact_delete(request, fact_id):
             fact.delete()
         return {'success': True}
     except Fact.DoesNotExist:
-        return {'success': False} #TODO add error message
+        raise Http404
 
 
 def _fact_update(request, fact_id):
@@ -809,26 +787,10 @@ def _facts_create(request):
 
 @login_required
 @json_response
-def next_cards_for_review(request):
+@has_card_query_filters
+def next_cards_for_review(request, deck=None, tags=None):
     if request.method == 'GET':
         count = int(request.GET.get('count', 5))
-
-        # Deck.
-        if 'deck' in request.GET:
-            deck = get_object_or_404(Deck, pk=request.GET['deck'])
-        else:
-            deck = None
-
-        # Tags.
-        try:
-            tag_id = int(request.GET.get('tag', -1))
-        except ValueError:
-            tag_id = -1
-        if tag_id != -1:
-            tag_ids = [tag_id] #TODO support multiple tags
-            tags = usertagging.models.Tag.objects.filter(id__in=tag_ids)
-        else:
-            tags = None
 
         # New cards per day limit.
         #TODO implement this to be user-configurable instead of hard-coded
@@ -930,12 +892,10 @@ def _rest_review_card(request, card_id):
     '''
     '''
     if request.method == 'POST':
-        try:
-            card = Card.objects.get(id=card_id) #FIXME make sure this user owns this card
-            card.review(int(request.POST['grade']))
-            return {'success': True}
-        except Card.DoesNotExist:
-            return {'success': False}
+        #FIXME make sure this user owns this card
+        card = get_object_or_404(Card, pk=card_id) 
+        card.review(int(request.POST['grade']))
+        return {'success': True}
 
 
 

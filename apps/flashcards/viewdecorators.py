@@ -11,7 +11,7 @@ def has_card_query_filters(func):
     @wraps(func)
     def wrapper(request, *args, **kwargs):
         # Deck
-        if 'deck' in request.GET:
+        if 'deck' in request.GET and request.GET['deck'].strip():
             deck = get_object_or_404(Deck, pk=request.GET['deck'])
         else:
             deck = None
