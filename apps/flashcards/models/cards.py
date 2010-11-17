@@ -663,6 +663,7 @@ class Card(AbstractCard):
             due_times[grade] = {'due_in': days, 'due_at': due_at, 'ease_factor': next_ef, 'interval': next_interval}
         return due_times
 
+
     def _next_interval(self, grade, ease_factor, reviewed_at, do_fuzz=True):
         '''
         Returns an interval, measured in days.
@@ -929,6 +930,28 @@ class Card(AbstractCard):
 
     def _next_due_at(self, grade, reviewed_at, interval):
         return reviewed_at + datetime.timedelta(days=interval)
+
+
+    def _apply_updated_schedule(next_repetition):
+        '''
+        Updates this card's scheduling with values for the next repetition.
+
+        `next_repetition` should have the following properties:
+            `interval`, `ease_factor`, `due_at`
+
+        (See `NextRepetition` class)
+        '''
+        # Adjust ease factor
+        self.last_ease_factor, self.ease_factor = \
+            self.ease_factor, next_repetition.ease_factor
+
+        # Adjust interval
+        self.last_interval, self.interval = \
+            self.interval, next_repetition.interval
+    
+        # Update next due date
+        self.last_due_at, self.due_at = \
+            self.due_at, next_repetition.due_at
 
 
     @transaction.commit_on_success    

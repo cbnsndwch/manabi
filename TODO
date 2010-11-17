@@ -1,10 +1,22 @@
 manabi notes
 
 
+---------------
+design influences
+
 good color inspiration:
 http://veerle-v2.duoh.com/blog/comments/a_css_styled_table/
 
+landing page inspiration: http://www.peerindex.net/
+has a fun sciency feel
 
+form patterns, could use to change the flashcard crud:
+http://www.patternry.com/p=stacked-tabs/
+http://www.patternry.com/p=inline-input-adder/ (tag editing?)
+overlay design overview: http://www.patternry.com/p=overlay/
+
+
+----------------
 
 
 brand new refactor todo
@@ -14,6 +26,7 @@ update pinax
 update django to 1.2.3
 upgrade dojo to 1.5
 get rid of jquery deps
+magic numbers
 
 
 refactoring order:
@@ -22,8 +35,19 @@ js
 forms
 models
 
+add basic auditing to some more models
+
 
 views.py: refactor GET/POST methods
+
+models:
+    fuzzing
+
+-----------
+braaaaaand new features
+
+per-day scheduling
+
 
 ==========
 

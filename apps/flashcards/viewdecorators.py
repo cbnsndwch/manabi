@@ -1,5 +1,6 @@
 from functools import wraps
 
+
 def has_card_query_filters(func):
     '''
     Adds some kwargs to the `func` call for cleaning request GET data into
