@@ -653,7 +653,7 @@ def _fact_update(request, fact_id):
         ret['success'] = False
         ret['errors'] = {'card': card_formset.errors,
                          'fact': fact_formset.errors,
-                        'field_content': field_content_formset.errors, }
+                         'field_content': field_content_formset.errors, }
                         #'fact': [fact_form.errors]}
     return ret
 

@@ -1,3 +1,5 @@
+from django.db import models, transaction
+
 
 # formerly fields.py
 OPTIONAL_CHARACTER_RESTRICTIONS = (
@@ -34,7 +36,9 @@ class FieldType(models.Model):
     editable = models.BooleanField(default=True)
     numeric = models.BooleanField(default=False)
     multi_line = models.BooleanField(default=True, blank=True)
-    choices = models.CharField(blank=True, max_length=1000, help_text='Use a pickled choices tuple. The "none" value is used to indicate no selection, so don\'t use it in the choices tuple.')
+    choices = models.CharField(blank=True, max_length=1000,
+        help_text='Use a pickled choices tuple. The "none" value is used ' +
+        'to indicate no selection, so don\'t use it in the choices tuple.')
 
     help_text = models.CharField(blank=True, max_length=500)
 
@@ -44,11 +48,18 @@ class FieldType(models.Model):
     accepts_media = models.BooleanField(default=False, blank=True) # only allow media without any text
     media_restriction = models.CharField(max_length=3, choices=OPTIONAL_MEDIA_TYPE_RESTRICTIONS, blank=True, null=True)
 
-    hidden_in_form = models.BooleanField(default=False) #hide this field when adding/editing a fact, unless the user wants to see extra, optional fields
-    disabled_in_form = models.BooleanField(default=False, help_text="Disable this field when adding/editing a fact. If hidden_in_form is also True, then it will supress the Add `name` link in the form.")
+    # hide this field when adding/editing a fact, unless the user wants 
+    # to see extra, optional fields
+    hidden_in_form = models.BooleanField(default=False) 
+
+    disabled_in_form = models.BooleanField(default=False,
+        help_text='Disable this field when adding/editing a fact. ' +
+                  'If hidden_in_form is also True, then it will supress ' +
+                  'the Add `name` link in the form.')
     hidden_in_grid = models.BooleanField(default=False)
     grid_column_width = models.CharField(blank=True, max_length=10)
-    #hidden_when_reviewing = models.BooleanField(default=False) #hide this field during review, click to see it (like extra notes maybe) #handle in templates
+    #hidden_when_reviewing = models.BooleanField(default=False)
+    #hide this field during review, click to see it (like extra notes maybe) #handle in templates
 
     ordinal = models.IntegerField(null=True, blank=True)
 
@@ -73,9 +84,8 @@ class FieldType(models.Model):
     def choices_as_tuple(self, value):
         self.choices = pickle.dumps(value)
 
-
     def __unicode__(self):
-        return self.fact_type.name + ': ' + self.name
+        return self.fact_type.name + u': ' + self.name
     
     class Meta:
         unique_together = (('name', 'fact_type'), ('ordinal', 'fact_type'), )

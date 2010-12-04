@@ -1,24 +1,16 @@
-from django.db import models
+from constants import MAX_NEW_CARD_ORDINAL
+from dbtemplates.models import Template
 from django.contrib.auth.models import User
+from django.db import models, transaction
+from django.db.models import Q
 from django.forms import ModelForm
 from django.forms.util import ErrorList
-from dbtemplates.models import Template
-from django.db.models import Q
-from django.shortcuts import get_object_or_404
-
-#from fields import FieldContent
-from constants import MAX_NEW_CARD_ORDINAL
-#from decks import Deck
-#import fields
-import random
-#from decks import Deck, SharedDeck
-#import Deck
-import usertagging
-from django.db import transaction
-
 from utils.templatetags.japanese import strip_ruby_bottom, strip_ruby_text
-import pickle
 import flashcards.partsofspeech
+import pickle
+import random
+import usertagging
+
 
 def seconds_to_days(s):
     return s / 86400.0
@@ -47,8 +39,7 @@ class FactType(models.Model):
     def __unicode__(self):
         if self.parent_fact_type:
             return self.parent_fact_type.name + ' - ' + self.name
-        else:
-            return self.name
+        return self.name
     
     class Meta:
         #unique_together = (('owner', 'name'), )
@@ -77,7 +68,8 @@ class FactManager(models.Manager):
         matches = FieldContent.objects.filter(
                 Q(content__icontains=query)
                 | Q(cached_transliteration_without_markup__icontains=query)
-                & (Q(fact__in=query_set) | Q(fact__synchronized_with__in=subscriber_facts)))
+                & (Q(fact__in=query_set)
+                   | Q(fact__synchronized_with__in=subscriber_facts)))
                 #& Q(fact__fact_type=fact_type)).all()
 
         #TODO use values_list to be faster
@@ -122,10 +114,9 @@ class FactManager(models.Manager):
 
 
 
-#TODO citation/fact source class
 
 
-class Fact(AbstractFact):
+class Fact(models.Model):
     objects = FactManager()
     deck = models.ForeignKey('flashcards.Deck',
         blank=True, null=True, db_index=True)
@@ -150,8 +141,12 @@ class Fact(AbstractFact):
 
 
     def save(self, *args, **kwargs):
+        '''
+        Set a random sorting index for new cards.
+        '''
         if not self.new_fact_ordinal:
-            self.new_fact_ordinal = random.randrange(0, MAX_NEW_CARD_ORDINAL)
+            self.new_fact_ordinal = random.randrange(
+                0, MAX_NEW_CARD_ORDINAL)
         super(Fact, self).save(*args, **kwargs)
 
     
@@ -196,19 +191,19 @@ class Fact(AbstractFact):
             other_subscriber_facts.delete()
         super(Fact, self).delete(*args, **kwargs)
 
-
     @property
     def owner(self):
         if self.parent_fact:
             return self.parent_fact.deck.owner
-        else:
-            return self.deck.owner
-
+        return self.deck.owner
 
     @property
     def subfacts(self):
-        '''Returns subfacts (via the child_facts relation) of this fact.
-        Includes subfacts of the subscribed fact if this is synchronized with a shared deck.
+        '''
+        Returns subfacts (via the child_facts relation) of this fact.
+        Includes subfacts of the subscribed fact if this is synchronized 
+        with a shared deck.
+
         Only includes active subfacts.
         '''
         subfacts = self.child_facts.all()
@@ -220,23 +215,26 @@ class Fact(AbstractFact):
 
     @property
     def field_contents(self):
-        '''Returns a queryset of field contents for this fact. #dict of {field_type_id: field_content}
-        #Includes field contents of any subfacts of this fact.
+        '''
+        Returns a queryset of field contents for this fact.
+        ?dict of {field_type_id: field_content}
+        Includes field contents of any subfacts of this fact.
         '''
         fact = self
-        field_contents = self.fieldcontent_set.all().order_by('field_type__ordinal')
-        #sub_field_contents = FieldContent.objects.filter(fact__in=self.child_facts.all())
+        field_contents = \
+            self.fieldcontent_set.all().order_by('field_type__ordinal')
+        #sub_field_contents = \
+        #    FieldContent.objects.filter(fact__in=self.child_facts.all())
         if self.synchronized_with:
             # first see if the user has updated this fact's contents.
             # this would override the synced fact's.
-            #TODO only override on a per-field basis when the user updates field contents
+            #TODO only override on a per-field basis when the 
+            #user updates field contents
             if not field_contents:
                 field_contents = self.synchronized_with.fieldcontent_set.all().order_by('field_type__ordinal')
         #return dict((field_content.field_type_id, field_content) for field_content in field_contents)
         return field_contents
 
-
-    @property
     def has_updated_content(self):
         '''Only call this for subscriber facts.
         Returns whether the subscriber user has edited any 
@@ -246,10 +244,10 @@ class Fact(AbstractFact):
             raise TypeError('This is not a subscriber fact.')
         return self.fieldcontent_set.all().counter() > 0 #.exists()
 
-
     @transaction.commit_on_success
     def copy_subscribed_field_contents_and_subfacts(self):
-        '''Only call this for subscriber facts.
+        '''
+        Only call this for subscriber facts.
         Copies all the field contents for the synchronized fact,
         so that it will not longer receive updates to field 
         contents when the subscribed fact is updated. (including deletes)
@@ -286,9 +284,11 @@ class Fact(AbstractFact):
 
     @transaction.commit_on_success
     def copy_to_parent_fact(self, parent_fact, copy_field_contents=False):
-        '''Copies a subfact to a parent fact.
+        '''
+        Copies a subfact to a parent fact.
         Returns the new copy, or the already existant one.
-        If it already existed, it still copies the field contents, if needed.
+        If it already existed, it still copies the field contents,
+        if needed.
         '''
         if not self.parent_fact:
             raise TypeError('This is not a subfact, so it cannot be copied to a parent fact.')
@@ -379,5 +379,14 @@ usertagging.register(Fact)
 
 
 
+class SubFact(Fact):
+    '''
+    Proxy model for subfacts (like example sentences).
+    '''
+    #TODO use this!
+
+    class Meta:
+        app_label = 'flashcards'
+        proxy = True
 
 
