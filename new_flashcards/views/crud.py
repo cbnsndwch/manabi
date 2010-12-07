@@ -110,13 +110,12 @@ def deck_list(request):
 def deck_update(request, deck_id):
     deck = Deck.objects.get(id=deck_id)
     if deck.owner_id != request.user.id: #and not request.User.is_staff():
-      raise forms.ValidationError('You do not have permission to access this flashcard deck.')
-  #return update_object(request, form_class=DeckForm, object_id=deck_id, post_save_redirect='../decks', extra_context={'container_id': 'deckDialog'}, template_object_name='deck')
+        raise forms.ValidationError('You do not have permission to access this flashcard deck.')
     if request.method == 'POST':
         deck_form = DeckForm(request.POST, instance=deck)
-    if deck_form.is_valid():
-        deck = deck_form.save()
-        return HttpResponse(json_encode({'success':True}), mimetype='text/javascript')#return HttpResponseRedirect(post_save_redirect)
+        if deck_form.is_valid():
+            deck = deck_form.save()
+            return HttpResponse(json_encode({'success':True}), mimetype='text/javascript')
     else:
         deck_form = DeckForm(instance=deck)
     return render_to_response('flashcards/deck_form.html', 
