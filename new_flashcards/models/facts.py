@@ -135,6 +135,7 @@ class Fact(models.Model):
     
     created_at = models.DateTimeField(auto_now_add=True, editable=False)
     modified_at = models.DateTimeField(auto_now=True, editable=False)
+
     #child facts (e.g. example sentences for a Japanese fact)
     parent_fact = models.ForeignKey('self',
         blank=True, null=True, related_name='child_facts')

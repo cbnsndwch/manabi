@@ -209,7 +209,8 @@ class Deck(models.Model):
 
         # copy the facts - just the first few as a buffer
         shared_fact_to_fact = {}
-        for shared_fact in self.fact_set.filter(active=True, parent_fact__isnull=True).order_by('new_fact_ordinal')[:10]: #TODO dont hardcode value here #chain(self.fact_set.all(), Fact.objects.filter(parent_fact__deck=self)):
+        #TODO dont hardcode value here #chain(self.fact_set.all(), Fact.objects.filter(parent_fact__deck=self)):
+        for shared_fact in self.fact_set.filter(active=True, parent_fact__isnull=True).order_by('new_fact_ordinal')[:10]: 
             #FIXME get the child facts for this fact too
             #if shared_fact.parent_fact:
             #    #child fact
