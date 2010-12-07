@@ -1,19 +1,13 @@
 from django.db import models, transaction
+from constants import ISO_639_2_LANGUAGES
 
 
-# formerly fields.py
 OPTIONAL_CHARACTER_RESTRICTIONS = (
     ('num','Numeric',),
     ('knj','Kanji',),
     ('kna','Kana',),
     ('hir','Hiragana',),
     ('kat','Katakana',),
-)
-
-#FIXME grab from some other backup
-ISO_639_2_LANGUAGES = (
-    ('eng','English',),
-    ('jpn','Japanese',),
 )
 
 OPTIONAL_MEDIA_TYPE_RESTRICTIONS = (
@@ -28,7 +22,9 @@ class FieldType(models.Model):
     fact_type = models.ForeignKey('flashcards.FactType')
 
     #fk to the FieldType which contains a transliteration of this FieldType
-    transliteration_field_type = models.OneToOneField('self', blank=True, null=True, related_name='reverse_transliteration_field_type')
+    transliteration_field_type = models.OneToOneField('self',
+        blank=True, null=True,
+        related_name='reverse_transliteration_field_type')
     
     #constraints
     unique = models.BooleanField(default=True)
@@ -42,11 +38,17 @@ class FieldType(models.Model):
 
     help_text = models.CharField(blank=True, max_length=500)
 
-    language = models.CharField(max_length=3, choices=ISO_639_2_LANGUAGES, blank=True, null=True)
-    character_restriction = models.CharField(max_length=3, choices=OPTIONAL_CHARACTER_RESTRICTIONS, blank=True, null=True)
+    language = models.CharField(
+        max_length=3, choices=ISO_639_2_LANGUAGES, blank=True, null=True)
+    character_restriction = models.CharField(
+        max_length=3, choices=OPTIONAL_CHARACTER_RESTRICTIONS,
+        blank=True, null=True)
     
-    accepts_media = models.BooleanField(default=False, blank=True) # only allow media without any text
-    media_restriction = models.CharField(max_length=3, choices=OPTIONAL_MEDIA_TYPE_RESTRICTIONS, blank=True, null=True)
+    # only allow media without any text
+    accepts_media = models.BooleanField(default=False, blank=True) 
+    media_restriction = models.CharField(
+        max_length=3, choices=OPTIONAL_MEDIA_TYPE_RESTRICTIONS,
+        blank=True, null=True)
 
     # hide this field when adding/editing a fact, unless the user wants 
     # to see extra, optional fields
@@ -59,7 +61,8 @@ class FieldType(models.Model):
     hidden_in_grid = models.BooleanField(default=False)
     grid_column_width = models.CharField(blank=True, max_length=10)
     #hidden_when_reviewing = models.BooleanField(default=False)
-    #hide this field during review, click to see it (like extra notes maybe) #handle in templates
+    #hide this field during review, click to see it (like extra notes maybe) 
+    #handle in templates
 
     ordinal = models.IntegerField(null=True, blank=True)
 
@@ -69,7 +72,10 @@ class FieldType(models.Model):
     modified_at = models.DateTimeField(auto_now=True, editable=False)
     
     def is_transliteration_field_type(self):
-        '''Returns whether this field type is the transliteration of another field.'''
+        '''
+        Returns whether this field type is the transliteration of
+        another field.
+        '''
         try:
             self.fact_type.fieldtype_set.get(transliteration_field_type=self)
             return True
@@ -78,7 +84,8 @@ class FieldType(models.Model):
 
     @property
     def choices_as_tuple(self):
-        return pickle.loads(str(self.choices)) #it gets stored as unicode, but this breaks unpickling
+        # it gets stored as unicode, but this breaks unpickling
+        return pickle.loads(str(self.choices)) 
 
     @choices_as_tuple.setter
     def choices_as_tuple(self, value):
@@ -88,7 +95,7 @@ class FieldType(models.Model):
         return self.fact_type.name + u': ' + self.name
     
     class Meta:
-        unique_together = (('name', 'fact_type'), ('ordinal', 'fact_type'), )
+        unique_together = (('name', 'fact_type'), ('ordinal', 'fact_type'),)
         app_label = 'flashcards'
 
 
@@ -142,7 +149,8 @@ class FieldContent(models.Model):
 
     @property
     def human_readable_content(self):
-        ''' Returns content, but if this is a multi-choice field, 
+        '''
+        Returns content, but if this is a multi-choice field, 
         returns the name of the choice rather than its value.
 
         If this is a transliteration field, this returns 
@@ -174,7 +182,8 @@ class FieldContent(models.Model):
 
 
     def has_identical_transliteration_field(self):
-        ''' Returns True if the corresponding transliteration field is 
+        '''
+        Returns True if the corresponding transliteration field is 
         identical, once any ruby text markup is removed.
         '''
         if self.transliteration_field_content:
@@ -190,17 +199,19 @@ class FieldContent(models.Model):
         # If this is a transliteration field,
         # update the transliteration cache.
         if self.field_type.is_transliteration_field_type():
-            self.cached_transliteration_without_markup = self.strip_ruby_bottom()
+            self.cached_transliteration_without_markup = \
+                self.strip_ruby_bottom()
         super(FieldContent, self).save(*args, **kwargs)
 
     class Meta:
         #TODO unique_together = (('fact', 'field_type'), )
-        #one field content per field per fact
+        # one field content per field per fact
         app_label = 'flashcards'
 
 
     def copy_to_fact(self, fact):
-        '''Returns a new FieldContent copy which belongs 
+        '''
+        Returns a new FieldContent copy which belongs 
         to the given fact.
         Returns None if a corresponding FieldContent already exists.
         '''
@@ -213,6 +224,7 @@ class FieldContent(models.Model):
                 field_type=self.field_type,
                 media_uri=self.media_uri,
                 media_file=self.media_file,
-                cached_transliteration_without_markup=self.cached_transliteration_without_markup)
+                cached_transliteration_without_markup=\
+                    self.cached_transliteration_without_markup)
         copy.save()
         return copy
