@@ -4,17 +4,52 @@ from functools import wraps
 
 
 def all_http_methods(view_func):
-    """
+    '''
     Decorator that adds headers to a response so that it will
     never be cached.
-    """
-    def _wrapped_view_func(request, *args, **kwargs):
+    '''
+    @wraps(view_func)
+    def wrapper(request, *args, **kwargs):
         #modified_request = request #shallow copy is enough
         if request.method == 'POST':
             if '_method' in request.POST and request.POST['_method'] in ['PUT', 'DELETE', 'GET', 'POST']:
                 method = request.POST['_method']
-                #modified_request = request.copy()
                 request.method = method
         return view_func(request, *args, **kwargs)
-    return wraps(view_func)(_wrapped_view_func)
+    return wrapper
+
+
+def has_card_query_filters(func):
+    '''
+    Adds some kwargs to the `func` call for cleaning request GET data into
+    querysets.
+
+    Adds the following (potentially with value None):
+        `deck`, `tags`
+    '''
+    @wraps(func)
+    def wrapper(request, *args, **kwargs):
+        # Deck
+        if 'deck' in request.GET and request.GET['deck'].strip():
+            deck = get_object_or_404(Deck, pk=request.GET['deck'])
+        else:
+            deck = None
+        kwargs['deck'] = deck
+
+        # Tags
+        try:
+            tag_id = int(request.GET.get('tag', -1))
+        except ValueError:
+            tag_id = -1
+        if tag_id != -1:
+            tag_ids = [tag_id] #TODO support multiple tags
+            tags = usertagging.models.Tag.objects.filter(id__in=tag_ids)
+        else:
+            tags = None
+        kwargs['tags'] = tags
+
+        return func(request, *args, **kwargs)
+
+    return wrapper
+    
 

@@ -25,7 +25,7 @@ def add_decks(request):
     '''Starting point for adding a deck, whether by creating or by downloading a shared deck.'''
     shared_decks = Deck.objects.shared_decks().order_by('name')
     context = {
-            'shared_deck_list': shared_decks
+        'shared_deck_list': shared_decks
     }
     return render_to_response('flashcards/add.html', context, context_instance=RequestContext(request))
 

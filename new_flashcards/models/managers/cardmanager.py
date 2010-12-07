@@ -6,74 +6,6 @@ from django.db import models
 class SchedulerMixin(object):
     '''
     '''
-
-class CommonFiltersMixin(object):
-    '''
-    Provides filters for decks, tags.
-
-    This is particularly useful with view URLs which take query params for 
-    these things.
-    '''
-    #def of_user(self, user):
-        #'''
-        #Includes remote subscribed cards.
-        #'''
-        #facts = 
-        #self.filter(
-
-    def of_deck(self, deck):
-        return self.filter(fact__deck=deck)
-
-    def of_user(self, user):
-        #TODO this is probably really slow
-        user_cards = self.filter(suspended=False, active=True)
-        facts = Fact.objects.with_synchronized(user)
-        user_cards = self.filter(fact__in=facts)
-        return user_cards
-
-    def new_cards(self, user, deck=None):
-        return self.of_user(user).filter(last_reviewed_at__isnull=True,
-                                         fact__deck=deck)
-
-    def due_cards(self, user, deck=None):
-        return self.of_user(user)\
-            .filter(due_at__lte=datetime.datetime.utcnow(),
-                    fact__deck=deck)\
-            .order_by('-interval')
-
-
-class CardManager(models.Manager):
-    
-    ##set the base query set to only include cards of this user
-    #def get_query_set(self):
-    #    return super(UserCardManager, self).get_query_set().filter(
-
-    def count(self, user, deck=None, tags=None):
-        cards = self.of_user(user)
-        if deck:
-            cards = cards.filter(fact__deck=deck)
-        if tags:
-            facts = usertagging.models.UserTaggedItem.objects.get_by_model(Fact, tags)
-            cards = cards.filter(fact__in=facts)
-        return cards.count()
-            
-
-
-
-    #def failed_cards(self):
-    #    failed_cards = self.filter(last_review_grade=GRADE_NONE)
-
-    #def mature_cards(self):
-    #    return self.filter(interval__gt=MATURE_INTERVAL_MIN)
-    
-
-    def spaced_cards_new_count(self, user, deck=None):
-        threshold_at = datetime.datetime.utcnow() - datetime.timedelta(minutes=30)
-        recently_reviewed = self.filter(fact__deck__owner=user, fact__deck=deck, last_reviewed_at__lte=threshold_at)
-        facts = Fact.objects.filter(id__in=recently_reviewed.values_list('fact', flat=True))
-        new_cards_count = self.new_cards(user, deck).exclude(fact__in=facts).count()
-        return new_cards_count
-
     def _space_cards(self, card_query, count, review_time, excluded_ids=[], early_review=False):
         '''
         Check if any of these are from the same fact,
@@ -238,68 +170,6 @@ class CardManager(models.Manager):
         fresher_cards = cards.filter(last_reviewed_at__lte=priority_cutoff).order_by('due_at')
         return self._space_cards(fresher_cards, count, review_time, early_review=True)
 
-
-    #FIXME distinguish from cards_new_count or merge or make some new kind of review optioned class
-    #TODO consolidate with next_cards (see below)
-    #FIXME make it work for synced decks
-    def new_cards_count(self, user, excluded_ids, deck=None, tags=None):
-        '''Returns the number of new cards for the given review parameters.'''
-        now = datetime.datetime.utcnow()
-
-        user_cards = self.of_user(user)
-
-        if deck:
-            user_cards = user_cards.filter(fact__deck=deck)
-
-        if tags:
-            facts = usertagging.models.UserTaggedItem.objects.get_by_model(Fact, tags)
-            user_cards = user_cards.filter(fact__in=facts)
-
-        if excluded_ids:
-            user_cards = user_cards.exclude(id__in=excluded_ids)
-
-        new_cards = user_cards.filter(last_reviewed_at__isnull=True) #due_at__isnull=True)
-        return new_cards.count()
-
-        
-    #def _next_cards_initial_query(self, user, count, excluded_ids, session_start, deck=None, tags=None, early_review=False, daily_new_card_limit=None):
-
-
-    def count_of_cards_due_tomorrow(self, user, deck=None, tags=None):
-        '''
-        Returns the number of cards due by tomorrow at the same time as now.
-        Doesn't take future spacing into account though, so it's a somewhat rough estimate.
-        '''
-        cards = self.of_user(user)
-        if deck:
-            cards = cards.filter(fact__deck=deck)
-        if tags:
-            facts = usertagging.models.UserTaggedItem.objects.get_by_model(Fact, tags)
-            cards = cards.filter(fact__in=facts)
-        this_time_tomorrow = datetime.datetime.utcnow() + datetime.timedelta(days=1)
-        cards = cards.filter(due_at__lt=this_time_tomorrow)
-        due_count = cards.count()
-        new_count = min(NEW_CARDS_PER_DAY, self.new_cards_count(user, [], deck=deck, tags=tags))
-        return due_count + new_count
-
-
-    def next_card_due_at(self, user, deck=None, tags=None):
-        '''
-        Returns the due date of the next due card.
-        '''
-        cards = self.of_user(user)
-        if deck:
-            cards = cards.filter(fact__deck=deck)
-        if tags:
-            facts = usertagging.models.UserTaggedItem.objects.get_by_model(Fact, tags)
-            cards = cards.filter(fact__in=facts)
-        try:
-            card = cards.filter(due_at__isnull=False).order_by('due_at')[0]
-        except IndexError:
-            return None
-        return card.due_at
-        
-
     def _next_cards(self, early_review=False, daily_new_card_limit=None):
         card_funcs = [
             self._next_failed_due_cards,        # due, failed
@@ -314,22 +184,8 @@ class CardManager(models.Manager):
             card_funcs.extend([self._next_new_cards]) # new cards at end
         return card_funcs
 
-
-    def _user_cards(self, user, deck=None, tags=None, excluded_ids=None):
-        user_cards = self.of_user(user)
-
-        if deck:
-            user_cards = user_cards.filter(fact__deck=deck)
-
-        if tags:
-            facts = usertagging.models.UserTaggedItem.objects.get_by_model(Fact, tags)
-            user_cards = user_cards.filter(fact__in=facts)
-
-        if excluded_ids:
-            user_cards = user_cards.exclude(id__in=excluded_ids)
-        return user_cards
-    
-
+    #TODO not sure what this is necessary for, actually - it's used in one 
+    # place and can probably be merged with something else.
     def next_cards_count(self, user, excluded_ids=[], session_start=False, deck=None, tags=None, early_review=False, daily_new_card_limit=None, new_cards_only=False):
         now = datetime.datetime.utcnow()
         if new_cards_only:
@@ -385,6 +241,147 @@ class CardManager(models.Manager):
         #FIXME add new cards into the mix when there's a defined new card per day limit
         #for now, we'll add new ones to the end
         return chain(*card_queries)
+
+
+
+class CommonFiltersMixin(object):
+    '''
+    Provides filters for decks, tags.
+
+    This is particularly useful with view URLs which take query params for 
+    these things.
+    '''
+    #def of_user(self, user):
+        #'''
+        #Includes remote subscribed cards.
+        #'''
+        #facts = 
+        #self.filter(
+
+    def of_deck(self, deck):
+        return self.filter(fact__deck=deck)
+
+    def of_user(self, user):
+        #TODO this is probably really slow
+        user_cards = self.filter(suspended=False, active=True)
+        facts = Fact.objects.with_synchronized(user)
+        user_cards = self.filter(fact__in=facts)
+        return user_cards
+
+    #TODO just use of_user and of_deck etc. as mixins instead of this
+    def _user_cards(self, user, deck=None, tags=None, excluded_ids=None):
+        user_cards = self.of_user(user)
+
+        if deck:
+            user_cards = user_cards.filter(fact__deck=deck)
+
+        if tags:
+            facts = usertagging.models.UserTaggedItem.objects.get_by_model(Fact, tags)
+            user_cards = user_cards.filter(fact__in=facts)
+
+        if excluded_ids:
+            user_cards = user_cards.exclude(id__in=excluded_ids)
+        return user_cards
+
+    def new_cards(self, user, deck=None):
+        return self.of_user(user).filter(last_reviewed_at__isnull=True,
+                                         fact__deck=deck)
+
+    def due_cards(self, user, deck=None):
+        return self.of_user(user)\
+            .filter(due_at__lte=datetime.datetime.utcnow(),
+                    fact__deck=deck)\
+            .order_by('-interval')
+
+    #FIXME distinguish from cards_new_count or merge or make some new kind of review optioned class
+    #TODO consolidate with next_cards (see below)
+    #FIXME make it work for synced decks
+    def new_cards_count(self, user, excluded_ids, deck=None, tags=None):
+        '''Returns the number of new cards for the given review parameters.'''
+        now = datetime.datetime.utcnow()
+
+        user_cards = self.of_user(user)
+
+        if deck:
+            user_cards = user_cards.filter(fact__deck=deck)
+
+        if tags:
+            facts = usertagging.models.UserTaggedItem.objects.get_by_model(Fact, tags)
+            user_cards = user_cards.filter(fact__in=facts)
+
+        if excluded_ids:
+            user_cards = user_cards.exclude(id__in=excluded_ids)
+
+        new_cards = user_cards.filter(last_reviewed_at__isnull=True) #due_at__isnull=True)
+        return new_cards.count()
+
+    def count_of_cards_due_tomorrow(self, user, deck=None, tags=None):
+        '''
+        Returns the number of cards due by tomorrow at the same time as now.
+        Doesn't take future spacing into account though, so it's a somewhat rough estimate.
+        '''
+        cards = self.of_user(user)
+        if deck:
+            cards = cards.filter(fact__deck=deck)
+        if tags:
+            facts = usertagging.models.UserTaggedItem.objects.get_by_model(Fact, tags)
+            cards = cards.filter(fact__in=facts)
+        this_time_tomorrow = datetime.datetime.utcnow() + datetime.timedelta(days=1)
+        cards = cards.filter(due_at__lt=this_time_tomorrow)
+        due_count = cards.count()
+        new_count = min(NEW_CARDS_PER_DAY, self.new_cards_count(user, [], deck=deck, tags=tags))
+        return due_count + new_count
+
+    def next_card_due_at(self, user, deck=None, tags=None):
+        '''
+        Returns the due date of the next due card.
+        '''
+        cards = self.of_user(user)
+        if deck:
+            cards = cards.filter(fact__deck=deck)
+        if tags:
+            facts = usertagging.models.UserTaggedItem.objects.get_by_model(Fact, tags)
+            cards = cards.filter(fact__in=facts)
+        try:
+            card = cards.filter(due_at__isnull=False).order_by('due_at')[0]
+        except IndexError:
+            return None
+        return card.due_at
+
+    #def count(self, user, deck=None, tags=None):
+        #cards = self.of_user(user)
+        #if deck:
+            #cards = cards.filter(fact__deck=deck)
+        #if tags:
+            #facts = usertagging.models.UserTaggedItem.objects.get_by_model(Fact, tags)
+            #cards = cards.filter(fact__in=facts)
+        #return cards.count()
+
+    #def spaced_cards_new_count(self, user, deck=None):
+        #threshold_at = datetime.datetime.utcnow() - datetime.timedelta(minutes=30)
+        #recently_reviewed = self.filter(fact__deck__owner=user, fact__deck=deck, last_reviewed_at__lte=threshold_at)
+        #facts = Fact.objects.filter(id__in=recently_reviewed.values_list('fact', flat=True))
+        #new_cards_count = self.new_cards(user, deck).exclude(fact__in=facts).count()
+        #return new_cards_count
+
+
+def CardManager():
+    return manager_from(CommonFiltersMixin, SchedulerMixin)
+    
+
+#class CardManager(models.Manager):
+    
+    ##set the base query set to only include cards of this user
+    #def get_query_set(self):
+    #    return super(UserCardManager, self).get_query_set().filter(
+
+
+
+
+        
+    #def _next_cards_initial_query(self, user, count, excluded_ids, session_start, deck=None, tags=None, early_review=False, daily_new_card_limit=None):
+
+
 
 
 
