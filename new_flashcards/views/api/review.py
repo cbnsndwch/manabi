@@ -12,7 +12,7 @@ from flashcards.models import Card
 from flashcards.models import GRADE_NONE, GRADE_HARD, GRADE_GOOD, GRADE_EASY
 from flashcards.models import NEW_CARDS_PER_DAY
 from flashcards.models.undo import UndoCardReview
-from viewdecorators import has_card_query_filters
+from decorators import has_card_query_filters
 import datetime
 import string
 import subprocess
@@ -27,6 +27,11 @@ import subprocess
   ######################################  
      ###############################
 
+@login_required
+def subfacts(request, parent_fact_id):
+    parent_fact = get_object_or_404(Fact, pk=parent_fact_id)
+    context = {'subfacts': parent_fact.subfacts.all()}
+    return render_to_response('flashcards/subfacts.html', context)
 
 
 @login_required

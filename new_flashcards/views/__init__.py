@@ -1,5 +1,5 @@
-from views import *
-from review import *
+#from views import *
+#from review import *
 
 # We split the view functions into separate files and import them all
 # here just for cleaner file organization.

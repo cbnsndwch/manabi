@@ -1,6 +1,8 @@
+# Some views which should be considered part of the REST API are contained 
+# in the reviews.py module. This module contains the rest of them.
+
 from flashcards.models import FactType, Fact, Deck, CardTemplate, FieldType
 from flashcards.models import FieldContent, Card
-from flashcards.models import SchedulingOptions
 from apps.utils import japanese
 from decorators import all_http_methods
 from django.contrib.auth.decorators import login_required
@@ -11,18 +13,13 @@ from django.http import Http404, HttpResponseRedirect, HttpResponse
 from django.shortcuts import get_object_or_404, render_to_response
 from django.template import RequestContext, loader
 from django.views.generic.create_update import update_object, delete_object, create_object
-from django.views.generic.list_detail import object_list, object_detail
 from dojango.decorators import json_response
 from dojango.util import to_dojo_data, json_decode, json_encode
-from flashcards.contextprocessors import study_options_context, subfact_form_context
-from flashcards.forms import DeckForm, FactForm, FieldContentForm
-from flashcards.forms import CardTemplateForm, FactTypeForm, CardForm
+from flashcards.forms import DeckForm, FactForm, FieldContentForm, CardForm
 from flashcards.models.constants import MAX_NEW_CARD_ORDINAL
-from viewdecorators import has_card_query_filters
-import jcconv
+from decorators import has_card_query_filters
 import random
-import usertagging
-
+#import jcconv
 
 
 #todo:
@@ -31,17 +28,8 @@ import usertagging
 
 #def _validate_deck_ownership(user, deck_id):
 
-
-# New layout views
-
-@login_required
-def add_decks(request):
-    '''Starting point for adding a deck, whether by creating or by downloading a shared deck.'''
-    shared_decks = Deck.objects.shared_decks().order_by('name')
-    context = {
-            'shared_deck_list': shared_decks
-    }
-    return render_to_response('flashcards/add.html', context, context_instance=RequestContext(request))
+def rest_entry_point(request):
+    pass
 
 @login_required
 @json_response
@@ -62,170 +50,11 @@ def rest_deck_subscribe(request, deck_id):
                 'post_redirect': new_deck.get_absolute_url()}
 
 @login_required
-def deck_detail(request, deck_id=None):
-    detail_args = {
-        'queryset': Deck.objects.filter(active=True),
-        'template_object_name': 'deck',
-        'extra_context': {
-            'field_types': FactType.objects.get(id=1).fieldtype_set.all().order_by('ordinal'),
-        },
-        'object_id': deck_id,
-    }
-    detail_args['extra_context'].update(study_options_context(request, deck_id=deck_id))
-    return object_detail(request, **detail_args)
-
-@login_required
-def subfacts(request, parent_fact_id):
-    parent_fact = get_object_or_404(Fact, pk=parent_fact_id)
-    context = {'subfacts': parent_fact.subfacts.all()}
-    return render_to_response('flashcards/subfacts.html', context)
-
-
-#HTML views
-
-@login_required
-def facts_editor(request):
-    #assume Japanese for now (model 1)
-    #get the fieldtypes for Japanese
-    
-    fact_type = FactType.objects.get(id=1)
-    field_types = fact_type.fieldtype_set.all().order_by('ordinal')
-    card_templates = fact_type.cardtemplate_set.all()
-    decks = Deck.objects.filter(owner=request.user, active=True)
-    context = {'field_types': field_types,
-               'card_templates': card_templates,
-               'decks': decks}
-    return render_to_response('flashcards/facts_editor.html', context)
-
-
-@login_required
-def fact_update(request, fact_id):
-    if request.method == 'GET':
-        # if this is a subscribed fact that the subscriber hasn't copied yet, copy the fact (without its field contents) first
-        fact = Fact.objects.get_for_owner_or_subscriber(fact_id, request.user)
-        fact.edit_string_for_tags = usertagging.utils.edit_string_for_tags(fact.tags)
-        fact_type = FactType.objects.get(id=1) #assume japanese for now
-        decks = Deck.objects.filter(owner=request.user, active=True)
-        card_templates = []
-        activated_card_templates = [e.template for e in fact.card_set.filter(active=True)]
-
-        for card_template in fact_type.cardtemplate_set.all():
-            #TODO only send the id(uri)/name/status
-            #card_templates.append({'card_template': card_template, 'activated_for_fact': (card_template in activated_card_templates)})
-            card_template.activated_for_fact = (card_template in activated_card_templates)
-            card_templates.append(card_template)
-
-        context = {
-                'fact': fact,
-                'card_templates': card_templates,
-                'decks': decks,
-                'field_contents': fact.field_contents,
-        }
-
-        # subfact forms
-        context.update(subfact_form_context(request))
-        context['subfact_forms'] = []
-        context['initial_field_content_form_count'] = fact.fieldcontent_set.count() + sum([subfact.fieldcontent_set.count() for subfact in fact.subfacts.all() if subfact.owner == request.user])
-        i = 1
-        field_content_offset = len(fact.field_contents)
-        for subfact in fact.subfacts:
-            context['subfact_forms'].append(subfact_form_context(request, subfact=subfact, field_content_offset=field_content_offset, fact_form_ordinal=i)['subfact_form'])
-            i += 1
-            field_content_offset += len(subfact.field_contents)
-        return render_to_response('flashcards/fact_form.html', context, context_instance=RequestContext(request))
-
-
-#CRUD forms
-#TODO refactor into HTML/AJAX CRUD pattern
-@login_required
-def deck_list(request):
-    decks = Deck.objects.filter(owner=request.user, active=True).order_by('name')
-    context = {'container_id': 'deckDialog'}
-    context['only_one_deck_exists'] = (len(decks) == 1)
-
-    return object_list(request, queryset=decks, extra_context=context, template_object_name='deck')
-
-
-@login_required
-def deck_update(request, deck_id):
-  deck = Deck.objects.get(id=deck_id)
-  if deck.owner_id != request.user.id: #and not request.User.is_staff():
-    raise forms.ValidationError('You do not have permission to access this flashcard deck.')
-  #return update_object(request, form_class=DeckForm, object_id=deck_id, post_save_redirect='../decks', extra_context={'container_id': 'deckDialog'}, template_object_name='deck')
-  if request.method == 'POST':
-    deck_form = DeckForm(request.POST, instance=deck)
-    if deck_form.is_valid():
-      deck = deck_form.save()
-      #request.user.message_set.create(message=ugettext("The %(verbose_name)s was created successfully.") % {"verbose_name": model._meta.verbose_name})
-      return HttpResponse(json_encode({'success':True}), mimetype='text/javascript')#return HttpResponseRedirect(post_save_redirect)
-  else:
-    deck_form = DeckForm(instance=deck)
-  return render_to_response('flashcards/deck_form.html', {'form': deck_form,
-                                                          'deck': deck,
-                                                          'container_id': 'deckDialog',
-                                                          'post_save_redirect': '/flashcards/decks'}) #todo:post/pre redirs
-
-
-@login_required
-def deck_delete(request, deck_id, post_delete_redirect='/flashcards/decks'): #todo: pass post_*_redirect from urls.py
-  obj = Deck.objects.get(id=deck_id)
-  if obj.owner_id != request.user.id: #and not request.User.is_staff():
-    raise forms.ValidationError('You do not have permission to access this flashcard deck.')
-  if request.method == 'POST':
-    #DO ALLOW #don't allow the last deck to be deleted
-    #if Deck.objects.filter(owner=request.user, active=True).count() == 1:
-    #    return HttpResponse(json_encode({'success':False}, mimetype='text/javascript')) #TODO error message
-
-    if obj.subscriber_decks.filter(active=True).count() > 0: #exists():
-        obj.active = False
-        obj.save()
-    else:
-        obj.delete_cascading()
-    #request.user.message_set.create(message=ugettext("The %(verbose_name)s was deleted.") % {"verbose_name": model._meta.verbose_name})
-    return HttpResponse(json_encode({'success':True}), mimetype='text/javascript')
-  else:
-    return render_to_response('flashcards/deck_confirm_delete.html', {'deck': obj,
-                                                                      'post_delete_redirect': post_delete_redirect,
-                                                                      'container_id': 'deckDialog'})
-
-@login_required
-def deck_create(request, post_save_redirect='/flashcards/decks'):
-  if request.method == 'POST':
-    deck_form = DeckForm(request.POST)
-    if deck_form.is_valid():
-      new_deck = deck_form.save(commit=False)
-      new_deck.owner = request.user
-      new_deck.save()
-      if 'tags' in deck_form.cleaned_data:
-        new_deck.tags = deck_form.cleaned_data['tags']
-
-      scheduling_options = SchedulingOptions(deck=new_deck)
-      scheduling_options.save()
-      #request.user.message_set.create(message=ugettext("The %(verbose_name)s was created successfully.") % {"verbose_name": model._meta.verbose_name})
-      return HttpResponse(json_encode({'success': True, 'post_redirect': new_deck.get_absolute_url()}), mimetype='text/javascript')#HttpResponseRedirect(post_save_redirect)
-    else:
-      #FIXME post_redirect for failure? handle in ajax?
-      return HttpResponse(json_encode({'success': False}), mimetype='text/javascript')
-  else:
-    deck_form = DeckForm()
-  return render_to_response('flashcards/deck_form.html', {'form': deck_form,
-                                                          'post_save_redirect': post_save_redirect}) #todo:post/pre redirs
-
-
-
-#REST views
-
-def rest_entry_point(request):
-    pass
-
-
-@login_required
 @json_response
 def rest_generate_reading(request):
     if request.method == 'POST':
         reading = japanese.generate_reading(request.POST['expression'])
         return {'success':True, 'reading': ret}
-        
 
 @login_required
 @json_response
@@ -672,16 +501,3 @@ def rest_fact(request, fact_id): #todo:refactor into facts
         else:
             fact.delete()
         return {'success': True}
-
-
-
-  
-
-
-
-
-
-
-
-
-

@@ -130,7 +130,7 @@
                     var grid_item = cards_factsGrid.selection.getSelected()[0];
                     var fact_id = grid_item['fact-id'][0]; //TODO allow multiple selections
                     var deferred = dojo.xhrPost({
-                        url: '{% url api-facts %}' + fact_id,
+                        url: '{% url api-facts %}' + fact_id + '/',
                         handleAs: 'text',
                         content: { _method: 'DELETE' },
                         load: function(data) {

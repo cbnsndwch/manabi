@@ -21,7 +21,7 @@ overlay design overview: http://www.patternry.com/p=overlay/
 
 brand new refactor todo
 ---------
-named URLs
+-named URLs
 update pinax
 update django to 1.2.3
 upgrade dojo to 1.5
@@ -103,6 +103,8 @@ make field uniqueness per-deck
 ---------------------
 TODO:
 ---------------------
+rename suspend to archive
+
 allow adding unsorted/orphan cards/items
 
 change the page title when the hash changes, somehow
