@@ -1,6 +1,7 @@
 from itertools import chain
 from django.db.models import Avg, Max, Min, Count
 from django.db import models
+from model_utils.managers import manager_from
 
 
 class SchedulerMixin(object):

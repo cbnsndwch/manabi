@@ -1,3 +1,14 @@
+
+/********************
+ * Disclaimer to those reading this code!
+ *
+ * I wrote this as I was really still learning Javascript and Dojo (and
+ * Django), several years ago. I didn't get how to properly 
+ * organize OO JS via prototypes and so on. So please forgive the mess 
+ * that this is :) It will be rewritten eventually, though it works somehow.
+ *********************/
+
+
   dojo.require("dijit.Dialog");
   dojo.require("dijit.form.TextBox");
   dojo.require("dijit.form.Button");
@@ -84,18 +95,10 @@
   
   function factFormSubmit(submitSuccessCallback, submitErrorCallback, _factAddForm, factId, showStandby) {
       if (showStandby) {
-          //factAddDialogStandby.attr('target', factAddFormDialog);
           factAddFormSubmitButton.attr('disabled', true);
       }
-      //var cardTemplatesValue = _cardTemplatesInput.attr('value');
-      //var tempCardCounter = 0;
-      //var newCardTemplatesValue = {};
       var factAddFormValue = _factAddForm.attr('value');
       
-      /*cardTemplatesValue = dojo.forEach(cardTemplatesValue, function(val){
-          var newKey = 'card-'+(tempCardCounter++)+'-template';
-          factAddFormValue[newKey] = val;
-      });*/
       var tempCardCounter = 0;
       for (var key in factAddFormValue) {
           if (key.indexOf('card_template') == 0 && factAddFormValue[key].length) {
@@ -108,11 +111,8 @@
       console.log(field_content_count);
 
       factAddFormValue['fact-fact_type'] = 1; //FIXME temp hack - assume Japanese
-      //factAddFormValue['card-TOTAL_FORMS'] = tempCardCounter.toString();
-      //factAddFormValue['card-INITIAL_FORMS'] = '0'; //tempCounter; //todo:if i allow adding card templates in this dialog, must update this
       factAddFormValue['field_content-TOTAL_FORMS'] = field_content_count.toString(); //fieldContentInputCount.toString();
       factAddFormValue['field_content-INITIAL_FORMS'] = factId ? field_content_count.toString() : '0'; //fieldContentInputCount; //todo:if i allow adding card templates in this dialog, must update this
-      //factAddFormValue['fact-id']
       //alert('submitted w/args:\n' + dojo.toJson(factAddFormValue));
       
       var xhrArgs = {
@@ -225,7 +225,6 @@
                   }).placeAt(domNode, 'last');
                   fieldTextarea.attr('gridStoreItemId', 'id'+fieldsStore.getValue(item, 'id')); //TODO this is a hack - all this code needs to be refactored
                   
-                  //dojo.place('<input type="hidden" dojoType="dijit.form.TextBox" name="field_content-'+tempFieldCounter+'-field" id="id_field_content-'+tempFieldCounter+'id" value="'+fieldsStore.getValue(item, 'id')+'" />', 'factFields', 'last');
                   new dijit.form.TextBox({
                       name: 'field_content-'+tempFieldCounter+'-field_type',
                       id: formPrefix+'id_field_content-'+tempFieldCounter+'-field_type',
@@ -253,11 +252,10 @@
   
   var factTypeInputOnChangeHandle = null;
   var lastCardTemplatesInputValue = null;
-  var fieldContentInputCount = 4;//FIXME this is a terrible legacy hack... (was null;)
+  var fieldContentInputCount = 4;//FIXME this is a terrible legacy hack... 
   
   function appendLineToAddedCardHistory(node, text) {
     //append a line, but if there are too many lines, delete the first line
-    //(this is messy...)
     existing_lines = node.innerHTML.split('<br>');
     if (existing_lines.length > 4) {
         //delete first line
@@ -413,7 +411,6 @@
         }
         dojo.xhrPost(xhrArgs); //var deferred = 
         //dojo.place('Added '+tempCardCounter.toString()+' cards for '+'what'+'<br>','factAddFormResults', 'last');
-        
     }
 
     fact_ui.facts_url_query = {fact_type: 1};

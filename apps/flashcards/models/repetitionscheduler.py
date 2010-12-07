@@ -1,5 +1,5 @@
 import random
-from constants import GRADE_NONE, GRADE_BAD, GRADE_GOOD, GRADE_EASY
+from constants import GRADE_NONE, GRADE_HARD, GRADE_GOOD, GRADE_EASY
 from datetime import timedelta, datetime
 from utils import timedelta_to_float
 from math import cos, pi
@@ -319,7 +319,7 @@ class YoungCardAlgo(RepetitionAlgo):
         '''
         return (self.card.interval 
                 < self.card.fact.deck.schedulingoptions.initial_interval(
-                    GRADE_EASY)
+                    GRADE_EASY))
 
     def _next_interval(self, failure_interval=0):
         return super(YoungCardAlgo, self)._next_interval(

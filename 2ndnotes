@@ -1,0 +1,16 @@
+have a proxy model for subscribed cards that are not yet copied
+UncopiedSubscribedCards
+NonlocalSubscribedCards
+UnacquiredCards
+
+UnreceivedCards
+
+NonReceivedCards
+
+NonCopiedCards
+
+RemoteCards
+
+WithheldCards
+
+

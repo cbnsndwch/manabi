@@ -2,10 +2,10 @@
 
 
 <div dojoType="dojo.data.ItemFileWriteStore" jsId="cards_factStore" 
-    url="/flashcards/rest/facts?fact_type=1" clearOnClose="true">
+    url="{% url api-facts %}?fact_type=1" clearOnClose="true">
 </div>
 <div dojoType="dojo.data.ItemFileReadStore" jsId="cards_fieldTypeStore" 
-    url="/flashcards/rest/fact_types/1/fields">
+    url="{% url api-fact_type_fields 1 %}">
 </div>
 <div dojoType="dojox.grid.formatterScopeObj" store="cards_factStore" jsId="myObject"></div> 
 
@@ -20,7 +20,7 @@
             var store = cards_factsGrid.store;
             store.close();
             fact_ui.facts_url_query['search'] = search_query;
-            store.url = '/flashcards/rest/facts?' + dojo.objectToQuery(fact_ui.facts_url_query);
+            store.url = '{% url api-facts %}?' + dojo.objectToQuery(fact_ui.facts_url_query);
             store.fetch();
             cards_factsGrid.sort(); //forces a refresh
             cards_clearFactSearchButton.domNode.style.visibility = '';
@@ -49,7 +49,7 @@
                 var store = cards_factsGrid.store;
                 store.close();
                 fact_ui.facts_url_query['deck'] = this.attr('value');
-                store.url = '/flashcards/rest/facts?' + dojo.objectToQuery(fact_ui.facts_url_query);
+                store.url = '{% url api-facts %}?' + dojo.objectToQuery(fact_ui.facts_url_query);
                 store.fetch();
                 cards_factsGrid.sort(); //forces a refresh
             } else if (fact_ui.facts_url_query['deck']) {
@@ -78,7 +78,7 @@
             var store = cards_factsGrid.store;
             store.close();
             fact_ui.facts_url_query['tags'] = fact_ui.current_tag_filter_list;
-            store.url = '/flashcards/rest/facts?' + dojo.objectToQuery(fact_ui.facts_url_query);
+            store.url = '{% url api-facts %}?' + dojo.objectToQuery(fact_ui.facts_url_query);
             store.fetch();
             cards_factsGrid.sort(); //forces a refresh
             //add closable tag div
@@ -151,7 +151,7 @@
                 var grid_item = cards_factsGrid.selection.getSelected()[0];
                 var fact_id = grid_item['fact-id'][0]; //TODO allow multiple selections
                 var deferred = dojo.xhrPost({
-                    url: '/flashcards/rest/facts/' + fact_id,
+                    url: '{% url api-facts %}/' + fact_id + '/',
                     handleAs: 'text',
                     content: { _method: 'DELETE' },
                     load: function(data) {
@@ -180,7 +180,7 @@
             var suspend = this.attr('checked');
             var grid_item = cards_factsGrid.selection.getSelected()[0];
             var fact_id = grid_item['fact-id'][0]; //TODO allow multiple selections
-            var url = '/flashcards/rest/facts/' + fact_id + '/';
+            var url = '{% url api-facts %}' + fact_id + '/';
             if (suspend) {
                 url += 'suspend';
             } else {

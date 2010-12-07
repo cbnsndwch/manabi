@@ -5,7 +5,7 @@
     <br>
     <div class="subfacts_link_container">
         {% with fact.subfacts.all|first as child_fact %}
-            <span style="font-size:.4em" class="fakeLink" onclick="this.style.display='none';reviews_subfactPane.attr('href', 'flashcards/facts/{{ fact.id }}/subfacts');reviews_subfactPane.refresh();reviews_subfactPane.domNode.style.display='';">View {{ child_fact.fact_type.name }}{{ fact.child_facts.all.count|pluralize }}</span>
+            <span style="font-size:.4em" class="fakeLink" onclick="this.style.display='none';reviews_subfactPane.attr('href', '{% url fact_subfacts fact.id %}');reviews_subfactPane.refresh();reviews_subfactPane.domNode.style.display='';">View {{ child_fact.fact_type.name }}{{ fact.child_facts.all.count|pluralize }}</span>
         {% endwith %}
     </div>
 {% endif %}

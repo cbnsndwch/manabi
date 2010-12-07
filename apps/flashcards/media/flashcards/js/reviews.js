@@ -51,7 +51,7 @@ reviews.prefetchCards = function(count, session_start) {
             }
     });
 
-    var url = '/flashcards/rest/cards_for_review'; //TODO don't hardcode these URLs
+    var url = '{% url api-next_cards_for_review %}';
     url += '?count='+count;
     if (session_start) {
         url += '&session_start=True';
@@ -173,7 +173,7 @@ reviews.startSession = function(deck_id, daily_new_card_limit, session_card_limi
 
     // reset the review undo stack on the server
     var def = new dojo.Deferred();
-    reviews._simpleXHRPost('/flashcards/rest/cards_for_review/undo/reset').addCallback(dojo.hitch(def, function(def) {
+    reviews._simpleXHRPost('{% url api-reset_review_undo_stack %}').addCallback(dojo.hitch(def, function(def) {
         var prefetch_def = reviews.prefetchCards(reviews.card_buffer_count * 2, true);
         prefetch_def.addCallback(dojo.hitch(def, function(def, prefetch_item) {
             //start session timer - a published event
@@ -201,10 +201,10 @@ reviews.endSession = function() {
     reviews.empty_prefetch_producer = false;
 };
 
-reviews.reload_current_card = function() {
+reviews.reloadCurrentCard = function() {
     //TODO refresh the card inside reviews.cards, instead of just setting current_cards
     var xhr_args = {
-        url: 'flashcards/rest/cards/' + reviews.current_card.id,
+        url: '{% url api-cards %}/' + reviews.current_card.id,
         handleAs: 'json',
         load: function(data) {
             if (data.success) {
@@ -285,7 +285,7 @@ reviews.undo = function() {
     var undo_def = new dojo.Deferred();
     review_defs.addCallback(dojo.hitch(null, function(undo_def) {
         // Send undo request
-        var actual_undo_def = reviews._simpleXHRPost('/flashcards/rest/cards_for_review/undo');
+        var actual_undo_def = reviews._simpleXHRPost('{% url api-undo_review %}');
         
         // Clear and refill card cache
         actual_undo_def.addCallback(dojo.hitch(null, function(undo_def) {
@@ -301,7 +301,7 @@ reviews.undo = function() {
 reviews.suspendCard = function(card) {
     // Suspends this and sibling cards.
     xhr_args = {
-        url: '/flashcards/rest/facts/' + card.fact_id + '/suspend',
+        url: '/flashcards/api/facts/' + card.fact_id + '/suspend',
         handleAs: 'json',
         load: function(data) {
             if (data.success) {
@@ -315,7 +315,7 @@ reviews.suspendCard = function(card) {
 
 reviews.reviewCard = function(card, grade) {
     xhr_args = {
-        url: '/flashcards/rest/cards/'+card.id,
+        url: '{% url api-cards %}/' + card.id,
         content: { grade: grade },
         handleAs: 'json',
         load: function(data) {
@@ -407,38 +407,40 @@ reviews._simpleXHRValueFetch = function(url, value_name) {
     return def;
 };
 
-reviews.dueCardsCount = function() {
-    return reviews._simpleXHRValueFetch('/flashcards/rest/cards_for_review/due_count', 'cards_due_count');
+reviews.dueCardCount = function() {
+    return reviews._simpleXHRValueFetch('{% url api-due_card_count %}');
 };
 
-reviews.newCardsCount = function() {
-    return reviews._simpleXHRValueFetch('/flashcards/rest/cards_for_review/new_count', 'cards_new_count');
+reviews.newCardCount = function() {
+    return reviews._simpleXHRValueFetch('{% url api-new_card_count %}');
 };
 
 reviews.nextCardDueAt = function() {
-    return reviews._simpleXHRValueFetch('/flashcards/rest/cards_for_review/next_due_at', 'next_card_due_at');
+    return reviews._simpleXHRValueFetch('{% url api-next_card_due_at %}');
 };
 
 reviews.timeUntilNextCardDue = function(deck, tags) {
+    // Returns a float of the hours until the next card is due.
     var args = {};
     args.deck = deck || null;
     args.tags = tags || null;
     var query = dojo.objectToQuery(args);
-    var url = '/flashcards/rest/cards_for_review/hours_until_next_due';
+    var url = '{% hours_until_next_card_due %}';
     if (query) {
         url += '?' + query;
     }
-    return reviews._simpleXHRValueFetch(url);
+    return parseInt(reviews._simpleXHRValueFetch(url));
 //    console.log(data);
 //   return {hours: data['hours_until_next_card_due'], minutes: data['minutes_until_next_card_due']};
 };
 
 reviews.countOfCardsDueTomorrow = function(deck) {
-    var url = '/flashcards/rest/cards_for_review/due_tomorrow_count';
+    var url = '{% url api-due_tomorrow_count %}';
+    //TODO use dojo's url params api
     if (typeof deck != 'undefined' && deck) {
         url += '?deck='+deck;
     }
-    return reviews._simpleXHRValueFetch(url, 'cards_due_tomorrow_count');
+    return reviews._simpleXHRValueFetch(url);
 };
 
 
@@ -512,6 +514,21 @@ reviews_ui._showNoCardsDue = function() {
 };
 
 
+reviews_ui._humanizeDuration = function(hours) {
+    // Returns a humanized duration.
+    // If hours < 1/60, returns "under a minute"
+    // If hours < 1, returns "n minutes"
+    // Otherwise, "n hours"
+    var minutes = hours / 60;
+    if (minutes < 1) {
+        return 'under a minute';
+    else if (hours < 1) {
+        return minutes + ' minutes';
+    } else {
+        return hours + ' hours';
+    }
+}
+
 reviews_ui._humanizedTimeUntil = function(time_until) {
     var minutes_until = parseInt(time_until['minutes_until_next_card_due']) || -1;
     var hours_until = parseInt(time_until['hours_until_next_card_due']) || -1;
@@ -532,28 +549,27 @@ reviews_ui.showNoCardsDue = function(can_learn_more, empty_query) {
         //reviews_ui.review_options_dialog.show();
         reviews_ui.openDialog();
     }
+
+    reviews_ui._showNoCardsDue();
+
     if (!can_learn_more && empty_query) {
         reviews_beginEarlyReviewButton.attr('disabled', true);
         dojo.byId('reviews_emptyQuery').style.display = '';
-        reviews_ui._showNoCardsDue();
     } else {
-        reviews.timeUntilNextCardDue(reviews_ui.last_session_args.deck_id, reviews_ui.last_session_args.tag_id).addCallback(function(time_until) {
-            if (parseInt(time_until['hours_until_next_card_due']) > 24) {
+        reviews.timeUntilNextCardDue(reviews_ui.last_session_args.deck_id, reviews_ui.last_session_args.tag_id).addCallback(function(hours_until) {
+            if (hours_until > 24) {
                 reviews.nextCardDueAt().addCallback(function(next_due_at) {
                     dojo.byId('reviews_noCardsDueNextDueAt').innerHTML = 'The next card is due at: ' + next_due_at;
                     dojo.byId('reviews_noCardsDue').style.display = '';
-                    reviews_ui._showNoCardsDue();
                 });
             } else {
-                dojo.byId('reviews_noCardsDueNextDueAt').innerHTML = 'The next card is due in ' + reviews_ui._humanizedTimeUntil(time_until);
+                dojo.byId('reviews_noCardsDueNextDueAt').innerHTML = 'The next card is due in ' + reviews_ui._humanizeDuration(hours_until);
                 dojo.byId('reviews_noCardsDue').style.display = '';
-                reviews_ui._showNoCardsDue();
             }
         });
         dojo.byId('reviews_learnMoreContainer').style.display = can_learn_more ? '' : 'none';
         reviews_learnMoreButton.attr('disabled', !can_learn_more);
         reviews_beginEarlyReviewButton.attr('disabled', false);
-        reviews_ui._showNoCardsDue();
     }
 
 };
@@ -565,16 +581,7 @@ reviews_ui.showReviewOptions = function() {
     dojo.byId('reviews_noCardsDue').style.display = 'none';
     dojo.byId('reviews_emptyQuery').style.display = 'none';
     dojo.byId('reviews_reviewEndScreen').style.display = 'none';
-
-    //show the due count
-    /*reviews.dueCardsCount().addCallback(function(count) {
-        dojo.byId('reviews_cardsDueCount').innerHTML = count;
-    });
-    //show the new count
-    reviews.newCardsCount().addCallback(function(count) {
-        dojo.byId('reviews_cardsNewCount').innerHTML = count;
-    });*/
-
+http://www.browserling.com/
     reviews_beginReviewButton.attr('disabled', false);
     reviews_beginEarlyReviewButton.attr('disabled', true);
 };
@@ -609,8 +616,8 @@ reviews_ui.openSessionOverDialog = function(review_count) {
         if (count == 0) {
             // None due by this time tomorrow, so we'll get the time when one
             // is next due.
-            reviews.timeUntilNextCardDue(reviews_ui.last_session_args.deck_id, reviews_ui.last_session_args.tag_id).addCallback(function(time_until) {
-                dojo.byId('reviews_sessionOverDialogNextDue').innerHTML = 'The next card is due in ' + reviews_ui._humanizedTimeUntil(time_until);
+            reviews.timeUntilNextCardDue(reviews_ui.last_session_args.deck_id, reviews_ui.last_session_args.tag_id).addCallback(function(hours_until) {
+                dojo.byId('reviews_sessionOverDialogNextDue').innerHTML = 'The next card is due in ' + reviews_ui._humanizeDuration(hours_until);
                 dojo.byId('reviews_sessionOverDialogReviewCount').innerHTML = review_count;
                 reviews_sessionOverDialog.show();
             });
@@ -868,7 +875,7 @@ reviews_ui.unsetCardBackKeyboardShortcuts = function() {
     }
 };
 
-reviews_ui._subscribe_to_session_events = function() {
+reviews_ui._subscribeToSessionEvents = function() {
     reviews_ui._event_subscriptions = new Array();
     //session timer completion event (when the session timer has exceeded the session time limit)
     reviews_ui._event_subscriptions.push(dojo.subscribe(reviews.subscription_names.session_timer_over, function(evt) {
@@ -914,7 +921,7 @@ reviews_ui.startSession = function(args) { //deck_id, session_time_limit, sessio
             args.early_review||false, 
             args.learn_more||false); //FIXME use the user-defined session limits
 
-    reviews_ui._subscribe_to_session_events();
+    reviews_ui._subscribeToSessionEvents();
 
     //wait for the first cards to be returned from the server
     session_def.addCallback(function(initial_card_prefetch) {
@@ -985,7 +992,6 @@ reviews_ui.submitReviewOptionsDialog = function(early_review, learn_more) {
 };
 
 
-//dojo.declare('reviews_decksGridLayout', null, [{
 reviews_decksGridLayout = [{
 			type: "dojox.grid._RadioSelector"
 		},{ cells: [[
@@ -993,5 +999,5 @@ reviews_decksGridLayout = [{
 			//{name: 'Cards', field: 'card_count', width: 'auto'},
 			{name: 'Cards due', field: 'due_card_count', width: '70px'},
 			{name: 'New cards', field: 'new_card_count', width: '70px'},
-		]]}];//);
+		]]}];
 

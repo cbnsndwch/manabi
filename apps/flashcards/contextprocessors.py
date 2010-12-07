@@ -32,7 +32,8 @@ def subfact_form_context(request, subfact=None, field_content_offset=0, fact_for
 
 
 def study_options_context(request, deck_id=None):
-    '''Returns a dictionary for studying either all decks, or a single deck.
+    '''
+    Returns a dictionary for studying either all decks, or a single deck.
     '''
     context = {}
 

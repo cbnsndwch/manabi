@@ -1,8 +1,8 @@
 {% if request.user == deck.owner or deck.shared %}
     {% comment %}
     <p>
-        {% if request.user == deck.owner %}<a href="/flashcards/decks" class="xhr_link">&laquo; Back to Manage</a>
-        {% else %}<a href="/flashcards/add" class="xhr_link">&laquo; Back to Add</a>{% endif %}
+        {% if request.user == deck.owner %}<a href="{% url decks %}" class="xhr_link">&laquo; Back to Manage</a>
+        {% else %}<a href="{% add_decks %}" class="xhr_link">&laquo; Back to Add</a>{% endif %}
     </p>
     {% endcomment %}
 
@@ -19,7 +19,7 @@
             <button dojoType="dijit.form.Button">
 	            Add Deck
 	            <script type="dojo/connect" event="onClick" args="evt">
-                    var url = '/flashcards/rest/decks/{{ deck.id }}/subscribe';
+                    var url = '{% url api-subscribe_to_deck deck.id %}';
                     manabi_ui.xhrPostData(url).addCallback(function() { manabi_ui.refreshDeckInput(); });
 	            </script>
             </button> Add this deck to your personal deck collection, so that you can start studying it.
@@ -66,7 +66,7 @@
                     <script type="dojo/connect" event="onClick" args="evt">
                         // Shares or unshares this deck.
                         var share = this.attr('checked');
-                        var url = '/flashcards/rest/decks/{{ deck.id }}'; // + share ? 'share' : 'unshare';
+                        var url = '{% url api-deck deck.id %}'; // + share ? 'share' : 'unshare';
                         manabi_ui.xhrPostData(url, {'shared': share});
                     </script>            
                 </button>
@@ -80,8 +80,8 @@
 	            <script type="dojo/connect" event="onClick" args="evt">
                     var delete_response = window.confirm('Really delete this deck, and all the flashcards it contains? This action cannot be undone.');
                     if (delete_response) {
-                        var url = '{{ deck.get_absolute_url }}/delete';
-                        manabi_ui.xhrPostData(url, null, '/flashcards/decks').addCallback(function(){ manabi_ui.refreshDeckInput(); });
+                        var url = '{% url delete_deck deck.id %}';
+                        manabi_ui.xhrPostData(url, null, '{% url decks %}').addCallback(function(){ manabi_ui.refreshDeckInput(); });
                     }
 	            </script>
             </button>

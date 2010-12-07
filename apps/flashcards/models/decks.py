@@ -12,7 +12,6 @@ from django.db import transaction
 from itertools import chain
 
 import cards
-from facts import Fact, SharedFact, FieldContent, SharedFieldContent
 
 import usertagging
 
@@ -52,21 +51,18 @@ class DeckManager(models.Manager):
 
         return deck_values
 
-
     def of_user(self, user):
         return self.filter(owner=user, active=True)
 
-
     def shared_decks(self):
         return self.filter(shared=True, active=True)
-
 
     def synchronized_decks(self, user):
         return self.filter(owner=user, synchronized_with__isnull=False)
 
 
-
 #TODO use this
+#TODO rename to Book or something instead?
 class Textbook(models.Model):
     name = models.CharField(max_length=100)
     edition = models.CharField(max_length=50, blank=True)
@@ -83,8 +79,10 @@ class Textbook(models.Model):
         return self.name
 
 
-class AbstractDeck(models.Model):
-    #TODO get rid of this abc
+class Deck(models.Model):
+    #manager
+    objects = DeckManager()
+
     name = models.CharField(max_length=100)
     description = models.TextField(max_length=2000, blank=True)
     owner = models.ForeignKey(User, db_index=True)
@@ -97,34 +95,6 @@ class AbstractDeck(models.Model):
 
     created_at = models.DateTimeField(auto_now_add=True, editable=False)
     modified_at = models.DateTimeField(auto_now=True, editable=False)
-
-    class Meta:
-        app_label = 'flashcards'
-        abstract = True
-
-
-class SharedDeck(AbstractDeck):
-    '''This is legacy for now. Deprecated. Just used for copying decks.'''
-    downloads = models.PositiveIntegerField(default=0, blank=True)
-
-    def __unicode__(self):
-        return self.name
-    
-    class Meta:
-        app_label = 'flashcards'
-        #TODO unique_together = (('owner', 'name'), )
-
-    def get_absolute_url(self):
-        return '/flashcards/shared_decks/{0}'.format(self.id)
-    
-    #FIXME delete cascading
-    
-usertagging.register(SharedDeck)
-
-
-class Deck(AbstractDeck):
-    #manager
-    objects = DeckManager()
 
     # whether this is a publicly shared deck
     shared = models.BooleanField(default=False, blank=True)
@@ -144,12 +114,10 @@ class Deck(AbstractDeck):
     def get_absolute_url(self):
         return '/flashcards/decks/{0}'.format(self.id)
 
-
     def delete(self, *args, **kwargs):
         # You shouldn't delete a shared deck - just set active=False
         self.subscriber_decks.clear()
         super(Deck, self).delete(*args, **kwargs)
-
 
     #def card_count(self):
     #    return cards.Card.objects.filter(fact__deck=self, active=True, suspended=False).count()
@@ -160,6 +128,7 @@ class Deck(AbstractDeck):
         '''Returns all Facts for this deck,
         including subscribed ones, not including subfacts.
         '''
+        from facts import FieldContent
         if self.synchronized_with:
             updated_fields = FieldContent.objects.filter(fact__deck=self, fact__active=True, fact__synchronized_with__isnull=False) #fact__in=self.subscriber_facts.all())
             # 'other' here means non-updated, subscribed
@@ -176,6 +145,7 @@ class Deck(AbstractDeck):
         preferring updated subscriber fields to subscribed ones,
         when the deck is synchronized.
         '''
+        from facts import FieldContent
         if self.synchronized_with:
             updated_fields = FieldContent.objects.filter(fact__deck=self, fact__active=True, fact__synchronized_with__isnull=False) #fact__in=self.subscriber_facts.all())
             # 'other' here means non-updated, subscribed
@@ -227,6 +197,7 @@ class Deck(AbstractDeck):
         If the user was already subscribed to this deck, 
         returns the existing deck.
         '''
+        from facts import Fact
         # check if the user is already subscribed to this deck
         existing_decks = Deck.objects.filter(owner=user, synchronized_with=self, active=True)
         if len(existing_decks):
@@ -258,7 +229,8 @@ class Deck(AbstractDeck):
 
         # copy the facts - just the first few as a buffer
         shared_fact_to_fact = {}
-        for shared_fact in self.fact_set.filter(active=True, parent_fact__isnull=True).order_by('new_fact_ordinal')[:10]: #TODO dont hardcode value here #chain(self.fact_set.all(), Fact.objects.filter(parent_fact__deck=self)):
+        #TODO dont hardcode value here #chain(self.fact_set.all(), Fact.objects.filter(parent_fact__deck=self)):
+        for shared_fact in self.fact_set.filter(active=True, parent_fact__isnull=True).order_by('new_fact_ordinal')[:10]: 
             #FIXME get the child facts for this fact too
             #if shared_fact.parent_fact:
             #    #child fact

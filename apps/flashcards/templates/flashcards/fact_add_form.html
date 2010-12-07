@@ -1,7 +1,7 @@
 {% comment %}Update this to use the standard fact_form.html, need to update the js to use the new names mostly{% endcomment %}
 
 <div dojoType="dojo.data.ItemFileReadStore" jsId="decksStore" 
-    url="/flashcards/rest/decks" clearOnClose="true">
+    url="{% url api-decks %}" clearOnClose="true">
 </div>
 
 

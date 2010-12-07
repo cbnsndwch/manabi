@@ -4,12 +4,10 @@ from django.forms import ModelForm
 from django.forms.util import ErrorList
 from dbtemplates.models import Template
 
-from facts import FactType
-
 
 
 class CardTemplate(models.Model):
-    fact_type = models.ForeignKey(FactType)
+    fact_type = models.ForeignKey('flashcards.FactType')
 
     name = models.CharField(max_length=50)
     description = models.TextField(max_length=200, blank=True)
@@ -22,7 +20,8 @@ class CardTemplate(models.Model):
 
     #used for generating/enabling cards for a fact which is missing certain fields
     #can show validation errors to the user based on this (e.g. "Enter a reading if you want to do kanji writing")
-    requisite_field_types = models.ManyToManyField('FieldType', blank=True) #TODO implement
+    requisite_field_types = models.ManyToManyField('flashcards.FieldType',
+        blank=True) #TODO implement
     
     #sometimes multiple cards should share intervals if they're similar enough.
     #use this group ID (not a foreignkey though) to synchronize among other cards within a fact.
