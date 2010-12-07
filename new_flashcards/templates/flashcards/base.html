@@ -1,0 +1,40 @@
+
+<div dojoType="dojo.data.ItemFileReadStore" jsId="cards_factsTagsStore" 
+    url="{% url api-fact_tags %}">
+</div>
+
+
+{% include 'flashcards/reviews.html' %}
+
+
+<div dojoType="dijit.Dialog" jsId="cards_factEditorContainer" title="Edit Flashcard" modal="true">
+</div>
+
+<div dojoType="dijit.Dialog" jsId="factAddDialog" title="Create Flashcards">
+    <script type="dojo/connect" event="onHide" args="evt">
+        manabi_ui.xhrReload(); //TODO only reload the due count, or only if new cards were actually added
+    </script>
+    <script type="dojo/connect" event="onShow" args="evt">
+        dojo.query('textarea', factAddDialog.domNode).forEach(function(node) {
+            var widget = dijit.getEnclosingWidget(node);
+            widget.resize();
+        });
+        dojo.query('div.hidden_in_form', factAddDialog.domNode).forEach(function(node) {
+            var to_hide = true;
+            var text_nodes = dojo.query('textarea', node);
+            if (text_nodes.length) {
+                var widget = dijit.getEnclosingWidget(text_nodes[0]);
+                
+                if (widget.attr('value').trim() != '') {
+                    to_hide = false;
+                }
+                if (to_hide) {
+                    node.style.display = 'none';
+                    //unhide the 'Add ...' link, which shows this hidden field
+                    dojo.query(node).prev()[0].style.display = '';
+                }
+            }
+        });
+    </script>
+    {% include "flashcards/fact_add_form.html" %}
+</div>

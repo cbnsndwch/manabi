@@ -1,0 +1,171 @@
+
+<div style="width:388px; float:left; padding-right: 20px;">
+    <div dojoType="dijit.form.Form" jsId="cards_factForm" id="cards_factForm" encType="multipart/form-data" action="" method="">
+        <script type="dojo/connect" event="onSubmit" args="evt">
+            evt.preventDefault();
+            selected_fact_id = '{{ fact.id }}'; //cards_factForm.attr('value')['fact-0-id'];
+            fact_ui.submitFactForm(cards_factForm, selected_fact_id);
+        </script>
+
+        <input dojoType="dijit.form.TextBox" 
+            name="_method" 
+            value="PUT" 
+            type="hidden">
+
+        <input dojoType="dijit.form.TextBox" 
+            name="fact-INITIAL_FORMS" 
+            value="{{ fact.subfacts.count|add:1 }}" 
+            type="hidden">
+        <input dojoType="dijit.form.TextBox" 
+            name="fact-TOTAL_FORMS" 
+            value="{{ fact.subfacts.count|add:1 }}" 
+            type="hidden">
+        <input dojoType="dijit.form.TextBox" 
+            name="fact-0-id" 
+            value="{{ fact.id }}" 
+            type="hidden">
+        <input dojoType="dijit.form.TextBox" 
+            name="fact-0-deck" 
+            value="{{ fact.deck_id }}" 
+            type="hidden">
+        <input dojoType="dijit.form.TextBox" 
+            name="fact-0-fact_type" 
+            value="{{ fact.fact_type_id }}" 
+            type="hidden">
+        {% comment %}
+        <div>
+            <div>
+                <strong>Deck:</strong>
+                <select name="fact-deck" dojoType="dijit.form.Select">
+                    {% for deck in decks %}
+                        <option value="{{ deck.id }}"{% if deck.id == fact.deck.id or deck.synchronized_with_id == fact.deck_id %} selected="selected"{% endif %}>
+                        {{ deck.name }}
+                        </option>
+                    {% endfor %}
+                </select>
+            </div>
+        </div>
+        <br>
+        {% endcomment %}
+        <div class="cards_factFields">
+            {% for field_content in field_contents %}
+                {% with field_content.field_type as field_type %}
+                    {% if field_type.hidden_in_form and not field_content.content and not field_type.disabled_in_form %}
+                        <span class="fakeLink hiddenFieldLink" onClick="this.style.display='none';var c=dojo.query(this).next()[0];c.style.display='';var d=dijit.getEnclosingWidget(dojo.query('textarea',c)[0]);d.resize();d.focus();">Add {{ field_type.name }}</span>
+                    {% endif %}
+                    <div{% if field_type.hidden_in_form and not field_content.content %} class="hidden_in_form" style="display:none"{% endif %}>
+                        {% if field_type.is_transliteration_field_type %}
+                            <span><strong><label>{{ field_type.name }}:</label></strong>{% if not field_type.blank %} <span style="font-size:80%; color:gray">(required)</span>{% endif %}
+                                {% spaceless %}
+                                    <span class="fakeLink" onclick="fact_ui.generateReading(dijit.getEnclosingWidget(dojo.query('.cards_fieldContent')[0]).attr('value'), dijit.getEnclosingWidget(dojo.query('.cards_fieldContent')[1]))">
+                                        <img src="{{ MEDIA_URL }}static/css/dojo_themes/tundra/images/icons/arrow_refresh.png" alt="Refresh transliteration field">
+                                    </span>
+                                {% endspaceless %}
+                            </span>
+                        {% else %}
+                            <strong><label>{{ field_type.name }}:</label></strong>{% if not field_type.blank %} <span style="font-size:80%; color:gray">(required)</span>{% endif %}
+                        {% endif %}
+                        {% if field_type.choices %}
+                            <select 
+                                name="field_content-{{ forloop.counter0 }}-content"
+                                class="cards_fieldContent" 
+                                dojoType="dijit.form.Select"
+                                tabIndex="5{{ forloop.counter }}">
+                                <option value="none"{% ifequal field_content.content "" %}selected="selected"{% endifequal %}>
+                                     &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+                                </option>
+                                {% for choice_value, choice_name in field_type.choices_as_tuple %}
+                                <option value="{{ choice_value }}"
+                                    {% ifequal field_content.content choice_value %}selected="selected"{% endifequal %}>
+                                        {{ choice_name }}
+                                    </option>
+                                {% endfor %}
+                            </select>
+                        {% else %}
+                            <div class="field_content_error"></div>
+                            {% if field_type.multi_line %}
+                                <textarea  
+                                    name="field_content-{{ forloop.counter0 }}-content" 
+                                    class="cards_fieldContent" 
+                                    dojoType="dijit.form.Textarea" 
+                                    tabIndex="5{{ forloop.counter }}"
+                                    rows="2" style="width:400px;">{{ field_content.content }}</textarea>
+                            {% else %}
+                                <input  
+                                    name="field_content-{{ forloop.counter0 }}-content" 
+                                    class="cards_fieldContent" 
+                                    dojoType="dijit.form.TextBox" 
+                                    style="width:400px;"
+                                    tabIndex="5{{ forloop.counter }}"
+                                    value="{{ field_content.content }}">
+                            {% endif %}
+                        {% endif %}
+                        <input dojoType="dijit.form.TextBox" 
+                            name="field_content-{{ forloop.counter0 }}-field_type" 
+                            class="cards_fieldContentType" 
+                            value="{{ field_type.id }}" 
+                            type="hidden">
+                        <input dojoType="dijit.form.TextBox" 
+                            name="field_content-{{ forloop.counter0 }}-id" 
+                            value="{{ field_content.id }}" 
+                            type="hidden">
+                    </div>
+                {% endwith %}
+            {% endfor %}
+
+        </div>
+        <br>
+        <div>
+            {% comment %}{% include "flashcards/example_sentence_form.html" %}{% endcomment %}
+            <div id="cards_subfactFormsContainer" class="subfact_container_pane" style="height:9.5em;overflow:auto;{% if not fact.subfacts.all.count %}display:none;{% endif %}">
+                {% for subfact_form in subfact_forms %}
+                    <div>
+                        {% include "flashcards/subfact_form.html" %}
+                    </div>
+                {% endfor %}
+            </div>
+            <span class="fakeLink" onClick="fact_ui.addSubfactFormLink(dojo.byId('cards_subfactFormsContainer'), dijit.byId('cards_factForm').domNode, '{% filter escapejs %}{% include "flashcards/subfact_form.html" %}{% endfilter %}', {{ subfact_form.field_types|length }});">Add {{ subfact_form.fact_type.name }}</span>
+        </div>
+        <br>
+        <div>
+            <strong>Tags:</strong> <input name="fact-tags" type="text" dojoType="dijit.form.TextBox" 
+                                    class="cards_tagsInput" style="width:343px" 
+                                    value="{{ fact.edit_string_for_tags }}">
+        </div>
+        <br>
+        <div>
+            <div><strong style="vertical-align:top">Cards:</strong>
+            <select class="cards_cardTemplates" multiple="true" dojoType="dojox.form.CheckedMultiSelect" style="height:76px;">
+                {% for card_template in card_templates %}
+                    <option value="{{ card_template.id }}"{% if card_template.activated_for_fact %} selected="selected"{% endif %}>
+                        {{ card_template.name }}
+                    </option>
+                {% endfor %}
+            </select>
+            </div>
+        </div>
+        <br>
+
+        <input dojoType="dijit.form.TextBox" 
+            name="field_content-INITIAL_FORMS" 
+            value="{{ initial_field_content_form_count }}" 
+            type="hidden">
+
+        <div style="padding-bottom: 0px">
+            <span>
+                <button dojoType="dijit.form.Button" type="submit" tabIndex="59" iconClass="manabi_icon manabi_icon_disk">
+                    Update
+                </button>
+                <button dojoType="dijit.form.Button">
+                    Cancel
+                    <script type="dojo/connect" event="onClick" args="evt">
+                        fact_ui.hideFactEditForm();
+                    </script>
+                </button>
+            </span>
+        </div>
+    </div>
+</div>
+
+{% comment %}
+{% endcomment %}

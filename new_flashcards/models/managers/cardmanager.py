@@ -14,6 +14,33 @@ class CommonFiltersMixin(object):
     This is particularly useful with view URLs which take query params for 
     these things.
     '''
+    #def of_user(self, user):
+        #'''
+        #Includes remote subscribed cards.
+        #'''
+        #facts = 
+        #self.filter(
+
+    def of_deck(self, deck):
+        return self.filter(fact__deck=deck)
+
+    def of_user(self, user):
+        #TODO this is probably really slow
+        user_cards = self.filter(suspended=False, active=True)
+        facts = Fact.objects.with_synchronized(user)
+        user_cards = self.filter(fact__in=facts)
+        return user_cards
+
+    def new_cards(self, user, deck=None):
+        return self.of_user(user).filter(last_reviewed_at__isnull=True,
+                                         fact__deck=deck)
+
+    def due_cards(self, user, deck=None):
+        return self.of_user(user)\
+            .filter(due_at__lte=datetime.datetime.utcnow(),
+                    fact__deck=deck)\
+            .order_by('-interval')
+
 
 class CardManager(models.Manager):
     
@@ -31,24 +58,6 @@ class CardManager(models.Manager):
         return cards.count()
             
 
-    def of_user(self, user):
-        #TODO this is probably really slow
-        user_cards = self.filter(suspended=False, active=True)
-        facts = Fact.objects.with_synchronized(user)
-        user_cards = self.filter(fact__in=facts)
-        return user_cards
-
-    def new_cards(self, user, deck=None):
-        new_cards = self.of_user(user).filter(last_reviewed_at__isnull=True)
-        if deck:
-            new_cards = new_cards.filter(fact__deck=deck)
-        return new_cards
-
-    def due_cards(self, user, deck=None):
-        due_cards = self.of_user(user).filter(due_at__lte=datetime.datetime.utcnow()).order_by('-interval')
-        if deck:
-            due_cards = due_cards.filter(fact__deck=deck)
-        return due_cards
 
 
     #def failed_cards(self):
@@ -64,17 +73,6 @@ class CardManager(models.Manager):
         facts = Fact.objects.filter(id__in=recently_reviewed.values_list('fact', flat=True))
         new_cards_count = self.new_cards(user, deck).exclude(fact__in=facts).count()
         return new_cards_count
-
-
-    def cards_new_count(self, user, deck=None):
-        new_cards_count = self.new_cards(user, deck).count()
-        return new_cards_count
-
-
-    def cards_due_count(self, user, deck=None):
-        due_cards_count = self.due_cards(user, deck).count()
-        return due_cards_count
-
 
     def _space_cards(self, card_query, count, review_time, excluded_ids=[], early_review=False):
         '''

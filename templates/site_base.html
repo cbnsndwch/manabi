@@ -41,11 +41,11 @@
 <div style="font-size:2.4em;font-family:Helvetica;position:relative;text-decoration:none;padding-left:6px">
     {% if user.is_authenticated %}
         <a style="color:white;text-decoration:none;" href="{% url home_inline %}" onclick="manabi_ui.xhrLink(this.href);return false;">
+    {% else %}
+        <a style="color:white;text-decoration:none;" href="{% url home %}">
+    {% endif %}
             m a n a b i
         </a>
-    {% else %}
-        <a style="color:white;text-decoration:none;" href="{% url home %}">m a n a b i</a>
-    {% endif %}
 </div>
 {% endblock %}
 
@@ -53,8 +53,8 @@
     <ul>
         <li><a href="{% url home_inline %}" id="subnav_home_link" class="xhr_link">Home</a>
         {% if user.is_authenticated %}
-            <li><a href="/flashcards/add" id="subnav_add_link" class="xhr_link">Add</a>
-            <li><a href="/flashcards/decks" id="subnav_manage_link" class="xhr_link">Manage</a>
+            <li><a href="{% url add_decks %}" id="subnav_add_link" class="xhr_link">Add</a>
+            <li><a href="{% url decks %}" id="subnav_manage_link" class="xhr_link">Manage</a>
         {% endif %}
     </ul>
 {% endblock %}
@@ -72,6 +72,7 @@
 
 {% block body_outer %}
     <div id="column_wrap" style="background-color:#52676D">
+        {% comment %}
         <div{% comment %} style="float:right"{% endcomment %}>
             {% if user.is_authenticated %}
                 <div class="sidebar" id="sidebar"><div style="display:none">
@@ -80,6 +81,7 @@
                 {% include 'flashcards/base.html' %}
             {% endif %}
         </div>
+        {% endcomment %}
         
         <div id="body_contents">
             {% block body %}

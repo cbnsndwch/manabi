@@ -52,39 +52,20 @@ class DeckManager(models.Manager):
 
         return deck_values
 
-
     def of_user(self, user):
         return self.filter(owner=user, active=True)
 
-
     def shared_decks(self):
         return self.filter(shared=True, active=True)
-
 
     def synchronized_decks(self, user):
         return self.filter(owner=user, synchronized_with__isnull=False)
 
 
+class Deck(models.Model):
+    #manager
+    objects = DeckManager()
 
-#TODO use this
-class Textbook(models.Model):
-    name = models.CharField(max_length=100)
-    edition = models.CharField(max_length=50, blank=True)
-    description = models.TextField(max_length=2000, blank=True)
-    purchase_url = models.URLField(blank=True) #TODO amazon referrals
-    isbn = models.CharField(max_length=20, blank=True)
-    cover_picture = models.FileField(upload_to='/textbook_media/', null=True, blank=True)
-    #TODO student level field
-
-    class Meta:
-        app_label = 'flashcards'
-
-    def __unicode__(self):
-        return self.name
-
-
-class AbstractDeck(models.Model):
-    #TODO get rid of this abc
     name = models.CharField(max_length=100)
     description = models.TextField(max_length=2000, blank=True)
     owner = models.ForeignKey(User, db_index=True)
@@ -97,34 +78,6 @@ class AbstractDeck(models.Model):
 
     created_at = models.DateTimeField(auto_now_add=True, editable=False)
     modified_at = models.DateTimeField(auto_now=True, editable=False)
-
-    class Meta:
-        app_label = 'flashcards'
-        abstract = True
-
-
-class SharedDeck(AbstractDeck):
-    '''This is legacy for now. Deprecated. Just used for copying decks.'''
-    downloads = models.PositiveIntegerField(default=0, blank=True)
-
-    def __unicode__(self):
-        return self.name
-    
-    class Meta:
-        app_label = 'flashcards'
-        #TODO unique_together = (('owner', 'name'), )
-
-    def get_absolute_url(self):
-        return '/flashcards/shared_decks/{0}'.format(self.id)
-    
-    #FIXME delete cascading
-    
-usertagging.register(SharedDeck)
-
-
-class Deck(AbstractDeck):
-    #manager
-    objects = DeckManager()
 
     # whether this is a publicly shared deck
     shared = models.BooleanField(default=False, blank=True)
@@ -144,12 +97,10 @@ class Deck(AbstractDeck):
     def get_absolute_url(self):
         return '/flashcards/decks/{0}'.format(self.id)
 
-
     def delete(self, *args, **kwargs):
         # You shouldn't delete a shared deck - just set active=False
         self.subscriber_decks.clear()
         super(Deck, self).delete(*args, **kwargs)
-
 
     #def card_count(self):
     #    return cards.Card.objects.filter(fact__deck=self, active=True, suspended=False).count()

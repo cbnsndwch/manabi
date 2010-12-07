@@ -1,0 +1,27 @@
+{% extends 'body_pane_base.html' %}
+{% load xhrlinks %}
+
+{% block content %}
+<h1>Manage My Decks</h1>
+
+{% for deck in deck_list %}
+    <span style="font-size:120%"><a href="{{ deck.get_absolute_url }}" class="xhr_link">{{ deck.name }}</a></span>
+    <span style="color:gray;font-size:90%;">({% if deck.card_count %}{{ deck.card_count }} cards{% else %}empty{% endif %}{% if deck.shared %}, shared{% endif %})</span><br>
+{% endfor %}
+    {% comment %}
+        <td><span><a href="/flashcards/decks/{{ deck.id }}/update" class="xhr_link">rename</a> 
+        <a href="/flashcards/decks/{{ deck.id }}/share" class="xhr_link">share</a> 
+        {% if not only_one_deck_exists %}
+            <a href="/flashcards/decks/{{ deck.id }}/delete" class="xhr_link">delete</a></span></td>
+        {% endif %}
+	</tr>
+    {% endcomment %}
+{% comment %}
+</table>
+<br>
+<br>
+<a href="/flashcards/decks/create" class="xhr_link">Create New Deck</a><br>
+<br>
+<a href="/flashcards/shared_decks" class="xhr_link">Download Shared Deck</a>
+{% endcomment %}
+{% endblock %}

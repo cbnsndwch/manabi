@@ -1,32 +1,26 @@
-from flashcards.models import FactType, Fact, Deck, CardTemplate, FieldType, FieldContent, Card, SharedDeck, GRADE_NONE, GRADE_HARD, GRADE_GOOD, GRADE_EASY, SchedulingOptions, NEW_CARDS_PER_DAY
+from flashcards.models import FactType, Fact, Deck, CardTemplate, FieldType
+from flashcards.models import FieldContent, Card
+from flashcards.models import SchedulingOptions
 from apps.utils import japanese
 from decorators import all_http_methods
 from django.contrib.auth.decorators import login_required
-from django.contrib.humanize.templatetags.humanize import naturalday
 from django.db import transaction
 from django.forms import forms
 from django.forms.models import modelformset_factory, formset_factory
-from django.http import Http404
-from django.http import HttpResponseRedirect, HttpResponse
-from django.shortcuts import get_object_or_404
-from django.shortcuts import render_to_response
-from django.template import RequestContext
+from django.http import Http404, HttpResponseRedirect, HttpResponse
+from django.shortcuts import get_object_or_404, render_to_response
 from django.template import RequestContext, loader
-from django.template.loader import render_to_string
 from django.views.generic.create_update import update_object, delete_object, create_object
 from django.views.generic.list_detail import object_list, object_detail
 from dojango.decorators import json_response
 from dojango.util import to_dojo_data, json_decode, json_encode
 from flashcards.contextprocessors import study_options_context, subfact_form_context
-from flashcards.forms import DeckForm, FactForm, FieldContentForm, CardTemplateForm, FactTypeForm, CardForm
+from flashcards.forms import DeckForm, FactForm, FieldContentForm
+from flashcards.forms import CardTemplateForm, FactTypeForm, CardForm
 from flashcards.models.constants import MAX_NEW_CARD_ORDINAL
-from flashcards.models.undo import UndoCardReview
 from viewdecorators import has_card_query_filters
-import datetime
 import jcconv
 import random
-import string
-import subprocess
 import usertagging
 
 
@@ -43,15 +37,11 @@ import usertagging
 @login_required
 def add_decks(request):
     '''Starting point for adding a deck, whether by creating or by downloading a shared deck.'''
-    #shared_decks = SharedDeck.objects.all()
     shared_decks = Deck.objects.shared_decks().order_by('name')
     context = {
             'shared_deck_list': shared_decks
     }
     return render_to_response('flashcards/add.html', context, context_instance=RequestContext(request))
-    #return object_list(request, queryset=shared_decks, template_object_name='shared_deck')
-    
-
 
 @login_required
 @json_response
@@ -71,7 +61,6 @@ def rest_deck_subscribe(request, deck_id):
                 'deck_id': new_deck.id,
                 'post_redirect': new_deck.get_absolute_url()}
 
-
 @login_required
 def deck_detail(request, deck_id=None):
     detail_args = {
@@ -85,13 +74,11 @@ def deck_detail(request, deck_id=None):
     detail_args['extra_context'].update(study_options_context(request, deck_id=deck_id))
     return object_detail(request, **detail_args)
 
-
 @login_required
 def subfacts(request, parent_fact_id):
     parent_fact = get_object_or_404(Fact, pk=parent_fact_id)
     context = {'subfacts': parent_fact.subfacts.all()}
     return render_to_response('flashcards/subfacts.html', context)
-
 
 
 #HTML views
@@ -225,21 +212,6 @@ def deck_create(request, post_save_redirect='/flashcards/decks'):
                                                           'post_save_redirect': post_save_redirect}) #todo:post/pre redirs
 
 
-#shared decks
-
-
-@login_required
-def deck_share(request, deck_id, post_redirect='/flashcards/shared_decks'): #todo: pass post_*_redirect from urls.py
-    obj = Deck.objects.get(id=deck_id)
-    if obj.owner_id != request.user.id: #and not request.User.is_staff():
-        raise forms.ValidationError('You do not have permission to access this flashcard deck.')
-    if request.method == 'POST':
-        obj.share()
-        return HttpResponse(json_encode({'success': True}), mimetype='text/javascript')
-    else:
-        return render_to_response('flashcards/deck_share_form.html', {'deck': obj,
-                                                                  'post_redirect': post_redirect,
-                                                                  'container_id': 'deckDialog'})
 
 #REST views
 
@@ -251,11 +223,9 @@ def rest_entry_point(request):
 @json_response
 def rest_generate_reading(request):
     if request.method == 'POST':
-        expression = request.POST['expression']
-        ret = japanese.generate_reading(expression)
+        reading = japanese.generate_reading(request.POST['expression'])
         return {'success':True, 'reading': ret}
         
-
 
 @login_required
 @json_response
@@ -270,7 +240,6 @@ def rest_decks_with_totals(request):
 
         return to_dojo_data(decks, label='name')
 
-
 @login_required
 @json_response
 def rest_decks(request):
@@ -279,7 +248,6 @@ def rest_decks(request):
     #elif request.method == 'GET':
     ret = Deck.objects.filter(owner=request.user, active=True).values('id', 'name', 'description')
     return to_dojo_data(ret, label='name')
-    
 
 @login_required
 @json_response
@@ -440,21 +408,78 @@ def rest_facts(request, deck=None, tags=None): #todo:refactor into facts (no???)
                 ret = {}
             return to_dojo_data(ret)
     elif request.method == 'POST':
-        return _facts_create(request)
+        # Create fact in deck, including its fields and cards. POST method.
+        #TODO unicode support
+        #TODO refactor into other module probably
+        ret = {}
+        deck_id = request.POST['fact-deck'] #TODO just get this from the form
+    
+        # make sure the logged-in user owns this deck
+        if Deck.objects.get(id=deck_id).owner_id != request.user.id: #and not request.User.is_staff():
+            ret['success'] = False
+            raise forms.ValidationError('You do not have permission to access this flashcard deck.')
 
-#@login_required
-#@json_response
-#def rest_card_suspend(request, card_id):
-#    if request.method == 'POST':
-#        try:
-#            fact = Card.objects.get(id=card_id)
-#            
-#            card.suspended = True
-#            card.save()
-#            return {'success': True}
-#        except Card.DoesNotExist:
-#            return {'success': False}
+        #override the submitted deck ID with the ID from the URL, since this is a RESTful interface
+        post_data = request.POST.copy()
+        #post_data['fact-deck'] = deck_id
+    
+        #todo: refactor this into model code
+    
+        #CardFormset = modelformset_factory(Card, exclude=('fact', 'ease_factor', )) #TODO make from CardForm
+        #card_formset = CardFormset(post_data, prefix='card')
+        card_templates = CardTemplate.objects.filter(id__in=[e[1] for e in post_data.items() if e[0].find('card_template') == 0])
+    
+        #FieldContentFormset = modelformset_factory(FieldContent, exclude=('fact', ))
+        FieldContentFormset = modelformset_factory(FieldContent, form=FieldContentForm)
+        field_content_formset = FieldContentFormset(post_data, prefix='field_content')
+    
+        fact_form = FactForm(post_data, prefix='fact')
+    
+        if field_content_formset.is_valid() and fact_form.is_valid():
+            new_fact = fact_form.save() #TODO automate the tag saving in forms.py
+            new_fact.active = True
+            new_fact.save()
 
+            group_to_subfact = {} # maps subfact group numbers to the subfact object
+            for field_content_form in field_content_formset.forms:
+                #TODO don't create fieldcontent objects for optional fields which were left blank
+                new_field_content = field_content_form.save(commit=False)
+                # is this a field of the parent fact, or a subfact?
+                if new_field_content.field_type.fact_type == new_fact.fact_type:
+                    # parent fact
+                    new_field_content.fact = new_fact
+                else:
+                    # subfact
+                    group = field_content_form.cleaned_data['subfact_group']
+                    if group not in group_to_subfact.keys():
+                        # create the new subfact
+                        new_subfact = Fact(
+                                fact_type=new_field_content.field_type.fact_type,
+                                active=True,
+                                #deck=new_fact.deck,
+                                parent_fact=new_fact,
+                        )
+                        new_subfact.save()
+                        group_to_subfact[group] = new_subfact
+                    new_field_content.fact = group_to_subfact[group]
+                new_field_content.save()
+        
+            for card_template in card_templates: #card_form in card_formset.forms:
+                new_card = Card(
+                    template=card_template,
+                    fact=new_fact,
+                    active=True,
+                    new_card_ordinal=random.randrange(0, MAX_NEW_CARD_ORDINAL),
+                    priority = 0)
+                new_card.save()
+        else:
+            print field_content_formset.errors
+            ret['success'] = False
+            ret['errors'] = {
+                    #'card': card_formset.errors,
+                    'field_content': field_content_formset.errors,
+                    'fact': [fact_form.errors]}
+        return ret
 
 @login_required
 @json_response
@@ -467,7 +492,6 @@ def rest_fact_suspend(request, fact_id):
             card.suspended = True
             card.save()
         return {'success': True}
-
 
 @login_required
 @json_response
@@ -482,454 +506,182 @@ def rest_fact_unsuspend(request, fact_id):
             card.save()
         return {'success': True}
 
-
 @login_required
 @json_response
 @all_http_methods
 @transaction.commit_on_success
 def rest_fact(request, fact_id): #todo:refactor into facts
     if request.method == 'PUT':
-        return _fact_update(request, fact_id)
-    elif request.method == 'DELETE':
-        return _fact_delete(request, fact_id)
+        # Update fact
+        ret = {}
+        #FIXME make sure the logged-in user owns this FACT
+        #if Deck.objects.get(id=deck_id).owner.id != request.user.id: #and not request.User.is_staff():
+        #  ret['success'] = False
+        #  raise forms.ValidationError('You do not have permission to access this flashcard deck.')
 
+        #override the submitted deck ID with the ID from the URL, since this is a RESTful interface
+        post_data = request.POST.copy()
 
-def _fact_delete(request, fact_id):
-    fact = Fact.objects.get_for_owner_or_subscriber(fact_id, request.user)
-    if fact.synchronized_with:
-        fact.active = False
-        fact.save()
-    else:
-        fact.delete()
-    return {'success': True}
-
-
-def _fact_update(request, fact_id):
-    ret = {}
-    #FIXME make sure the logged-in user owns this FACT
-    #if Deck.objects.get(id=deck_id).owner.id != request.user.id: #and not request.User.is_staff():
-    #  ret['success'] = False
-    #  raise forms.ValidationError('You do not have permission to access this flashcard deck.')
-
-    #override the submitted deck ID with the ID from the URL, since this is a RESTful interface
-    post_data = request.POST.copy()
-
-    #todo: refactor this into model code
-    
-    # if this fact is a shared fact which the current subscribing user hasn't copied yet, copy it first
-    fact = Fact.objects.get_for_owner_or_subscriber(fact_id, request.user)
-
-    #fact_form = FactForm(post_data, prefix='fact', instance=fact)
-    FactFormset = modelformset_factory(Fact, fields=('id', 'fact_type',), can_delete=True)
-    fact_formset = FactFormset(post_data, prefix='fact', queryset=Fact.objects.filter(id=fact.id)|fact.subfacts)
-    
-    CardFormset = modelformset_factory(Card, exclude=('fact', 'ease_factor', )) #TODO make from CardForm
-    card_formset = CardFormset(post_data, prefix='card', queryset=fact.card_set.get_query_set())
-    
-    FieldContentFormset = modelformset_factory(FieldContent, form=FieldContentForm)
-    field_content_queryset = fact.fieldcontent_set.get_query_set() or None
-    field_content_formset = FieldContentFormset(post_data, prefix='field_content') #, queryset=field_content_queryset)
-
-    #fact_form = FactForm(post_data, prefix='fact', instance=fact) #this isn't updated
-    if card_formset.is_valid() and field_content_formset.is_valid() and fact_formset.is_valid():
-        #fact = fact_form.save() #TODO needed in future?
+        #todo: refactor this into model code
         
-        #update the fact's assigned deck
-        #FIXME catch error if does not exist
-        #deck_id = int(post_data['fact-deck'])
-        #fact.deck = Deck.objects.get(id=deck_id)
-        #fact.save()
+        # if this fact is a shared fact which the current subscribing user hasn't copied yet, copy it first
+        fact = Fact.objects.get_for_owner_or_subscriber(fact_id, request.user)
 
-        group_to_subfact = {} # maps subfact group numbers to the subfact object
-        for field_content_form in field_content_formset.forms:
-            field_content = field_content_form.save(commit=False)
+        #fact_form = FactForm(post_data, prefix='fact', instance=fact)
+        FactFormset = modelformset_factory(Fact, fields=('id', 'fact_type',), can_delete=True)
+        fact_formset = FactFormset(post_data, prefix='fact', queryset=Fact.objects.filter(id=fact.id)|fact.subfacts)
+        
+        CardFormset = modelformset_factory(Card, exclude=('fact', 'ease_factor', )) #TODO make from CardForm
+        card_formset = CardFormset(post_data, prefix='card', queryset=fact.card_set.get_query_set())
+        
+        FieldContentFormset = modelformset_factory(FieldContent, form=FieldContentForm)
+        field_content_queryset = fact.fieldcontent_set.get_query_set() or None
+        field_content_formset = FieldContentFormset(post_data, prefix='field_content') #, queryset=field_content_queryset)
 
-            # is this a field of the parent fact, or a subfact?
-            if field_content.field_type.fact_type == fact.fact_type:
-                # Parent fact.
-                field_content.fact = fact
-                field_content.save()
-            else:
-                # Subfact.
-                # Does this subfact already belong to the user?
-                # If not, create it, only if anything's changed.
-                # Or, create it, if it's new.
-                if field_content_form.cleaned_data['id']:
-                    # existing field content
+        #fact_form = FactForm(post_data, prefix='fact', instance=fact) #this isn't updated
+        if card_formset.is_valid() and field_content_formset.is_valid() and fact_formset.is_valid():
+            #fact = fact_form.save() #TODO needed in future?
+            
+            #update the fact's assigned deck
+            #FIXME catch error if does not exist
+            #deck_id = int(post_data['fact-deck'])
+            #fact.deck = Deck.objects.get(id=deck_id)
+            #fact.save()
 
-                    # if it's part of a subfact that's being deleted in this form, ignore the field.
-                    if field_content_form.cleaned_data['id'].fact in [fact_form.cleaned_data['id'] for fact_form in fact_formset.deleted_forms]:
-                        continue
+            group_to_subfact = {} # maps subfact group numbers to the subfact object
+            for field_content_form in field_content_formset.forms:
+                field_content = field_content_form.save(commit=False)
 
-                    if field_content_form.cleaned_data['id'].fact.owner == request.user:
-                        field_content.fact = field_content_form.cleaned_data['id'].fact #TODO is this necessary?
-                        field_content.save()
-                    else:
-                        original = field_content_form.cleaned_data['id']
-                        if field_content_form['content'] != original.content:
-                            # user updated subscribed subfact content - so create his own subscriber subfact to hold it
-                            new_subfact = original.fact.copy_to_parent_fact(fact, copy_field_contents=True)
-                            new_field_content = new_subfact.fieldcontent_set.get(field_type=field_content_form.cleaned_data['field_type'])
-                            new_field_content.content = field_content_form.cleaned_data['content']
-                            new_field_content.save()
-                        else:
-                            # not user's own, but he didn't update it anyway
-                            pass
-                else:
-                    # new field content
-                    # this means new subfact.
-                    # otherwise, this doesn't make sense unless the subfact model changed - which isn't supported yet.
-                    # or subscriber fields are optimized to not copy over until modified
-                    group = field_content_form.cleaned_data['subfact_group']
-                    if group not in group_to_subfact.keys():
-                        # create the new subfact
-                        new_subfact = Fact(
-                                fact_type=field_content.field_type.fact_type,
-                                active=True,
-                                parent_fact=fact
-                        )
-                        new_subfact.save()
-                        group_to_subfact[group] = new_subfact
-                    field_content.fact = group_to_subfact[group]
+                # is this a field of the parent fact, or a subfact?
+                if field_content.field_type.fact_type == fact.fact_type:
+                    # Parent fact.
+                    field_content.fact = fact
                     field_content.save()
+                else:
+                    # Subfact.
+                    # Does this subfact already belong to the user?
+                    # If not, create it, only if anything's changed.
+                    # Or, create it, if it's new.
+                    if field_content_form.cleaned_data['id']:
+                        # existing field content
 
+                        # if it's part of a subfact that's being deleted in this form, ignore the field.
+                        if field_content_form.cleaned_data['id'].fact in [fact_form.cleaned_data['id'] for fact_form in fact_formset.deleted_forms]:
+                            continue
 
-        # delete any subfacts as needed
-        for subfact_form in fact_formset.deleted_forms:
-            subfact = subfact_form.cleaned_data['id']
-            # make sure it's a subfact
-            if subfact.parent_fact:# == fact:
-                if subfact.synchronized_with or subfact.parent_fact != fact:
-                    # this is a subscriber fact
-                    if subfact.synchronized_with:
-                        subfact.active = False
-                        subfact.save()
+                        if field_content_form.cleaned_data['id'].fact.owner == request.user:
+                            field_content.fact = field_content_form.cleaned_data['id'].fact #TODO is this necessary?
+                            field_content.save()
+                        else:
+                            original = field_content_form.cleaned_data['id']
+                            if field_content_form['content'] != original.content:
+                                # user updated subscribed subfact content - so create his own subscriber subfact to hold it
+                                new_subfact = original.fact.copy_to_parent_fact(fact, copy_field_contents=True)
+                                new_field_content = new_subfact.fieldcontent_set.get(field_type=field_content_form.cleaned_data['field_type'])
+                                new_field_content.content = field_content_form.cleaned_data['content']
+                                new_field_content.save()
+                            else:
+                                # not user's own, but he didn't update it anyway
+                                pass
                     else:
-                        # the user doesn't have his own copy of this subfact yet
-                        new_subfact = subfact.copy_to_parent_fact(fact, copy_field_contents=False)
-                        new_subfact.active = False
-                        new_subfact.save()
-                else:
-                    subfact.delete()
+                        # new field content
+                        # this means new subfact.
+                        # otherwise, this doesn't make sense unless the subfact model changed - which isn't supported yet.
+                        # or subscriber fields are optimized to not copy over until modified
+                        group = field_content_form.cleaned_data['subfact_group']
+                        if group not in group_to_subfact.keys():
+                            # create the new subfact
+                            new_subfact = Fact(
+                                    fact_type=field_content.field_type.fact_type,
+                                    active=True,
+                                    parent_fact=fact
+                            )
+                            new_subfact.save()
+                            group_to_subfact[group] = new_subfact
+                        field_content.fact = group_to_subfact[group]
+                        field_content.save()
 
 
-        # disable any existing cards that weren't selected in the update, or enable if selected and create if needed
-        # do all this for subscribers too, if this is in a shared deck
-        facts = Fact.objects.filter(id=fact.id)
-        if fact.subscriber_facts.all():
-            facts = facts | fact.subscriber_facts.all()
-        for fact2 in facts.iterator():
-            card_form_template_ids = dict((card_form.cleaned_data['template'].id, card_form) for card_form in card_formset.forms)
-            for card_template in fact.fact_type.cardtemplate_set.all():
-                if card_template.id in card_form_template_ids.keys():
-                    try:
-                        card = fact2.card_set.get(template=card_template)
-                        card.active = True
-                        card.save()
-                    except Card.DoesNotExist:
-                        #card_form = card_form_template_ids[card_template.id]
-                        #new_card = card_form.save(commit=False)
-                        new_card = Card(template=card_template)
-                        new_card.fact = fact2
-                        new_card.active = True
-                        new_card.new_card_ordinal = random.randrange(0, MAX_NEW_CARD_ORDINAL)
-                        new_card.save()
-                else:
-                    #card was not selected in update, so disable it if it exists
-                    try:
-                        card = fact2.card_set.get(template=card_template)
-                        if not card.active:
-                            continue
-                        elif fact2.synchronized_with and card.review_count:
-                            # don't disable subscriber cards which have already been reviewed
-                            continue
-                        card.active = False
-                        card.save()
-                    except Card.DoesNotExist:
-                        pass
-                        
-        ret['success'] = True
-    else:
-        ret['success'] = False
-        ret['errors'] = {'card': card_formset.errors,
-                         'fact': fact_formset.errors,
-                         'field_content': field_content_formset.errors, }
-                        #'fact': [fact_form.errors]}
-    return ret
+            # delete any subfacts as needed
+            for subfact_form in fact_formset.deleted_forms:
+                subfact = subfact_form.cleaned_data['id']
+                # make sure it's a subfact
+                if subfact.parent_fact:# == fact:
+                    if subfact.synchronized_with or subfact.parent_fact != fact:
+                        # this is a subscriber fact
+                        if subfact.synchronized_with:
+                            subfact.active = False
+                            subfact.save()
+                        else:
+                            # the user doesn't have his own copy of this subfact yet
+                            new_subfact = subfact.copy_to_parent_fact(fact, copy_field_contents=False)
+                            new_subfact.active = False
+                            new_subfact.save()
+                    else:
+                        subfact.delete()
 
 
-def _facts_create(request):
-    #create fact in deck, including its fields and cards. POST method.
-    #todo: unicode support
-    #TODO refactor into other module probably
-    ret = {}
-    deck_id = request.POST['fact-deck'] #TODO just get this from the form
-  
-    # make sure the logged-in user owns this deck
-    if Deck.objects.get(id=deck_id).owner_id != request.user.id: #and not request.User.is_staff():
-        ret['success'] = False
-        raise forms.ValidationError('You do not have permission to access this flashcard deck.')
-
-    #override the submitted deck ID with the ID from the URL, since this is a RESTful interface
-    post_data = request.POST.copy()
-    #post_data['fact-deck'] = deck_id
-  
-    #todo: refactor this into model code
-  
-    #CardFormset = modelformset_factory(Card, exclude=('fact', 'ease_factor', )) #TODO make from CardForm
-    #card_formset = CardFormset(post_data, prefix='card')
-    card_templates = CardTemplate.objects.filter(id__in=[e[1] for e in post_data.items() if e[0].find('card_template') == 0])
-  
-    #FieldContentFormset = modelformset_factory(FieldContent, exclude=('fact', ))
-    FieldContentFormset = modelformset_factory(FieldContent, form=FieldContentForm)
-    field_content_formset = FieldContentFormset(post_data, prefix='field_content')
-  
-    fact_form = FactForm(post_data, prefix='fact')
-  
-    if field_content_formset.is_valid() and fact_form.is_valid():
-        new_fact = fact_form.save() #TODO automate the tag saving in forms.py
-        new_fact.active = True
-        new_fact.save()
-
-        group_to_subfact = {} # maps subfact group numbers to the subfact object
-        for field_content_form in field_content_formset.forms:
-            #TODO don't create fieldcontent objects for optional fields which were left blank
-            new_field_content = field_content_form.save(commit=False)
-            # is this a field of the parent fact, or a subfact?
-            if new_field_content.field_type.fact_type == new_fact.fact_type:
-                # parent fact
-                new_field_content.fact = new_fact
-            else:
-                # subfact
-                group = field_content_form.cleaned_data['subfact_group']
-                if group not in group_to_subfact.keys():
-                    # create the new subfact
-                    new_subfact = Fact(
-                            fact_type=new_field_content.field_type.fact_type,
-                            active=True,
-                            #deck=new_fact.deck,
-                            parent_fact=new_fact,
-                    )
-                    new_subfact.save()
-                    group_to_subfact[group] = new_subfact
-                new_field_content.fact = group_to_subfact[group]
-            new_field_content.save()
-    
-        for card_template in card_templates: #card_form in card_formset.forms:
-            new_card = Card(
-                  template=card_template,
-                  fact=new_fact,
-                  active=True,
-                  new_card_ordinal=random.randrange(0, MAX_NEW_CARD_ORDINAL),
-                  priority = 0)
-            new_card.save()
-    else:
-        print field_content_formset.errors
-        ret['success'] = False
-        ret['errors'] = {
-                #'card': card_formset.errors,
-                'field_content': field_content_formset.errors,
-                'fact': [fact_form.errors]}
-    return ret
-
-
-  
-
-
-
-
-
-
-
-
-     ################################
-  ######################################  
- ##                                    ## 
-###        > Flashcard Review <        ###
- ##                                    ## 
-  ######################################  
-     ###############################
-
-
-
-
-@login_required
-@json_response
-@has_card_query_filters
-def next_cards_for_review(request, deck=None, tags=None):
-    if request.method == 'GET':
-        count = int(request.GET.get('count', 5))
-
-        # New cards per day limit.
-        #TODO implement this to be user-configurable instead of hard-coded
-        daily_new_card_limit = NEW_CARDS_PER_DAY
-
-        # Early Review
-        early_review = request.GET.get('early_review', 'false').lower() == 'true'
-
-        # Learn More new cards. Usually this will be combined with early_review.
-        learn_more = request.GET.get('learn_more', 'false').lower() == 'true'
-        if learn_more:
-            daily_new_card_limit = None
-
-        # Beginning of review session?
-        session_start = string.lower(request.GET.get('session_start', 'false')) == 'true'
-
-        #try:
-        excluded_card_ids = [int(e) for e in request.GET.get('excluded_cards', '').split()]
-        #except ValueError:
-            #excluded_card_ids = []
-
-        next_cards = Card.objects.next_cards(request.user, count, excluded_card_ids, session_start, \
-                deck=deck, tags=tags, early_review=early_review, daily_new_card_limit=daily_new_card_limit)
-        #FIXME need to account for 0 cards returned 
-
-
-        # format into json object
-        formatted_cards = []
-        reviewed_at = datetime.datetime.utcnow()
-        for card in next_cards:
-            card_context = {
-                    'card': card,
-                    'fields': card.fact.field_contents,
-                    'fact': card.fact,
-                    'card_back_template': card.template.back_template_name,
-            }
-            formatted_cards.append({
-                    'id': card.id,
-                    'fact_id': card.fact_id,
-                    'front': card.render_front(),
-                    'back': render_to_string('flashcards/card_back.html', card_context),
-                    'next_due_at_per_grade': card.due_at_per_grade(reviewed_at=reviewed_at),
-             })
-
-        ret = {'success': True, 'cards': formatted_cards}
+            # disable any existing cards that weren't selected in the update, or enable if selected and create if needed
+            # do all this for subscribers too, if this is in a shared deck
+            facts = Fact.objects.filter(id=fact.id)
+            if fact.subscriber_facts.all():
+                facts = facts | fact.subscriber_facts.all()
+            for fact2 in facts.iterator():
+                card_form_template_ids = dict((card_form.cleaned_data['template'].id, card_form) for card_form in card_formset.forms)
+                for card_template in fact.fact_type.cardtemplate_set.all():
+                    if card_template.id in card_form_template_ids.keys():
+                        try:
+                            card = fact2.card_set.get(template=card_template)
+                            card.active = True
+                            card.save()
+                        except Card.DoesNotExist:
+                            #card_form = card_form_template_ids[card_template.id]
+                            #new_card = card_form.save(commit=False)
+                            new_card = Card(template=card_template)
+                            new_card.fact = fact2
+                            new_card.active = True
+                            new_card.new_card_ordinal = random.randrange(0, MAX_NEW_CARD_ORDINAL)
+                            new_card.save()
+                    else:
+                        #card was not selected in update, so disable it if it exists
+                        try:
+                            card = fact2.card_set.get(template=card_template)
+                            if not card.active:
+                                continue
+                            elif fact2.synchronized_with and card.review_count:
+                                # don't disable subscriber cards which have already been reviewed
+                                continue
+                            card.active = False
+                            card.save()
+                        except Card.DoesNotExist:
+                            pass
+                            
+            ret['success'] = True
+        else:
+            ret['success'] = False
+            ret['errors'] = {'card': card_formset.errors,
+                            'fact': fact_formset.errors,
+                            'field_content': field_content_formset.errors, }
+                            #'fact': [fact_form.errors]}
         return ret
-
-
-@json_response
-@login_required
-def cards_due_count(request):
-    count = Card.objects.cards_due_count(request.user)
-    return {'cards_due_count': count}
-
-
-@json_response
-@login_required
-def cards_new_count(request):
-    count = Card.objects.cards_new_count(request.user)
-    return {'cards_new_count': count}
-
-
-#(r'^rest/cards_for_review/due_tomorrow_count$', 'views.cards_due_tomorrow_count'),
-#(r'^rest/cards_for_review/next_card_due_at$', 'views.next_card_due_at'),
-
-
-
-@json_response
-@login_required
-@has_card_query_filters
-def cards_due_tomorrow_count(request, deck=None, tags=None):
-    count = Card.objects.count_of_cards_due_tomorrow(request.user, deck=deck, tags=tags)
-    return {'cards_due_tomorrow_count': count}
-
-
-@json_response
-@login_required
-@has_card_query_filters
-def hours_until_next_card_due(request, deck=None, tags=None):
-    due_at = Card.objects.next_card_due_at(request.user, deck=deck, tags=tags)
-    difference = due_at - datetime.datetime.utcnow()
-    hours_from_now = difference.days * 24 + difference.seconds / (60 * 60)
-    minutes_from_now = difference.days * 24 + difference.seconds / 60
-    return {'hours_until_next_card_due': hours_from_now, 'minutes_until_next_card_due': minutes_from_now}
-
-
-@json_response
-@login_required
-@has_card_query_filters
-def next_card_due_at(request, deck=None, tags=None):
-    '''Returns a human-readable format of the next date that the card is due.'''
-    due_at = Card.objects.next_card_due_at(request.user, deck=deck, tags=tags)
-    due_at = naturalday(due_at.date())
-    return {'next_card_due_at': due_at}
-
-
-@all_http_methods
-def _rest_review_card(request, card_id):
-    '''
-    '''
-    if request.method == 'POST':
-        #FIXME make sure this user owns this card
-        card = get_object_or_404(Card, pk=card_id) 
-        card.review(int(request.POST['grade']))
+    elif request.method == 'DELETE':
+        fact = Fact.objects.get_for_owner_or_subscriber(fact_id, request.user)
+        if fact.synchronized_with:
+            fact.active = False
+            fact.save()
+        else:
+            fact.delete()
         return {'success': True}
 
 
 
-@login_required
-@json_response
-@all_http_methods
-def rest_card(request, card_id): #todo:refactor into facts (no???)
-    if request.method == 'GET':
-        card = get_object_or_404(Card, pk=card_id)
-
-        #TODO refactor the below into a model - it's not DRY
-        reviewed_at = datetime.datetime.utcnow()
-
-        field_contents = \
-            dict((field_content.field_type_id, field_content,) \
-            for field_content in card.fact.fieldcontent_set.all())
-        card_context = {
-                'card': card,
-                'fields': field_contents,
-                'fact': card.fact,
-                'card_back_template': card.template.back_template_name,
-        }
-
-        due_times = {}
-        for grade in [GRADE_NONE, GRADE_HARD, GRADE_GOOD, GRADE_EASY,]:
-            due_at = card._next_due_at(grade, reviewed_at, \
-                card._next_interval(grade, \
-                    card._next_ease_factor(grade, reviewed_at), \
-                    reviewed_at))
-            duration = due_at - reviewed_at
-            days = duration.days + (duration.seconds / 86400.0)
-            due_times[grade] = days
-
-        formatted_card = {
-            'id': card.id,
-            'fact_id': card.fact_id,
-            'front': render_to_string(\
-                card.template.front_template_name, card_context),
-            'back': render_to_string(\
-                'flashcards/card_back.html', card_context),
-            'next_due_at_per_grade': due_times,
-        }
-
-        return {'success': True, 'card': formatted_card}
-        #return to_dojo_data(formatted_card)
-    elif request.method == 'POST':
-        if 'grade' in request.POST:
-            # this is a card review
-            return _rest_review_card(request, int(card_id))
+  
 
 
 
-# Undo stack for card reviews
-
-@json_response
-@login_required
-def undo_review(request):
-    if request.method == 'POST':
-        UndoCardReview.objects.undo(request.user)
-        return {'success': True}
 
 
-@json_response
-@login_required
-def reset_review_undo_stack(request):
-    if request.method == 'POST':
-        UndoCardReview.objects.reset(request.user)
-        return {'success': True}
+
+
+
 

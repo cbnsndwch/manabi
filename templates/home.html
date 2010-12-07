@@ -17,17 +17,17 @@ Manabi uses a <a href="http://en.wikipedia.org/wiki/Spaced_repetition" target="_
 <p>
 {% if deck_count == 0 %}
     <h3>Wondering what next?</h3>
-    Get started by <a href="flashcards/add" class="xhr_link">adding some pre-made flashcard decks</a>.
+    Get started by <a href="{% url add_decks %}" class="xhr_link">adding some pre-made flashcard decks</a>.
 {% else %}{% if card_count == 0 %}
     <h3>Wondering what next?</h3>
-    Get started by <a href="flashcards/add" class="xhr_link">adding some pre-made flashcard decks</a>{% if deck_count > 0 %}, 
-    or by creating new flashcards in <a href="flashcards/decks" class="xhr_link">one of your existing decks</a>{% endif %}.
+    Get started by <a href="{% url add_decks %}" class="xhr_link">adding some pre-made flashcard decks</a>{% if deck_count > 0 %}, 
+    or by creating new flashcards in <a href="{% url decks %}" class="xhr_link">one of your existing decks</a>{% endif %}.
 {% else %}
 
     {% include "flashcards/_reviews_start_buttons.html" %}
     <br>
     <br>
-    <span style="color:gray">(Or click <a href="flashcards/decks" class="xhr_link">Manage</a> to select a deck to review.)</span>
+    <span style="color:gray">(Or click <a href="{% url decks %}" class="xhr_link">Manage</a> to select a deck to review.)</span>
 {% endif %} {% endif %}
 </p>
 

@@ -120,9 +120,11 @@ manabi_ui._xhrPost = function(url, form, data, post_redirect_url) {
     return def;
 };
 manabi_ui.xhrPost = function(url, form, post_redirect_url) {
+    // Posts a form
     return manabi_ui._xhrPost(url, form, null, post_redirect_url);
 }
 manabi_ui.xhrPostData = function(url, data, post_redirect_url) {
+    // Posts `data`
     return manabi_ui._xhrPost(url, null, data, post_redirect_url);
 }
 
