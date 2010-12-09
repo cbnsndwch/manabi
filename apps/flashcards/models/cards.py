@@ -147,9 +147,9 @@ class Card(models.Model):
         min_card_space = self.fact.fact_type.min_card_space
 
         min_space = max(min_card_space, 
-                        space_factor * self.card.interval)
+                        space_factor * (self.interval or 0))
 
-        return datetime.timedelta(days=min_space)
+        return timedelta(days=min_space)
 
     def delay(self, duration):
         '''

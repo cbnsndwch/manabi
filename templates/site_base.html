@@ -78,10 +78,10 @@
                 <div class="sidebar" id="sidebar"><div style="display:none">
                     {% include 'sidebar.html' %}
                 </div></div>
-                {% include 'flashcards/base.html' %}
             {% endif %}
         </div>
         {% endcomment %}
+        {% include "flashcards/base.html" %}
         
         <div id="body_contents">
             {% block body %}

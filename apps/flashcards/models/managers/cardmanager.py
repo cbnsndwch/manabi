@@ -2,8 +2,12 @@ from django.db import models
 from django.db.models import Avg, Max, Min, Count
 from itertools import chain
 from model_utils.managers import manager_from
-from models.repetitionscheduler import repetition_algo_dispatcher
 import datetime
+from flashcards.models.constants import GRADE_NONE, GRADE_HARD, GRADE_GOOD, GRADE_EASY, \
+    MAX_NEW_CARD_ORDINAL, EASE_FACTOR_MODIFIERS, MINIMUM_EASE_FACTOR, \
+    YOUNG_FAILURE_INTERVAL, MATURE_FAILURE_INTERVAL, MATURE_INTERVAL_MIN, \
+    GRADE_EASY_BONUS_FACTOR, DEFAULT_EASE_FACTOR, INTERVAL_FUZZ_MAX, \
+    NEW_CARDS_PER_DAY
 
 
 class SchedulerMixin(object):
@@ -37,11 +41,11 @@ class SchedulerMixin(object):
 
             for card in cards:
                 min_space = card.sibling_spacing()
-                for sibling_card in card.siblings():
-                    if sibling_card.is_due(review_time) \
-                            or sibling_card.id in excluded_ids \
-                            or (sibling_card.last_reviewed_at \
-                                and review_time - sibling_card.last_reviewed_at <= min_space):
+                for sibling in card.siblings:
+                    if sibling.is_due(review_time) \
+                            or sibling.id in excluded_ids \
+                            or (sibling.last_reviewed_at \
+                                and abs(card.due_at - sibling.last_reviewed_at) <= min_space):
                         #
                         # Delay the card. It's already sorted by priority, so we delay
                         # this one instead of its sibling.
@@ -117,18 +121,20 @@ class SchedulerMixin(object):
         def _next_new_cards2():
             new_cards = []
             for card in new_card_query.select_related().iterator():
-                min_space = card.min_space_from_siblings()
-                for sibling_card in card.siblings():
-                    # sibling card is already included as a new card to be shown or
-                    # sibling card is currently in the client-side review queue or 
-                    # sibling card is due or
-                    # sibling card was reviewed recently or
-                    # sibling card is failed. Either it's due, or it's not due and it's shown before new cards.
-                    if sibling_card in new_cards or \
-                       sibling_card.id in excluded_ids or \
-                       sibling_card.is_due(review_time) or \
-                       (sibling_card.last_reviewed_at and review_time - sibling_card.last_reviewed_at <= min_space) or \
-                       sibling_card.last_review_grade == GRADE_NONE:
+                min_space = card.sibling_spacing()
+
+                for sibling in card.siblings:
+                    # sibling is already included as a new card to be shown or
+                    # sibling is currently in the client-side review queue or 
+                    # sibling is due or
+                    # sibling was reviewed recently or
+                    # sibling is failed. Either it's due, or it's not due and it's shown before new cards.
+                    if sibling in new_cards or \
+                       sibling.id in excluded_ids or \
+                       sibling.is_due(review_time) or \
+                       (sibling.last_reviewed_at and \
+                        abs(review_time - sibling.last_reviewed_at) <= min_space) or \
+                       sibling.last_review_grade == GRADE_NONE:
                         break
                 else:
                     new_cards.append(card)
