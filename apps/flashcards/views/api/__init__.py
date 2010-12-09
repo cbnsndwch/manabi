@@ -1,10 +1,7 @@
 # Some views which should be considered part of the REST API are contained 
 # in the reviews.py module. This module contains the rest of them.
 
-from flashcards.models import FactType, Fact, Deck, CardTemplate, FieldType
-from flashcards.models import FieldContent, Card
 from apps.utils import japanese
-from decorators import all_http_methods
 from django.contrib.auth.decorators import login_required
 from django.db import transaction
 from django.forms import forms
@@ -16,8 +13,11 @@ from django.views.generic.create_update import update_object, delete_object, cre
 from dojango.decorators import json_response
 from dojango.util import to_dojo_data, json_decode, json_encode
 from flashcards.forms import DeckForm, FactForm, FieldContentForm, CardForm
+from flashcards.models import FactType, Fact, Deck, CardTemplate, FieldType
+from flashcards.models import FieldContent, Card
 from flashcards.models.constants import MAX_NEW_CARD_ORDINAL
-from decorators import has_card_query_filters
+from flashcards.views.decorators import all_http_methods
+from flashcards.views.decorators import has_card_query_filters
 import random
 #import jcconv
 

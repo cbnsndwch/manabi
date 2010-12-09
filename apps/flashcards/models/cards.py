@@ -129,6 +129,28 @@ class Card(models.Model):
         '''
         return self.due_at - self.last_reviewed_at
 
+    def sibling_spacing(self):
+        '''
+        Calculate the minimum space between this card and its siblings that 
+        should be enforced (not necessarily actual, if the user chooses to 
+        review early).
+
+        The space is `space_factor` times this card's interval, 
+        or `min_card_space` at minimum.
+
+        Returns a timedelta.
+
+        TODO: maybe this should be more dependent on each card or something
+        TODO: also maybe a max space if dependent on other cards' intervals
+        '''
+        space_factor  = self.fact.fact_type.space_factor
+        min_card_space = self.fact.fact_type.min_card_space
+
+        min_space = max(min_card_space, 
+                        space_factor * self.card.interval)
+
+        return datetime.timedelta(days=min_space)
+
     def delay(self, duration):
         '''
         This card's due date becomes `duration` (a timedelta) days from now, 
@@ -204,6 +226,7 @@ class Card(models.Model):
 
 
 #TODO implement (remember to update UndoReview too)
+# This can probably just be a proxy model for CardHistory or something.
 class CardStatistics(models.Model):
     card = models.ForeignKey(Card)
 

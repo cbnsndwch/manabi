@@ -31,6 +31,13 @@ def repetition_algo_dispatcher(card, *args, **kwargs):
 
 
 class RepetitionAlgo(object):
+    '''
+    This base class represents the most general kind of card, which does 
+    not take into account special cases of having been recently failed,
+    or being brand new, and so on. It is general enough that its implemented
+    methods can be reused selectively by child implementations in order to 
+    handle the special case conditions as applied to the base case.
+    '''
 
     # Only used when decks have no average EF yet.
     DEFAULT_EASE_FACTOR = 2.5
@@ -186,27 +193,6 @@ class RepetitionAlgo(object):
         next_due_at = self.reviewed_at + timedelta(days=next_interval)
         return next_due_at
 
-    def _sibling_spacing(self):
-        '''
-        Calculate the minimum space between this card and its siblings that 
-        should be enforced (not necessarily actual, if the user chooses to 
-        review early).
-
-        The space is `space_factor` times this card's interval, 
-        or `min_space` at minimum.
-
-        Returns a timedelta.
-
-        TODO: maybe this should be more dependent on each card or something
-        TODO: also maybe a max space if dependent on other cards' intervals
-        '''
-        space_factor  = self.card.fact.fact_type.space_factor
-        min_card_space = self.card.fact.fact_type.min_card_space
-
-        min_space = max(min_card_space, 
-                        space_factor * self.card.interval)
-
-        return datetime.timedelta(days=min_space)
 
     def _time_waited(self):
         '''The time elapsed since last review.'''
@@ -243,7 +229,7 @@ class RepetitionAlgo(object):
             difference = (self.card.due_at
                           - sibling.last_reviewed_at)
 
-            if abs(difference) <= self._sibling_spacing():
+            if abs(difference) <= self.card.sibling_spacing():
                 denominator += self._sibling_spacing()
         except Card.DoesNotExist:
             pass
@@ -276,7 +262,7 @@ class RepetitionAlgo(object):
         # Conservatively favors shorter intervals.
         fuzz = interval * random.triangular(
             -INTERVAL_FUZZ_MAX,
-            INTERVAL_FUZZ_MAX,
+             INTERVAL_FUZZ_MAX,
             (-INTERVAL_FUZZ_MAX) / 4.5)
 
         # Fuzz less for early reviews.

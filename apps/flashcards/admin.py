@@ -1,4 +1,6 @@
-from flashcards.models import Deck, FactType, Fact, CardTemplate, FieldType, Card, FieldContent, SchedulingOptions, SharedDeck, ReviewStatistics, CardHistory
+from flashcards.models import Deck, FactType, Fact, CardTemplate, \
+    FieldType, Card, FieldContent, SchedulingOptions, \
+    ReviewStatistics, CardHistory
 from django.contrib import admin
 
 
@@ -22,7 +24,6 @@ class FieldTypeAdmin(admin.ModelAdmin):
     exclude = ('choices',)
 
 admin.site.register(Deck, DeckAdmin)
-admin.site.register(SharedDeck)
 admin.site.register(CardHistory)
 admin.site.register(ReviewStatistics)
 admin.site.register(FactType, FactTypeAdmin)

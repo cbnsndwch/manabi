@@ -79,6 +79,53 @@ class FactManager(models.Manager):
         #return query_set.filter(id__in=set(field_content.fact_id 
         #for field_content in matches))
 
+    def get_for_owner_or_subscriber(self, fact_id, user):
+        '''Returns a Fact object of the given id,
+        or if the user is a subscriber to the deck of that fact,
+        returns the subscriber's copy of that fact, which it 
+        creates if necessary.
+        It will also create the associated cards.
+        '''
+        fact = Fact.objects.get(id=fact_id)
+        if fact.owner != user:
+            if False: #FIXME sometimes fact.parent_fact not fact.deck.shared_at:
+                pass #FIXME raise permissions error
+            else:
+                from decks import Deck
+                # find the subscriber deck for this user
+                subscriber_deck = Deck.objects.get(owner=user, synchronized_with=fact.deck)
+
+                # check if the fact exists already
+                existent_fact = subscriber_deck.fact_set.filter(synchronized_with=fact)
+                if existent_fact:
+                    fact = existent_fact[0]
+                else:
+                    fact = fact.copy_to_deck(subscriber_deck, synchronize=True)
+        return fact
+
+
+    def with_synchronized(self, user, deck=None, tags=None):
+        '''Returns a queryset of all active Facts which the user owns, or which 
+        the user is subscribed to (via a subscribed deck).
+        Optionally filter by deck and tags too.
+        '''
+        from decks import Deck
+        user_facts = self.filter(deck__owner=user, parent_fact__isnull=True)
+        
+        if deck:
+            decks = Deck.objects.filter(id=deck.id)
+            user_facts = user_facts.filter(deck__in=decks)
+        else:
+            decks = Deck.objects.filter(owner=user, active=True)
+        if tags:
+            tagged_facts = usertagging.models.UserTaggedItem.objects.get_by_model(Fact, tags)
+            user_facts = user_facts.filter(fact__in=tagged_facts)
+        subscriber_decks = decks.filter(synchronized_with__isnull=False)
+        subscribed_decks = [deck.synchronized_with for deck in subscriber_decks if deck.synchronized_with is not None]
+        #shared_facts = self.filter(deck_id__in=shared_deck_ids)
+        copied_subscribed_fact_ids = [fact.synchronized_with_id for fact in user_facts if fact.synchronized_with_id is not None]
+        subscribed_facts = self.filter(deck__in=subscribed_decks).exclude(id__in=copied_subscribed_fact_ids) # should not be necessary.exclude(id__in=user_facts)
+        return user_facts | subscribed_facts
 
     @transaction.commit_on_success
     def add_new_facts_from_synchronized_decks(self, user, count, deck=None, tags=None):

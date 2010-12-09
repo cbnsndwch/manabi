@@ -1,4 +1,5 @@
-from decorators import all_http_methods
+from flashcards.views.decorators import all_http_methods
+from flashcards.views.decorators import has_card_query_filters
 from django.contrib.auth.decorators import login_required
 from django.contrib.humanize.templatetags.humanize import naturalday
 from django.db import transaction
@@ -8,11 +9,10 @@ from django.template import RequestContext, loader
 from django.template.loader import render_to_string
 from dojango.decorators import json_response
 from dojango.util import to_dojo_data, json_decode, json_encode
-from models import Card
-from models.constants import GRADE_NONE, GRADE_HARD, GRADE_GOOD, GRADE_EASY
-from models import NEW_CARDS_PER_DAY
+from flashcards.models import Card
+from flashcards.models.constants import GRADE_NONE, GRADE_HARD, GRADE_GOOD, GRADE_EASY
+from flashcards.models.constants import NEW_CARDS_PER_DAY
 from flashcards.models.undo import UndoCardReview
-from decorators import has_card_query_filters
 import datetime
 import string
 import subprocess

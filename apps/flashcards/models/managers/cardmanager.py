@@ -1,7 +1,9 @@
-from itertools import chain
-from django.db.models import Avg, Max, Min, Count
 from django.db import models
+from django.db.models import Avg, Max, Min, Count
+from itertools import chain
 from model_utils.managers import manager_from
+from models.repetitionscheduler import repetition_algo_dispatcher
+import datetime
 
 
 class SchedulerMixin(object):
@@ -23,18 +25,24 @@ class SchedulerMixin(object):
         shouldn't ever run out of cards.
         '''
         delayed_cards = [] # Keep track of new cards we want to skip, since we shouldn't set their due_at (via delay())
+
         while True:
             cards_delayed = 0
-            cards = card_query.exclude(id__in=[card.id for card in delayed_cards]).select_related()[:count]
+            cards = card_query.exclude(
+                id__in=[card.id for card in delayed_cards]).select_related()
+            cards = cards[:count]
+
             if early_review and len(cards) == 0:
                 return delayed_cards[:count]
+
             for card in cards:
-                min_space = card.min_space_from_siblings()
+                min_space = card.sibling_spacing()
                 for sibling_card in card.siblings():
                     if sibling_card.is_due(review_time) \
                             or sibling_card.id in excluded_ids \
                             or (sibling_card.last_reviewed_at \
-                            and review_time - sibling_card.last_reviewed_at <= min_space):
+                                and review_time - sibling_card.last_reviewed_at <= min_space):
+                        #
                         # Delay the card. It's already sorted by priority, so we delay
                         # this one instead of its sibling.
                         if card.is_new() or early_review:
@@ -42,6 +50,7 @@ class SchedulerMixin(object):
                         else:
                             card.delay(min_space)
                             card.save()
+
                         cards_delayed += 1
                         break
             if not cards_delayed:
@@ -89,6 +98,7 @@ class SchedulerMixin(object):
     def _next_new_cards(self, user, initial_query, count, review_time, excluded_ids=[], daily_new_card_limit=None, early_review=False, deck=None, tags=None):
         '''Gets the next new cards for this user or deck.
         '''
+        from flashcards.models.facts import Fact
         if not count:
             return []
 
@@ -263,6 +273,7 @@ class CommonFiltersMixin(object):
         return self.filter(fact__deck=deck)
 
     def of_user(self, user):
+        from flashcards.models.facts import Fact
         #TODO this is probably really slow
         user_cards = self.filter(suspended=False, active=True)
         facts = Fact.objects.with_synchronized(user)
@@ -271,6 +282,7 @@ class CommonFiltersMixin(object):
 
     #TODO just use of_user and of_deck etc. as mixins instead of this
     def _user_cards(self, user, deck=None, tags=None, excluded_ids=None):
+        from flashcards.models.facts import Fact
         user_cards = self.of_user(user)
 
         if deck:
@@ -299,6 +311,7 @@ class CommonFiltersMixin(object):
     #FIXME make it work for synced decks
     def new_cards_count(self, user, excluded_ids, deck=None, tags=None):
         '''Returns the number of new cards for the given review parameters.'''
+        from flashcards.models.facts import Fact
         now = datetime.datetime.utcnow()
 
         user_cards = self.of_user(user)
@@ -321,6 +334,7 @@ class CommonFiltersMixin(object):
         Returns the number of cards due by tomorrow at the same time as now.
         Doesn't take future spacing into account though, so it's a somewhat rough estimate.
         '''
+        from flashcards.models.facts import Fact
         cards = self.of_user(user)
         if deck:
             cards = cards.filter(fact__deck=deck)
@@ -337,6 +351,7 @@ class CommonFiltersMixin(object):
         '''
         Returns the due date of the next due card.
         '''
+        from flashcards.models.facts import Fact
         cards = self.of_user(user)
         if deck:
             cards = cards.filter(fact__deck=deck)

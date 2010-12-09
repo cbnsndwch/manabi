@@ -1,5 +1,8 @@
 
-from flashcards.models import FactType, Fact, Deck, CardTemplate, FieldType, FieldContent, Card, SharedDeck, GRADE_NONE, GRADE_HARD, GRADE_GOOD, GRADE_EASY, SchedulingOptions, NEW_CARDS_PER_DAY
+from flashcards.models import FactType, Fact, Deck, CardTemplate, \
+    FieldType, FieldContent, Card, \
+    GRADE_NONE, GRADE_HARD, GRADE_GOOD, GRADE_EASY, \
+    SchedulingOptions, NEW_CARDS_PER_DAY
 from django.shortcuts import render_to_response
 from django.template import RequestContext
 from django.db.models import F
