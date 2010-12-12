@@ -1,5 +1,6 @@
-from django.db import models, transaction
+from apps.utils.templatetags.japanese import strip_ruby_bottom, strip_ruby_text
 from constants import ISO_639_2_LANGUAGES
+from django.db import models, transaction
 
 
 OPTIONAL_CHARACTER_RESTRICTIONS = (
@@ -146,7 +147,6 @@ class FieldContent(models.Model):
         except self.DoesNotExist:
             return None
 
-
     @property
     def human_readable_content(self):
         '''
@@ -163,7 +163,6 @@ class FieldContent(models.Model):
         elif self.field_type.is_transliteration_field_type:
             return self.strip_ruby_bottom()
         return self.content
-
             
     def strip_ruby_text(self):
         '''
@@ -179,7 +178,6 @@ class FieldContent(models.Model):
         <TA|ta>beru becomes taberu
         '''
         return strip_ruby_bottom(self.content)
-
 
     def has_identical_transliteration_field(self):
         '''

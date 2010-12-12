@@ -14,7 +14,7 @@ def repetition_algo_dispatcher(card, *args, **kwargs):
     See `RepetitionAlgo` for documentation on the arguments.
     '''
     # New card?
-    if card.is_new:
+    if card.is_new():
         cls = NewCardAlgo
     # Last review was a failure?
     elif card.last_review_grade == GRADE_NONE:

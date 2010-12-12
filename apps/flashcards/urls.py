@@ -72,28 +72,39 @@ urlpatterns += patterns('flashcards.views.api.review',
     url(r'^api/cards_for_review/due_count/$', 'due_card_count',
         name='api-due_card_count'),
     url(r'^api/cards_for_review/new_count/$', 'new_card_count',
-        name='api-due_card_count'),
+        name='api-new_card_count'),
     url(r'^api/cards_for_review/due_tomorrow_count/$', 'due_tomorrow_count',
         name='api-due_tomorrow_count'),
     url(r'^api/cards_for_review/next_due_at/$', 'next_card_due_at',
         name='api-next_card_due_at'),
     url(r'^api/cards_for_review/hours_until_next_due/$', 'hours_until_next_card_due',
-        name='hours_until_next_card_due'),
-    url(r'^api/cards_for_review/$', 'next_cards_for_review',
+        name='api-hours_until_next_card_due'),
+    url(r'^api/next_cards_for_review/$', 'next_cards_for_review',
         name='api-next_cards_for_review'),
 
     #card review undo
     url(r'^api/cards_for_review/undo/$', 'undo_review',
-        name='undo_review'),
+        name='api-undo_review'),
     url(r'^api/cards_for_review/undo/reset/$', 'reset_review_undo_stack',
-        name='reset_review_undo_stack'),
+        name='api-reset_review_undo_stack'),
 
+)
+
+urlpatterns += patterns('',
+    url(r'^flashcards.js$', direct_to_template,
+        { 'template': 'flashcards/flashcards.js',
+          'mimetype': 'text/javascript', },
+        name='flashcards-js'),
+    url(r'^reviews.js$', direct_to_template,
+        { 'template': 'flashcards/reviews.js',
+          'mimetype': 'text/javascript', },
+        name='reviews-js'),
 )
 
 
 #if settings.DEBUG:
-#    # serving the media files for dojango / dojo (js/css/...)
-#    urlpatterns += patterns('',
-#        url(r'^media/(?P<path>.*)$', 'django.views.static.serve',
-#            {'document_root': os.path.abspath(os.path.join(os.path.dirname(__file__), 'media'))}),
-#    )
+   ## serving the media files for dojango / dojo (js/css/...)
+   #urlpatterns += patterns('',
+       #url(r'^media/(?P<path>.*)$', 'django.views.static.serve',
+           #{'document_root': os.path.abspath(os.path.join(os.path.dirname(__file__), 'media'))}),
+   #)

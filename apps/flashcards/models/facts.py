@@ -5,7 +5,6 @@ from django.db import models, transaction
 from django.db.models import Q
 from django.forms import ModelForm
 from django.forms.util import ErrorList
-from apps.utils.templatetags.japanese import strip_ruby_bottom, strip_ruby_text
 import flashcards.partsofspeech
 import pickle
 import random

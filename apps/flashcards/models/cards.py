@@ -3,7 +3,7 @@ from constants import GRADE_NONE, GRADE_HARD, GRADE_GOOD, GRADE_EASY, \
     MAX_NEW_CARD_ORDINAL, EASE_FACTOR_MODIFIERS, MINIMUM_EASE_FACTOR, \
     YOUNG_FAILURE_INTERVAL, MATURE_FAILURE_INTERVAL, MATURE_INTERVAL_MIN, \
     GRADE_EASY_BONUS_FACTOR, DEFAULT_EASE_FACTOR, INTERVAL_FUZZ_MAX, \
-    NEW_CARDS_PER_DAY
+    NEW_CARDS_PER_DAY, ALL_GRADES
 from datetime import timedelta, datetime
 from dbtemplates.models import Template
 from django.contrib.auth.models import User
@@ -86,7 +86,6 @@ class Card(models.Model):
         '''Returns the other cards from this card's fact.'''
         return self.fact.card_set.exclude(id=self.id)
 
-    @property
     def is_new(self):
         '''Returns whether this card has been reviewed before.'''
         return self.last_reviewed_at is None
@@ -99,7 +98,7 @@ class Card(models.Model):
         #TODO why would is_new ever be True and self.due_at be none?
         if time is None: time = datetime.utcnow()
 
-        if self.is_new or not self.due_at:
+        if self.is_new() or not self.due_at:
             return False
         return self.due_at < time
 
@@ -163,6 +162,18 @@ class Card(models.Model):
         from_date = self.due_at if self.due_at >= now else now
         self.due_at = from_date + duration
 
+    def next_due_at_per_grade(self, reviewed_at=None):
+        #FIXME disable fuzzing
+        if not reviewed_at:
+            reviewed_at = datetime.utcnow()
+
+        due_dates = {}
+        for grade in ALL_GRADES:
+            repetition_algo = repetition_algo_dispatcher(
+                self, grade, reviewed_at=reviewed_at)
+            due_dates[grade] = repetition_algo.next_repetition()
+        return due_dates
+
     def _update_statistics(self, grade, reviewed_at):
         '''Updates this card's stats. Call this for each review.'''
         #TODO update CardStatistics
@@ -194,7 +205,7 @@ class Card(models.Model):
         Commits a review rated with `grade`.
         '''
         reviewed_at = datetime.utcnow()
-        was_new = card.is_new
+        was_new = card.is_new()
 
         # Update this card's statistics
         card_history_item = self._update_statistics(grade, reviewed_at)
