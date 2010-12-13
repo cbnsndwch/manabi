@@ -15,13 +15,16 @@ http://www.patternry.com/p=stacked-tabs/
 http://www.patternry.com/p=inline-input-adder/ (tag editing?)
 overlay design overview: http://www.patternry.com/p=overlay/
 
+analysis of landing pages:
+http://visualwebsiteoptimizer.com/split-testing-blog/landing-page-optimization-tips-increases-sales-conversions/
+http://www.formstack.com/the-anatomy-of-a-perfect-landing-page
 
 ----------------
 
 
 brand new refactor todo
 ---------
--named URLs
+named URLs
 update pinax
 update django to 1.2.3
 upgrade dojo to 1.5
@@ -103,8 +106,6 @@ make field uniqueness per-deck
 ---------------------
 TODO:
 ---------------------
-rename suspend to archive
-
 allow adding unsorted/orphan cards/items
 
 change the page title when the hash changes, somehow
@@ -363,10 +364,6 @@ stats/graphs
 ----------------------
 IDEAS:
 ----------------------
-an isometric stack of cards visualization for deck size, due size etc
-
-night/day themes for the site
-
 mark a word 'completely learned and memorized!' when interval reaches 120 - age of user. Haha!
 'view newly learned cards from this session' after session ends
 

@@ -2,6 +2,7 @@
 # in the reviews.py module. This module contains the rest of them.
 
 from apps.utils import japanese
+from apps.utils.querycleaner import clean_query
 from django.contrib.auth.decorators import login_required
 from django.db import transaction
 from django.forms import forms
@@ -17,11 +18,10 @@ from flashcards.models import FactType, Fact, Deck, CardTemplate, FieldType
 from flashcards.models import FieldContent, Card
 from flashcards.models.constants import MAX_NEW_CARD_ORDINAL
 from flashcards.views.decorators import all_http_methods
-from flashcards.views.decorators import has_card_query_filters
-import random
-from apps.utils.querycleaner import clean_query
-import apps.utils.querycleaner
 from flashcards.views.decorators import flashcard_api as api
+from flashcards.views.decorators import has_card_query_filters
+import apps.utils.querycleaner
+import random
 #import jcconv
 
 

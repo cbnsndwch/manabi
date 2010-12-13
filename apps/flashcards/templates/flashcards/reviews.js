@@ -17,7 +17,7 @@ dojo.addOnLoad(function() {
     //this is for cards that are reviewed, and have been submitted to the server
     //without a response yet.
     //It's a list of card IDs.
-    reviews.card_buffer_count = 5;
+    reviews.cardBufferSize = 5;
 
     reviews.grades = { GRADE_NONE: 0, GRADE_HARD: 3, GRADE_GOOD: 4, GRADE_EASY: 5 };
     //reviews.session_over_def = null; //subscribe to this to know when the session is over,
@@ -175,7 +175,7 @@ reviews.startSession = function(deckId, dailyNewCardLimt, sessionCardLimit, sess
     // reset the review undo stack on the server
     var def = new dojo.Deferred();
     reviews._simpleXHRPost('{% url api-reset_review_undo_stack %}').addCallback(dojo.hitch(def, function(def) {
-        var prefetchDef = reviews.prefetchCards(reviews.card_buffer_count * 2, true);
+        var prefetchDef = reviews.prefetchCards(reviews.cardBufferSize * 2, true);
         prefetchDef.addCallback(dojo.hitch(def, function(def, prefetch_item) {
             //start session timer - a published event
             reviews._startSessionTimer();
@@ -235,9 +235,9 @@ reviews.nextCard = function() {
         nextCardDef.callback(reviews._nextCard());
 
         //prefetch more cards if the buffer runs low
-        if (reviews.cards.length <= reviews.card_buffer_count) {
+        if (reviews.cards.length <= reviews.cardBufferSize) {
             if (!reviews.emptyPrefetchProducer && !reviews._prefetchInProgress) {
-                var prefetch_cards_def = reviews.prefetchCards(reviews.card_buffer_count, false);
+                var prefetch_cards_def = reviews.prefetchCards(reviews.cardBufferSize, false);
                 /*prefetch_cards_def.addCallback(dojo.hitch(function(nextCardDef) {
                     //nextCardDef.callback(reviews._nextCard());
                 }, null, nextCardDef));            */
@@ -247,7 +247,7 @@ reviews.nextCard = function() {
     } else {
         if (!reviews.emptyPrefetchProducer && !reviews._prefetchInProgress) {
             //out of cards, need to fetch more
-            var prefetchDef = reviews.prefetchCards(reviews.card_buffer_count * 2, false);
+            var prefetchDef = reviews.prefetchCards(reviews.cardBufferSize * 2, false);
             prefetchDef.addCallback(dojo.hitch(null, function(nextCardDef) {
                 if (reviews.cards.length) {
                     nextCardDef.callback(reviews._nextCard());
@@ -273,7 +273,7 @@ reviews._resetCardCache = function() {
     reviews.currentCard = null;
 
     // Refill it
-    return reviews.prefetchCards(reviews.card_buffer_count * 2, true);
+    return reviews.prefetchCards(reviews.cardBufferSize * 2, true);
 };
 
 
@@ -303,7 +303,7 @@ reviews.undo = function() {
 reviews.suspendCard = function(card) {
     // Suspends this and sibling cards.
     xhrArgs = {
-        url: '/flashcards/api/facts/' + card.factId + '/suspend',
+        url: '/flashcards/api/facts/' + card.factId + '/suspend/',
         handleAs: 'json',
         load: function(data) {
             if (data.success) {
