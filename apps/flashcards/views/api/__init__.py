@@ -84,7 +84,8 @@ def rest_deck(request, deck_id):
     deck = get_object_or_404(Deck, pk=deck_id)
     if deck.owner_id != request.user.id: #and not request.User.is_staff():
         #TODO should be a permissions error instead
-        raise forms.ValidationError('You do not have permission to access this flashcard deck.')
+        raise forms.ValidationError(
+            'You do not have permission to access this flashcard deck.')
 
     if request.method == 'DELETE':
         if deck.subscriber_decks.filter(active=True).count() > 0: #exists():
@@ -92,7 +93,6 @@ def rest_deck(request, deck_id):
             deck.save()
         else:
             deck.delete_cascading()
-        #request.user.message_set.create(message=ugettext("The %(verbose_name)s was deleted.") % {"verbose_name": model._meta.verbose_name})
         return {'success':True}
     elif request.method == 'PUT':
         #TODO replace update_object to get rid of post_save_redirect, it's useless for ajax
@@ -110,6 +110,7 @@ def rest_deck(request, deck_id):
                     return {'success':False}
                 deck.unshare()
         else:
+            #FIXME wrong error to raise
             raise Http404
 
 
@@ -117,7 +118,8 @@ def rest_deck(request, deck_id):
 def rest_card_templates(request, fact_type_id):
     "Returns list of CardTemplate objects given a parent FactType id"
     try:
-        fact_type = FactType.objects.get(id=fact_type_id) #todo: error handling
+        #TODO error handling
+        fact_type = FactType.objects.get(id=fact_type_id)
         ret = fact_type.cardtemplate_set.all()
     except FactType.DoesNotExist:
         ret = []
@@ -128,7 +130,8 @@ def rest_card_templates(request, fact_type_id):
 def rest_fields(request, fact_type_id):
     "Returns list of Field objects given a FactType id"
     try:
-        fact_type = FactType.objects.get(id=fact_type_id) #todo: error handling
+        #TODO error handling
+        fact_type = FactType.objects.get(id=fact_type_id)
         ret = fact_type.fieldtype_set.all().order_by('ordinal')
     except FactType.DoesNotExist:
         ret = []
@@ -137,7 +140,8 @@ def rest_fields(request, fact_type_id):
 
 @api
 def rest_fact_types(request):
-    fact_types = FactType.objects.all()#SOMEDAY filter(deck__owner=request.user)
+    fact_types = FactType.objects.all()
+    #SOMEDAY filter(deck__owner=request.user)
     return to_dojo_data(fact_types)
 
 
@@ -161,7 +165,8 @@ def rest_cards(request): #todo:refactor into facts (no???)
 @api
 def rest_card_templates_for_fact(request, fact_id):
     '''
-    Returns a list of card templates for which the given fact has corresponding cards activated.
+    Returns a list of card templates for which the given fact 
+    has corresponding cards activated.
     '''
     card_templates = []
     fact = get_object_or_404(Fact, pk=fact_id)
@@ -169,7 +174,11 @@ def rest_card_templates_for_fact(request, fact_id):
 
     for card_template in fact.fact_type.cardtemplate_set.all():
         #TODO only send the id(uri)/name/status
-        card_templates.append({'card_template': card_template, 'activated_for_fact': (card_template in activated_card_templates)})
+        card_templates.append({
+            'card_template': card_template,
+            'activated_for_fact': 
+                (card_template in activated_card_templates),
+        })
 
     return to_dojo_data(card_templates, identifier=None)
 
@@ -183,41 +192,56 @@ def rest_facts_tags(request):
 
 @api
 @transaction.commit_on_success
-def rest_facts(request, deck=None, tags=None): #todo:refactor into facts (no???)
+#TODO refactor into facts (no???)
+def rest_facts(request, deck=None, tags=None): 
     if request.method == 'GET':
         if request.GET['fact_type']:
-            fact_type_id = request.GET['fact_type'] #TODO allow omitting this option
+            #TODO allow omitting this option
+            fact_type_id = request.GET['fact_type'] 
             ret = {}
             try:
                 fact_type = FactType.objects.get(id=fact_type_id)
 
                 user = deck.owner if deck else request.user
 
-                facts = Fact.objects.with_synchronized(user, deck=deck, tags=tags).filter(active=True)
+                facts = Fact.objects.with_synchronized(
+                    user, deck=deck, tags=tags).filter(active=True)
 
                 #is the user searching his facts?
-                if 'search' in request.GET and request.GET['search'].strip():
+                if ('search' in request.GET
+                        and request.GET['search'].strip()):
                     search_query = request.GET['search']
-                    facts = Fact.objects.search(fact_type, search_query, query_set=facts)
+                    facts = Fact.objects.search(
+                        fact_type, search_query, query_set=facts)
                     #FIXME add search for synchronized facts too!
 
                 preret = []
                 for fact in facts.iterator():
                     row = {
-                            'fact-id': fact.id, 
-                            'suspended': len(fact.card_set.filter(active=True)) and all([card.suspended for card in fact.card_set.filter(active=True)])
+                        'fact-id': fact.id, 
+                        'suspended':
+                            (len(fact.card_set.filter(active=True)) and
+                             all([card.suspended for card
+                                  in fact.card_set.filter(active=True)]),
                     }
+
                     ident, name = '', ''
                     for field_content in fact.field_contents: #.all():
-                        key = 'id{0}'.format(field_content.field_type_id) #TODO rename to be clearer, like field_id or SOMETHING
+                        #TODO rename to be clearer, like field_id, or ???
+                        key = 'id{0}'.format(field_content.field_type_id) 
+
                         if not ident:
                             ident = key
                         elif not name:
                             name = key
+
                         row[key] = field_content.human_readable_content
-                        row['{0}_field-content-id'.format(key)] = field_content.id
+                        row['{0}_field-content-id'.format(key)] = \
+                            field_content.id
+
                     if not name:
                         name = ident
+
                     preret.append(row)
                 ret = to_dojo_data(preret)
                 ret['identifier'] = 'fact-id'#ident
@@ -231,14 +255,19 @@ def rest_facts(request, deck=None, tags=None): #todo:refactor into facts (no???)
         #TODO unicode support
         #TODO refactor into other module probably
         ret = {}
-        deck_id = request.POST['fact-deck'] #TODO just get this from the form
+        #TODO just get this from the form
+        deck_id = request.POST['fact-deck'] 
     
         # make sure the logged-in user owns this deck
-        if Deck.objects.get(id=deck_id).owner_id != request.user.id: #and not request.User.is_staff():
+        if Deck.objects.get(id=deck_id).owner_id != request.user.id: 
+            ##and not request.User.is_staff():
             ret['success'] = False
-            raise forms.ValidationError('You do not have permission to access this flashcard deck.')
+            raise forms.ValidationError(
+                'You do not have permission to access '
+                'this flashcard deck.')
 
-        #override the submitted deck ID with the ID from the URL, since this is a RESTful interface
+        # Override the submitted deck ID with the ID from the URL, 
+        # since this is a RESTful interface.
         post_data = request.POST.copy()
         #post_data['fact-deck'] = deck_id
     
@@ -249,31 +278,39 @@ def rest_facts(request, deck=None, tags=None): #todo:refactor into facts (no???)
         card_templates = CardTemplate.objects.filter(id__in=[e[1] for e in post_data.items() if e[0].find('card_template') == 0])
     
         #FieldContentFormset = modelformset_factory(FieldContent, exclude=('fact', ))
-        FieldContentFormset = modelformset_factory(FieldContent, form=FieldContentForm)
-        field_content_formset = FieldContentFormset(post_data, prefix='field_content')
+        FieldContentFormset = modelformset_factory(
+            FieldContent, form=FieldContentForm)
+        field_content_formset = FieldContentFormset(
+            post_data, prefix='field_content')
     
         fact_form = FactForm(post_data, prefix='fact')
     
         if field_content_formset.is_valid() and fact_form.is_valid():
-            new_fact = fact_form.save() #TODO automate the tag saving in forms.py
+            #TODO automate the tag saving in forms.py
+            new_fact = fact_form.save() 
             new_fact.active = True
             new_fact.save()
 
-            group_to_subfact = {} # maps subfact group numbers to the subfact object
+            # maps subfact group numbers to the subfact object
+            group_to_subfact = {} 
             for field_content_form in field_content_formset.forms:
-                #TODO don't create fieldcontent objects for optional fields which were left blank
+                #TODO don't create fieldcontent objects for 
+                # optional fields which were left blank.
                 new_field_content = field_content_form.save(commit=False)
                 # is this a field of the parent fact, or a subfact?
-                if new_field_content.field_type.fact_type == new_fact.fact_type:
+                if (new_field_content.field_type.fact_type
+                    == new_fact.fact_type):
                     # parent fact
                     new_field_content.fact = new_fact
                 else:
                     # subfact
-                    group = field_content_form.cleaned_data['subfact_group']
+                    group = field_content_form\
+                            .cleaned_data['subfact_group']
                     if group not in group_to_subfact.keys():
                         # create the new subfact
                         new_subfact = Fact(
-                                fact_type=new_field_content.field_type.fact_type,
+                                fact_type=new_field_content\
+                                          .field_type.fact_type,
                                 active=True,
                                 #deck=new_fact.deck,
                                 parent_fact=new_fact,
@@ -283,12 +320,14 @@ def rest_facts(request, deck=None, tags=None): #todo:refactor into facts (no???)
                     new_field_content.fact = group_to_subfact[group]
                 new_field_content.save()
         
-            for card_template in card_templates: #card_form in card_formset.forms:
+            for card_template in card_templates: 
+                #card_form in card_formset.forms:
                 new_card = Card(
                     template=card_template,
                     fact=new_fact,
                     active=True,
-                    new_card_ordinal=random.randrange(0, MAX_NEW_CARD_ORDINAL),
+                    new_card_ordinal=random.randrange(
+                        0, MAX_NEW_CARD_ORDINAL),
                     priority = 0)
                 new_card.save()
         else:
@@ -304,7 +343,8 @@ def rest_facts(request, deck=None, tags=None): #todo:refactor into facts (no???)
 @transaction.commit_on_success
 def rest_fact_suspend(request, fact_id):
     if request.method == 'POST':
-        fact = Fact.objects.get_for_owner_or_subscriber(fact_id, request.user)
+        fact = Fact.objects.get_for_owner_or_subscriber(
+            fact_id, request.user)
         #TODO add fact.suspend() method
         for card in fact.card_set.all():
             card.suspended = True
@@ -315,7 +355,8 @@ def rest_fact_suspend(request, fact_id):
 @transaction.commit_on_success
 def rest_fact_unsuspend(request, fact_id):
     if request.method == 'POST':
-        fact = Fact.objects.get_for_owner_or_subscriber(fact_id, request.user)
+        fact = Fact.objects.get_for_owner_or_subscriber(
+            fact_id, request.user)
         #fact.suspended = False
         #fact.save()
         for card in fact.card_set.all():
@@ -346,15 +387,26 @@ def rest_fact(request, fact_id): #todo:refactor into facts
         FactFormset = modelformset_factory(Fact, fields=('id', 'fact_type',), can_delete=True)
         fact_formset = FactFormset(post_data, prefix='fact', queryset=Fact.objects.filter(id=fact.id)|fact.subfacts)
         
-        CardFormset = modelformset_factory(Card, exclude=('fact', 'ease_factor', )) #TODO make from CardForm
-        card_formset = CardFormset(post_data, prefix='card', queryset=fact.card_set.get_query_set())
+        #TODO make from CardForm
+        CardFormset = modelformset_factory(
+            Card, exclude=('fact', 'ease_factor', )) 
+        card_formset = CardFormset(
+            post_data, prefix='card',
+            queryset=fact.card_set.get_query_set())
         
-        FieldContentFormset = modelformset_factory(FieldContent, form=FieldContentForm)
-        field_content_queryset = fact.fieldcontent_set.get_query_set() or None
-        field_content_formset = FieldContentFormset(post_data, prefix='field_content') #, queryset=field_content_queryset)
+        FieldContentFormset = modelformset_factory(
+            FieldContent, form=FieldContentForm)
+        field_content_queryset = (fact.fieldcontent_set.get_query_set() 
+                                  or None)
+        field_content_formset = FieldContentFormset(
+            post_data, prefix='field_content') 
+        #, queryset=field_content_queryset)
 
-        #fact_form = FactForm(post_data, prefix='fact', instance=fact) #this isn't updated
-        if card_formset.is_valid() and field_content_formset.is_valid() and fact_formset.is_valid():
+        #fact_form = FactForm(post_data, prefix='fact', instance=fact)
+        # ^^^^^^^ this isn't updated
+        if (card_formset.is_valid()
+                and field_content_formset.is_valid()
+                and fact_formset.is_valid()):
             #fact = fact_form.save() #TODO needed in future?
             
             #update the fact's assigned deck
@@ -363,7 +415,8 @@ def rest_fact(request, fact_id): #todo:refactor into facts
             #fact.deck = Deck.objects.get(id=deck_id)
             #fact.save()
 
-            group_to_subfact = {} # maps subfact group numbers to the subfact object
+            # maps subfact group numbers to the subfact object
+            group_to_subfact = {} 
             for field_content_form in field_content_formset.forms:
                 field_content = field_content_form.save(commit=False)
 
@@ -380,8 +433,11 @@ def rest_fact(request, fact_id): #todo:refactor into facts
                     if field_content_form.cleaned_data['id']:
                         # existing field content
 
-                        # if it's part of a subfact that's being deleted in this form, ignore the field.
-                        if field_content_form.cleaned_data['id'].fact in [fact_form.cleaned_data['id'] for fact_form in fact_formset.deleted_forms]:
+                        # if it's part of a subfact that's being 
+                        # deleted in this form, ignore the field.
+                        if field_content_form.cleaned_data['id'].fact in\
+                            [fact_form.cleaned_data['id'] for fact_form
+                             in fact_formset.deleted_forms]:
                             continue
 
                         if field_content_form.cleaned_data['id'].fact.owner == request.user:
