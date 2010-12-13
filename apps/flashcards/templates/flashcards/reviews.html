@@ -14,11 +14,11 @@
             <script type="dojo/method" event="onClick" args="evt">
                 reviews_ui.unsetKeyboardShortcuts();
 
-                var success_callback = function(selected_fact_row_index, data, card_counter) {
+                var successCallback = function(selectedFactRowIndex, data, cardCounter) {
                     fact_ui.hideFactEditForm();
                     var def = reviews.reloadCurrentCard();
                     def.addCallback(function() {
-                        reviews_ui.displayCard(reviews.current_card, reviews_ui.card_back_visible);
+                        reviews_ui.displayCard(reviews.currentCard, reviews_ui.cardBackVisible);
                         //if the fact editing grid is open, update it
                         if (typeof cards_factsGrid != 'undefined') {
                             var store = cards_factsGrid.store;
@@ -31,7 +31,7 @@
                     reviews_ui.setKeyboardShortcuts();
                 };
                 
-                fact_ui.showFactEditForm(reviews.current_card.fact_id, success_callback);
+                fact_ui.showFactEditForm(reviews.currentCard.factId, successCallback);
             </script>
         </div>
         <div dojoType="dijit.form.Button" type="button" id="reviews_suspendCurrentCardButton" iconClass="manabi_icon manabi_icon_control_pause">
@@ -67,7 +67,7 @@
                                 Show Answer
                             </div>
                             <script type="dojo/connect" event="onClick" args="evt">
-                                reviews_ui.showCardBack(reviews.current_card);
+                                reviews_ui.showCardBack(reviews.currentCard);
                             </script>
                         </button>
                         <div>
@@ -97,7 +97,7 @@
                                 </span>
                                 <script type="dojo/connect" event="onClick" args="evt">
                                     //reviews_gradeWrongTooltip.close();
-                                    reviews_ui.reviewCard(reviews.current_card, reviews.grades.GRADE_NONE);
+                                    reviews_ui.reviewCard(reviews.currentCard, reviews.grades.GRADE_NONE);
                                 </script>
                             </button><br>
                             <span id="reviews_gradeNoneInterval" class="reviews_gradeButtonInterval"></span>
@@ -112,7 +112,7 @@
                                 </span>
                                 <script type="dojo/connect" event="onClick" args="evt">
                                     //reviews_gradeHardTooltip.close();
-                                    reviews_ui.reviewCard(reviews.current_card, reviews.grades.GRADE_HARD);
+                                    reviews_ui.reviewCard(reviews.currentCard, reviews.grades.GRADE_HARD);
                                 </script>
                             </button><br>
                             <span id="reviews_gradeHardInterval" class="reviews_gradeButtonInterval"></span>
@@ -124,7 +124,7 @@
                                 </span>
                                 <script type="dojo/connect" event="onClick" args="evt">
                                     //reviews_gradeGoodTooltip.close();
-                                    reviews_ui.reviewCard(reviews.current_card, reviews.grades.GRADE_GOOD);
+                                    reviews_ui.reviewCard(reviews.currentCard, reviews.grades.GRADE_GOOD);
                                 </script>
                             </button><br>
                             <span id="reviews_gradeGoodInterval" class="reviews_gradeButtonInterval"></span>
@@ -136,7 +136,7 @@
                                 </span>
                                 <script type="dojo/connect" event="onClick" args="evt">
                                     //reviews_gradeEasyTooltip.close();
-                                    reviews_ui.reviewCard(reviews.current_card, reviews.grades.GRADE_EASY);
+                                    reviews_ui.reviewCard(reviews.currentCard, reviews.grades.GRADE_EASY);
                                 </script>
                             </button><br>
                             <span id="reviews_gradeEasyInterval" class="reviews_gradeButtonInterval"></span>
@@ -206,17 +206,6 @@
         
         {% comment %}
         <strong style="font-size:120%">Study Options</strong><br><br>
-        <strong>Decks to review:</strong><br>
-        <div dojoType="dojox.grid.DataGrid" store="reviews_decksStore" 
-            clientSort="true" style="width: 450px;" autoHeight="6" jsId="reviews_decksGrid"
-            selectionMode="single" rowSelector="false"  
-            rowsPerPage="40" keepRows="200" structure="reviews_decksGridLayout">
-                <script type="dojo/connect" event="onSelectionChanged" args="evt">
-                    dojo.byId('reviews_noCardsDue').style.display = 'none';
-                    dojo.byId('reviews_beginReview').style.display = '';
-                    reviews_beginReviewButton.attr('disabled', false);
-                </script>
-        </div>
         <br>
         <div>
             <strong>Filter cards by tag:</strong> <em>(optional)</em><br>
@@ -278,9 +267,9 @@
                     Review Early
                     <script type="dojo/connect" event="onClick" args="evt">
                         //reviews_ui.submitReviewOptionsDialog(true);
-                        var args = dojo.clone(reviews_ui.last_session_args);
-                        args.early_review = true;
-                        args.learn_more = false;
+                        var args = dojo.clone(reviews_ui.lastSessionArgs);
+                        args.earlyReview = true;
+                        args.learnMore = false;
                         reviews_ui.startSession(args);
                     </script>
                 </button><br>
@@ -292,9 +281,9 @@
                     Learn More
                     <script type="dojo/connect" event="onClick" args="evt">
                         //reviews_ui.submitReviewOptionsDialog(true, true); // learn more, and learn new cards early if necessary
-                        var args = dojo.clone(reviews_ui.last_session_args);
-                        args.early_review = true;
-                        args.learn_more = true;
+                        var args = dojo.clone(reviews_ui.lastSessionArgs);
+                        args.earlyReview = true;
+                        args.learnMore = true;
                         reviews_ui.startSession(args);
                     </script>
                 </button><br>
@@ -355,9 +344,9 @@
         Review More
         <script type="dojo/connect" event="onClick" args="evt">
             reviews_sessionOverDialog.hide();
-            var args = dojo.clone(reviews_ui.last_session_args);
-            args.early_review = false;
-            args.learn_more = false;
+            var args = dojo.clone(reviews_ui.lastSessionArgs);
+            args.earlyReview = false;
+            args.learnMore = false;
             reviews_ui.startSession(args); //reuse whatever args were used last to start a study session //{{ deck.id }});
             //reviews_ui.openDialog();
         </script>

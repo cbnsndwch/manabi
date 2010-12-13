@@ -156,7 +156,7 @@ def deck_create(request, post_save_redirect='/flashcards/decks'):
 
             scheduling_options = SchedulingOptions(deck=new_deck)
             scheduling_options.save()
-            return HttpResponse(json_encode({'success': True, 'post_redirect': new_deck.get_absolute_url()}), mimetype='text/javascript')
+            return HttpResponse(json_encode({'success': True, 'postRedirect': new_deck.get_absolute_url()}), mimetype='text/javascript')
         else:
             #FIXME post_redirect for failure? handle in ajax?
             return HttpResponse(json_encode({'success': False}), mimetype='text/javascript')
@@ -165,3 +165,4 @@ def deck_create(request, post_save_redirect='/flashcards/decks'):
     return render_to_response('flashcards/deck_form.html', 
         {'form': deck_form,
          'post_save_redirect': post_save_redirect}) #todo:post/pre redirs
+

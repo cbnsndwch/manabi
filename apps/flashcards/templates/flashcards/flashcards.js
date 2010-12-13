@@ -4,7 +4,7 @@
  *
  * I wrote this as I was really still learning Javascript and Dojo (and
  * Django), several years ago. I didn't get how to properly 
- * organize OO JS via prototypes and so on. So please forgive the mess 
+ * organize OO JS via prototypes, and so on. So please forgive the mess 
  * that this is :) It will be rewritten eventually, though it works somehow.
  *********************/
 

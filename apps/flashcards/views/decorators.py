@@ -53,3 +53,20 @@ def has_card_query_filters(func):
     return wrapper
     
 
+
+def flashcard_api(view_func):
+    '''
+    Our standard decorator for JSON API views,
+    within our flashcard API.
+
+    It's just a shortcut for decorating with the following:
+        `@json_response`
+        `@login_required`
+        `@all_http_methods`
+        `@has_card_query_filters`
+    '''
+    return json_response(
+           login_required(
+           all_http_methods(
+           has_card_query_filters(view_func))))
+

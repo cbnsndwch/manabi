@@ -19,6 +19,9 @@ from flashcards.models.constants import MAX_NEW_CARD_ORDINAL
 from flashcards.views.decorators import all_http_methods
 from flashcards.views.decorators import has_card_query_filters
 import random
+from apps.utils.querycleaner import clean_query
+import apps.utils.querycleaner
+from flashcards.views.decorators import flashcard_api as api
 #import jcconv
 
 
@@ -31,33 +34,32 @@ import random
 def rest_entry_point(request):
     pass
 
-@login_required
-@json_response
-@all_http_methods
+@api
 def rest_deck_subscribe(request, deck_id):
     if request.method == 'POST':
         deck = get_object_or_404(Deck, pk=deck_id)
 
         if deck.owner_id == request.user.id: #and not request.User.is_staff():
-            raise forms.ValidationError('You cannot subscribe to a deck which you created yourself. Subscription is for other users.')
+            raise forms.ValidationError(
+                'You cannot subscribe to a deck which you created '
+                'yourself. Subscription is for other users.')
         elif not deck.shared:
-            raise forms.ValidationError('This deck is not shared, so you cannot subscribe to it.')
+            raise forms.ValidationError(
+                'This deck is not shared, so you cannot subscribe to it.')
 
         new_deck = deck.subscribe(request.user)
 
-        return {'success':True, 
-                'deck_id': new_deck.id,
-                'post_redirect': new_deck.get_absolute_url()}
+        return {'success': True, 
+                'deckId': new_deck.id,
+                'postRedirect': new_deck.get_absolute_url()}
 
-@login_required
-@json_response
+@api
 def rest_generate_reading(request):
     if request.method == 'POST':
         reading = japanese.generate_reading(request.POST['expression'])
         return {'success':True, 'reading': ret}
 
-@login_required
-@json_response
+@api
 def rest_decks_with_totals(request):
     if request.method == 'GET':
         try:
@@ -69,8 +71,7 @@ def rest_decks_with_totals(request):
 
         return to_dojo_data(decks, label='name')
 
-@login_required
-@json_response
+@api
 def rest_decks(request):
     #if request.method == 'POST':
         #raise Http404
@@ -78,9 +79,7 @@ def rest_decks(request):
     ret = Deck.objects.filter(owner=request.user, active=True).values('id', 'name', 'description')
     return to_dojo_data(ret, label='name')
 
-@login_required
-@json_response
-@all_http_methods
+@api
 def rest_deck(request, deck_id):
     deck = get_object_or_404(Deck, pk=deck_id)
     if deck.owner_id != request.user.id: #and not request.User.is_staff():
@@ -114,8 +113,7 @@ def rest_deck(request, deck_id):
             raise Http404
 
 
-@login_required
-@json_response
+@api
 def rest_card_templates(request, fact_type_id):
     "Returns list of CardTemplate objects given a parent FactType id"
     try:
@@ -126,8 +124,7 @@ def rest_card_templates(request, fact_type_id):
     return to_dojo_data(ret)
 
 
-@login_required
-@json_response
+@api
 def rest_fields(request, fact_type_id):
     "Returns list of Field objects given a FactType id"
     try:
@@ -138,8 +135,7 @@ def rest_fields(request, fact_type_id):
     return to_dojo_data(ret)
 
 
-@login_required
-@json_response
+@api
 def rest_fact_types(request):
     fact_types = FactType.objects.all()#SOMEDAY filter(deck__owner=request.user)
     return to_dojo_data(fact_types)
@@ -149,8 +145,7 @@ def rest_fact_types(request):
 
 #TODO add 'success':True where missing
 
-@login_required
-@json_response
+@api
 def rest_cards(request): #todo:refactor into facts (no???)
     '''
     Returns the cards for a given fact.
@@ -163,8 +158,7 @@ def rest_cards(request): #todo:refactor into facts (no???)
         return to_dojo_data(cards)
 
 
-@login_required
-@json_response
+@api
 def rest_card_templates_for_fact(request, fact_id):
     '''
     Returns a list of card templates for which the given fact has corresponding cards activated.
@@ -180,19 +174,15 @@ def rest_card_templates_for_fact(request, fact_id):
     return to_dojo_data(card_templates, identifier=None)
 
 
-@login_required
-@json_response
+@api
 def rest_facts_tags(request):
     tags = Fact.objects.all_tags_per_user(request.user)
     tags = [{'name': tag.name, 'id': tag.id} for tag in tags]
     return to_dojo_data(tags)
 
 
-@login_required
-@json_response
-@all_http_methods
+@api
 @transaction.commit_on_success
-@has_card_query_filters
 def rest_facts(request, deck=None, tags=None): #todo:refactor into facts (no???)
     if request.method == 'GET':
         if request.GET['fact_type']:
@@ -310,8 +300,7 @@ def rest_facts(request, deck=None, tags=None): #todo:refactor into facts (no???)
                     'fact': [fact_form.errors]}
         return ret
 
-@login_required
-@json_response
+@api
 @transaction.commit_on_success
 def rest_fact_suspend(request, fact_id):
     if request.method == 'POST':
@@ -322,8 +311,7 @@ def rest_fact_suspend(request, fact_id):
             card.save()
         return {'success': True}
 
-@login_required
-@json_response
+@api
 @transaction.commit_on_success
 def rest_fact_unsuspend(request, fact_id):
     if request.method == 'POST':
@@ -335,9 +323,7 @@ def rest_fact_unsuspend(request, fact_id):
             card.save()
         return {'success': True}
 
-@login_required
-@json_response
-@all_http_methods
+@api
 @transaction.commit_on_success
 def rest_fact(request, fact_id): #todo:refactor into facts
     if request.method == 'PUT':
@@ -501,3 +487,5 @@ def rest_fact(request, fact_id): #todo:refactor into facts
         else:
             fact.delete()
         return {'success': True}
+
+

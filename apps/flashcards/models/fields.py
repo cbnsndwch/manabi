@@ -226,3 +226,4 @@ class FieldContent(models.Model):
                     self.cached_transliteration_without_markup)
         copy.save()
         return copy
+

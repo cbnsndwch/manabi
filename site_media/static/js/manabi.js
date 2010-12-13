@@ -82,50 +82,53 @@ manabi_ui.xhrLink = function(href) { //, target_pane) {
 }*/
 
 
-manabi_ui._xhrPostArgs = function(url, post_redirect_url) {
-    if (typeof post_redirect_url == 'undefined') { post_redirect_url = null; }
+manabi_ui._xhrPostArgs = function(url, postRedirectUrl) {
+    if (typeof postRedirectUrl == 'undefined') { postRedirectUrl = null; }
     
-    var xhr_args = {
+    var xhrArgs = {
         'url': url,
         handleAs: 'json',
         load: dojo.hitch(null, function(url, data) {
-            if ('post_redirect' in data) {
+            if ('postRedirect' in data) {
                 manabi_ui.xhrLink(data.post_redirect);
             } else {
-                manabi_ui.xhrLink(post_redirect_url ? post_redirect_url : dojo.hash());
+                manabi_ui.xhrLink(postRedirectUrl ? postRedirectUrl : dojo.hash());
             }
-        }, post_redirect_url),
+        }, postRedirectUrl),
         error: function(error) {
             alert('Error: '+error);
-            manabi_ui.xhrLink(post_redirect_url ? post_redirect_url : dojo.hash());
+            manabi_ui.xhrLink(postRedirectUrl ? postRedirectUrl : dojo.hash());
         }
     }
-    return xhr_args;
+    return xhrArgs;
 };
-manabi_ui._xhrPost = function(url, form, data, post_redirect_url) {
+
+manabi_ui._xhrPost = function(url, form, data, postRedirectUrl) {
     if (typeof form == 'undefined') { form = null; }
     if (typeof data == 'undefined') { data = null; }
-    if (typeof post_redirect_url == 'undefined') { post_redirect_url = null; }
+    if (typeof postRedirectUrl == 'undefined') { postRedirectUrl = null; }
 
     manabi_standby.show();
 
-    var xhr_args = manabi_ui._xhrPostArgs(url, post_redirect_url);
-    xhr_args.form = form;
-    xhr_args.content = data;
+    var xhrArgs = manabi_ui._xhrPostArgs(url, postRedirectUrl);
+    xhrArgs.form = form;
+    xhrArgs.content = data;
 
-    var def = dojo.xhrPost(xhr_args);
+    var def = dojo.xhrPost(xhrArgs);
     def.addCallback(function() {
         manabi_standby.hide();
     });
     return def;
 };
-manabi_ui.xhrPost = function(url, form, post_redirect_url) {
-    // Posts a form
-    return manabi_ui._xhrPost(url, form, null, post_redirect_url);
+
+// Posts a form
+manabi_ui.xhrPost = function(url, form, postRedirectUrl) {
+    return manabi_ui._xhrPost(url, form, null, postRedirectUrl);
 }
-manabi_ui.xhrPostData = function(url, data, post_redirect_url) {
-    // Posts `data`
-    return manabi_ui._xhrPost(url, null, data, post_redirect_url);
+
+// Posts `data`
+manabi_ui.xhrPostData = function(url, data, postRedirectUrl) {
+    return manabi_ui._xhrPost(url, null, data, postRedirectUrl);
 }
 
 manabi_ui.convertLinksToXhr = function(container_node) {

@@ -288,6 +288,7 @@ class CommonFiltersMixin(object):
 
     #TODO just use of_user and of_deck etc. as mixins instead of this
     def _user_cards(self, user, deck=None, tags=None, excluded_ids=None):
+        #TODO change excluded_ids=None to =[]
         from flashcards.models.facts import Fact
         user_cards = self.of_user(user)
 
@@ -387,8 +388,8 @@ class CommonFiltersMixin(object):
         #return new_cards_count
 
 
-def CardManager():
-    return manager_from(CommonFiltersMixin, SchedulerMixin)
+
+CardManager = lambda: manager_from(CommonFiltersMixin, SchedulerMixin)
     
 
 #class CardManager(models.Manager):
