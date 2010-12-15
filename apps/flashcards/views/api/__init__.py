@@ -3,7 +3,6 @@
 
 from apps.utils import japanese
 from apps.utils.querycleaner import clean_query
-from django.contrib.auth.decorators import login_required
 from django.db import transaction
 from django.forms import forms
 from django.forms.models import modelformset_factory, formset_factory
@@ -11,7 +10,6 @@ from django.http import Http404, HttpResponseRedirect, HttpResponse
 from django.shortcuts import get_object_or_404, render_to_response
 from django.template import RequestContext, loader
 from django.views.generic.create_update import update_object, delete_object, create_object
-from dojango.decorators import json_response
 from dojango.util import to_dojo_data, json_decode, json_encode
 from flashcards.forms import DeckForm, FactForm, FieldContentForm, CardForm
 from flashcards.models import FactType, Fact, Deck, CardTemplate, FieldType
@@ -101,7 +99,7 @@ def rest_deck(request, deck_id):
 
 @api
 def rest_card_templates(request, fact_type_id):
-    "Returns list of CardTemplate objects given a parent FactType id"
+    '''Returns list of CardTemplate objects given a parent FactType id'''
     try:
         #TODO error handling
         fact_type = FactType.objects.get(id=fact_type_id)
@@ -113,7 +111,7 @@ def rest_card_templates(request, fact_type_id):
 
 @api
 def rest_fields(request, fact_type_id):
-    "Returns list of Field objects given a FactType id"
+    '''Returns list of Field objects given a FactType id'''
     try:
         #TODO error handling
         fact_type = FactType.objects.get(id=fact_type_id)
@@ -207,7 +205,7 @@ def rest_facts(request, deck=None, tags=None):
                         'suspended':
                             (len(fact.card_set.filter(active=True)) and
                              all([card.suspended for card
-                                  in fact.card_set.filter(active=True)]),
+                                  in fact.card_set.filter(active=True)])),
                     }
 
                     ident, name = '', ''

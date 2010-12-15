@@ -427,7 +427,7 @@ reviews.timeUntilNextCardDue = function(deck, tags) {
     args.deck = deck || null;
     args.tags = tags || null;
     var query = dojo.objectToQuery(args);
-    var url = '{% url api-hoursUntilNextCardDue %}';
+    var url = '{% url api-hours_until_next_card_due %}';
     if (query) {
         url += '?' + query;
     }
@@ -510,7 +510,6 @@ reviews_ui.humanizedInterval = function(interval) {
 
 reviews_ui._showNoCardsDue = function() {
     dojo.byId('reviews_beginReview').style.display = 'none';
-    dojo.byId('reviews_reviewOptions').style.display = 'none';
     dojo.byId('reviews_reviewScreen').style.display = 'none';
     dojo.byId('reviews_reviewEndScreen').style.display = 'none';
 };
@@ -579,7 +578,6 @@ reviews_ui.showNoCardsDue = function(canLearnMore, emptyQuery) {
 reviews_ui.showReviewOptions = function() {
     //FIXME temp fix dojo.byId('reviews_beginReview').style.display = '';
     dojo.byId('reviews_beginReview').style.display = 'none';
-    dojo.byId('reviews_reviewOptions').style.display = '';
     dojo.byId('reviews_noCardsDue').style.display = 'none';
     dojo.byId('reviews_emptyQuery').style.display = 'none';
     dojo.byId('reviews_reviewEndScreen').style.display = 'none';

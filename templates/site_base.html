@@ -18,9 +18,11 @@
             dojo.addOnLoad(function() {
                 if (dojo.isIE) {
                     dojo.byId('body_contents').innerHTML = "\
-                    Unfortunately your browser, Internet Explorer, doesn't work with this site yet.<br><br>\
-                    Please use a more standards-compliant browser such as <a href=\"http://www.mozilla.com/firefox/\">Firefox</a>, <a href=\"http://www.google.com/chrome\">Google Chrome</a>, or <a href=\"http://www.apple.com/safari/\">Safari</a>.<br><br>\
-                    Sorry for the inconvenience.";
+                    Unfortunately your browser, Internet Explorer, doesn't work with this site just yet.<br><br>\
+                    Please use a more standards-compliant browser such as \
+                    <a href=\"http://www.mozilla.com/firefox/\">Firefox</a>, \
+                    <a href=\"http://www.google.com/chrome\">Google Chrome</a>, or <a href=\"http://www.apple.com/safari/\">Safari</a>.<br><br>\
+                    Sorry for the inconvenience!";
               }
             });
         </script>
@@ -81,7 +83,9 @@
             {% endif %}
         </div>
         {% endcomment %}
-        {% include "flashcards/base.html" %}
+        {% if user.is_authenticated %}
+            {% include "flashcards/base.html" %}
+        {% endif %}
         
         <div id="body_contents">
             {% block body %}
@@ -108,3 +112,5 @@
     - <a href="{% url privacy %}">{% trans "Privacy Policy" %}</a> {% endcomment %}
 </div>
 {% endblock %}
+
+

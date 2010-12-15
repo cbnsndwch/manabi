@@ -196,50 +196,6 @@
         }
 	</script>
 
-    <div id="reviews_reviewOptions">
-        
-        {% comment %}
-        <strong style="font-size:120%">Study Options</strong><br><br>
-        <br>
-        <div>
-            <strong>Filter cards by tag:</strong> <em>(optional)</em><br>
-            <div dojoType="dijit.form.FilteringSelect" store="cards_factsTagsStore"
-                searchAttr="name" jsId="reviews_filterByTagInput" style="display:inline-block">
-                <script type="dojo/connect" event="onChange" args="evt">
-                    if (this.attr('displayedValue').trim() != '') {
-                        reviews_clearFilterByTagInput.domNode.style.visibility = '';
-                    }
-                    dojo.byId('reviews_noCardsDue').style.display = 'none';
-                    dojo.byId('reviews_beginReview').style.display = '';
-                    reviews_beginReviewButton.attr('disabled', false);
-                </script>
-            </div>
-            <button dojoType="dijit.form.Button" type="button" style="visibility: hidden;" jsId="reviews_clearFilterByTagInput">
-                Clear Filter
-                <script type="dojo/connect" event="onClick" args="evt">
-                    reviews_filterByTagInput.reset();
-                    this.domNode.style.visibility = 'hidden';            
-                </script>
-            </button>
-        </div>
-        <div>
-            <div style="margin-bottom:8px">
-                <strong>Session time limit:</strong> 
-                <input dojoType="dijit.form.NumberSpinner" value="10" smallDelta="1"
-                constraints="{min:0,max:120,places:0}"
-                jsId="reviews_timeLimitInput" style="width:80px"> minutes <span style="color:gray">(0 = unlimited)</span>
-            </div>
-            <div style="margin-bottom:8px">
-                <strong>Session card limit:</strong>
-                <input dojoType="dijit.form.NumberSpinner" value="0" smallDelta="5"
-                constraints="{min:0,max:1000,places:0}"
-                jsId="reviews_cardLimitInput" style="width:80px"> cards <span style="color:gray">(0 = unlimited)</span>
-            </div>
-        </div>
-        <br>
-        {% endcomment %}
-    </div>
-
     <div id="reviews_emptyQuery" style="display: none">
         <strong style="font-size:120%">No cards to review.</strong><br>
         Your selection contains no cards to review.<br>

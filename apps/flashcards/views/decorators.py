@@ -1,4 +1,6 @@
 from functools import wraps
+from dojango.decorators import json_response
+from django.contrib.auth.decorators import login_required
 
 #decorator_with_arguments = lambda decorator: lambda *args, **kwargs: lambda func: decorator(func, *args, **kwargs)
 
