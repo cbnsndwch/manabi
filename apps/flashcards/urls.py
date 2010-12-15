@@ -42,8 +42,6 @@ urlpatterns += patterns('flashcards.views.api',
         name='api-decks'),
     url(r'^api/decks/(\w+)/$', 'rest_deck',
         name='api-deck'), #POST: can set 'shared' field
-    url(r'^api/decks_with_totals/$', 'rest_decks_with_totals',
-        name='api-decks_with_totals'),
     url(r'^api/fact_types/$', 'rest_fact_types',
         name='api-fact_types'),
     url(r'^api/fact_types/(\w+)/card_templates/$', 'rest_card_templates'),

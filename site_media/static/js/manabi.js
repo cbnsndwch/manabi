@@ -130,6 +130,10 @@ manabi_ui.xhrPost = function(url, form, postRedirectUrl) {
 manabi_ui.xhrPostData = function(url, data, postRedirectUrl) {
     return manabi_ui._xhrPost(url, null, data, postRedirectUrl);
 }
+manabi_ui.xhrPutData = function(url, data, postRedirectUrl) {
+    data._method = 'PUT';
+    return manabi_ui._xhrPost(url, null, data, postRedirectUrl);
+}
 
 manabi_ui.convertLinksToXhr = function(container_node) {
     dojo.query('.xhr_link', dojo.byId(container_node)).forEach(

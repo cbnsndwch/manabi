@@ -66,8 +66,8 @@
                     <script type="dojo/connect" event="onClick" args="evt">
                         // Shares or unshares this deck.
                         var share = this.attr('checked');
-                        var url = '{% url api-deck deck.id %}'; // + share ? 'share' : 'unshare';
-                        manabi_ui.xhrPostData(url, {'shared': share});
+                        var url = '{% url api-deck deck.id %}';
+                        manabi_ui.xhrPutData(url, {'shared': share});
                     </script>            
                 </button>
                 <span dojoType="dijit.Tooltip" connectId="flashcards_shareDeckInput" showDelay="0">
