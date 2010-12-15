@@ -60,23 +60,13 @@ def rest_generate_reading(request):
         return {'success':True, 'reading': ret}
 
 @api
-def rest_decks_with_totals(request):
-    if request.method == 'GET':
-        try:
-            #decks = Deck.objects.filter(owner=request.user).values() #TODO fields
-            decks = Deck.objects.values_of_all_with_stats_and_totals(request.user, 
-                    fields=['id', 'name'])
-        except Deck.DoesNotExist:
-            decks = []
-
-        return to_dojo_data(decks, label='name')
-
-@api
 def rest_decks(request):
     #if request.method == 'POST':
         #raise Http404
     #elif request.method == 'GET':
-    ret = Deck.objects.filter(owner=request.user, active=True).values('id', 'name', 'description')
+    ret = Deck.objects.filter(
+        owner=request.user,
+        active=True).values('id', 'name', 'description')
     return to_dojo_data(ret, label='name')
 
 @api
@@ -88,31 +78,26 @@ def rest_deck(request, deck_id):
             'You do not have permission to access this flashcard deck.')
 
     if request.method == 'DELETE':
-        if deck.subscriber_decks.filter(active=True).count() > 0: #exists():
+        if deck.subscriber_decks.filter(active=True).count() > 0: 
+            #exists():
             deck.active = False
             deck.save()
         else:
             deck.delete_cascading()
         return {'success':True}
     elif request.method == 'PUT':
-        #TODO replace update_object to get rid of post_save_redirect, it's useless for ajax
-        pass#return update_object(request, form_class=DeckForm, object_id=deck_id, post_save_redirect='/flashcards/decks', extra_context={'container_id': 'deckDialog', 'post_save_redirect': '/flashcards/decks'}, template_object_name='deck')
-    elif request.method == 'POST':
+        params = clean_query(request.POST, {'shared': bool})
         # change shared status
-        if 'shared' in request.POST:
-            shared = request.POST['shared'].lower() == 'true'
-            if shared:
+        if params.get('shared') is not None:
+            if params['shared']:
                 if deck.synchronized_with:
-                    return {'success':False}
+                    return {'success': False}
                 deck.share()
             else:
                 if not deck.shared:
-                    return {'success':False}
+                    return {'success': False}
                 deck.unshare()
-        else:
-            #FIXME wrong error to raise
-            raise Http404
-
+        return {'success': True} #TODO automate/abstract this thing
 
 @api
 def rest_card_templates(request, fact_type_id):
