@@ -1,3 +1,4 @@
+from apps.utils import querycleaner
 from apps.utils.querycleaner import clean_query
 from django.contrib.auth.decorators import login_required
 from django.contrib.humanize.templatetags.humanize import naturalday
@@ -14,7 +15,6 @@ from flashcards.models.constants import NEW_CARDS_PER_DAY
 from flashcards.models.undo import UndoCardReview
 from flashcards.views.decorators import flashcard_api as api
 from flashcards.views.decorators import has_card_query_filters
-import apps.utils.querycleaner
 import datetime
 import string
 import subprocess
@@ -38,6 +38,7 @@ def subfacts(request, parent_fact_id):
 
 
 @api
+@has_card_query_filters
 def next_cards_for_review(request, deck=None, tags=None):
     query_structure = {
         'count': int,
@@ -65,7 +66,7 @@ def next_cards_for_review(request, deck=None, tags=None):
         next_cards = Card.objects.next_cards(
             request.user,
             count,
-            excluded_card_ids=params.get('excluded_cards'),
+            excluded_ids=params.get('excluded_cards'),
             session_start=params.get('session_start'),
             deck=deck,
             tags=tags,
@@ -82,7 +83,10 @@ def next_cards_for_review(request, deck=None, tags=None):
                 'factId': card.fact_id,
                 'front': card.render_front(),
                 'back': card.render_back(),
-                'nextDueAtPerGrade': card.due_at_per_grade(),
+                'nextDueAtPerGrade':
+                    dict((grade, rep.due_at)
+                         for (grade, rep)
+                         in card.next_repetition_per_grade().items())
              })
 
         return {'success': True, 'cards': formatted_cards}
@@ -97,11 +101,13 @@ def new_card_count(request):
 
 
 @api
+@has_card_query_filters
 def due_tomorrow_count(request, deck=None, tags=None):
     return Card.objects.count_of_cards_due_tomorrow(
         request.user, deck=deck, tags=tags)
 
 @api
+@has_card_query_filters
 def hours_until_next_card_due(request, deck=None, tags=None):
     due_at = Card.objects.next_card_due_at(
         request.user, deck=deck, tags=tags)
@@ -111,6 +117,7 @@ def hours_until_next_card_due(request, deck=None, tags=None):
     return hours_from_now
 
 @api
+@has_card_query_filters
 def next_card_due_at(request, deck=None, tags=None):
     '''
     Returns a human-readable format of the next date that the card is due.

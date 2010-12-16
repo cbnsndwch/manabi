@@ -65,7 +65,6 @@ MAX_NEW_CARD_ORDINAL = 10000000
 #these are the precomputed values, so that we can modify them independently later to test their effectiveness:
 EASE_FACTOR_MODIFIERS = {GRADE_NONE: -0.3, GRADE_HARD: -0.1401, GRADE_GOOD: 0.0, GRADE_EASY: 0.1} #TODO accurate grade_none value
 
-MINIMUM_EASE_FACTOR = 1.3
 
 YOUNG_FAILURE_INTERVAL = (1.0 / (24.0 * 60.0)) * 10.0 #10 mins, expressed in days
 #MATURE_FAILURE_INTERVAL = (1.0 / (24 * 60)) * 10 #10 mins, expressed in days
@@ -73,7 +72,9 @@ MATURE_FAILURE_INTERVAL = 1.0 #1 day#(1.0 / (24 * 60)) * 10 #10 mins, expressed 
 #TODO MATURE_FAILURE_INTERVAL should not be a constant value, but dependent on other factors of a given card
 #TODO 'tomorrow' should also be dependent on the current time, instead of just 1 day from now
 
-MATURE_INTERVAL_MIN = 20 #days an interval is required to meet or exceed for a card to be considered mature
+# Days an interval is required to meet or exceed for a card to be 
+# considered mature.
+MATURE_INTERVAL_MIN = 20.0
 
 GRADE_EASY_BONUS_FACTOR = 0.2
 DEFAULT_EASE_FACTOR = 2.5

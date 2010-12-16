@@ -1,5 +1,5 @@
 import random
-from constants import GRADE_NONE, GRADE_HARD, GRADE_GOOD, GRADE_EASY
+from constants import GRADE_NONE, GRADE_HARD, GRADE_GOOD, GRADE_EASY,  MATURE_INTERVAL_MIN
 from datetime import timedelta, datetime
 from utils import timedelta_to_float
 from math import cos, pi
@@ -20,7 +20,7 @@ def repetition_algo_dispatcher(card, *args, **kwargs):
     elif card.last_review_grade == GRADE_NONE:
         cls = FailedCardAlgo
     # Young card.
-    elif card.interval < RepetitionAlgo.MATURE_INTERVAL_MIN:
+    elif card.interval < MATURE_INTERVAL_MIN:
         cls = YoungCardAlgo
     # Mature card.
     else:
@@ -56,11 +56,13 @@ class RepetitionAlgo(object):
     HARD_BONUS_REDUCER = 4.0
     GOOD_BONUS_REDUCER = 2.0
 
-    # Max bonus factor
-    BONUS_FACTOR_CAP = 3.0
+    # Max interval bonus factor
+    INTERVAL_BONUS_FACTOR_CAP = 2.0
 
     # When intervals are set, they are fuzzed by at most this value, -/+
     INTERVAL_FUZZ_MAX = 0.035
+
+    MINIMUM_EASE_FACTOR = 1.3
 
     # days
     YOUNG_FAILURE_INTERVAL = (1.0 / (24.0 * 60.0)) * 10.0 # 10 mins
@@ -73,10 +75,6 @@ class RepetitionAlgo(object):
     #TODO 'tomorrow' should also be dependent on the current time, 
     #     instead of just 1 day from now
 
-    # Days an interval is required to meet or exceed for a card to be 
-    # considered mature.
-    MATURE_INTERVAL_MIN = 20 
-
     # Ease Factor to use temporarily when penalizing for "hard" grades,
     # to be more aggressive.
     HARD_GRADE_PENALTY_EF = 1.2
@@ -88,6 +86,7 @@ class RepetitionAlgo(object):
 
         `reviewed_at` defaults to now.
         '''
+        self.card = card
         self.grade = grade
         self.reviewed_at = reviewed_at or datetime.utcnow()
 
@@ -108,6 +107,7 @@ class RepetitionAlgo(object):
         '''
         #TODO fuzz the results
         current_interval = self.card.interval
+        ease_factor = self.card.ease_factor
 
         # Review failure.
         if self.grade == GRADE_NONE:
@@ -127,13 +127,14 @@ class RepetitionAlgo(object):
                 def reduce_bonus(reduction_factor):
                     return ((bonus_factor - 1.0) / reduction_factor) + 1.0
 
-                if grade == GRADE_HARD:
+                if self.grade == GRADE_HARD:
                     bonus_factor = reduce_bonus(self.HARD_BONUS_REDUCER)
-                elif grade == GRADE_GOOD:
-                    bonus_factor = reduce_bonus(self.EASY_BONUS_REDUCER)
+                elif self.grade == GRADE_GOOD:
+                    bonus_factor = reduce_bonus(self.GOOD_BONUS_REDUCER)
                 
                 # Cap the bonus.
-                bonus_factor = min(self.BONUS_FACTOR_CAP, bonus_factor)
+                bonus_factor = min(self.INTERVAL_BONUS_FACTOR_CAP,
+                                   bonus_factor)
 
                 assert bonus_factor >= 1.0
 
@@ -142,7 +143,7 @@ class RepetitionAlgo(object):
 
             # Penalize hard grades.
             if self.grade == GRADE_HARD:
-                ease_factor = HARD_GRADE_PENALTY_EF
+                ease_factor = self.HARD_GRADE_PENALTY_EF
 
             # Update interval.
             next_interval = ease_factor * current_interval
@@ -163,6 +164,7 @@ class RepetitionAlgo(object):
 
                 # Reset `next_interval` using the new delta.
                 next_interval = current_interval + interval_delta
+        return next_interval
 
     def _next_ease_factor(self):
         next_ease_factor = (self.card.ease_factor 
@@ -220,21 +222,25 @@ class RepetitionAlgo(object):
         See the card's `calculated_interval` docstring for info on the 
         denominator here.
         '''
+        from cards import Card
+
         denominator = self.card.calculated_interval()
 
         # Was this reviewed too soon after a sibling? How early?
         # If not too early, still factor the delay into our return value.
         try:
             sibling = self.card.siblings.latest('last_reviewed_at')
-            difference = (self.card.due_at
-                          - sibling.last_reviewed_at)
+            if sibling.last_reviewed_at:
+                difference = (self.card.due_at
+                            - sibling.last_reviewed_at)
 
-            if abs(difference) <= self.card.sibling_spacing():
-                denominator += self._sibling_spacing()
+                if abs(difference) <= self.card.sibling_spacing():
+                    denominator += self._sibling_spacing()
         except Card.DoesNotExist:
             pass
             
-        return self._time_waited() / denominator
+        return (timedelta_to_float(self._time_waited())
+                / timedelta_to_float(denominator))
 
     def _adjustment_curve(self, percentage):
         '''
@@ -295,6 +301,9 @@ class RepetitionAlgo(object):
 
 
 class YoungCardAlgo(RepetitionAlgo):
+    # Max interval bonus factor
+    INTERVAL_BONUS_FACTOR_CAP = 3.0
+
     def _is_being_learned(self):
         '''
         Returns whether this card is still being learned.

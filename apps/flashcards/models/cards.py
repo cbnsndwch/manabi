@@ -1,6 +1,6 @@
 from cardtemplates import CardTemplate
 from constants import GRADE_NONE, GRADE_HARD, GRADE_GOOD, GRADE_EASY, \
-    MAX_NEW_CARD_ORDINAL, EASE_FACTOR_MODIFIERS, MINIMUM_EASE_FACTOR, \
+    MAX_NEW_CARD_ORDINAL, EASE_FACTOR_MODIFIERS, \
     YOUNG_FAILURE_INTERVAL, MATURE_FAILURE_INTERVAL, MATURE_INTERVAL_MIN, \
     GRADE_EASY_BONUS_FACTOR, DEFAULT_EASE_FACTOR, INTERVAL_FUZZ_MAX, \
     NEW_CARDS_PER_DAY, ALL_GRADES
@@ -162,17 +162,17 @@ class Card(models.Model):
         from_date = self.due_at if self.due_at >= now else now
         self.due_at = from_date + duration
 
-    def next_due_at_per_grade(self, reviewed_at=None):
+    def next_repetition_per_grade(self, reviewed_at=None):
         #FIXME disable fuzzing
         if not reviewed_at:
             reviewed_at = datetime.utcnow()
 
-        due_dates = {}
+        reps = {}
         for grade in ALL_GRADES:
             repetition_algo = repetition_algo_dispatcher(
                 self, grade, reviewed_at=reviewed_at)
-            due_dates[grade] = repetition_algo.next_repetition()
-        return due_dates
+            reps[grade] = repetition_algo.next_repetition()
+        return reps
 
     def _update_statistics(self, grade, reviewed_at):
         '''Updates this card's stats. Call this for each review.'''

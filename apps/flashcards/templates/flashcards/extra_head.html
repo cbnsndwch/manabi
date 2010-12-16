@@ -12,11 +12,15 @@
 
 <script type="text/javascript" src="{% url flashcards-js %}"></script>
 <script type="text/javascript" src="{% url reviews-js %}"></script>
-{% comment %}<script type="text/javascript" src="/site_media/static/flashcards/js/reviews_ui.js"></script>{% endcomment %}
+<script type="text/javascript" src="{% url reviews-ui-js %}"></script>
 
 
 
 <script type="text/javascript">
+
+    dojo.require('reviews');
+    dojo.require('reviews_ui');
+
     //defaultCell: { width: 8, editable: false, type: dojox.grid.cells._Widget },
 
     // Fact editor grid

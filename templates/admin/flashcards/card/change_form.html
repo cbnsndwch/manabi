@@ -9,9 +9,9 @@
 
     Next due time per grade:<br>
     <ul>
-    {% for grade, info in original.next_due_at.items %}
+    {% for grade, info in original.next_repetition_per_grade.items %}
     <li>{{ grade }}<br>
-    Due in {{ info.due_in|floatformat:1 }} days<br>
+    Due at {{ info.due_at }}<br>
     EF: {{ info.ease_factor|floatformat:2 }}<br>
     Interval: {{ info.interval|floatformat:2 }}<br>
     {% endfor %}

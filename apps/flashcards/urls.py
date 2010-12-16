@@ -97,6 +97,10 @@ urlpatterns += patterns('',
         { 'template': 'flashcards/reviews.js',
           'mimetype': 'text/javascript', },
         name='reviews-js'),
+    url(r'^reviews_ui.js$', direct_to_template,
+        { 'template': 'flashcards/reviews_ui.js',
+          'mimetype': 'text/javascript', },
+        name='reviews-ui-js'),
 )
 
 

@@ -1,6 +1,8 @@
 from functools import wraps
 from dojango.decorators import json_response
 from django.contrib.auth.decorators import login_required
+from django.shortcuts import get_object_or_404
+from flashcards.models.decks import Deck
 
 #decorator_with_arguments = lambda decorator: lambda *args, **kwargs: lambda func: decorator(func, *args, **kwargs)
 
@@ -65,10 +67,8 @@ def flashcard_api(view_func):
         `@json_response`
         `@login_required`
         `@all_http_methods`
-        `@has_card_query_filters`
     '''
     return json_response(
            login_required(
-           all_http_methods(
-           has_card_query_filters(view_func))))
+           all_http_methods(view_func)))
 
