@@ -280,7 +280,7 @@ reviews_ui.showCardBack = function(card) {
 
 
 reviews_ui.reviewCard = function(card, grade) {
-    var review_def = reviews.reviewCard(card, grade);
+    var review_def = card.review(grade);
     review_def.addCallback(function(data) {
         // Enable the Undo button (maybe should do this before the def?)
         reviews_undoReviewButton.attr('disabled', false);
@@ -367,7 +367,7 @@ reviews_ui.setKeyboardShortcuts = function() {
 };
 
 reviews_ui.suspendCurrentCard = function() {
-    reviews.suspendCard(reviews.currentCard);
+    reviews.currentCard.suspend();
     reviews_ui.goToNextCard();
 };
 

@@ -12,19 +12,49 @@ dojo.declare('reviews.Card', null, {
     nextDueAt: function(grade) {
         // Returns a date for the next due date for the given grade
         return dojo.date.stamp.fromISOString(this.nextDueAtPerGrade[grade]);
+    },
+
+    suspend: function() {
+        // Suspends this and sibling cards.
+        xhrArgs = {
+            url: '/flashcards/api/facts/' + this.factId + '/suspend/',
+            handleAs: 'json',
+            load: function(data) {
+                if (data.success) {
+                } else {
+                    //FIXME try again on failure, or something
+                }
+            }
+        };
+        return dojo.xhrPost(xhrArgs);
+    },
+
+    review: function(grade) {
+        xhrArgs = {
+            url: '{% url api-cards %}' + this.id + '/',
+            content: { grade: grade },
+            handleAs: 'json',
+            load: function(data) {
+                if (data.success) {
+                    reviews.cardsReviewedPending.splice(reviews.cardsReviewedPending.lastIndexOf(this.id), 1);
+                } else {
+                    //FIXME try again on failure, or something
+                }
+            }
+        };
+
+        dojo.publish(reviews.subscriptionNames.cardReviewed, [{
+            card: this,
+            grade: grade }]);
+
+        //start sending the review in ASAP
+        var def = dojo.xhrPost(xhrArgs);
+        return def;
     }
 });
-	//dojo.date.stamp.fromISOString
 
-//dojo.declare('reviews', null, {blah:function(){console.log('f');}});//reviews = {};
-/*TODO convert to dojo declare syntax
-  if(!dojo._hasResource['reviews']){
-dojo._hasResource['reviews'] = true;
-dojo.provide('reviews');
-}*/
-//reviews = {};
 
-dojo.addOnLoad(function() {
+dojo.ready(function() {
     reviews.cards = [];
     
     //this is for cards that are reviewed, and have been submitted to the server
@@ -35,15 +65,54 @@ dojo.addOnLoad(function() {
     reviews.grades = { GRADE_NONE: 0, GRADE_HARD: 3, GRADE_GOOD: 4, GRADE_EASY: 5 };
     //reviews.session_over_def = null; //subscribe to this to know when the session is over,
                                      //particularly because the time/card limit ran out
+
+    // Subscribe to card review events
+    dojo.subscribe(reviews.subscriptionNames.cardReviewed, function(data) {
+        reviews._cardReviewCallback(data.card, data.grade) });
+
 });
 
 reviews.subscriptionNames = {
     sessionTimerTick: '/manabi/reviews/session-timer-tick',
     sessionTimerOver: '/manabi/reviews/session-timer-over',
     sessionCardLimitReached: '/manabi/reviews/session-card-limit-reached',
-    sessionOver: '/manabi/reviews/session-over'
+    sessionOver: '/manabi/reviews/session-over',
+    cardReviewed: '/manabi/reviews/card-reviewed'
 };
 
+reviews._cardReviewCallback = function(card, grade) {
+    // Handles the review event
+
+    reviews.sessionCardsReviewedCount++;
+
+    //if this card failed, then the server may have more cards for us to prefetch
+    //even if it was empty before
+    if (grade == reviews.grades.GRADE_NONE) {
+        //in case a prefetch request was made and has not been returned yet from the server
+        reviews.failsSincePrefetchRequest++;
+        //TODO don't keep showing this card if it's failed and it's the last card for the session
+        reviews.emptyPrefetchProducer = false;
+    }
+
+    //check if the session should be over now (time or card limit is up)
+    //now = new Date(); //FIXME consolidate with more recent timer stuff
+
+
+    //add to review def queue
+    reviews.cardsReviewedPendingDef.push(def);
+    def.addCallback(dojo.hitch(null, function(def) {
+        // remove the def from the queue once it's called
+        reviews.cardsReviewedPendingDef.splice(reviews.cardsReviewedPendingDef.lastIndexOf(def), 1);
+    }, def));
+
+    //has the user reached the card review count limit?
+    if (reviews.sessionCardsReviewedCount >= reviews.sessionCardLimit
+            && reviews.sessionCardLimit) {
+        dojo.publish(reviews.subscriptionNames.sessionCardLimitReached, [{
+            cardsReviewedCount: reviews.sessionCardsReviewedCount,
+            timeElapsed: reviews.sessionEndTime - reviews.sessionStartTime}]);
+    }
+}
 
 reviews.prefetchCards = function(count, session_start) {
     //get next cards from server, discounting those currently enqueued/pending
@@ -66,7 +135,7 @@ reviews.prefetchCards = function(count, session_start) {
     });
 
     var url = '{% url api-next_cards_for_review %}';
-    url += '?count='+count;
+    url += '?count=' + count;
     if (session_start) {
         url += '&session_start=true';
     }
@@ -318,70 +387,6 @@ reviews.undo = function() {
     return undo_def;
 };
 
-reviews.suspendCard = function(card) {
-    // Suspends this and sibling cards.
-    xhrArgs = {
-        url: '/flashcards/api/facts/' + card.factId + '/suspend/',
-        handleAs: 'json',
-        load: function(data) {
-            if (data.success) {
-            } else {
-                //FIXME try again on failure, or something
-            }
-        }
-    };
-    return dojo.xhrPost(xhrArgs);
-};
-
-reviews.reviewCard = function(card, grade) {
-    xhrArgs = {
-        url: '{% url api-cards %}' + card.id + '/',
-        content: { grade: grade },
-        handleAs: 'json',
-        load: function(data) {
-            if (data.success) {
-                reviews.cardsReviewedPending.splice(reviews.cardsReviewedPending.lastIndexOf(card.id), 1);
-            } else {
-                //FIXME try again on failure, or something
-            }
-        }
-    };
-
-    reviews.sessionCardsReviewedCount++;
-
-    //if this card failed, then the server may have more cards for us to prefetch
-    //even if it was empty before
-    if (grade == reviews.grades.GRADE_NONE) {
-        //in case a prefetch request was made and has not been returned yet from the server
-        reviews.failsSincePrefetchRequest++;
-        //TODO don't keep showing this card if it's failed and it's the last card for the session
-        reviews.emptyPrefetchProducer = false;
-    }
-
-
-    //check if the session should be over now (time or card limit is up)
-    //now = new Date(); //FIXME consolidate with more recent timer stuff
-
-    //start sending the review in ASAP
-    var def = dojo.xhrPost(xhrArgs);
-
-    //add to review def queue
-    reviews.cardsReviewedPendingDef.push(def);
-    def.addCallback(dojo.hitch(null, function(def) {
-        // remove the def from the queue once it's called
-        reviews.cardsReviewedPendingDef.splice(reviews.cardsReviewedPendingDef.lastIndexOf(def), 1);
-    }, def));
-
-    //has the user reached the card review count limit?
-    if (reviews.sessionCardsReviewedCount >= reviews.sessionCardLimit
-            && reviews.sessionCardLimit) {
-        dojo.publish(reviews.subscriptionNames.sessionCardLimitReached, [{
-            cardsReviewedCount: reviews.sessionCardsReviewedCount,
-            timeElapsed: reviews.sessionEndTime - reviews.sessionStartTime}]);
-    }
-
-    return def;
-};
 
 reviews._simpleXHRPost = function(url) {
     var def = new dojo.Deferred();

@@ -3,6 +3,7 @@ from django.contrib.auth.decorators import login_required
 from django.shortcuts import get_object_or_404
 from flashcards.models.decks import Deck
 from dojango.util import to_json_response
+from dojango.decorators import json_response
 from django.http import HttpResponseServerError
 from django.utils import simplejson as json
 
