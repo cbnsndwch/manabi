@@ -30,6 +30,7 @@ dojo.declare('reviews.Card', null, {
     },
 
     review: function(grade) {
+        console.log('review()');
         xhrArgs = {
             url: '{% url api-cards %}' + this.id + '/',
             content: { grade: grade },
@@ -43,6 +44,8 @@ dojo.declare('reviews.Card', null, {
             }
         };
 
+        console.log(xhrArgs);
+
         //start sending the review in ASAP
         var def = dojo.xhrPost(xhrArgs);
 
@@ -52,6 +55,7 @@ dojo.declare('reviews.Card', null, {
             reviewDef: def
         }]);
 
+        console.log(def);
         return def;
     }
 });

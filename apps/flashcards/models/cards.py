@@ -226,7 +226,7 @@ class Card(models.Model):
         Commits a review rated with `grade`.
         '''
         reviewed_at = datetime.utcnow()
-        was_new = card.is_new()
+        was_new = self.is_new()
 
         # Update this card's statistics
         card_history_item = self._update_statistics(grade, reviewed_at)
@@ -239,13 +239,13 @@ class Card(models.Model):
             review_stats.increment_failed_reviews()
 
         # Create Undo stack item
-        UndoCardReview.objets.add_undo(card_history_item)
+        UndoCardReview.objects.add_undo(card_history_item)
 
         # Compute and apply updated card repetition values
         repetition_algo = repetition_algo_dispatcher(
             self, grade, reviewed_at=reviewed_at)
         next_repetition = repetition_algo.next_repetition()
-        self._update_repetition_values(next_repetition)
+        self._apply_updated_schedule(next_repetition)
 
         self.last_review_grade = grade
         self.last_reviewed_at = reviewed_at
