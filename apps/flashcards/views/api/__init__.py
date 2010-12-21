@@ -17,6 +17,8 @@ from flashcards.models import FieldContent, Card
 from flashcards.models.constants import MAX_NEW_CARD_ORDINAL
 from flashcards.views.decorators import all_http_methods
 from flashcards.views.decorators import flashcard_api as api
+from flashcards.views.decorators \
+    import flashcard_api_with_dojo_data as api_dojo_data
 from flashcards.views.decorators import has_card_query_filters
 import apps.utils.querycleaner
 import random
@@ -57,7 +59,7 @@ def rest_generate_reading(request):
         reading = japanese.generate_reading(request.POST['expression'])
         return {'success':True, 'reading': ret}
 
-@api
+@api_dojo_data
 def rest_decks(request):
     #if request.method == 'POST':
         #raise Http404
@@ -97,7 +99,7 @@ def rest_deck(request, deck_id):
                 deck.unshare()
         return {'success': True} #TODO automate/abstract this thing
 
-@api
+@api_dojo_data
 def rest_card_templates(request, fact_type_id):
     '''Returns list of CardTemplate objects given a parent FactType id'''
     try:
@@ -109,7 +111,7 @@ def rest_card_templates(request, fact_type_id):
     return to_dojo_data(ret)
 
 
-@api
+@api_dojo_data
 def rest_fields(request, fact_type_id):
     '''Returns list of Field objects given a FactType id'''
     try:
@@ -121,7 +123,7 @@ def rest_fields(request, fact_type_id):
     return to_dojo_data(ret)
 
 
-@api
+@api_dojo_data
 def rest_fact_types(request):
     fact_types = FactType.objects.all()
     #SOMEDAY filter(deck__owner=request.user)
@@ -132,7 +134,7 @@ def rest_fact_types(request):
 
 #TODO add 'success':True where missing
 
-@api
+@api_dojo_data
 def rest_cards(request): #todo:refactor into facts (no???)
     '''
     Returns the cards for a given fact.
@@ -145,7 +147,7 @@ def rest_cards(request): #todo:refactor into facts (no???)
         return to_dojo_data(cards)
 
 
-@api
+@api_dojo_data
 def rest_card_templates_for_fact(request, fact_id):
     '''
     Returns a list of card templates for which the given fact 
@@ -153,7 +155,8 @@ def rest_card_templates_for_fact(request, fact_id):
     '''
     card_templates = []
     fact = get_object_or_404(Fact, pk=fact_id)
-    activated_card_templates = [e.template for e in fact.card_set.filter(active=True)]
+    activated_card_templates = [e.template for e \
+                                in fact.card_set.filter(active=True)]
 
     for card_template in fact.fact_type.cardtemplate_set.all():
         #TODO only send the id(uri)/name/status
@@ -166,14 +169,14 @@ def rest_card_templates_for_fact(request, fact_id):
     return to_dojo_data(card_templates, identifier=None)
 
 
-@api
+@api_dojo_data
 def rest_facts_tags(request):
     tags = Fact.objects.all_tags_per_user(request.user)
     tags = [{'name': tag.name, 'id': tag.id} for tag in tags]
     return to_dojo_data(tags)
 
 
-@api
+@api_dojo_data
 @has_card_query_filters
 @transaction.commit_on_success
 #TODO refactor into facts (no???)

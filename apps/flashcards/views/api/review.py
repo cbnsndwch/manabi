@@ -30,10 +30,16 @@ import subprocess
      ###############################
 
 
+
+
 @login_required
 def subfacts(request, parent_fact_id):
+    '''
+    This is the one HTML view which is part of the API (so far).
+    It renders the subfacts for a given fact.
+    '''
     parent_fact = get_object_or_404(Fact, pk=parent_fact_id)
-    context = {'subfacts': parent_fact.subfacts.all()}
+    context = { 'subfacts': parent_fact.subfacts.all() }
     return render_to_response('flashcards/subfacts.html', context)
 
 
@@ -78,16 +84,7 @@ def next_cards_for_review(request, deck=None, tags=None):
         # Format into JSON object.
         formatted_cards = []
         for card in next_cards:
-            formatted_cards.append({
-                'id': card.id,
-                'factId': card.fact_id,
-                'front': card.render_front(),
-                'back': card.render_back(),
-                'nextDueAtPerGrade':
-                    dict((grade, rep.due_at)
-                         for (grade, rep)
-                         in card.next_repetition_per_grade().items())
-             })
+            formatted_cards.append(card.to_api_dict())
 
         return {'success': True, 'cards': formatted_cards}
 
@@ -131,22 +128,15 @@ def next_card_due_at(request, deck=None, tags=None):
 
 
 @api
-def rest_card(request, card_id): #todo:refactor into facts (no???)
+def rest_card(request, card_id): 
+    '''
+    Used for retrieving a specific card for reviewing it,
+    or for submitting the grade of a card that has just been reviewed.
+    '''
+    #TODO refactor into facts (or no???)
     if request.method == 'GET':
         card = get_object_or_404(Card, pk=card_id)
-
-        #TODO refactor the below into a model - it's not DRY
-
-        formatted_card = {
-            'id': card.id,
-            'factId': card.fact_id,
-            'front': card.render_front(),
-            'back': card.render_back(),
-            'nextDueAtPerGrade': card.due_at_per_grade(),
-        }
-
-        return {'success': True, 'card': formatted_card}
-        #return to_dojo_data(formatted_card)
+        return card.to_api_dict()
     elif request.method == 'POST':
         params = clean_query(request.POST, {'grade': int})
 

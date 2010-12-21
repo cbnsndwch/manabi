@@ -77,6 +77,23 @@ class Card(models.Model):
 
         return strip_tags(u'{0} | {1}'.format(front, back))
 
+    def to_api_dict(self):
+        '''
+        Returns a dictionary version of this model, to be used with 
+        the JSON API. This is a dictionary that can be trivially 
+        serialized into JSON.
+        '''
+        return {
+            'id': card.id,
+            'factId': card.fact_id,
+            'front': card.render_front(),
+            'back': card.render_back(),
+            'nextDueAtPerGrade':
+                dict((grade, rep.due_at)
+                        for (grade, rep)
+                        in card.next_repetition_per_grade().items())
+        }
+
     @property
     def owner(self):
         return self.fact.deck.owner

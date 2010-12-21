@@ -9,6 +9,7 @@ import flashcards.partsofspeech
 import pickle
 import random
 import usertagging
+from fields import FieldContent
 
 
 def seconds_to_days(s):

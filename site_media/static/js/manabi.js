@@ -1,5 +1,6 @@
 
-manabi_ui = {}
+dojo.provide('manabi_ui');
+
 
 
 dojo.addOnLoad(function() {
@@ -200,7 +201,7 @@ manabi_ui.refreshDeckInput = function() {
 
 
 //add trim() to string objects
-if(typeof(String.prototype.trim) === "undefined")
+if(typeof(String.prototype.trim) === 'undefined')
 {
     String.prototype.trim = function() 
     {

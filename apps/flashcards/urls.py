@@ -56,7 +56,8 @@ urlpatterns += patterns('flashcards.views.api',
     url(r'^api/facts/(\w+)/unsuspend/$', 'rest_fact_unsuspend'),
 
     #TODO should be a query on /card_templates instead? ?fact=1&activated=true
-    url(r'^api/facts/(\w+)/card_templates/$', 'rest_card_templates_for_fact'), 
+    url(r'^api/facts/(\w+)/card_templates/$',
+        'rest_card_templates_for_fact'), 
     url(r'^api/cards/$', 'rest_cards',
         name='api-cards'),
 )

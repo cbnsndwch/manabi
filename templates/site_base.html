@@ -22,9 +22,13 @@
                     Please use a more standards-compliant browser such as \
                     <a href=\"http://www.mozilla.com/firefox/\">Firefox</a>, \
                     <a href=\"http://www.google.com/chrome\">Google Chrome</a>, or <a href=\"http://www.apple.com/safari/\">Safari</a>.<br><br>\
-                    Sorry for the inconvenience!";
+                    Sorry for the inconvenience! We'll add IE support eventually!";
               }
             });
+
+            {% if user.is_authenticated %}
+                dojo.require('manabi_ui');
+            {% endif %}
         </script>
     {% endif %}
 {% endblock %}
@@ -74,15 +78,6 @@
 
 {% block body_outer %}
     <div id="column_wrap" style="background-color:#52676D">
-        {% comment %}
-        <div>
-            {% if user.is_authenticated %}
-                <div class="sidebar" id="sidebar"><div style="display:none">
-                    {% include 'sidebar.html' %}
-                </div></div>
-            {% endif %}
-        </div>
-        {% endcomment %}
         {% if user.is_authenticated %}
             {% include "flashcards/base.html" %}
         {% endif %}

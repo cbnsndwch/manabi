@@ -335,7 +335,7 @@ reviews.suspendCard = function(card) {
 
 reviews.reviewCard = function(card, grade) {
     xhrArgs = {
-        url: '{% url api-cards %}/' + card.id,
+        url: '{% url api-cards %}' + card.id + '/',
         content: { grade: grade },
         handleAs: 'json',
         load: function(data) {

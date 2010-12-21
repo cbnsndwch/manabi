@@ -1,10 +1,12 @@
-# Although the REST API also has CRUD views, this module is just for 
+# Although the API also has CRUD views, this module is just for 
 # the regular HTML page views that pertain to CRUD, rather than the 
 # JSON-formatted views that the API module handles.
+#
+# The CRUD aspect of this app is also the nastiest, but it works. I wrote it 
+# before I knew what I was doing. It's the dullest part to rewrite though,
+# so I won't get around to a significant rewrwite until later. It all works,
+# after all.
 
-from flashcards.models import FactType, Fact, Deck, CardTemplate, FieldType
-from flashcards.models import FieldContent, Card
-from flashcards.models import SchedulingOptions
 from django.contrib.auth.decorators import login_required
 from django.db import transaction
 from django.forms import forms
@@ -17,6 +19,9 @@ from dojango.decorators import json_response
 from dojango.util import to_dojo_data, json_decode, json_encode
 from flashcards.contextprocessors import study_options_context, subfact_form_context
 from flashcards.forms import DeckForm, FactForm, FieldContentForm
+from flashcards.models import FactType, Fact, Deck, CardTemplate, FieldType
+from flashcards.models import FieldContent, Card
+from flashcards.models import SchedulingOptions
 import usertagging
 
 
@@ -45,7 +50,7 @@ def deck_detail(request, deck_id=None):
 
 @login_required
 def facts_editor(request):
-    #assume Japanese for now (model 1)
+    #assume Japanese for now (model 1, the only model object)
     #get the fieldtypes for Japanese
     
     fact_type = FactType.objects.get(id=1)
@@ -76,10 +81,10 @@ def fact_update(request, fact_id):
             card_templates.append(card_template)
 
         context = {
-                'fact': fact,
-                'card_templates': card_templates,
-                'decks': decks,
-                'field_contents': fact.field_contents,
+            'fact': fact,
+            'card_templates': card_templates,
+            'decks': decks,
+            'field_contents': fact.field_contents,
         }
 
         # subfact forms

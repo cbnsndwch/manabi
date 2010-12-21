@@ -117,7 +117,7 @@
       //alert('submitted w/args:\n' + dojo.toJson(factAddFormValue));
       
       var xhrArgs = {
-          url: factId ? '/flashcards/rest/facts/'+factId : '/flashcards/rest/facts',//url: '/flashcards/rest/decks/'+factAddFormValue['fact-deck']+'/facts', //TODO get URI restfully
+          url: factId ? '{% url api-facts %}' + factId + '/' : '{% url api-facts %}',//url: '/flashcards/rest/decks/'+factAddFormValue['fact-deck']+'/facts', 
           content: factAddFormValue,
           handleAs: 'json',
           load: dojo.hitch(null, function(tempCardCounter, data){
@@ -177,7 +177,7 @@
   function createFieldInputsForUpdate(domNode, factTypeId, factFieldValues, cardTemplatesOnCompleteCallback, factFieldsOnCompleteCallback) { //todo:refactor into 2 meths
       if (factTypeId) {
           //add card template options
-          var cardUpdateTemplatesStore = new dojo.data.ItemFileReadStore({url: '/flashcards/rest/facts/'+factFieldValues['fact-id'][0]+'/card_templates'});
+          var cardUpdateTemplatesStore = new dojo.data.ItemFileReadStore({url: '/flashcards/api/facts/'+factFieldValues['fact-id'][0]+'/card_templates/'});
           var cardUpdateTemplatesButton = new DropDownMultiSelect({inputId: 'cardUpdateTemplatesInput'+factTypeId});//TODO counter suffix
           var cardUpdateTemplatesInput = dijit.byId('cardUpdateTemplatesInput'+factTypeId);
           
@@ -204,7 +204,7 @@
           });
           
           //add FieldContent textboxes (based on Fields)
-          var fieldsStore = new dojo.data.ItemFileReadStore({url:'/flashcards/rest/fact_types/'+factTypeId+'/fields', clearOnClose:true}); //todo:try with marked up one instead
+          var fieldsStore = new dojo.data.ItemFileReadStore({url:'/flashcards/api/fact_types/'+factTypeId+'/fields/', clearOnClose:true}); //todo:try with marked up one instead
           var fieldCounter = 0;
           fieldsStore.fetch({
               onItem: function(item) {
@@ -392,8 +392,8 @@
 
         var xhrArgs = {
             url: fact_id ? 
-                     '/flashcards/rest/facts/'+fact_id : 
-                     '/flashcards/rest/facts',
+                     '/flashcards/api/facts/' + fact_id + '/' : 
+                     '/flashcards/api/facts/',
             content: form_values,
             handleAs: 'json',
             load: function(data){
@@ -420,7 +420,7 @@
         var store = cards_factsGrid.store;
         store.close();
         delete fact_ui.facts_url_query[filter_name];
-        store.url = '/flashcards/rest/facts?' + dojo.objectToQuery(fact_ui.facts_url_query);
+        store.url = '/flashcards/api/facts/?' + dojo.objectToQuery(fact_ui.facts_url_query);
         store.fetch();
         cards_factsGrid.sort(); //forces a refresh
     };
@@ -450,7 +450,7 @@
         //var expression = expression_field.attr('value');
         var ret_def = new dojo.Deferred();
         var xhr_args = {
-            url: 'flashcards/rest/generate_reading',
+            url: 'flashcards/api/generate_reading/',
             content: {expression: expression},
             handleAs: 'json',
             headers: { "Content-Type": "application/x-www-form-urlencoded; charset=utf-8" },
