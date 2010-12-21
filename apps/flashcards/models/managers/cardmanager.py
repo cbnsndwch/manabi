@@ -46,10 +46,12 @@ class SchedulerMixin(object):
                     if sibling.is_due(review_time) \
                             or sibling.id in excluded_ids \
                             or (sibling.last_reviewed_at \
-                                and abs(card.due_at - sibling.last_reviewed_at) <= min_space):
+                                and abs(card.due_at
+                                        - sibling.last_reviewed_at)
+                                <= min_space):
                         #
-                        # Delay the card. It's already sorted by priority, so we delay
-                        # this one instead of its sibling.
+                        # Delay the card. It's already sorted by priority,
+                        # so we delay this one instead of its sibling.
                         if card.is_new() or early_review:
                             delayed_cards.append(card)
                         else:
