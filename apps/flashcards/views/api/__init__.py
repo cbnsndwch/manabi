@@ -9,7 +9,8 @@ from django.forms.models import modelformset_factory, formset_factory
 from django.http import Http404, HttpResponseRedirect, HttpResponse
 from django.shortcuts import get_object_or_404, render_to_response
 from django.template import RequestContext, loader
-from django.views.generic.create_update import update_object, delete_object, create_object
+from django.views.generic.create_update \
+    import update_object, delete_object, create_object
 from dojango.util import to_dojo_data, json_decode, json_encode
 from flashcards.forms import DeckForm, FactForm, FieldContentForm, CardForm
 from flashcards.models import FactType, Fact, Deck, CardTemplate, FieldType

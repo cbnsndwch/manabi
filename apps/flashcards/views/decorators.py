@@ -88,25 +88,20 @@ def api_data_response(view_func):
         ret = {'success': True}
 
         try:
-            data = func(request, *args, **kwargs)
+            ret['data'] = func(request, *args, **kwargs)
         except ApiException as e:
             ret['success'] = False
             ret['error'] = unicode(e)
 
-        json_ret = ''
+        json_ret = u''
         try:
             # Sometimes the serialization fails, i.e. when there are 
             # too deeply nested objects or even classes inside
-            json_ret = to_json_response(ret, func_name, use_iframe)
+            json_ret = to_json_response(ret)
         except Exception, e:
             return HttpResponseServerError(content=unicode(e))
         return json_ret
-        data_ret = {
-            'data': ret
-        }
-        return __prepare_json_ret(request, ret)
     return wrapper
-    return json_response(
 
 
 def flashcard_api(view_func):

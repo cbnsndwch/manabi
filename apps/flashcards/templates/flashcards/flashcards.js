@@ -122,7 +122,7 @@
           handleAs: 'json',
           load: dojo.hitch(null, function(tempCardCounter, data){
               if (data.success) {
-                  submitSuccessCallback(data, tempCardCounter);
+                  submitSuccessCallback(data.data, tempCardCounter);
                   //if the fact editing grid is open, update it
                   if (typeof cards_factsGrid != 'undefined') {
                       var store = cards_factsGrid.store;
@@ -131,7 +131,7 @@
                       cards_factsGrid.sort();
                   }
               } else {
-                  submitErrorCallback(data, tempCardCounter);
+                  submitErrorCallback(data.data, tempCardCounter);
               }
           }, tempCardCounter),
           error: function(error){
@@ -398,7 +398,7 @@
             handleAs: 'json',
             load: function(data){
                 if (data.success) {
-                    fact_ui._submit_success_callback(data, card_counter);
+                    fact_ui._submit_success_callback(data.data, card_counter);
 
                 } else {
                     submit_error_callback(data, card_counter);
@@ -406,7 +406,7 @@
                 submit_button.attr('disabled', false);
             },
             error: function(error){
-                submit_error_callback(data, card_counter); //TODO other callback for this
+                submit_error_callback(data.data, card_counter); //TODO other callback for this
                 submit_button.attr('disabled', false);
             }
         }
@@ -456,9 +456,9 @@
             headers: { "Content-Type": "application/x-www-form-urlencoded; charset=utf-8" },
             load: dojo.hitch(null, function(success_def, data) {
                 if (data.success) {
-                    success_def.callback(data.reading);
+                    success_def.callback(data.data.reading);
                 } else {
-                    success_def.errback(data); //FIXME errback?
+                    success_def.errback(data.data); //FIXME errback?
                 }
             }, ret_def)
         };

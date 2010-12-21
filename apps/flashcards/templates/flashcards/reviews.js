@@ -97,15 +97,15 @@ reviews.prefetchCards = function(count, session_start) {
                         reviews.sessionTimer.start();
                     }
                 }
-                if (data.cards.length > 0) {
-                    dojo.forEach(data.cards, function(card) {
+                if (data.data.length > 0) {
+                    dojo.forEach(data.data, function(card) {
                         //card = new reviews.Card(card);
                         card = new reviews.Card(card);
                         console.log(card);
                         reviews.cards.push(card);
                     });
                 }
-                if (data.cards.length < count) {
+                if (data.data.length < count) {
                     //server has run out of cards for us
                     if (reviews.failsSincePrefetchRequest === 0) {
                         reviews.emptyPrefetchProducer = true;
@@ -160,7 +160,7 @@ reviews._stopSessionTimer = function() {
     }
 };
 
-reviews.startSession = function(deckId, dailyNewCardLimt, sessionCardLimit, sessionTimeLimit, tag_id, earlyReview, learnMore) {
+reviews.startSession = function(deckId, dailyNewCardLimt, sessionCardLimit, sessionTimeLimit, tagId, earlyReview, learnMore) {
     if (typeof earlyReview == 'undefined') {
         earlyReview = false;
     }
@@ -168,12 +168,12 @@ reviews.startSession = function(deckId, dailyNewCardLimt, sessionCardLimit, sess
         learnMore = false;
     }
     //Use deckId = -1 for all decks
-    //Use tag_id = -1 for no tag filter
+    //Use tagId = -1 for no tag filter
     //sessionTimeLimit is in minutes
     //Always call this before doing anything else.
     //Returns a deferred.
     reviews.sessionDeckId = deckId;
-    reviews.sessionTagId = tag_id;
+    reviews.sessionTagId = tagId;
     reviews.dailyNewCardLimt = dailyNewCardLimt;
     reviews.sessionCardLimit = sessionCardLimit;
     reviews.sessionTimeLimit = sessionTimeLimit;
@@ -392,6 +392,7 @@ reviews._simpleXHRPost = function(url) {
         load: dojo.hitch(null, function(def, data) {
             if (data.success) {
                 def.callback();
+                //TODO return the data to the deferred
             } else {
                 //TODO error handling (do a failure callback)
             }
@@ -413,9 +414,9 @@ reviews._simpleXHRValueFetch = function(url, valueName) {
         load: dojo.hitch(null, function(def, data) {
             if (data.success) {
                 if (typeof valueName == 'undefined') {
-                    def.callback(data);
+                    def.callback(data.data);
                 } else {
-                    def.callback(data[valueName]);
+                    def.callback(data.data[valueName]);
                 }
             } else {
                 //TODO error handling (do a failure callback)
