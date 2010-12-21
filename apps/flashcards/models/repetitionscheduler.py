@@ -123,7 +123,7 @@ class RepetitionAlgo(object):
         # Successful review.
         else:
             # Late review (or approx. on time)
-            if self._percent_waited() > 1.0:
+            if self.card.due_at and self._percent_waited() > 1.0:
                 # Give a bonus for getting it right later than expected.
                 bonus_factor = self._percent_waited()
 
@@ -158,7 +158,7 @@ class RepetitionAlgo(object):
                                   * self.GRADE_EASY_BONUS_FACTOR)
 
             # Early review.
-            if self._percent_waited() < 1.0:
+            if self.card.due_at and self._percent_waited() < 1.0:
                 # The interval should only be increased by an amount 
                 # proportionate to the percent of time waited until the 
                 # due date. This increase will be `interval_delta`.
@@ -175,7 +175,7 @@ class RepetitionAlgo(object):
                             + self.EASE_FACTOR_MODIFIERS[self.grade])
 
         # Early review?
-        if self._percent_waited() < 1.0:
+        if self.card.due_at and self._percent_waited() < 1.0:
             # Only increase EF proportionate to the percent of the 
             # repetition which elapsed.
             delta = next_ease_factor - self.card.ease_factor

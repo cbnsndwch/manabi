@@ -147,7 +147,8 @@ class Card(models.Model):
         This returns the actual time between last review and due date.
         This is the time the user was supposed to wait.
         '''
-        return self.due_at - self.last_reviewed_at
+        if not self.is_new() and self.due_at is not None:
+            return self.due_at - self.last_reviewed_at
 
     def sibling_spacing(self):
         '''
@@ -217,8 +218,8 @@ class Card(models.Model):
             self.ease_factor, next_repetition.ease_factor
         self.last_interval, self.interval = \
             self.interval, next_repetition.interval
-        self.last_due_at, self.ease_factor = \
-            self.due_at, next_repetition.ease_factor
+        self.last_due_at, self.due_at = \
+            self.due_at, next_repetition.due_at
 
     @transaction.commit_on_success
     def review(self, grade):
