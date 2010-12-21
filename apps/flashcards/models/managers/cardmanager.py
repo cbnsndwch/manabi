@@ -63,14 +63,20 @@ class SchedulerMixin(object):
         return cards
 
 
-    def _next_failed_due_cards(self, user, initial_query, count, review_time, excluded_ids=[], daily_new_card_limit=None, early_review=False, deck=None, tags=None):
+    def _next_failed_due_cards(self, user, initial_query, count,
+            review_time, excluded_ids=[], daily_new_card_limit=None,
+            early_review=False, deck=None, tags=None):
         if not count:
             return []
-        cards = initial_query.filter(last_review_grade=GRADE_NONE, due_at__lte=review_time).order_by('due_at')
-        return cards[:count] #don't space these #self._space_cards(cards, count, review_time)
+        cards = initial_query.filter(
+            last_review_grade=GRADE_NONE,
+            due_at__lte=review_time).order_by('due_at')
+        # Don't space these #self._space_cards(cards, count, review_time)
+        return cards[:count] 
 
-
-    def _next_not_failed_due_cards(self, user, initial_query, count, review_time, excluded_ids=[], daily_new_card_limit=None, early_review=False, deck=None, tags=None):
+    def _next_not_failed_due_cards(self, user, initial_query, count,
+            review_time, excluded_ids=[], daily_new_card_limit=None,
+            early_review=False, deck=None, tags=None):
         '''
         Returns the first [count] cards from initial_query which are due,
         weren't failed the last review, and  taking spacing of cards from
@@ -80,42 +86,54 @@ class SchedulerMixin(object):
         '''
         if not count:
             return []
-        due_cards = initial_query.exclude(last_review_grade=GRADE_NONE).filter(due_at__lte=review_time).order_by('-interval')
-        #TODO Also get cards that aren't quite due yet, but will be soon, and depending on their maturity (i.e. only mature cards due soon). Figure out some kind of way to prioritize these too.
+        due_cards = initial_query.exclude(
+            last_review_grade=GRADE_NONE).filter(
+            due_at__lte=review_time).order_by('-interval')
+        #TODO Also get cards that aren't quite due yet, but will be soon,
+        # and depending on their maturity
+        # (i.e. only mature cards due soon).
+        # Figure out some kind of way to prioritize these too.
         return self._space_cards(due_cards, count, review_time)
 
-
-    def _next_failed_not_due_cards(self, user, initial_query, count, review_time, excluded_ids=[], daily_new_card_limit=None, early_review=False, deck=None, tags=None):
+    def _next_failed_not_due_cards(self, user, initial_query, count,
+            review_time, excluded_ids=[], daily_new_card_limit=None,
+            early_review=False, deck=None, tags=None):
         if not count:
             return []
         #TODO prioritize certain failed cards, not just by due date
         # We'll show failed cards even if they've been reviewed recently.
-        # This is because failed cards are set to be shown 'soon' and not just 
-        # in 10 minutes. Special rules.
+        # This is because failed cards are set to be shown 'soon' and not
+        # just in 10 minutes. Special rules.
         #TODO we shouldn't show mature failed cards so soon though!
+        #TODO randomize the order (once we fix the Undo)
         card_query = initial_query.filter(last_review_grade=GRADE_NONE, \
-                due_at__gt=review_time).order_by('due_at') #TODO randomize the order (once we fix the Undo)
+                due_at__gt=review_time).order_by('due_at') 
         return card_query[:count]
 
-
-
-
-    def _next_new_cards(self, user, initial_query, count, review_time, excluded_ids=[], daily_new_card_limit=None, early_review=False, deck=None, tags=None):
+    def _next_new_cards(self, user, initial_query, count, review_time,
+            excluded_ids=[], daily_new_card_limit=None, early_review=False,
+            deck=None, tags=None):
         '''Gets the next new cards for this user or deck.
         '''
         from flashcards.models.facts import Fact
         if not count:
             return []
 
-        new_card_query = initial_query.filter(due_at__isnull=True).order_by('new_card_ordinal')
+        new_card_query = initial_query.filter(
+            due_at__isnull=True).order_by('new_card_ordinal')
 
         if daily_new_card_limit:
-            new_reviews_today = user.reviewstatistics.get_new_reviews_today()
+            new_reviews_today = user.reviewstatistics\
+                                .get_new_reviews_today()
             if new_reviews_today >= daily_new_card_limit:
                 return []
-            # Count the number of new cards in the `excluded_ids`, which the user already has queued up
-            new_excluded_cards_count = Card.objects.filter(id__in=excluded_ids, due_at__isnull=True).count()
-            new_count_left_for_today = daily_new_card_limit - new_reviews_today - new_excluded_cards_count
+            # Count the number of new cards in the `excluded_ids`,
+            # which the user already has queued up
+            new_excluded_cards_count = self.filter(
+                id__in=excluded_ids, due_at__isnull=True).count()
+            new_count_left_for_today = (daily_new_card_limit
+                                        - new_reviews_today
+                                        - new_excluded_cards_count)
         else:
             new_count_left_for_today = None
 

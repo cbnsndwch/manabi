@@ -84,14 +84,14 @@ class Card(models.Model):
         serialized into JSON.
         '''
         return {
-            'id': card.id,
-            'factId': card.fact_id,
-            'front': card.render_front(),
-            'back': card.render_back(),
+            'id': self.id,
+            'factId': self.fact_id,
+            'front': self.render_front(),
+            'back': self.render_back(),
             'nextDueAtPerGrade':
                 dict((grade, rep.due_at)
                         for (grade, rep)
-                        in card.next_repetition_per_grade().items())
+                        in self.next_repetition_per_grade().items())
         }
 
     @property

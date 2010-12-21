@@ -43,12 +43,15 @@ dojo.declare('reviews.Card', null, {
             }
         };
 
-        dojo.publish(reviews.subscriptionNames.cardReviewed, [{
-            card: this,
-            grade: grade }]);
-
         //start sending the review in ASAP
         var def = dojo.xhrPost(xhrArgs);
+
+        dojo.publish(reviews.subscriptionNames.cardReviewed, [{
+            card: this,
+            grade: grade,
+            reviewDef: def
+        }]);
+
         return def;
     }
 });
@@ -68,7 +71,7 @@ dojo.ready(function() {
 
     // Subscribe to card review events
     dojo.subscribe(reviews.subscriptionNames.cardReviewed, function(data) {
-        reviews._cardReviewCallback(data.card, data.grade) });
+        reviews._cardReviewCallback(data.card, data.grade, data.reviewDef) });
 
 });
 
@@ -80,7 +83,7 @@ reviews.subscriptionNames = {
     cardReviewed: '/manabi/reviews/card-reviewed'
 };
 
-reviews._cardReviewCallback = function(card, grade) {
+reviews._cardReviewCallback = function(card, grade, reviewDef) {
     // Handles the review event
 
     reviews.sessionCardsReviewedCount++;
@@ -99,11 +102,11 @@ reviews._cardReviewCallback = function(card, grade) {
 
 
     //add to review def queue
-    reviews.cardsReviewedPendingDef.push(def);
-    def.addCallback(dojo.hitch(null, function(def) {
+    reviews.cardsReviewedPendingDef.push(reviewDef);
+    reviewDef.addCallback(dojo.hitch(null, function(reviewDef) {
         // remove the def from the queue once it's called
-        reviews.cardsReviewedPendingDef.splice(reviews.cardsReviewedPendingDef.lastIndexOf(def), 1);
-    }, def));
+        reviews.cardsReviewedPendingDef.splice(reviews.cardsReviewedPendingDef.lastIndexOf(reviewDef), 1);
+    }, reviewDef));
 
     //has the user reached the card review count limit?
     if (reviews.sessionCardsReviewedCount >= reviews.sessionCardLimit
@@ -170,7 +173,6 @@ reviews.prefetchCards = function(count, session_start) {
                     dojo.forEach(data.data, function(card) {
                         //card = new reviews.Card(card);
                         card = new reviews.Card(card);
-                        console.log(card);
                         reviews.cards.push(card);
                     });
                 }

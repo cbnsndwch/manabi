@@ -14,9 +14,9 @@
 	    <div style="margin:.7em 1.7em;"><h3>Review early</h3></div>
 	    <script type="dojo/connect" event="onClick" args="evt">
             var args = {};
-            {% if deck %}args.deck_id = {{ deck.id }}{% endif %}
-            args.early_review = true;
-            args.learn_more = false;
+            {% if deck %}args.deckId = {{ deck.id }}{% endif %}
+            args.earlyReview = true;
+            args.learnMore = false;
             reviews_ui.startSession(args);
 	    </script>
     </button>
@@ -27,9 +27,9 @@
 	        <div style="margin:.7em .58em;"><h3>Learn new cards</h3></div>
 	        <script type="dojo/connect" event="onClick" args="evt">
                 var args = {};
-                {% if deck %}args.deck_id = {{ deck.id }}{% endif %}
-                args.early_review = true;
-                args.learn_more = true;
+                {% if deck %}args.deckId = {{ deck.id }}{% endif %}
+                args.earlyReview = true;
+                args.learnMore = true;
                 reviews_ui.startSession(args);
 	        </script>
         </button>
@@ -41,7 +41,7 @@
         <button dojoType="dijit.form.Button">
 	        <div style="margin:.7em 1.7em;"><h3>Study now!</h3></div>
 	        <script type="dojo/connect" event="onClick" args="evt">
-                reviews_ui.startSession({ {% if deck %}deck_id: {{ deck.id }}{% endif %} });
+                reviews_ui.startSession({ {% if deck %}deckId: {{ deck.id }}{% endif %} });
 	        </script>
         </button>
     </div>

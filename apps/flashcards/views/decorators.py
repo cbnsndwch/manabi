@@ -89,7 +89,7 @@ def api_data_response(view_func):
         ret = {'success': True}
 
         try:
-            ret['data'] = func(request, *args, **kwargs)
+            ret['data'] = view_func(request, *args, **kwargs)
         except ApiException as e:
             ret['success'] = False
             ret['error'] = unicode(e)

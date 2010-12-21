@@ -86,7 +86,7 @@ def next_cards_for_review(request, deck=None, tags=None):
         for card in next_cards:
             formatted_cards.append(card.to_api_dict())
 
-        return {'success': True, 'cards': formatted_cards}
+        return formatted_cards
 
 @api
 def due_card_count(request):
