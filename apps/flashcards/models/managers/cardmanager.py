@@ -185,7 +185,9 @@ class SchedulerMixin(object):
             
 
 
-    def _next_due_soon_cards(self, user, initial_query, count, review_time, excluded_ids=[], daily_new_card_limit=None, early_review=False, deck=None, tags=None):
+    def _next_due_soon_cards(self, user, initial_query, count,
+            review_time, excluded_ids=[], daily_new_card_limit=None,
+            early_review=False, deck=None, tags=None):
         '''
         Used for early review.
         Ordered by due date.
@@ -193,18 +195,28 @@ class SchedulerMixin(object):
         if not count:
             return []
         priority_cutoff = review_time - datetime.timedelta(minutes=60)
-        cards = initial_query.exclude(last_review_grade=GRADE_NONE).filter(due_at__gt=review_time).order_by('due_at')
-        staler_cards = cards.filter(last_reviewed_at__gt=priority_cutoff).order_by('due_at')
-        return self._space_cards(staler_cards, count, review_time, early_review=True)
+        cards = initial_query.exclude(
+            last_review_grade=GRADE_NONE).filter(
+            due_at__gt=review_time).order_by('due_at')
+        staler_cards = cards.filter(
+            last_reviewed_at__gt=priority_cutoff).order_by('due_at')
+        return self._space_cards(
+            staler_cards, count, review_time, early_review=True)
 
 
-    def _next_due_soon_cards2(self, user, initial_query, count, review_time, excluded_ids=[], daily_new_card_limit=None, early_review=False, deck=None, tags=None):
+    def _next_due_soon_cards2(self, user, initial_query, count,
+            review_time, excluded_ids=[], daily_new_card_limit=None,
+            early_review=False, deck=None, tags=None):
         if not count:
             return []
         priority_cutoff = review_time - datetime.timedelta(minutes=60)
-        cards = initial_query.exclude(last_review_grade=GRADE_NONE).filter(due_at__gt=review_time).order_by('due_at')
-        fresher_cards = cards.filter(last_reviewed_at__lte=priority_cutoff).order_by('due_at')
-        return self._space_cards(fresher_cards, count, review_time, early_review=True)
+        cards = initial_query.exclude(
+            last_review_grade=GRADE_NONE).filter(
+            due_at__gt=review_time).order_by('due_at')
+        fresher_cards = cards.filter(
+            last_reviewed_at__lte=priority_cutoff).order_by('due_at')
+        return self._space_cards(
+            fresher_cards, count, review_time, early_review=True)
 
     def _next_cards(self, early_review=False, daily_new_card_limit=None):
         card_funcs = [
@@ -215,32 +227,42 @@ class SchedulerMixin(object):
         if early_review and daily_new_card_limit:
             card_funcs.extend([
                 self._next_due_soon_cards,
-                self._next_due_soon_cards2]) # due soon, not yet, but next in the future
+                # due soon, not yet, but next in the future
+                self._next_due_soon_cards2]) 
         else:
             card_funcs.extend([self._next_new_cards]) # new cards at end
         return card_funcs
 
     #TODO not sure what this is necessary for, actually - it's used in one 
     # place and can probably be merged with something else.
-    def next_cards_count(self, user, excluded_ids=[], session_start=False, deck=None, tags=None, early_review=False, daily_new_card_limit=None, new_cards_only=False):
+    def next_cards_count(self, user, excluded_ids=[], session_start=False,
+            deck=None, tags=None, early_review=False,
+            daily_new_card_limit=None, new_cards_only=False):
         now = datetime.datetime.utcnow()
         if new_cards_only:
             card_funcs = [self._next_new_cards]
         else:
-            card_funcs = self._next_cards(early_review=early_review, daily_new_card_limit=daily_new_card_limit)
-        user_cards = self._user_cards(user, deck=deck, excluded_ids=excluded_ids, tags=tags)
+            card_funcs = self._next_cards(
+                early_review=early_review,
+                daily_new_card_limit=daily_new_card_limit)
+        user_cards = self._user_cards(
+            user, deck=deck, excluded_ids=excluded_ids, tags=tags)
         count = 0
         cards_left = 99999 #TODO find a more elegant approach
         for card_func in card_funcs:
-            cards = card_func(user, user_cards, cards_left, now, excluded_ids, daily_new_card_limit, \
-                    early_review=early_review,
-                    deck=deck,
-                    tags=tags)
+            cards = card_func(
+                user, user_cards, cards_left, now, excluded_ids,
+                daily_new_card_limit,
+                early_review=early_review,
+                deck=deck,
+                tags=tags)
             count += cards.count()
         return count
 
 
-    def next_cards(self, user, count, excluded_ids=[], session_start=False, deck=None, tags=None, early_review=False, daily_new_card_limit=None):
+    def next_cards(self, user, count, excluded_ids=[],
+            session_start=False, deck=None, tags=None, early_review=False,
+            daily_new_card_limit=None):
         '''
         Returns `count` cards to be reviewed, in order.
         count should not be any more than a short session of cards
@@ -257,21 +279,27 @@ class SchedulerMixin(object):
         #TODO somehow spread some new cards into the early review cards if early_review==True
         #TODO use args instead, like *kwargs etc for these funcs
         now = datetime.datetime.utcnow()
-        card_funcs = self._next_cards(early_review=early_review, daily_new_card_limit=daily_new_card_limit)
-        user_cards = self._user_cards(user, deck=deck, excluded_ids=excluded_ids, tags=tags)
+        card_funcs = self._next_cards(
+            early_review=early_review,
+            daily_new_card_limit=daily_new_card_limit)
+        user_cards = self._user_cards(
+            user, deck=deck, excluded_ids=excluded_ids, tags=tags)
         cards_left = count
         card_queries = []
         for card_func in card_funcs:
             if not cards_left:
                 break
-            cards = card_func(user, user_cards, cards_left, now, excluded_ids, daily_new_card_limit, \
-                    early_review=early_review,
-                    deck=deck,
-                    tags=tags)
+
+            cards = card_func(
+                user, user_cards, cards_left, now, excluded_ids,
+                daily_new_card_limit,
+                early_review=early_review,
+                deck=deck,
+                tags=tags)
+
             cards_left -= len(cards)
             if len(cards):
                 card_queries.append(cards)
-
 
         #TODO decide what to do with this #if session_start:
         #FIXME add new cards into the mix when there's a defined new card per day limit
@@ -336,7 +364,9 @@ class CommonFiltersMixin(object):
     #TODO consolidate with next_cards (see below)
     #FIXME make it work for synced decks
     def new_cards_count(self, user, excluded_ids, deck=None, tags=None):
-        '''Returns the number of new cards for the given review parameters.'''
+        '''
+        Returns the number of new cards for the given review parameters.
+        '''
         from flashcards.models.facts import Fact
         now = datetime.datetime.utcnow()
 
@@ -357,8 +387,9 @@ class CommonFiltersMixin(object):
 
     def count_of_cards_due_tomorrow(self, user, deck=None, tags=None):
         '''
-        Returns the number of cards due by tomorrow at the same time as now.
-        Doesn't take future spacing into account though, so it's a somewhat rough estimate.
+        Returns the number of cards due by tomorrow at the same time 
+        as now. Doesn't take future spacing into account though, so it's
+        a somewhat rough estimate.
         '''
         from flashcards.models.facts import Fact
         cards = self.of_user(user)
@@ -367,10 +398,13 @@ class CommonFiltersMixin(object):
         if tags:
             facts = usertagging.models.UserTaggedItem.objects.get_by_model(Fact, tags)
             cards = cards.filter(fact__in=facts)
-        this_time_tomorrow = datetime.datetime.utcnow() + datetime.timedelta(days=1)
+        this_time_tomorrow = (datetime.datetime.utcnow()
+                              + datetime.timedelta(days=1))
         cards = cards.filter(due_at__lt=this_time_tomorrow)
         due_count = cards.count()
-        new_count = min(NEW_CARDS_PER_DAY, self.new_cards_count(user, [], deck=deck, tags=tags))
+        new_count = min(
+            NEW_CARDS_PER_DAY,
+            self.new_cards_count(user, [], deck=deck, tags=tags))
         return due_count + new_count
 
     def next_card_due_at(self, user, deck=None, tags=None):
