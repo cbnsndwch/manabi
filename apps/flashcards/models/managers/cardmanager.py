@@ -14,7 +14,8 @@ from flashcards.models.constants import \
 class SchedulerMixin(object):
     '''
     '''
-    def _space_cards(self, card_query, count, review_time, excluded_ids=[], early_review=False):
+    def _space_cards(self, card_query, count, review_time,
+            excluded_ids=[], early_review=False):
         '''
         Check if any of these are from the same fact,
         or if other cards from their facts have been
@@ -29,12 +30,16 @@ class SchedulerMixin(object):
         it will return the spaced cards, since early review
         shouldn't ever run out of cards.
         '''
-        delayed_cards = [] # Keep track of new cards we want to skip, since we shouldn't set their due_at (via delay())
+        # Keep track of new cards we want to skip,
+        # since we shouldn't set their due_at (via delay())
+        delayed_cards = [] 
 
         while True:
             cards_delayed = 0
             cards = card_query.exclude(
-                id__in=[card.id for card in delayed_cards]).select_related()
+                id__in=[card.id
+                        for card
+                        in delayed_cards]).select_related()
             cards = cards[:count]
 
             if early_review and len(cards) == 0:
@@ -63,7 +68,6 @@ class SchedulerMixin(object):
             if not cards_delayed:
                 break
         return cards
-
 
     def _next_failed_due_cards(self, user, initial_query, count,
             review_time, excluded_ids=[], daily_new_card_limit=None,
