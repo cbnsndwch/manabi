@@ -141,19 +141,19 @@ class Card(models.Model):
     def calculated_interval(self):
         '''
         The `interval` property of a card doesn't necessarily decide the 
-        time between the review and the due date - it's used as a basis for 
-        calculating the due date, but other factors may apply.
+        time between the review and the due date - it's used as a basis
+        for calculating the due date, but other factors may apply.
 
-        This returns the actual time between last review and due date. This 
-        is the time the user was supposed to wait.
+        This returns the actual time between last review and due date.
+        This is the time the user was supposed to wait.
         '''
         return self.due_at - self.last_reviewed_at
 
     def sibling_spacing(self):
         '''
-        Calculate the minimum space between this card and its siblings that 
-        should be enforced (not necessarily actual, if the user chooses to 
-        review early).
+        Calculate the minimum space between this card and its siblings
+        that should be enforced (not necessarily actual, 
+        if the user chooses to review early).
 
         The space is `space_factor` times this card's interval, 
         or `min_card_space` at minimum.
@@ -173,8 +173,8 @@ class Card(models.Model):
 
     def delay(self, duration):
         '''
-        This card's due date becomes `duration` (a timedelta) days from now, 
-        or from its due date if not yet due.
+        This card's due date becomes `duration` (a timedelta) days from
+        now, or from its due date if not yet due.
         
         This is for when this card is due at the same time as a sibling 
         card (a card from the same fact).

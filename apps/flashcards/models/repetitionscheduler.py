@@ -1,5 +1,6 @@
 import random
-from constants import GRADE_NONE, GRADE_HARD, GRADE_GOOD, GRADE_EASY,  MATURE_INTERVAL_MIN
+from constants import GRADE_NONE, GRADE_HARD, GRADE_GOOD, GRADE_EASY, \
+    MATURE_INTERVAL_MIN
 from datetime import timedelta, datetime
 from utils import timedelta_to_float
 from math import cos, pi
