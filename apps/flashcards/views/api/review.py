@@ -72,7 +72,7 @@ def next_cards_for_review(request, deck=None, tags=None):
         next_cards = Card.objects.next_cards(
             request.user,
             count,
-            excluded_ids=params.get('excluded_cards'),
+            excluded_ids=params.get('excluded_cards', []),
             session_start=params.get('session_start'),
             deck=deck,
             tags=tags,

@@ -45,7 +45,7 @@ class RepetitionAlgo(object):
     # These are the precomputed values, so that we can modify them 
     # independently later to test their effectiveness.
     EASE_FACTOR_MODIFIERS = {
-        GRADE_NONE: -0.3, #TODO accurate grade_none value
+        GRADE_NONE: -0.3, #TODO more accurate grade_none value
         GRADE_HARD: -0.1401,
         GRADE_GOOD:  0.0,
         GRADE_EASY:  0.1} 
@@ -113,9 +113,12 @@ class RepetitionAlgo(object):
         if self.grade == GRADE_NONE:
             # Reset the interval to an initial value.
             next_interval = failure_interval
-            #TODO how to handle failures on new cards? should it keep its 'new' status, and should the EF change?
-            #TODO handle failures of cards that are reviewed early differently somehow
-            #TODO penalize even worse if it was reviewed early and still failed
+            #TODO how to handle failures on new cards? should it keep its
+            # 'new' status, and should the EF change?
+            #TODO handle failures of cards that are reviewed early
+            # differently somehow
+            #TODO penalize even worse if it was reviewed early 
+            # and still failed
         # Successful review.
         else:
             # Late review (or approx. on time)
@@ -208,8 +211,8 @@ class RepetitionAlgo(object):
         So if the next due date was in 5 days, and the user waited just 
         3 days before reviewing again, this would return .6.
 
-        Assumes the last review was successful. This method may be overriden 
-        for new and failed cards.
+        Assumes the last review was successful. This method may be
+        overriden for new and failed cards.
 
         Could be considered early (< 1.0) for 2 reasons:
             1. Reviewed before its due date.
@@ -273,16 +276,23 @@ class RepetitionAlgo(object):
 
         # Fuzz less for early reviews.
         if self._is_early_review():
-
-
             #TODO refactor / DRY all these early review calculations
             if self.last_reviewed_at:
-                last_effective_interval = timedelta_to_float(self.due_at - self.last_reviewed_at)
-                if is_early_review_due_to_sibling and last_reviewed_sibling.last_reviewed_at > self.last_reviewed_at:
-                    last_effectively_reviewed_at = last_reviewed_sibling.last_reviewed_at
+                last_effective_interval = timedelta_to_float(
+                    self.due_at - self.last_reviewed_at)
+                if (is_early_review_due_to_sibling
+                    and last_reviewed_sibling.last_reviewed_at
+                        > self.last_reviewed_at):
+                    last_effectively_reviewed_at = \
+                        last_reviewed_sibling.last_reviewed_at
                 else:
                     last_effectively_reviewed_at = self.last_reviewed_at
-                percentage_waited = timedelta_to_float(reviewed_at - last_effectively_reviewed_at) / last_effective_interval
+
+                percentage_waited = (
+                    timedelta_to_float(
+                        reviewed_at
+                        - last_effectively_reviewed_at)
+                    / last_effective_interval)
             # New card.
             else:
                 percentage_waited = percentage_waited_for_sibling
@@ -293,7 +303,9 @@ class RepetitionAlgo(object):
         #print 'and after fuzz: ' + str(next_interval)
 
     def fuzz(self, next_repetition):
-        '''Fuzzes the interval and due date for a repetition. Idempotent.'''
+        '''
+        Fuzzes the interval and due date for a repetition. Idempotent.
+        '''
         if next_repetition.fuzzed:
             return
         next_repetition.fuzzed = True
@@ -321,8 +333,8 @@ class YoungCardAlgo(RepetitionAlgo):
             failure_interval=self.YOUNG_FAILURE_INTERVAL)
 
     def _next_ease_factor(self):
-        # Don't update if card is still very young, i.e. still being learned,
-        # unless graded "Easy"
+        # Don't update if card is still very young, i.e. still being
+        # learned, unless graded "Easy"
         if self._is_being_learned() and self.grade != GRADE_EASY:
             return self.card.ease_factor
 
@@ -366,8 +378,8 @@ class FailedCardAlgo(RepetitionAlgo):
     '''
     For cards that were failed in their last repetition.
 
-    The current repetition whose grade this algorithm accounts for may have 
-    failed or succeeded - this takes the new grade into account.
+    The current repetition whose grade this algorithm accounts for 
+    may have failed or succeeded - this takes the new grade into account.
     '''
     # If the user runs out of due cards, failed cards will come up 
     # regardless of their due time. However, they will come up this 
@@ -391,8 +403,8 @@ class FailedCardAlgo(RepetitionAlgo):
         '''
         Won't lower the EF since the last review was a failure. This is to 
         prevent the EF from dropping too rapidly. It only lowers the first 
-        time the card is failed after being new or after successful reviews 
-        (when the card isn't considered a Failed Card).
+        time the card is failed after being new or after successful
+        reviews (when the card isn't considered a Failed Card).
         '''
         ease_factor = super(FailedCardAlgo, self)._next_ease_factor()
 

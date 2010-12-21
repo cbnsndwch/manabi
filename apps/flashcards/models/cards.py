@@ -103,6 +103,10 @@ class Card(models.Model):
         '''Returns the other cards from this card's fact.'''
         return self.fact.card_set.exclude(id=self.id)
 
+    @property
+    def deck(self):
+        return self.fact.deck
+
     def is_new(self):
         '''Returns whether this card has been reviewed before.'''
         return self.last_reviewed_at is None
