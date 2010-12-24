@@ -134,7 +134,7 @@ h1, h2, h3, h4, h5 {
     font-size: 1.55em;
     text-decoration: none;
     color: #FFF;
-    text-shadow: -1px -1px 0px #213b43/*, 1px 1px 0px #839ca4*/;
+    /*text-shadow: -1px -1px 0px #213b43, 1px 1px 0px #839ca4*/;
     padding: 4px 20px;
     /*margin-right: 8px;*/
     /*background-color: #46707d;*/
