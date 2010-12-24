@@ -7,7 +7,7 @@ body {
     background-color: #FFF;
     margin: 0;
     color: #333;
-    font-family: Lucida Grande, Lucida Sans Unicode, Lucida Sans, Arial, sans-serif;/*Arial, sans-serif;*/
+    font-family: Myriad, Lucida Grande, Lucida Sans Unicode, Lucida Sans, Arial, sans-serif;/*Arial, sans-serif;*/
     /*font-size: 10pt;*/
     font-size: 85%;
 }
@@ -42,20 +42,6 @@ h1, h2, h3, h4, h5 {
     margin: 0 auto;
     padding: 10px;
     width: 800px;
-}
-#footer {
-    color: #36606D; /* footer text colour */
-    background-color: #003344;
-    /*margin: 50px auto;*/
-    padding: 10px;
-    clear: both;
-    /*width: 800px;*/
-}
-#footer a, #footer a:visited {
-    color: #444; /* footer link colour */
-}
-#footer a:hover {
-    color: #777; /* footer link hover colour */
 }
 
 
@@ -92,19 +78,20 @@ h1, h2, h3, h4, h5 {
 #tabhead {
 /*    background: #003344 #035 url('../images/heading.png') left top
  *    repeat-x;*/
-    background-color: #003344;
+    /*background-color: #003344;*/
+    /*background-color: #36606D;*/
     /*border-bottom: 1px solid #000;*/ /* tab border */
-    position: relative;
-    padding: 4px 0px;
+    /*position: relative;*/
+    /*padding: 4px 0px;*/
 }
 #tabhead .logo {
     /*height: 80px;*/
-    padding-left: 5px;
-    padding-top: 0;
+    /*padding-left: 5px;*/
+    /*padding-top: 0;*/
 }
 #tabhead .logo img {
-    width: 190px;
-    height: 79px;
+    /*width: 190px;*/
+    /*height: 79px;*/
 }
 #tabhead .login {
     position: absolute;
@@ -122,17 +109,21 @@ h1, h2, h3, h4, h5 {
 #locale_switcher {
     display: inline;
 }
-
+#subnav_container {
+    background-color: white;
+}
 #subnav {
     margin: 0;
     padding: 0;
-    background: #36606D /*#DEF*/; /* tab colour */
-    border-bottom: 0px solid #003344;
+    background-color: #36606D;
+    /*height: 50px;*/
+    /*background-color: #36606d; [>#DEF; /* tab colour */
+    /*border-bottom: 0px solid #003344;*/
 }
 #subnav ul {
-    float: left;
     margin: 0;
     padding: 0;
+    padding-top: 1em;
 }
 #subnav ul li {
     display: inline;
@@ -140,10 +131,16 @@ h1, h2, h3, h4, h5 {
 }
 #subnav ul a:link, #subnav ul a:visited {
     float: left;
-    font-size: 1.3em;
+    font-size: 1.55em;
     text-decoration: none;
     color: #FFF;
+    text-shadow: -1px -1px 0px #213b43/*, 1px 1px 0px #839ca4*/;
     padding: 4px 20px;
+    /*margin-right: 8px;*/
+    /*background-color: #46707d;*/
+    -webkit-border-radius: 8px;
+    -moz-border-radius: 8px;
+    border-radius: 8px;
 }
 #subnav ul a:hover {
     color: #FFF;

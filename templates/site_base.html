@@ -44,15 +44,18 @@
 {% endblock %}
 
 {% block logo_link_image %}
-<div style="font-size:2.4em;font-family:Helvetica;position:relative;text-decoration:none;padding-left:6px">
+<div id="site_title_left"><!-- --></div>
+<div id="site_title">
     {% if user.is_authenticated %}
         <a style="color:white;text-decoration:none;" href="{% url home_inline %}" onclick="manabi_ui.xhrLink(this.href);return false;">
     {% else %}
         <a style="color:white;text-decoration:none;" href="{% url home %}">
     {% endif %}
-            m a n a b i
+        <span id="site_logo">学</span>
+            manabi
         </a>
 </div>
+<div id="site_title_right"><!-- --></div>
 {% endblock %}
 
 {% block subnav %}
@@ -77,7 +80,7 @@
 {% endblock %}
 
 {% block body_outer %}
-    <div id="column_wrap" style="background-color:#52676D">
+    <div id="column_wrap">
         {% if user.is_authenticated %}
             {% include "flashcards/base.html" %}
         {% endif %}

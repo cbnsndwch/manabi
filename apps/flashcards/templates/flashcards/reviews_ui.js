@@ -18,9 +18,7 @@ reviews_ui.humanizedInterval = function(interval) {
     // the function.
     var ret = null;
     var duration = null;
-    console.log(interval);
     interval = parseFloat(interval) / (1000 * 60 * 60 * 24);
-    console.log(interval);
 
     if ((interval * 24 * 60) < 1) {
         //less than a minute
@@ -181,6 +179,7 @@ reviews_ui.endSession = function() {
 
     //show the page behind this
     dojo.byId('body_contents').style.display = '';
+    dojo.byId('tabhead').style.display = '';
 
     dojo.byId('reviews_fullscreenContainer').style.display = 'none';
     //TODO fade out, less harsh
@@ -204,10 +203,6 @@ reviews_ui.displayNextIntervals = function(card) {
     //FIXME but only for young card failures - mature cards should have an interval shown
     var now = new Date();
     dojo.byId('reviews_gradeNoneInterval').innerHTML = 'Review soon';
-    console.log(card);
-    console.log(card.nextDueAtPerGrade);
-    console.log(card.nextDueAt(3));
-    console.log(card.nextDueAt(4));
     dojo.byId('reviews_gradeHardInterval').innerHTML = reviews_ui.humanizedInterval(card.nextDueAt(3) - now);
     dojo.byId('reviews_gradeGoodInterval').innerHTML = reviews_ui.humanizedInterval(card.nextDueAt(4) - now);
     dojo.byId('reviews_gradeEasyInterval').innerHTML = reviews_ui.humanizedInterval(card.nextDueAt(5) - now);
@@ -335,6 +330,7 @@ reviews_ui.showReviewScreen = function() {
 
     //hide the page behind this
     dojo.byId('body_contents').style.display = 'none';
+    dojo.byId('tabhead').style.display = 'none';
 
     //show the review screen and hide the end of review screen
     dojo.byId('reviews_reviewScreen').style.display = '';

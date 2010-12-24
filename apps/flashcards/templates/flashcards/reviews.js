@@ -30,7 +30,6 @@ dojo.declare('reviews.Card', null, {
     },
 
     review: function(grade) {
-        console.log('review()');
         xhrArgs = {
             url: '{% url api-cards %}' + this.id + '/',
             content: { grade: grade },
@@ -44,8 +43,6 @@ dojo.declare('reviews.Card', null, {
             }
         };
 
-        console.log(xhrArgs);
-
         //start sending the review in ASAP
         var def = dojo.xhrPost(xhrArgs);
 
@@ -55,7 +52,6 @@ dojo.declare('reviews.Card', null, {
             reviewDef: def
         }]);
 
-        console.log(def);
         return def;
     }
 });
@@ -357,7 +353,7 @@ reviews.nextCard = function() {
 };
 
 
-reviews._resetCardCache = function() {
+reviews._resetCardBuffer = function() {
     // Resets the card cache, as well as the "currentCard"
 
     // Clear cache
@@ -385,7 +381,7 @@ reviews.undo = function() {
         // Clear and refill card cache
         actual_undo_def.addCallback(dojo.hitch(null, function(undo_def) {
             reviews.sessionCardsReviewedCount -= 1;
-            reviews._resetCardCache().addCallback(dojo.hitch(null, function(undo_def) {
+            reviews._resetCardBuffer().addCallback(dojo.hitch(null, function(undo_def) {
                 undo_def.callback();
             }, undo_def));
         }, undo_def));
