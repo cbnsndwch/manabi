@@ -61,8 +61,23 @@ body, html {
     /*left: -15px;*/
     z-index: 20;
     padding-left: 30px;
-    padding-right: 90px;
+    /*padding-right: 90px;*/
+    /*width: 400px;*/
     margin-bottom: 8px;
+}
+#site_title a {
+    width: 300px;
+    display: inline-block;
+}
+#site_title .hover {
+    display: none;
+    letter-spacing: .5em;
+}
+#site_title a:hover .no_hover {
+    display: none;
+}
+#site_title a:hover .hover {
+    display: inline;
 }
 #site_title_left, #site_title_right {
     float: left;
