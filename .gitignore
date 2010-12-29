@@ -1,3 +1,4 @@
+env/
 apps/dojango/media/dojo
 *.prc
 *.swo
