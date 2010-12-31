@@ -4,7 +4,6 @@ from django.contrib.auth.models import User
 from django.db import transaction
 import datetime, time
 from timezones.utils import adjust_datetime_to_timezone
-from account.models import Account
 
 end_of_day = datetime.time(5) #5:00am
 
@@ -38,6 +37,7 @@ class ReviewStatistics(models.Model):
 
     def _is_review_time_within_users_day(self, reviewed_at):
         'Returns whether `reviewed_at` (a datetime in UTC) is within the current study day for the user'
+        from account.models import Account
         user_timezone = Account.objects.get(user=self.user).timezone
         now = datetime.datetime.utcnow()
         user_now = adjust_datetime_to_timezone(now, from_tz='UTC', to_tz=user_timezone)

@@ -15,7 +15,8 @@ class Command(BaseCommand):
 
     def handle(self, *args, **options):
         from django.conf import settings
-        from flashcards.models.facts import FactType, FieldType
+        from flashcards.models.facts import FactType
+        from flashcards.models.fields import FieldType
         #from flashcards.models.fields import FieldType
         from flashcards.models.cardtemplates import CardTemplate
         from dbtemplates.models import Template

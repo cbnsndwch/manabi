@@ -6,9 +6,7 @@ from django.views.generic.simple import direct_to_template
 from django.contrib import admin
 admin.autodiscover()
 
-from account.openid_consumer import PinaxConsumer
-
-from forms import SignupForm, OpenIDSignupForm
+from forms import SignupForm
 
 
 if settings.ACCOUNT_OPEN_SIGNUP:
@@ -16,9 +14,9 @@ if settings.ACCOUNT_OPEN_SIGNUP:
 else:
     signup_view = "signup_codes.views.signup"
 
-class ManabiConsumer(PinaxConsumer):
-    def get_registration_form_class(self, request):
-        return OpenIDSignupForm
+#class ManabiConsumer(PinaxConsumer):
+#    def get_registration_form_class(self, request):
+#        return OpenIDSignupForm
 
 urlpatterns = patterns('',
     #url(r'^$', direct_to_template, {
@@ -26,19 +24,23 @@ urlpatterns = patterns('',
     #}, name="home"),
     url(r'^$', 'views.index', name='home'),
 
-    url(r'^home$', 'views.home', name='home_inline'), #direct_to_template, {'template': 'home.html',}, name='home_inline'),
+    url(r'^home$', 'views.home', name='home_inline'),
     
-    url(r'^admin/invite_user/$', 'signup_codes.views.admin_invite_user', name="admin_invite_user"),
-    url(r'^account/signup/$', signup_view, name="acct_signup", kwargs={'form_class': SignupForm}), # Use our customized form
+    url(r'^admin/invite_user/$', 'signup_codes.views.admin_invite_user',
+        name="admin_invite_user"),
+
+    # Use our customized form
+    url(r'^account/signup/$', signup_view,
+        name="acct_signup", kwargs={'form_class': SignupForm}), 
     
     (r'^about/', include('about.urls')),
     (r'^account/', include('account.urls')),
-    (r'^openid/(.*)', ManabiConsumer()),
-    (r'^profiles/', include('basic_profiles.urls')),
+    #(r'^profiles/', include('basic_profiles.urls')),
+    url(r'^profiles/', include('idios.urls')),
     (r'^notices/', include('notification.urls')),
     (r'^announcements/', include('announcements.urls')),
     
-    (r'^admin/(.*)', admin.site.root),
+    (r'^admin/(.*)', include(admin.site.urls)),
     
     # my own
     (r'^reports/', include('reports.urls')),
@@ -48,5 +50,6 @@ urlpatterns = patterns('',
 
 if settings.SERVE_MEDIA:
     urlpatterns += patterns('', 
-        (r'^site_media/', include('staticfiles.urls')),
+        #(r'^site_media/', include('staticfiles.urls')),
+        url(r"", include("staticfiles.urls")),
     )
