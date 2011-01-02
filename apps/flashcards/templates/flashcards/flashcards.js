@@ -109,7 +109,7 @@
 
       //get count of field contents
       var field_content_count = dojo.query('.field_content', _factAddForm.domNode).length;
-      console.log(field_content_count);
+      /*console.log(field_content_count);*/
 
       factAddFormValue['fact-fact_type'] = 1; //FIXME temp hack - assume Japanese
       factAddFormValue['field_content-TOTAL_FORMS'] = field_content_count.toString(); //fieldContentInputCount.toString();
