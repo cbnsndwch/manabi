@@ -11,7 +11,6 @@ from django.db import models
 from django.db import transaction
 from django.template.loader import render_to_string
 from repetitionscheduler import repetition_algo_dispatcher
-from reviews import ReviewStatistics
 from undo import UndoCardReview
 from utils import timedelta_to_float
 import random
