@@ -32,6 +32,7 @@ get rid of jquery deps
 magic numbers
 
 
+
 refactoring order:
 views
 js
@@ -50,6 +51,7 @@ models:
 braaaaaand new features
 
 per-day scheduling
+fade change the logo on hover
 
 
 ==========
