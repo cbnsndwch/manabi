@@ -276,8 +276,8 @@ body, html {
 }
 #footer {
     /*color: #36606D; [> footer text colour <]*/
-    color: #ccc;
     font-size: .9em;
+    color: #bbb;
     /*color: lightgray;*/
     /*background-color: #003344;
     background-color: #f0f0f0;*/
@@ -285,6 +285,10 @@ body, html {
     /*padding: 10px;*/
     clear: both;
     /*width: 800px;*/
+}
+#footer .sub_legal, #footer .sub_legal a, #footer .sub_legal a:visited {
+    color: #ccc;
+    font-size: .9em;
 }
 #footer a, #footer a:visited {
     /*color: #36606d;*/
