@@ -155,7 +155,7 @@ h1, h2, h3, h4, h5 {
     display: inline;
     float: left;
     list-style-type: none;
-    font-family: 'ArvoRegular';
+    /*font-family: 'ArvoRegular';*/
     font-size: 1.5em;
     margin-right: .4em;
     /*margin-bottom: .3em;*/
@@ -165,6 +165,9 @@ h1, h2, h3, h4, h5 {
     background-image: none;
     opacity: 1;
 }
+#subnav li:hover:not(.active) {
+    opacity: .9;
+}
 #subnav li img {
     /*display: block;*/
     display: none;
@@ -172,7 +175,9 @@ h1, h2, h3, h4, h5 {
     opacity: .6;
 }
 #subnav li a {
-    margin-top: .3em;
+    display: block;
+    padding-top: 12px;
+    height: 38px;
 }
 #subnav li a:hover img {
     opacity: 1;
@@ -185,7 +190,8 @@ h1, h2, h3, h4, h5 {
     /*color: #FFF;*/
     color: black;
     /*text-shadow: -1px -1px 0px #213b43, 1px 1px 0px #839ca4*/;
-    padding: 4px 20px;
+    padding-left: 20px;
+    padding-right: 20px;
     /*margin-right: 8px;*/
     /*background-color: #46707d;*/
     -webkit-border-radius: 8px;
@@ -193,8 +199,8 @@ h1, h2, h3, h4, h5 {
     border-radius: 8px;
 }
 #subnav ul a:hover {
-    color: #FFF;
-    background: #9BC;
+    /*color: #FFF;*/
+    /*background: #9BC;*/
 }
 
 

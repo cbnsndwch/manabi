@@ -6,6 +6,7 @@
 	font-weight: normal;
 	font-style: normal;
 }
+/*
 @font-face {
 	font-family: 'LeagueGothicRegular';
 	src: url('/site_media/static/fonts/League_Gothic-webfont.eot');
@@ -57,6 +58,7 @@
 	font-weight: normal;
 	font-style: normal;
 }
+*/
 @font-face {
 	font-family: 'HiraginoKakuGothicStdW8';
 	src: url('/site_media/static/fonts/HiraginoKakuGothicStdW8.otf');
@@ -95,7 +97,8 @@ body, html {
 #site_title {
     /*font-size: 3em;*/
     font-size: 3.5em;
-    font-family: 'ArvoRegular', 'ChunkFiveRegular';
+    /*font-family: 'ArvoRegular';*/
+    font-family: 'ChunkFiveRegular';
     font-weight: bold;
     /*position: relative;*/
     text-decoration: none;
