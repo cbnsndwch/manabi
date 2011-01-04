@@ -36,7 +36,7 @@ urlpatterns = patterns('',
     (r'^about/', include('about.urls')),
     (r'^account/', include('account.urls')),
     #(r'^profiles/', include('basic_profiles.urls')),
-    url(r'^profiles/', include('idios.urls')),
+    #url(r'^profiles/', include('idios.urls')),
     (r'^notices/', include('notification.urls')),
     (r'^announcements/', include('announcements.urls')),
     
@@ -51,5 +51,5 @@ urlpatterns = patterns('',
 if settings.SERVE_MEDIA:
     urlpatterns += patterns('', 
         #(r'^site_media/', include('staticfiles.urls')),
-        url(r"", include("staticfiles.urls")),
+        url(r'', include('staticfiles.urls')),
     )

@@ -126,13 +126,27 @@ h1, h2, h3, h4, h5 {
     padding: 0;
     padding-top: 1em;
 }
-#subnav ul li {
+#subnav li {
     display: inline;
-    list-style-type: none;
-}
-#subnav ul a:link, #subnav ul a:visited {
     float: left;
-    font-size: 1.55em;
+    list-style-type: none;
+    font-family: 'ArvoRegular';
+    font-size: 1.5em;
+    margin-bottom: .3em;
+}
+#subnav li img {
+    /*display: block;*/
+    display: none;
+    margin: 0 auto;
+    opacity: .6;
+}
+#subnav li a:hover img {
+    opacity: 1;
+}
+#subnav li a:link, #subnav li a:visited {
+    display: block;
+    text-align: center;
+    /*font-size: 1.55em;*/
     text-decoration: none;
     color: #FFF;
     /*text-shadow: -1px -1px 0px #213b43, 1px 1px 0px #839ca4*/;
