@@ -28,8 +28,41 @@
             {% if user.is_authenticated %}
                 dojo.require('manabi_ui');
             {% endif %}
+
         </script>
     {% endif %}
+
+    {% comment %}<script type="text/javascript" src="{{ MEDIA_URL }}static/js/pixastic.custom.js"></script>    
+    <script type="text/javascript">
+        // Desaturate our nav images
+        /*
+        dojo.ready(function() {
+            var desaturate = function(node) {
+                Pixastic.process(node, 'edges', { mono:true, invert:true });
+            };
+            dojo.query('#subnav a').forEach(function(node) {
+                dojo.query('img', node).forEach(function(node) {
+                    desaturate(node);
+                });
+                dojo.query('canvas', node).forEach(function(node) {
+                    dojo.style(node, 'opacity', '.3');
+                });
+                dojo.query(node).onmouseenter(dojo.hitch(this, function() {
+                    dojo.query('canvas', node).forEach(function(node) {
+                        dojo.style(node, 'opacity', '1.0');
+                        Pixastic.revert(node);
+                        dojo.style(node, 'opacity', '1.0');
+                    });
+                }));
+                dojo.query(node).parent().onmouseleave(dojo.hitch(this, function() {
+                    dojo.query('img', node).forEach(function(node) {
+                        desaturate(node);
+                        dojo.style(node, 'opacity', '.3');
+                    });
+                }));
+            });
+        });*/
+    </script>{% endcomment %}
 {% endblock %}
 
 {% block body_class %}{{ DOJANGO.THEME }}{% endblock %}
@@ -60,10 +93,18 @@
 
 {% block subnav %}
     <ul>
-        <li><a href="{% url home_inline %}" id="subnav_home_link" class="xhr_link">Home</a>
+        {% comment %}
+        <li><a href="{% url home_inline %}" id="subnav_home_link" class="xhr_link"><img src="http://c.dryicons.com/images/icon_sets/stickers_icon_set/png/48x48/home.png">Home</a>
         {% if user.is_authenticated %}
-            <li><a href="{% url add_decks %}" id="subnav_add_link" class="xhr_link">Add</a>
-            <li><a href="{% url decks %}" id="subnav_manage_link" class="xhr_link">Manage</a>
+            <li><a href="{% url add_decks %}" id="subnav_add_link" class="xhr_link"><img src="http://c.dryicons.com/images/icon_sets/stickers_icon_set/png/48x48/add_item.png">Add</a>
+            <li><a href="{% url decks %}" id="subnav_manage_link" class="xhr_link"><img src="http://c.dryicons.com/images/icon_sets/stickers_icon_set/png/48x48/note.png">Manage</a>
+
+
+        {% endcomment %}
+        {% if user.is_authenticated %}
+            <li><a href="{% url home_inline %}" id="subnav_home_link" class="xhr_link" onmouseover="dojo.query('img', this)[0].src='{{ MEDIA_URL }}static/icons/colorful_stickers/48x48/home.png';" onmouseout="dojo.query('img', this)[0].src='{{ MEDIA_URL }}static/icons/colorful_stickers/48x48/home-outline.png';"><img src="{{ MEDIA_URL }}static/icons/colorful_stickers/48x48/home-outline.png" >Home</a>
+            <li><a href="{% url add_decks %}" id="subnav_add_link" class="xhr_link" onmouseover="dojo.query('img', this)[0].src='{{ MEDIA_URL }}static/icons/colorful_stickers/48x48/add.png';" onmouseout="dojo.query('img', this)[0].src='{{ MEDIA_URL }}static/icons/colorful_stickers/48x48/add-outline.png';"><img src="{{ MEDIA_URL }}static/icons/colorful_stickers/48x48/add-outline.png" >Add</a>
+            <li><a href="{% url decks %}" id="subnav_database_link" class="xhr_link" onmouseover="dojo.query('img', this)[0].src='{{ MEDIA_URL }}static/icons/colorful_stickers/48x48/database.png';" onmouseout="dojo.query('img', this)[0].src='{{ MEDIA_URL }}static/icons/colorful_stickers/48x48/database-outline.png';"><img src="{{ MEDIA_URL }}static/icons/colorful_stickers/48x48/database-outline.png" >Manage</a>
         {% endif %}
     </ul>
 {% endblock %}
