@@ -31,6 +31,17 @@ http://highcharts.com/demo/
 
 brand new refactor todo
 ---------
+
+add shortnames to field objects
+so we can reference them by name rather than by ID, if we're writing some 
+kind of API that relies on a certain card model.
+Despite being in the DB, card models are fairly static, and we are going 
+to be writing custom code for each anyway.
+or, just use a proxy model...... JapaneseCard
+with methods for its fields
+this is way better. like my_jpn_card.reading
+
+
 named URLs
 update pinax
 update django to 1.2.3
