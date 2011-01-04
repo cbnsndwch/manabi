@@ -103,7 +103,7 @@
         {% endcomment %}
         {% if user.is_authenticated %}
             <li><a href="{% url home_inline %}" id="subnav_home_link" class="xhr_link" onmouseover="dojo.query('img', this)[0].src='{{ MEDIA_URL }}static/icons/colorful_stickers/48x48/home.png';" onmouseout="dojo.query('img', this)[0].src='{{ MEDIA_URL }}static/icons/colorful_stickers/48x48/home-outline.png';"><img src="{{ MEDIA_URL }}static/icons/colorful_stickers/48x48/home-outline.png" >Home</a>
-            <li><a href="{% url add_decks %}" id="subnav_add_link" class="xhr_link" onmouseover="dojo.query('img', this)[0].src='{{ MEDIA_URL }}static/icons/colorful_stickers/48x48/add.png';" onmouseout="dojo.query('img', this)[0].src='{{ MEDIA_URL }}static/icons/colorful_stickers/48x48/add-outline.png';"><img src="{{ MEDIA_URL }}static/icons/colorful_stickers/48x48/add-outline.png" >Add</a>
+            <li class="active"><a href="{% url add_decks %}" id="subnav_add_link" class="xhr_link" onmouseover="dojo.query('img', this)[0].src='{{ MEDIA_URL }}static/icons/colorful_stickers/48x48/add.png';" onmouseout="dojo.query('img', this)[0].src='{{ MEDIA_URL }}static/icons/colorful_stickers/48x48/add-outline.png';"><img src="{{ MEDIA_URL }}static/icons/colorful_stickers/48x48/add-outline.png" >Add</a>
             <li><a href="{% url decks %}" id="subnav_database_link" class="xhr_link" onmouseover="dojo.query('img', this)[0].src='{{ MEDIA_URL }}static/icons/colorful_stickers/48x48/database.png';" onmouseout="dojo.query('img', this)[0].src='{{ MEDIA_URL }}static/icons/colorful_stickers/48x48/database-outline.png';"><img src="{{ MEDIA_URL }}static/icons/colorful_stickers/48x48/database-outline.png" >Manage</a>
         {% endif %}
     </ul>
@@ -143,7 +143,7 @@
 
 {% block footer %}
 <div class="legal">
-    {% trans "&copy; Alex Ehlke 2010" %}{% if user.is_authenticated %}. 
+    {% trans "&copy; Alex Ehlke 2011" %}{% if user.is_authenticated %}. 
     Feedback or support: <a href="mailto:manabi.org@gmail.com">manabi.org@gmail.com</a>
     {% endif %}
 {% comment %}    - <a href="{% url about %}">{% trans "About" %}</a>
