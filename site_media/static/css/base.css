@@ -130,8 +130,8 @@ h1, h2, h3, h4, h5 {
 #subnav li {
     /* make it look like a tab */
     position: relative;
-    top:    28px;
-    height: 50px;
+    top:    31px;
+    /*height: 50px;*/
     background-color: gray;
     opacity: .7;
     background-image: -webkit-gradient(
@@ -156,7 +156,8 @@ h1, h2, h3, h4, h5 {
     float: left;
     list-style-type: none;
     /*font-family: 'ArvoRegular';*/
-    font-size: 1.5em;
+    font-size: 1.4em;
+    font-weight: bold;
     margin-right: .4em;
     /*margin-bottom: .3em;*/
 }
@@ -169,14 +170,13 @@ h1, h2, h3, h4, h5 {
     opacity: .9;
 }
 #subnav li img {
-    /*display: block;*/
     display: none;
     margin: 0 auto;
     opacity: .6;
 }
 #subnav li a {
     display: block;
-    padding-top: 12px;
+    padding-top: 9px;
     height: 38px;
 }
 #subnav li a:hover img {

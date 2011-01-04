@@ -96,7 +96,8 @@ body, html {
 }
 #site_title {
     /*font-size: 3em;*/
-    font-size: 3.5em;
+    /*font-size: 3.5em;*/
+    font-size: 48px;
     /*font-family: 'ArvoRegular';*/
     font-family: 'ChunkFiveRegular';
     font-weight: bold;
@@ -129,19 +130,30 @@ body, html {
     width: 300px;
     display: block;
     position: relative;
-    top: .1em;
+    /*top: .1em;*/
+    top: 4px;
     /*display: table-cell;*/
-    vertical-align: middle;
+    /*vertical-align: middle;*/
+}
+#site_title .no_hover {
+    position: absolute;
+    top: .39em;
 }
 #site_title .hover {
-    display: none;
+    opacity: 0;
     letter-spacing: .5em;
+    display: inline-block;
+}
+#site_title .hover, #site_title .no_hover {
+    -webkit-transition: opacity 70ms ease-in; 
+    -moz-transition: opacity 70ms ease-in;
+    transition: opacity 70ms ease-in;
 }
 #site_title a:hover .no_hover {
-    display: none;
+    opacity: 0;
 }
 #site_title a:hover .hover {
-    display: inline;
+    opacity: 1;
 }
 #site_title, #site_title_left, #site_title_right {
     /*height: 90px;*/
@@ -155,11 +167,6 @@ body, html {
 }
 #site_title_left {
     display:none;
-/*    margin-left: 5px;
-    -moz-border-radius-bottomleft: 10px;
-    -webkit-border-bottom-left-radius: 10px;
-    -moz-transform: skewX(10deg);
-    -webkit-transform: skewX(10deg);*/
 }
 #site_title_right {
     -moz-border-radius-bottomright: 10px;
