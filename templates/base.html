@@ -60,6 +60,8 @@
         </div>
         <div style="clear:both"></div>
         
+        <div id="body_left"></div>
+
         {% block body_outer %}
         <div id="body">
             {% if messages %}
@@ -73,8 +75,11 @@
             {% block body %}
             {% endblock %}
             
+
         </div>
         {% endblock %}
+
+        <div id="body_right"></div>
         
         <div id="footer">{% block footer %}{% endblock %}</div>
         
