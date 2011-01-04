@@ -8,9 +8,18 @@
     {% include 'dojango/include.html' %}
     <link rel="stylesheet" href="{{ MEDIA_URL }}static/css/site_tabs.css" />
     <link rel="stylesheet" href="{{ MEDIA_URL }}static/css/misc.css" />
-    {% block extra_head %}{% endblock %}
     {% if user.is_authenticated %}
         <script type="text/javascript" src="{{ MEDIA_URL }}static/js/manabi.js"></script>    
+        <script type="text/javascript">
+            dojo.require('dojango.dojango');
+
+            // add our module paths for local files
+            dojango.registerModulePath('jdic', '{{ MEDIA_URL }}static/js/jdic');
+        </script>
+
+        <script type="text/javascript" src="{{ MEDIA_URL }}static/js/jdic/jPlayer/jquery.jplayer.min.js"></script>
+        <link rel="stylesheet" href="{{ MEDIA_URL }}static/js/jdic/jPlayer/skins/manabi/jplayer.css"></link>
+
     {% else %}
         <script type="text/javascript">
             // don't allow IE users yet :( ... >:]
@@ -31,6 +40,8 @@
 
         </script>
     {% endif %}
+
+    {% block extra_head %}{% endblock %}
 
     {% comment %}<script type="text/javascript" src="{{ MEDIA_URL }}static/js/pixastic.custom.js"></script>    
     <script type="text/javascript">
