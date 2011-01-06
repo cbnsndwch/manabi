@@ -214,7 +214,7 @@ reviews_ui.displayCard = function(card, show_card_back) {
     reviews_ui.unsetCardBackKeyboardShortcuts();
     reviews_cardFront.attr('content', card.front);
     dojo.byId('reviews_showCardBack').style.display = '';
-    reviews_cardBack.attr('content', card.back);
+    reviews_cardBack.attr('content', '');
     reviews_cardBack.domNode.style.display = 'none';
     reviews_subfactPane.attr('content', '');
     reviews_subfactPane.domNode.style.display = 'none';
@@ -266,6 +266,7 @@ reviews_ui.showCardBack = function(card) {
     });
 
     dojo.byId('reviews_showCardBack').style.display = 'none';
+    reviews_cardBack.attr('content', card.back);
     reviews_cardBack.domNode.style.display = '';
     reviews_ui.displayNextIntervals(card);
     dojo.byId('reviews_gradeButtonsContainer').style.visibility = '';

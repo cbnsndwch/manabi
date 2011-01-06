@@ -1,0 +1,22 @@
+JDic player below
+<div class="jdic_audio_player">
+    jdic player here
+    <script type="text/javascript">
+        console.log('player here');
+        dojo.hitch(this, dojo.ready(function(){
+        console.log('player here2');
+        console.log(dojo.query('.jdic_audio_player'));
+            var server = new jdic.audio.Server('{{ audio_server }}');
+            var player = new jdic.audio.Player({
+                audioServer: server,
+                kana: '{{ kana }}',
+                kanji: '{{ kanji }}',
+                autoplay: {{ autoplay }}});
+            player.placeAt(dojo.query('.jdic_audio_player').first()[0]);
+            player.startup();
+            console.log('placed');
+            console.log(player);
+            console.log(server);
+        }));
+    </script>
+</div>
