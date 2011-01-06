@@ -145,9 +145,9 @@ body, html {
     display: inline-block;
 }
 #site_title .hover, #site_title .no_hover {
-    -webkit-transition: opacity 70ms ease-in; 
-    -moz-transition: opacity 70ms ease-in;
-    transition: opacity 70ms ease-in;
+    -webkit-transition: opacity 120ms ease-in; 
+    -moz-transition: opacity 120ms ease-in;
+    transition: opacity 120ms ease-in;
 }
 #site_title a:hover .no_hover {
     opacity: 0;

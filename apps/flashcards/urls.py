@@ -8,6 +8,7 @@ from django.views.generic.list_detail import object_list, object_detail
 
 
 
+
 urlpatterns = patterns('flashcards.views.crud',
     #url(r'^$', 'views.index'),
     #urlurl(r'^$', direct_to_template, {"template": "flashcards/base.html"}, name="flashcards"),
