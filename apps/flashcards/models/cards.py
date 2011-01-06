@@ -124,7 +124,7 @@ class Card(models.Model):
 
     def _render(self, template_name):
         # map fieldtype-id to fieldcontents
-        fields = dict((field.field_type.id, field)
+        fields = dict((field.field_type.name, field)
                       for field in self.fact.field_contents)
         card_context = {'fields': fields}
         return render_to_string(template_name, card_context)

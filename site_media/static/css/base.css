@@ -117,6 +117,7 @@ h1, h2, h3, h4, h5 {
     margin: 0;
     padding: 0;
     background-color: #36606D;
+    border-bottom: solid 4px #f0f0f0;
     /*height: 50px;*/
     /*background-color: #36606d; [>#DEF; /* tab colour */
     /*border-bottom: 0px solid #003344;*/
@@ -165,6 +166,9 @@ h1, h2, h3, h4, h5 {
     background-color: white;
     background-image: none;
     opacity: 1;
+    border-top:   solid 4px #f0f0f0;
+    border-left:  solid 4px #f0f0f0;
+    border-right: solid 4px #f0f0f0;
 }
 #subnav li:hover:not(.active) {
     opacity: .9;

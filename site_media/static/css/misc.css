@@ -115,7 +115,7 @@ body, html {
     position: relative;
     /*left: -15px;*/
     z-index: 20;
-    padding-left: 45px;
+    padding-left: 55px;
     /*padding-right: 15px;*/
     padding-right: 45px;
     /*padding-right: 90px;*/
@@ -198,7 +198,7 @@ body, html {
     padding-bottom: 15px;
 }
 
-.sidebar_box_header {
+/*.sidebar_box_header {
     background-color: gray;
     -webkit-border-top-left-radius: 10px 10px;
     -webkit-border-top-right-radius: 10px 10px;
@@ -216,21 +216,21 @@ body, html {
 
 .sidebar_box_contents {
     color: #292929;
-    /* color: #424242; */
-    /* text-align: left; */
+    // color: #424242; 
+    // text-align: left;
     border: 1px solid #BABABA;
     padding: 6px 15px;
     background-color: white;
     -o-border-radius: 10px;
-    /*-moz-border-radius: 12px;*/
-    /*-webkit-border-radius: 10px;*/
+    //-moz-border-radius: 12px;
+    //-webkit-border-radius: 10px;
     -webkit-border-bottom-left-radius: 10px 10px;
     -webkit-border-bottom-right-radius: 10px 10px;
     -moz-border-radius-bottomleft: 10px 10px;
     -moz-border-radius-bottomright: 10px 10px;
     -webkit-box-shadow: 0px 3px 5px #adadad;
     -moz-box-shadow: 0px 3px 5px #adadad;
-    /* -opera-border-radius: 10px; */
+    -opera-border-radius: 10px; 
     border-radius: 10px;
     -moz-box-sizing: border-box;
     -opera-sizing: border-box;
@@ -238,20 +238,20 @@ body, html {
     -khtml-box-sizing: border-box;
     box-sizing: border-box;
     border-top:0px;
-}
+}*/
 
 #body_contents, #footer {
     margin-right: 30px;
     margin-left: 30px;
-    padding-left: 20px;
-    padding-right: 15px;
+    padding-left: 30px;
+    padding-right: 25px;
 }
 
 #body_contents {
     /*margin-right: 330px;*/
     /*padding-top: 15px;*/
     /*padding-bottom: 15px;*/
-    padding-top: 20px;
+    padding-top: 40px;
     padding-bottom: 50px;
     background-color: white;
     line-height: 1.6em;
