@@ -255,6 +255,10 @@ body, html {
     padding-bottom: 50px;
     background-color: white;
     line-height: 1.6em;
+    -moz-border-radius-topright: 10px;
+    -webkit-border-top-right-radius: 10px;
+    -moz-border-radius-topleft: 10px;
+    -webkit-border-top-left-radius: 10px;
 }
 #body {
     width: 100%;
