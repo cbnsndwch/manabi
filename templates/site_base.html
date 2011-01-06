@@ -3,6 +3,8 @@
 {% load i18n %}
 {% load account_tags %}
 {% load ifsetting_tag %}
+{% load activetab_tags %}
+
 
 {% block extra_head_base %}
     {% include 'dojango/include.html' %}
@@ -104,18 +106,20 @@
 
 {% block subnav %}
     <ul>
-        {% comment %}
-        <li><a href="{% url home_inline %}" id="subnav_home_link" class="xhr_link"><img src="http://c.dryicons.com/images/icon_sets/stickers_icon_set/png/48x48/home.png">Home</a>
         {% if user.is_authenticated %}
-            <li><a href="{% url add_decks %}" id="subnav_add_link" class="xhr_link"><img src="http://c.dryicons.com/images/icon_sets/stickers_icon_set/png/48x48/add_item.png">Add</a>
-            <li><a href="{% url decks %}" id="subnav_manage_link" class="xhr_link"><img src="http://c.dryicons.com/images/icon_sets/stickers_icon_set/png/48x48/note.png">Manage</a>
+            <li id="nav_tab_home" class="tab {% is_active_tab request "home" %}"><a href="{% url home_inline %}" id="subnav_home_link" class="xhr_link">Home</a>
+            <li id="nav_tab_add" class="tab {% is_active_tab request "add" %}"><a href="{% url add_decks %}" id="subnav_add_link" class="xhr_link">Add</a>
+            <li id="nav_tab_manage" class="tab {% is_active_tab request "manage" %}"><a href="{% url decks %}" id="subnav_database_link" class="xhr_link">Manage</a>
 
-
-        {% endcomment %}
-        {% if user.is_authenticated %}
-            <li><a href="{% url home_inline %}" id="subnav_home_link" class="xhr_link">Home</a>
-            <li class="active"><a href="{% url add_decks %}" id="subnav_add_link" class="xhr_link">Add</a>
-            <li><a href="{% url decks %}" id="subnav_database_link" class="xhr_link">Manage</a>
+            <script type="text/javascript">
+                dojo.subscribe('manabi.tab_activated', function(tab_name) {
+                    // make all tabs inactive first
+                    dojo.query('#subnav .tab').removeClass('active');
+                    
+                    // Make the appropriate tab active
+                    dojo.query('#nav_tab_' + tab_name).addClass('active');
+                });
+            </script>
         {% endif %}
     </ul>
 {% endblock %}

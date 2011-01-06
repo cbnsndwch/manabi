@@ -1,8 +1,20 @@
+{% load activetab_tags %}
+
 {% block back_link %}
 {% if back_link %}<p><a href="{{ back_link.href }}">&laquo; Back to {{ back_link.name }}</a></p>{% endif %}
 {% endblock %}
 {% block content %}
 {% endblock %}
+
+<script type="text/javascript">
+    // Broadcast the subnav tab that should be activated by this page loading
+    var active_tab = '{% active_tab request %}';
+
+    if (active_tab != '') {
+        dojo.publish('manabi.tab_activated', [active_tab]);
+    }
+</script>
+
 {% comment %}
 <script type="text/javascript">
     dojo.addOnLoad(function() {
