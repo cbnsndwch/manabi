@@ -239,7 +239,7 @@ class RepetitionAlgo(object):
                             - sibling.last_reviewed_at)
 
                 if abs(difference) <= self.card.sibling_spacing():
-                    denominator += self._sibling_spacing()
+                    denominator += self.card.sibling_spacing()
         except Card.DoesNotExist:
             pass
             
