@@ -64,13 +64,15 @@ manabi_ui._xhrLinkLoad = function(hash) {
 
 manabi_ui.xhrLink = function(href) { //, target_pane) {
     // set the URL hash for browser history
-    var hash = href.replace(manabi_ui._baseURL, '');
-    if (hash[0] != '/') {
-        hash = '/' + hash;
-    }
-    dojo.hash(hash);
+    if (typeof(href) != 'undefined') {
+        var hash = href.replace(manabi_ui._baseURL, '');
+        if (hash[0] != '/') {
+            hash = '/' + hash;
+        }
+        dojo.hash(hash);
 
-    manabi_ui._xhrLinkLoad(hash);
+        manabi_ui._xhrLinkLoad(hash);
+    }
     //TODO scroll to top when page loads?
     //TODO error page too (onDownloadError)
 }
@@ -85,19 +87,19 @@ manabi_ui.xhrLink = function(href) { //, target_pane) {
 
 manabi_ui._xhrPostArgs = function(url, postRedirectUrl) {
     if (typeof postRedirectUrl == 'undefined') { postRedirectUrl = null; }
-    
+
     var xhrArgs = {
         'url': url,
         handleAs: 'json',
         load: dojo.hitch(null, function(url, data) {
             if ('postRedirect' in data) {
-                manabi_ui.xhrLink(data.post_redirect);
+                manabi_ui.xhrLink(data.postRedirect);
             } else {
                 manabi_ui.xhrLink(postRedirectUrl ? postRedirectUrl : dojo.hash());
             }
         }, postRedirectUrl),
         error: function(error) {
-            alert('Error: '+error);
+            alert('Error: ' + error);
             manabi_ui.xhrLink(postRedirectUrl ? postRedirectUrl : dojo.hash());
         }
     }

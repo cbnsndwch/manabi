@@ -50,6 +50,8 @@ get rid of jquery deps
 magic numbers
 
 
+do i need to destroy any widgets, like my own ones?
+
 
 refactoring order:
 views

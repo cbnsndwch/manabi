@@ -30,7 +30,7 @@ dojo.declare('jdic.audio.Server', null, {
         //      kana and kanji. This file may or may not exist, though.
         //      So catch 404 errors when using this function's return value.
 
-        return this.base_url + encodeURIComponent(kana) + ' - ' + encodeURIComponent(kanji) + '.mp3';
+        return this.base_url + encodeURIComponent(dojo.trim(kana)) + ' - ' + encodeURIComponent(dojo.trim(kanji)) + '.mp3';
     }
 });
 
