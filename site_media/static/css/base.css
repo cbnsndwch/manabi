@@ -159,7 +159,7 @@ h1, h2, h3, h4, h5 {
     /*font-family: 'ArvoRegular';*/
     font-size: 1.4em;
     font-weight: bold;
-    margin-right: .4em;
+    margin-right: 7px;
     /*margin-bottom: .3em;*/
 }
 #subnav li.active {
@@ -170,9 +170,11 @@ h1, h2, h3, h4, h5 {
     border-left:  solid 4px #f0f0f0;
     border-right: solid 4px #f0f0f0;
 }
-#subnav li.active a {
+#subnav li.active a:link, #subnav li.active a:visited {
     position: relative;
     top: -4px;
+    padding-left: 16px;
+    padding-right: 16px;
 }
 #subnav li:hover:not(.active) {
     opacity: .9;
