@@ -40,7 +40,7 @@ urlpatterns = patterns('',
     (r'^notices/', include('notification.urls')),
     (r'^announcements/', include('announcements.urls')),
     
-    (r'^admin/(.*)', include(admin.site.urls)),
+    (r'^admin/', include(admin.site.urls)),
     
     # my own
     (r'^reports/', include('reports.urls')),
