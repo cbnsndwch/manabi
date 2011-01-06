@@ -113,9 +113,9 @@
 
         {% endcomment %}
         {% if user.is_authenticated %}
-            <li><a href="{% url home_inline %}" id="subnav_home_link" class="xhr_link" onmouseover="dojo.query('img', this)[0].src='{{ MEDIA_URL }}static/icons/colorful_stickers/48x48/home.png';" onmouseout="dojo.query('img', this)[0].src='{{ MEDIA_URL }}static/icons/colorful_stickers/48x48/home-outline.png';"><img src="{{ MEDIA_URL }}static/icons/colorful_stickers/48x48/home-outline.png" >Home</a>
-            <li class="active"><a href="{% url add_decks %}" id="subnav_add_link" class="xhr_link" onmouseover="dojo.query('img', this)[0].src='{{ MEDIA_URL }}static/icons/colorful_stickers/48x48/add.png';" onmouseout="dojo.query('img', this)[0].src='{{ MEDIA_URL }}static/icons/colorful_stickers/48x48/add-outline.png';"><img src="{{ MEDIA_URL }}static/icons/colorful_stickers/48x48/add-outline.png" >Add</a>
-            <li><a href="{% url decks %}" id="subnav_database_link" class="xhr_link" onmouseover="dojo.query('img', this)[0].src='{{ MEDIA_URL }}static/icons/colorful_stickers/48x48/database.png';" onmouseout="dojo.query('img', this)[0].src='{{ MEDIA_URL }}static/icons/colorful_stickers/48x48/database-outline.png';"><img src="{{ MEDIA_URL }}static/icons/colorful_stickers/48x48/database-outline.png" >Manage</a>
+            <li><a href="{% url home_inline %}" id="subnav_home_link" class="xhr_link">Home</a>
+            <li class="active"><a href="{% url add_decks %}" id="subnav_add_link" class="xhr_link">Add</a>
+            <li><a href="{% url decks %}" id="subnav_database_link" class="xhr_link">Manage</a>
         {% endif %}
     </ul>
 {% endblock %}
