@@ -19,8 +19,12 @@ OPTIONAL_MEDIA_TYPE_RESTRICTIONS = (
 
 
 class FieldType(models.Model):
-    name = models.CharField(max_length=50)
     fact_type = models.ForeignKey('flashcards.FactType')
+
+    # Used for referencing fields by name in code, instead of by id
+    name = models.CharField(max_length=50, blank=False)
+
+    display_name = models.CharField(max_length=50, blank=False)
 
     #fk to the FieldType which contains a transliteration of this FieldType
     transliteration_field_type = models.OneToOneField('self',
@@ -96,9 +100,10 @@ class FieldType(models.Model):
         return self.fact_type.name + u': ' + self.name
     
     class Meta:
-        unique_together = (('name', 'fact_type'), ('ordinal', 'fact_type'),)
+        unique_together = (('name', 'fact_type'),
+                           ('ordinal', 'fact_type'),
+                           ('display_name', 'fact_type'),)
         app_label = 'flashcards'
-
 
 
 
