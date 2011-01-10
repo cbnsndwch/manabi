@@ -406,6 +406,7 @@ div.fullscreen_content {
     background-color:#fafafa;
 }
 .flashcard_container .kanji_stroke_frames {
+    cursor: move;
 }
 .reviews_front_prompt {
     color: gray;
