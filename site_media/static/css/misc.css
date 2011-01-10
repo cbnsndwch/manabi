@@ -390,6 +390,7 @@ div.fullscreen_content {
 }
 .flashcard_content .expression, .flashcard_content .reading {
     font-size: 4em;
+    display: block;
 }
 .flashcard_content .expression:hover, .flashcard_content .reading:hover {
 	font-family: 'HiraMinPro-W3', 'Hiragino Mincho Pro W3', 'ヒラギノ明朝 Pro W3', 'MS PMincho', serif;
@@ -398,7 +399,14 @@ div.fullscreen_content {
 .flashcard_container .jdic_audio_player {
     margin: 40px auto;
 }
-
+.flashcard_container .kanji_stroke_frames_container {
+    width: 70%;
+    overflow-x: auto;
+    margin: 1em auto;
+    background-color:#fafafa;
+}
+.flashcard_container .kanji_stroke_frames {
+}
 .reviews_front_prompt {
     color: gray;
     /*font-size: 50%;*/
