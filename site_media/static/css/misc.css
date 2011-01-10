@@ -318,6 +318,10 @@ div.fullscreen {
     height: 100%;
     background-color: white;
     z-index: 10;
+    /*background-color: #BEB9B3;*/
+    background-color: #f2f2f2;
+    /*background: -webkit-gradient(radial, 50% 50%, 0, 50% 50%, 800, from(#FDFCFA), color-stop(0.8, #E6E1DB), to(#BEB9B3));*/
+
 }
 
 div.fullscreen_toolbar {
@@ -325,37 +329,87 @@ div.fullscreen_toolbar {
     position: absolute;
     top: 0;
     /*left: 0;*/
-    background-color: lightgray;
+    background-color: #ccc; /*#7f96a6;*/ /*lightgray*/;
     margin-top: 0px;
     margin-left: 0px;
     margin-right: 0px;
     padding: 3px;
+    -moz-box-shadow: 0px 10px 10px -10px ;
+    -webkit-box-shadow: -10px -21px 10px 20px black;
 }
 
 div.fullscreen_content {
-    -moz-box-shadow: 0px 10px 10px -10px inset;
-    -webkit-box-shadow: 0px 10px 10px -10px inset;
-    padding-top: 10px;
-    padding-left: 5px;
-    padding-right: 5px;
-    padding-bottom: 5px;
+    /*padding-top: 10px;*/
+    /*padding-left: 5px;*/
+    /*padding-right: 5px;*/
+    /*padding-bottom: 5px;*/
+}
+
+.fullscreen hr {
+    display:none;
 }
 
 
-div.flashcard_container {
-/*    -moz-border-radius: 12px;
-    -webkit-border-radius: 10px;
-    border: 1px solid #BABABA;
-    border-radius: 10px;
-    -moz-box-sizing: border-box;
-    -opera-sizing: border-box;
-    -webkit-box-sizing: border-box;
-    -khtml-box-sizing: border-box;
-    box-sizing: border-box;
+.flashcard_container:first-of-type {
+    /*background-color: #BEB9B3;
+    background: -webkit-gradient(radial, 50% 50%, 0, 50% 30%, 500, from(#FDFCFA), color-stop(0.8, #E6E1DB), to(#BEB9B3));
+    background: -moz-radial-gradient(50% 50%, farthest-side, #FDFCFA, #E6E1DB, #BEB9B3);*/
+    background: -webkit-gradient(radial, 50% bottom, 1, 50% bottom, 250, from(rgba(91, 91, 91, .1)), to(rgba(242, 242, 242, .1)));
+    /*-webkit-transform: scale(1, 0.7) translate(0, 100px);*/
 
-    width: 70%;*/
+    background: -moz-radial-gradient(50% 145% 1deg, circle closest-corner, rgba(51, 51, 51, .9) 50%, rgba(242, 242, 242, .9) 95%);
+    min-height: 240px;
+    padding-top: 3em;
+    padding-bottom: 1em;
 }
 
+.flashcard_container {
+    /*width: 700px;*/
+    margin: 0px auto;
+    text-align: center;
+    min-height: 150px;
+    padding-top: 2em;
+    /*text-align: center;*/
+    /*vertical-align: middle;*/
+}
+.flashcard_content .ezRuby:before {
+  font-size: 0.44em;
+  line-height: 1.2;
+}
+.flashcard_container .half_floater {
+}
+.flashcard_content {
+    font-size: 1em;
+    /*margin: auto;*/
+    /*display: inline-block;*/
+    /*line-height: 100%;*/
+    /*vertical-align: middle;*/
+}
+.flashcard_content .meaning {
+    font-size: 2em;
+}
+.flashcard_content .expression, .flashcard_content .reading {
+    font-size: 4em;
+}
+.flashcard_content .expression:hover, .flashcard_content .reading:hover {
+	font-family: 'HiraMinPro-W3', 'Hiragino Mincho Pro W3', 'ヒラギノ明朝 Pro W3', 'MS PMincho', serif;
+    line-height: 1.18em; /* these are a bit shorter */
+}
+.flashcard_container .jdic_audio_player {
+    margin: 40px auto;
+}
+
+.reviews_front_prompt {
+    color: gray;
+    /*font-size: 50%;*/
+    font-size: 1.3em;
+    margin-bottom:0px;
+}
+.reviews_back_prompt {
+    color: gray;
+    font-size: 50%;
+    margin-bottom:0px;
+}
 div#reviews_gradeButtons {
     text-align:center;
 }
@@ -418,16 +472,6 @@ div.reviews_correctGradeButtons {
     font-style: italic;
 }
 
-.reviews_front_prompt {
-    color: gray;
-    font-size: 50%;
-    margin-bottom:0px;
-}
-.reviews_back_prompt {
-    color: gray;
-    font-size: 50%;
-    margin-bottom:0px;
-}
 
 
 .suspended_grid_row {

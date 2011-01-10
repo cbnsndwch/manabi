@@ -126,16 +126,20 @@ class Card(models.Model):
         # map fieldtype-id to fieldcontents
         fields = dict((field.field_type.name, field)
                       for field in self.fact.field_contents)
-        card_context = {'fields': fields}
+
+        card_context = {
+            'card': self,
+            'fields': fields,
+        }
         return render_to_string(template_name, card_context)
 
     def render_front(self):
         '''Returns a string of the rendered card front.'''
-        return self._render(self.template.front_template_name)
+        return self._render('flashcards/card_front.html')#self.template.front_template_name)
 
     def render_back(self):
         '''Returns a string of the rendered card back.'''
-        return self._render(self.template.back_template_name)
+        return self._render('flashcards/card_back.html')#self.template.back_template_name)
 
     def calculated_interval(self):
         '''

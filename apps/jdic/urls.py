@@ -1,3 +1,7 @@
 from django.conf.urls.defaults import *
 
-# place app url patterns here
+urlpatterns = patterns('jdic.views',
+    url(r'^audio-file-exists/$',
+        'audio_file_exists',
+        name='jdic_audio_file_exists'),
+)

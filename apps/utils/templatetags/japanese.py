@@ -22,13 +22,16 @@ ruby_prog = compile(u'\s?(\S*?)\[(.*?)\]', UNICODE) #for some reason, only [\s^]
 def furiganaize(text):
     new_text = ''
     last_match_end = 0
+
     for match in ruby_prog.finditer(text):
         expression, reading = match.group(1, 2)
         start, end = match.start(), match.end()
         new_substring = RUBY_TEXT_MARKUP_TEMPLATE.format(expression=expression, reading=reading)
         new_text += text[last_match_end:start] + new_substring
         last_match_end = end
+
     new_text += text[last_match_end:]
+
     return new_text
 
 #TODO move below into some other module

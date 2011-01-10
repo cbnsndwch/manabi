@@ -87,8 +87,8 @@ reviews_ui._humanizedTimeUntil = function(timeUntil) {
 
 
 reviews_ui.showNoCardsDue = function(canLearnMore, emptyQuery) {
-    reviews_beginReviewButton.attr('disabled', true);
-    if (!reviews_ui.reviewOptionsDialog.attr('open')) {
+    reviews_beginReviewButton.st('disabled', true);
+    if (!reviews_ui.reviewOptionsDialog.get('open')) {
         //reviews_ui.reviewOptionsDialog.show();
         reviews_ui.openDialog();
     }
@@ -96,7 +96,7 @@ reviews_ui.showNoCardsDue = function(canLearnMore, emptyQuery) {
     reviews_ui._showNoCardsDue();
 
     if (!canLearnMore && emptyQuery) {
-        reviews_beginEarlyReviewButton.attr('disabled', true);
+        reviews_beginEarlyReviewButton.set('disabled', true);
         dojo.byId('reviews_emptyQuery').style.display = '';
     } else {
         reviews.timeUntilNextCardDue(reviews_ui.lastSessionArgs.deckId, reviews_ui.lastSessionArgs.tag_id).addCallback(function(hoursUntil) {
@@ -111,8 +111,8 @@ reviews_ui.showNoCardsDue = function(canLearnMore, emptyQuery) {
             }
         });
         dojo.byId('reviews_learnMoreContainer').style.display = canLearnMore ? '' : 'none';
-        reviews_learnMoreButton.attr('disabled', !canLearnMore);
-        reviews_beginEarlyReviewButton.attr('disabled', false);
+        reviews_learnMoreButton.set('disabled', !canLearnMore);
+        reviews_beginEarlyReviewButton.set('disabled', false);
     }
 
 };
@@ -123,8 +123,8 @@ reviews_ui.showReviewOptions = function() {
     dojo.byId('reviews_noCardsDue').style.display = 'none';
     dojo.byId('reviews_emptyQuery').style.display = 'none';
     dojo.byId('reviews_reviewEndScreen').style.display = 'none';
-    reviews_beginReviewButton.attr('disabled', false);
-    reviews_beginEarlyReviewButton.attr('disabled', true);
+    reviews_beginReviewButton.set('disabled', false);
+    reviews_beginEarlyReviewButton.set('disabled', true);
 };
 
 
@@ -212,18 +212,18 @@ reviews_ui.displayNextIntervals = function(card) {
 reviews_ui.displayCard = function(card, show_card_back) {
     reviews_ui.cardBackVisible = false;
     reviews_ui.unsetCardBackKeyboardShortcuts();
-    reviews_cardFront.attr('content', card.front);
+    reviews_cardFront.set('content', card.front);
     dojo.byId('reviews_showCardBack').style.display = '';
-    reviews_cardBack.attr('content', '');
+    reviews_cardBack.set('content', '');
     reviews_cardBack.domNode.style.display = 'none';
-    reviews_subfactPane.attr('content', '');
+    reviews_subfactPane.set('content', '');
     reviews_subfactPane.domNode.style.display = 'none';
     dojo.byId('reviews_gradeButtonsContainer').style.visibility = 'hidden';
     if (show_card_back) {
         reviews_ui.showCardBack(card);
     } else {
         reviews_ui.setCardFrontKeyboardShortcuts();
-        reviews_showCardBackButton.attr('disabled', false);
+        reviews_showCardBackButton.set('disabled', false);
         reviews_showCardBackButton.focus();
     }
 };
@@ -235,11 +235,11 @@ reviews_ui.goToNextCard = function() {
         reviews_ui.endSession();
     } else {
         //disable the review buttons until the back is shown again
-        dojo.query('button', dojo.byId('reviews_gradeButtonsContainer')).forEach(function(node) {
-            dijit.getEnclosingWidget(node).attr('disabled', true);
+        dojo.query('.dijitButton', dojo.byId('reviews_gradeButtonsContainer')).forEach(function(node) {
+            dijit.getEnclosingWidget(node).set('disabled', true);
         });
         //disable the card back button until the next card is ready
-        reviews_showCardBackButton.attr('disabled', true);
+        reviews_showCardBackButton.set('disabled', true);
         
         var nextCardDef = reviews.nextCard();
         nextCardDef.addCallback(function(nextCard) {
@@ -256,17 +256,22 @@ reviews_ui.goToNextCard = function() {
 
 
 reviews_ui.showCardBack = function(card) {
-    reviews_showCardBackButton.attr('disabled', true);
+console.log('show card back');
+    reviews_showCardBackButton.set('disabled', true);
+    console.log('1');
     reviews_ui.cardBackVisible = true;
+    console.log('2');
     reviews_ui.unsetCardFrontKeyboardShortcuts();
     
     //enable the grade buttons
-    dojo.query('button', dojo.byId('reviews_gradeButtons')).forEach(function(node) {
-        dijit.getEnclosingWidget(node).attr('disabled', false);
+    console.log('3');
+    dojo.query('.dijitButton', dojo.byId('reviews_gradeButtons')).forEach(function(node) {
+    console.log(node);
+        dijit.getEnclosingWidget(node).set('disabled', false);
     });
 
     dojo.byId('reviews_showCardBack').style.display = 'none';
-    reviews_cardBack.attr('content', card.back);
+    reviews_cardBack.set('content', card.back);
     reviews_cardBack.domNode.style.display = '';
     reviews_ui.displayNextIntervals(card);
     dojo.byId('reviews_gradeButtonsContainer').style.visibility = '';
@@ -279,7 +284,7 @@ reviews_ui.reviewCard = function(card, grade) {
     var review_def = card.review(grade);
     review_def.addCallback(function(data) {
         // Enable the Undo button (maybe should do this before the def?)
-        reviews_undoReviewButton.attr('disabled', false);
+        reviews_undoReviewButton.set('disabled', false);
         //FIXME anything go here?
     });
     reviews_ui.goToNextCard();
@@ -299,7 +304,7 @@ reviews_ui._disableReviewScreenUI = function(disable) {
         disable = true;
     }
     dojo.query('.dijitButton', dojo.byId('reviews_fullscreenContainer')).forEach(function(item) {
-        dijit.getEnclosingWidget(item).attr('disabled', disable);
+        dijit.getEnclosingWidget(item).set('disabled', disable);
     });
 };
 
@@ -320,7 +325,7 @@ reviews_ui.undo = function() {
         reviews_ui._disableReviewScreenUI(false);
 
         // disable the undo button until next review submission
-        reviews_undoReviewButton.attr('disabled', true);
+        reviews_undoReviewButton.set('disabled', true);
     });
 };
 
@@ -452,7 +457,7 @@ reviews_ui.startSession = function(args) { //deckId, sessionTimeLimit, sessionCa
 
     reviews_ui.sessionOverAfterCurrentCard = false;
 
-    reviews_undoReviewButton.attr('disabled', true);
+    reviews_undoReviewButton.set('disabled', true);
 
     reviews_ui.lastSessionArgs = dojo.clone(args);
 
@@ -511,18 +516,18 @@ reviews_ui.submitReviewOptionsDialog = function(earlyReview, learnMore) {
     //TODO add a loading screen
 
     //disable the submit button while it processes
-    reviews_beginReviewButton.attr('disabled', true);
-    reviews_learnMoreButton.attr('disabled', true);
-    reviews_beginEarlyReviewButton.attr('disabled', true);
+    reviews_beginReviewButton.set('disabled', true);
+    reviews_learnMoreButton.set('disabled', true);
+    reviews_beginEarlyReviewButton.set('disabled', true);
 
     var decksGridItem = reviews_decksGrid.selection.getSelected()[0];
     var deckId = decksGridItem.id[0]; //TODO allow multiple selections
-    var timeLimit = reviews_timeLimitInput.attr('value');
-    var cardLimit = reviews_cardLimitInput.attr('value');
-    //var dailyNewCardLimt = reviews_newCardLimitInput.attr('value');
+    var timeLimit = reviews_timeLimitInput.set('value');
+    var cardLimit = reviews_cardLimitInput.set('value');
+    //var dailyNewCardLimt = reviews_newCardLimitInput.set('value');
 
-    //! var tag_id = reviews_filterByTagInput.attr('value');
-    //! if (reviews_filterByTagInput.attr('displayedValue') == '') {
+    //! var tag_id = reviews_filterByTagInput.set('value');
+    //! if (reviews_filterByTagInput.set('displayedValue') == '') {
         //tag_id = '-1';
     //! }
 

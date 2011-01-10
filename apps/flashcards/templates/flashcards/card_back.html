@@ -1,4 +1,9 @@
-{{ card.render_back }}
+
+{% include card.template.back_template_name %}
+
+{% if card.template.back_prompt %}
+    <p class="reviews_back_prompt">{{ card.template.back_prompt }}</p>
+{% endif %}
 
 {% if fact.subfacts.all.count %}
     <br>
