@@ -14,6 +14,8 @@ dojo.declare('kanjivg.frames.Frames', [dijit._Widget, dijit._Templated], {
     // URL for JSON source file
     src: '',
 
+    zoom: 1.0,
+
     postCreate: function(){
         // load image
         dojo.xhrGet({
@@ -23,8 +25,8 @@ dojo.declare('kanjivg.frames.Frames', [dijit._Widget, dijit._Templated], {
                 // The incoming JSON looks like this:
                 //   {width:250, height:109, data:[serialized-data-here]}
 
-                var width = json.width;
-                var height = json.height;
+                var width = json.width * this.zoom;
+                var height = json.height * this.zoom;
                 var shape_data = json.data;
         
                 // Create the surface
@@ -33,6 +35,8 @@ dojo.declare('kanjivg.frames.Frames', [dijit._Widget, dijit._Templated], {
                 // Write JSON to group
                 var group = surface.createGroup();
                 dojox.gfx.utils.deserialize(group, shape_data);
+
+                group.setTransform({ xx: this.zoom, yy: this.zoom });
             })
         });
     }

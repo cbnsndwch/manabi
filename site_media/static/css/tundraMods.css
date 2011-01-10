@@ -1,0 +1,69 @@
+
+/* Buttons */
+.tundra .dijitButton .dijitButtonNode {
+	/*background:#d1d1d1 url(images/button-bg.png) repeat-x 0 0;*/
+	border-width: 1px;
+	border-style: solid;
+	border-color: #d3d3d3 #aaaaaa #888 #aaaaaa;
+	-moz-border-radius: 3px;
+	-webkit-border-radius: 3px;
+	border-radius: 3px;
+	-moz-box-shadow:0 1px 2px #ddd;
+	-webkit-box-shadow:0 1px 2px #ddd;
+	box-shadow:0 1px 2px #ddd;
+	text-shadow:0 1px 0 #fff;
+	color:#222;
+}
+
+.tundra .dijitButton .dijitButtonNode:hover {
+    -moz-box-shadow:0 0 2px #aaa;
+    -webkit-box-shadow:0 0 2px #aaa;
+    box-shadow:0 0 2px #aaa;
+    /*border-color: #BF6781;*/
+}
+
+
+.tundra .dijitButtonNode:active {
+    background: #ddd;
+}
+/*
+archsubmit {
+	display:block;
+	float:left;
+	background:#d1d1d1 url(images/button-bg.png) repeat-x 0 0;
+	border-width:1px;
+	border-style:solid;
+	border-color:#d3d3d3 #aaaaaa #888 #aaaaaa;
+	padding:3px 7px;
+	-moz-border-radius:2px;
+	-webkit-border-radius:2px;
+	border-radius:2px;
+	-moz-box-shadow:0 1px 2px #ddd;
+	-webkit-box-shadow:0 1px 2px #ddd;
+	box-shadow:0 1px 2px #ddd;
+	text-shadow:0 1px 0 #fff;
+	font-weight:bold;
+	text-transform:uppercase;
+	font-size:11px;
+	color:#222;
+	white-space:nowrap;
+	width:auto;
+}
+
+.button:hover,
+.comment-reply-link:hover,
+.pagination a:hover,
+#searchsubmit:hover {
+	-moz-box-shadow:0 0 2px #FE4D8E;
+	-webkit-box-shadow:0 0 2px #FE4D8E;
+	box-shadow:0 0 2px #FE4D8E;
+	border-color:#BF6781;
+}
+
+.button:active,
+.pagination a:active,
+.comment-reply-link:active,
+#searchsubmit:active {
+	background:#ddd;
+}
+*/
