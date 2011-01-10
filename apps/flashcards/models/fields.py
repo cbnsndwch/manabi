@@ -172,7 +172,7 @@ class FieldContent(models.Model):
     def strip_ruby_text(self):
         '''
         Returns this field's content with any ruby text removed.
-        <ta|ta>beru becomes taberu
+        <TA|ta>beru becomes TAberu
         '''
         return strip_ruby_text(self.content)
 
@@ -194,6 +194,14 @@ class FieldContent(models.Model):
                 self.transliteration_field_content.\
                 strip_ruby_text().strip()
         return False
+
+    def kanji_list(self):
+        '''
+        Returns a list of each individual kanji in this field (if any).
+        '''
+        from apps.utils.unicodeblocks import block, KANJI_BLOCKS
+        return [char for char in self.content \
+                if block(char) in KANJI_BLOCKS]
 
     def __unicode__(self):
         return self.content

@@ -47,6 +47,7 @@ urlpatterns = patterns('',
     (r'^dojango/', include('dojango.urls')),
     (r'^flashcards/', include('flashcards.urls')),
     (r'^jdic/', include('jdic.urls')),
+    (r'^kanjivg/', include('kanjivg.urls')),
 )
 
 if settings.SERVE_MEDIA:

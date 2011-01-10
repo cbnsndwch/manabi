@@ -352,8 +352,8 @@
         //TODO return a deferred instead of taking in success/error callbacks
 
         //disable the submit button while processing
-        submit_button = dijit.getEnclosingWidget(dojo.query('button[type=submit]', fact_form.domNode)[0])
-        submit_button.attr('disabled', true);
+        submit_button = dijit.getEnclosingWidget(dojo.query('input[type=submit]', fact_form.domNode)[0])
+        submit_button.set('disabled', true);
 
         form_values = fact_form.attr('value');
 

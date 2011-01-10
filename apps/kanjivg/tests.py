@@ -21,10 +21,13 @@ class KanjiVGTest(TestCase):
     def test_xslt(self):
         o = ord(u'今')
 
-        res = self.client.get(reverse('kanjivg_frames_json', ordinal=o))
+        res = self.client.get(
+            reverse('kanjivg_frames_json', kwargs={'ordinal': o}))
 
         self.assertEqual(res.status_code, 200)
+
+        self.assertContains(res.content, 'shape')
+
         
-        json = simplejson.loads(res.content)
 
 
