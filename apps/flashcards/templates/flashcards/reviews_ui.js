@@ -256,17 +256,12 @@ reviews_ui.goToNextCard = function() {
 
 
 reviews_ui.showCardBack = function(card) {
-console.log('show card back');
     reviews_showCardBackButton.set('disabled', true);
-    console.log('1');
     reviews_ui.cardBackVisible = true;
-    console.log('2');
     reviews_ui.unsetCardFrontKeyboardShortcuts();
     
     //enable the grade buttons
-    console.log('3');
     dojo.query('.dijitButton', dojo.byId('reviews_gradeButtons')).forEach(function(node) {
-    console.log(node);
         dijit.getEnclosingWidget(node).set('disabled', false);
     });
 
