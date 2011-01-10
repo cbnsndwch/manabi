@@ -1,0 +1,7 @@
+<svg width="0px" height="109px" viewBox="0 0 0px 109px" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" xml:space="preserve" version="1.1"  baseProfile="full">
+<line x1="1" y1="1" x2="-1" y2="1" style="stroke:#ddd;stroke-width:2" />
+<line x1="1" y1="1" x2="1" y2="108" style="stroke:#ddd;stroke-width:2" />
+<line x1="1" y1="108" x2="-1" y2="108" style="stroke:#ddd;stroke-width:2" />
+<line x1="-1" y1="1" x2="-1" y2="108" style="stroke:#ddd;stroke-width:2" />
+<line x1="1" y1="54" x2="-1" y2="54" style="stroke:#ddd;stroke-width:2;stroke-dasharray:3 3" />
+</svg>

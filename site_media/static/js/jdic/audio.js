@@ -125,6 +125,7 @@ dojo.declare('jdic.audio.Player', [dijit._Widget, dijit._Templated], {
             // remove this event
             $(node).bind($.jPlayer.event.progress + '.jdic', showWidget);
             $(node).bind($.jPlayer.event.loadeddata + '.jdic', showWidget);
+            $(node).bind($.jPlayer.event.play + '.jdic', showWidget);
 
         }));
     },
