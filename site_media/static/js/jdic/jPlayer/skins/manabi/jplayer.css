@@ -14,6 +14,11 @@
  * Date: 20th December 2010
  */
 
+div.jp-container {
+    width: 192px;
+    margin-left: auto;
+    margin-right: auto;
+}
 div.jp-audio {
 
 	/* Edit the font-size to counteract inherited font sizing.
@@ -33,7 +38,7 @@ div.jp-interface {
 	background-color:#eee;
 	/* width:418px; */
 	width:100%;
-	border:1px solid #009be3;
+    border:1px solid /*#009be3*/ #ccc;
     -webkit-border-radius: 8px;
     -moz-border-radius: 8px;
     border-radius: 8px;

@@ -115,8 +115,8 @@ def flashcard_api(view_func):
         `@login_required`
         `@all_http_methods`
     '''
-    return api_data_response(
-           login_required(
+    return login_required(
+           api_data_response(
            all_http_methods(view_func)))
 
 def flashcard_api_with_dojo_data(view_func):

@@ -24,21 +24,51 @@ dojo.declare('jdic.audio.Server', null, {
         }*/
     },
 
-    fileUrl: function(kana, kanji) {
+    _filename: function(kanji, kana) {
+        return encodeURIComponent(dojo.trim(kana)) + ' - ' + encodeURIComponent(dojo.trim(kanji)) + '.mp3';
+    },
+
+    fileUrl: function(kanji, kana) {
         //  Summary:
         //      Returns a URL corresponding to the MP3 file for the given 
         //      kana and kanji. This file may or may not exist, though.
         //      So catch 404 errors when using this function's return value.
+        return this.base_url + this._filename(kanji, kana);
+    },
 
-        return this.base_url + encodeURIComponent(dojo.trim(kana)) + ' - ' + encodeURIComponent(dojo.trim(kanji)) + '.mp3';
+    audioExists: function(proxyUrl, kanji, kana) {
+        // Whether an audio file exists for the given kanji and kana.
+        // proxyUrl takes a filename on our audio server, and 
+        //
+        // returns whether that file exists (to get around the 
+        // same origin policy in browsers).
+        var def = new dojo.Deferred();
+
+        var content = { filename: this._filename(kanji, kana) };
+        console.log(content);
+        console.log(proxyUrl);
+
+        dojo.xhrPost({
+            url: proxyUrl,
+            content: content,
+            type: 'json',
+            load: function(result) {
+            console.log('loading exists def');
+            console.log(result);
+                def.callback(result.data);
+            },
+            error: def.errback
+        });
+        return def;
     }
+    
 });
 
 
 dojo.declare('jdic.audio.Player', [dijit._Widget, dijit._Templated], {
     //  summary:
-    //      A widget wrapper for the jPlayer plugin for jQuery, optimized 
-    //      to work with our JDicAudioServer.
+    //      A widget wrapper for the jPlayer plugin for jQuery,
+    //      optimized to work with our JDicAudioServer.
     //
     //  audioServer: JDicAudioServer
     //  kana: String
@@ -52,12 +82,17 @@ dojo.declare('jdic.audio.Player', [dijit._Widget, dijit._Templated], {
     src: '',
     autoplay: false,
 
+    postCreate: function(){
+        // Start out hidden, until the file begins to load.
+        dojo.style(this.domNode, 'display', 'none');
+    },
+    
     startup: function(){
         //  summary
         //      Initializes the jPlayer plugin widget on this node.
         var node = this.jPlayerNode;
 
-        this.src = this.audioServer.fileUrl(this.kana, this.kanji);
+        this.src = this.audioServer.fileUrl(this.kanji, this.kana);
 
         
         // jQuery plugin instantiation
@@ -76,8 +111,27 @@ dojo.declare('jdic.audio.Player', [dijit._Widget, dijit._Templated], {
 
                 solution: 'html, flash'
             });
+            $(node).bind($.jPlayer.event.error + '.jdic', function(event) {
+                // Wait until the data has loaded to show the 
+                // audio player. This lets us keep it hidden if 
+                // the file does not exist.
+            });
+
+            var showWidget = dojo.hitch(this, function() {
+                dojo.style(this.domNode, 'display', 'block');
+            });
+
+            // Using ".jp-show" namespace so we can easily 
+            // remove this event
+            $(node).bind($.jPlayer.event.progress + '.jdic', showWidget);
+            $(node).bind($.jPlayer.event.loadeddata + '.jdic', showWidget);
 
         }));
+    },
+
+    destroy: function(){
+        $(this.jplayerNode).jPlayer('stop');
+        $(this.jplayerNode).unbind('.jdic');
     }
 });
 
