@@ -34,5 +34,16 @@ class StatsTest(TestCase):
         self.assertTrue(json['success'])
         self.assertTrue('series' in json['data'])
         
+    def test_due_counts_view(self):
+        self.do_login()
+
+        res = self.client.get(reverse('graphs_due_counts'))
+
+        self.assertEqual(res.status_code, 200)
+
+        json = simplejson.loads(res.content)
+
+        self.assertTrue(json['success'])
+        self.assertTrue('series' in json['data'])
 
 

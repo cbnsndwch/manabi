@@ -324,21 +324,25 @@ class CardHistoryManagerMixin(object):
     def of_user(self, user):
         return self.filter(card__fact__deck__owner=user)
 
-    def new_cards(self):
+    def new(self):
         return self.filter(was_new=True)
     
-    def young_cards(self):
+    def young(self):
         return self.filter(was_new=False, interval__lt=MATURE_INTERVAL_MIN)
 
-    def mature_cards(self):
+    def mature(self):
         return self.filter(interval__gte=MATURE_INTERVAL_MIN)
 
-    def with_dates(self):
+    def with_reviewed_on_dates(self):
         '''
-        Adds a `date` field to the selection which is extracted 
+        Adds a `reviewed_on` field to the selection which is extracted 
         from the `reviewed_at` datetime field.
         '''
-        return self.extra(select={'date': 'date(reviewed_at)'})
+        return self.extra(select={'reviewed_on': 'date(reviewed_at)'})
+
+    def with_due_dates(self):
+        '''Adds a `due_on` DateField-like value.'''
+        return self.extra(select={'due_on': 'date(due_at)'})
 
 
 class CardHistoryStatsMixin(object):
@@ -348,8 +352,15 @@ class CardHistoryStatsMixin(object):
         Returns a list of dictionaries,
         with values 'date' and 'repetitions', the count of reps that day.
         '''
-        return self.with_dates().values('date').order_by().annotate(
+        return self.with_reviewed_on_dates().values(
+            'reviewed_on').order_by().annotate(
             repetitions=Count('id'))
+
+    def due_counts(self):
+        '''Number of cards due per day in the future.'''
+        return self.with_due_dates().values('due_on').annotate(
+            due_count=Count('id'))
+
 
         
 
