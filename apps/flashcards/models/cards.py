@@ -10,12 +10,14 @@ from django.contrib.auth.models import User
 from django.db import models
 from django.db import transaction
 from django.template.loader import render_to_string
+from managers.cardmanager import CardManager
+from model_utils.managers import manager_from
 from repetitionscheduler import repetition_algo_dispatcher
 from undo import UndoCardReview
 from utils import timedelta_to_float
 import random
 import usertagging
-from managers.cardmanager import CardManager
+from django.db.models import Count
 
 
 
@@ -65,10 +67,9 @@ class Card(models.Model):
     def __unicode__(self):
         from django.utils.html import strip_tags
 
-        field_content = dict((field_content.field_type_id, field_content,)
-                             for field_content
-                             in self.fact.fieldcontent_set.all())
-        card_context = {'fields': field_content}
+        fields = dict((field.field_type.name, field)
+                      for field in self.fact.field_contents)
+        card_context = {'fields': fields}
         front = render_to_string(
             self.template.front_template_name, card_context)
         back = render_to_string(
@@ -319,9 +320,42 @@ class CardStatistics(models.Model):
 
 
 
-class CardHistoryManager(models.Manager):
+class CardHistoryManagerMixin(object):
     def of_user(self, user):
         return self.filter(card__fact__deck__owner=user)
+
+    def new_cards(self):
+        return self.filter(was_new=True)
+    
+    def young_cards(self):
+        return self.filter(was_new=False, interval__lt=MATURE_INTERVAL_MIN)
+
+    def mature_cards(self):
+        return self.filter(interval__lte=MATURE_INTERVAL_MIN)
+
+    def with_dates(self):
+        '''
+        Adds a `date` field to the selection which is extracted 
+        from the `reviewed_at` datetime field.
+        '''
+        return self.extra(select={'date': 'date(reviewed_at)'})
+
+
+class CardHistoryStatsMixin(object):
+    '''Stats data methods for use in graphs.'''
+    def repetitions(self):
+        '''
+        Returns a list of dictionaries,
+        with values 'date' and 'repetitions', the count of reps that day.
+        '''
+        return self.with_dates().values('date').order_by().annotate(
+            repetitions=Count('id'))
+
+        
+
+
+CardHistoryManager = lambda: manager_from(
+    CardHistoryManagerMixin, CardHistoryStatsMixin)
 
 class CardHistory(models.Model):
     objects = CardHistoryManager()

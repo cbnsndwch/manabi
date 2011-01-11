@@ -48,6 +48,7 @@ urlpatterns = patterns('',
     (r'^flashcards/', include('flashcards.urls')),
     (r'^jdic/', include('jdic.urls')),
     (r'^kanjivg/', include('kanjivg.urls')),
+    (r'^stats/', include('stats.urls')),
 )
 
 if settings.SERVE_MEDIA:
