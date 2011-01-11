@@ -24,8 +24,9 @@ def create_default_user_data(sender, instance, created, **kwargs):
 #      my_deck.save()
 #      my_deck_scheduling = SchedulingOptions(deck=my_deck)
 #      my_deck_scheduling.save()
-      review_stats = ReviewStatistics(user=user)
-      review_stats.save()
+      review_stats, created = ReviewStatistics.objects.get_or_create(user=user)
+      if created:
+        review_stats.save()
       
 post_save.connect(create_default_user_data, sender=User) 
 
