@@ -1,5 +1,3 @@
-# Create your views here.
-
 from flashcards.views.decorators import flashcard_api as api
 from flashcards.views.decorators import ApiException
 from django.views.decorators.http import require_GET
