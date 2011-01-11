@@ -77,12 +77,12 @@ div.jp-audio div.jp-type-single a.jp-pause {
 a.jp-play, a.jp-pause {
 	/*background: url("jplayer.jpg") 0 0 no-repeat;*/
     background: url('speaker.png') 0 0 no-repeat;
-    opacity: 0.7;
+    opacity: 0.5;
 }
-a.jp-play:hover, a.jp-pause:hover {
+a.jp-play:hover, a.jp-pause:hover, a.jp-pause {
 	/*background: url("jplayer.jpg") -41px 0 no-repeat;*/
-    background: url('speaker.png') 0 0 no-repeat;
-    opacity: 1.0;
+    /*background: url('speaker.png') 0 0 no-repeat;*/
+    opacity: 0.9;
 }
 /*
 a.jp-pause {
