@@ -331,7 +331,7 @@ class CardHistoryManagerMixin(object):
         return self.filter(was_new=False, interval__lt=MATURE_INTERVAL_MIN)
 
     def mature_cards(self):
-        return self.filter(interval__lte=MATURE_INTERVAL_MIN)
+        return self.filter(interval__gte=MATURE_INTERVAL_MIN)
 
     def with_dates(self):
         '''
