@@ -117,15 +117,24 @@ dojo.declare('jdic.audio.Player', [dijit._Widget, dijit._Templated], {
                 // the file does not exist.
             });
 
-            var showWidget = dojo.hitch(this, function() {
-                dojo.style(this.domNode, 'display', 'block');
+            dojo.style(this.domNode, 'visibility', 'hidden');
+            dojo.style(this.domNode, 'display', 'block');
+
+            var showWidget = dojo.hitch(this, function(event) {
+                // are we actually playing yet?
+                // If so, show the widget. We know it didn't 404.
+                if (event.jPlayer.status.currentTime != 0) {
+                    //dojo.style(this.domNode, 'display', 'block');
+                    dojo.style(this.domNode, 'visibility', '');
+                }
             });
 
             // Using ".jp-show" namespace so we can easily 
             // remove this event
-            $(node).bind($.jPlayer.event.progress + '.jdic', showWidget);
-            $(node).bind($.jPlayer.event.loadeddata + '.jdic', showWidget);
-            $(node).bind($.jPlayer.event.play + '.jdic', showWidget);
+            $(node).bind($.jPlayer.event.error + '.jdic', dojo.hitch(this, function(event){
+                dojo.style(this.domNode, 'display', 'none');
+            }));
+            $(node).bind($.jPlayer.event.timeupdate + '.jdic', showWidget);
 
         }));
     },
