@@ -355,9 +355,13 @@ div.fullscreen_content {
     background: -webkit-gradient(radial, 50% 50%, 0, 50% 30%, 500, from(#FDFCFA), color-stop(0.8, #E6E1DB), to(#BEB9B3));
     background: -moz-radial-gradient(50% 50%, farthest-side, #FDFCFA, #E6E1DB, #BEB9B3);*/
     background: -webkit-gradient(radial, 50% bottom, 1, 50% bottom, 250, from(rgba(91, 91, 91, .1)), to(rgba(242, 242, 242, .1)));
+    /*background: -moz-radial-gradient(50% bottom, 1, 50% bottom, 250, from(rgba(91, 91, 91, .1)), to(rgba(242, 242, 242, .1)));*/
+    background: -moz-radial-gradient(50% 200% 1deg, circle closest-corner, rgba(91, 91, 91, .1) 9%, rgba(242, 242, 242, .1) 100%);
+    border-bottom: 1px solid #CCC;
+    /*background: -moz-radial-gradient(50% 400% 1deg, circle closest-corner, rgba(51, 51, 51, .9) 50%, rgba(242, 242, 242, .5) 95%);*/
     /*-webkit-transform: scale(1, 0.7) translate(0, 100px);*/
 
-    background: -moz-radial-gradient(50% 145% 1deg, circle closest-corner, rgba(51, 51, 51, .9) 50%, rgba(242, 242, 242, .9) 95%);
+    /*background: -moz-radial-gradient(50% 145% 1deg, circle closest-corner, rgba(51, 51, 51, .9) 50%, rgba(242, 242, 242, .9) 95%);*/
     min-height: 240px;
     padding-top: 3em;
     padding-bottom: 1em;
@@ -402,7 +406,7 @@ div.fullscreen_content {
 .flashcard_container .kanji_stroke_frames_container {
     width: 70%;
     overflow-x: auto;
-    margin: 1em auto;
+    margin: 2em auto;
     background-color:#fafafa;
 }
 .flashcard_container .kanji_stroke_frames {
@@ -447,14 +451,18 @@ span.reviews_gradeButtonInterval {
     padding-right: 2px;
     -moz-border-radius: 6px;
     -webkit-border-radius: 6px;
+    border-radius: 6px;
+    /*border: 3px solid #fbfbfb;*/
 }
 
 div.reviews_incorrectGradeButtons {
-    background-color:#FBEFEF;
+    background-color:#edd0d0;
+    /*background-color:#ae5b61;*/
 }
 
 div.reviews_correctGradeButtons {
     background-color:#E0F8E0;
+    /*background-color:#edffed;*/
 }
 
 #reviews_showCardBack {
