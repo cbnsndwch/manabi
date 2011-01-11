@@ -12,5 +12,7 @@ graph_urlpatterns = patterns('stats.views',
 # place app url patterns here
 urlpatterns = patterns('stats.views',
     url(r'^graphs/', include(graph_urlpatterns)),
+
+    url(r'^$', 'index', name='stats'),
 )
 

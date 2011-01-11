@@ -3,6 +3,9 @@ from flashcards.views.decorators import ApiException
 from django.views.decorators.http import require_GET
 from flashcards.models import CardHistory
 from django.http import HttpResponse
+from django.contrib.auth.decorators import login_required
+from django.shortcuts import get_object_or_404, render_to_response
+from django.template import RequestContext, loader
 import settings
 
 @api
@@ -29,3 +32,11 @@ def repetitions(request):
     return {'series': series}
 
 
+
+
+@login_required
+def index(request):
+    context = {
+    }
+    return render_to_response('stats/index.html', context,
+        context_instance=RequestContext(request))
