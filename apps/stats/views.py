@@ -8,6 +8,9 @@ from django.shortcuts import get_object_or_404, render_to_response
 from django.template import RequestContext, loader
 import settings
 
+
+
+
 @api
 @require_GET
 def repetitions(request):
@@ -17,20 +20,40 @@ def repetitions(request):
     series = []
     user_items = CardHistory.objects.of_user(request.user)
 
-    for maturity in ['new_cards', 'young_cards', 'mature_cards']:
+    for maturity in ['new', 'young', 'mature']:
         data = getattr(user_items, maturity)().repetitions()
 
         # Convert the values into pairs (from hashes)
-        data = list((value['date'], value['repetitions'])
+        data = list((value['reviewed_on'], value['repetitions'])
                       for value in data)
 
         series.append({
-            'name': maturity.rstrip('_cards'),
+            'name': maturity,
             'data': data,
         })
 
     return {'series': series}
 
+@api
+@require_GET
+def due_counts(request):
+    '''Due per day in future.'''
+    series = []
+    user_items = CardHistory.objects.of_user(request.user)
+
+    for maturity in ['young', 'mature']:
+        data = getattr(user_items, maturity)().due_counts()
+
+        # Convert the values into pairs (from hashes)
+        data = list((value['due_on'], value['due_count'])
+                      for value in data)
+
+        series.append({
+            'name': maturity,
+            'data': data,
+        })
+
+    return {'series': series}
 
 
 
