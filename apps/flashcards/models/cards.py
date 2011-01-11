@@ -200,12 +200,26 @@ class Card(models.Model):
         return reps
 
     def _update_statistics(self, grade, reviewed_at):
-        '''Updates this card's stats. Call this for each review.'''
+        '''
+        Updates this card's stats. Call this for each review,
+        before applying the new review. After applying the new review,
+        some other CardHistory fields can be filled in. The reason we do 
+        this in 2 parts is that our undo system needs to know about this 
+        object, but it creates the undo object before the card object gets 
+        updated with the new review stats, so that we can rollback to it.
+        '''
         #TODO update CardStatistics
+        was_new = self.is_new()
+
         card_history_item = CardHistory(
-            card=self, response=grade, reviewed_at=reviewed_at)
+            card=self,
+            response=grade,
+            reviewed_at=reviewed_at,
+            was_new=was_new)
         card_history_item.save()
+
         self.review_count += 1
+
         return card_history_item
 
     def _apply_updated_schedule(self, next_repetition):
@@ -257,6 +271,11 @@ class Card(models.Model):
         if grade == GRADE_NONE:
             self.last_failed_at = reviewed_at
 
+        # Finish up the card history item record
+        card_history_item.ease_factor = self.ease_factor
+        card_history_item.interval    = self.interval
+        card_history_item.save()
+
         review_stats.save()
         self.save()
 
@@ -298,6 +317,8 @@ class CardStatistics(models.Model):
     class Meta:
         app_label = 'flashcards'
 
+
+
 class CardHistoryManager(models.Manager):
     def of_user(self, user):
         return self.filter(card__fact__deck__owner=user)
@@ -306,9 +327,15 @@ class CardHistory(models.Model):
     objects = CardHistoryManager()
 
     card = models.ForeignKey(Card)
+
     response = models.PositiveIntegerField(editable=False)
     reviewed_at = models.DateTimeField()
 
+    ease_factor = models.FloatField(null=True, blank=True)
+    interval = models.FloatField(null=True, blank=True, db_index=True) #days
+
+    # Was the card new when it was reviewed this time?
+    was_new = models.BooleanField(default=False, db_index=True) 
 
     class Meta:
         app_label = 'flashcards'
