@@ -1,0 +1,24 @@
+
+
+<div>
+    <div dojoType="dijit.Dialog" dojoAttachPoint="dialog" class="reviews_session_over_dialog" title="Review Session Summary">
+        <div class="dijitDialogPaneContentArea">
+            <h2>Well done.</h2>
+            <p>
+                Your study session is over. You reviewed <span dojoAttachPoint="reviewCount"></span>.
+            </p>
+
+            <div dojoAttachPoint="reviewChart" style="height:20em"></div>
+
+            <span id="reviews_sessionOverDialogNextDue">
+            </span>
+        </div>
+
+        <div class="dijitDialogPaneActionBar">
+            <div dojoType="dijit.form.Button" type="button" dojoAttachEvent="onClick:hide">
+                Done
+            </div>
+        </div>
+
+    </div>
+</div>

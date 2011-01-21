@@ -4,6 +4,7 @@ from django.forms import ModelForm
 from django.forms.util import ErrorList
 from dbtemplates.models import Template
 from django.db.models import Avg
+from constants import GRADE_NONE, GRADE_HARD, GRADE_GOOD, GRADE_EASY
 
 import datetime
 import random
@@ -275,20 +276,28 @@ class Deck(models.Model):
 usertagging.register(Deck)
 
 
+DEFAULT_INTERVALS = {
+    GRADE_NONE:          (20.0/(24.0*60.0), 25.0/(24.0*60.0)),
+    #cards.GRADE_mature_unknown': (0.333, 0.333),
+    GRADE_HARD:             (0.333, 0.5),
+    GRADE_GOOD:             (3.0, 5.0),
+    GRADE_EASY:             (7.0, 9.0),
+}
+
 
 class SchedulingOptions(models.Model):
     deck = models.OneToOneField(Deck)
     
-    mature_unknown_interval_min = models.FloatField(default=0.333)
-    mature_unknown_interval_max = models.FloatField(default=0.333)
-    unknown_interval_min = models.FloatField(default=20.0/(24.0*60.0))  # 
-    unknown_interval_max = models.FloatField(default=25.0/(24.0*60.0))  #TODO more? 0.5)
-    hard_interval_min = models.FloatField(default=0.333)       #  8 hours
-    hard_interval_max = models.FloatField(default=0.5)         # 12 hours
-    medium_interval_min = models.FloatField(default=3.0)       #  3 days
-    medium_interval_max = models.FloatField(default=5.0)       #  5 days
-    easy_interval_min = models.FloatField(default=7.0)         #  7 days
-    easy_interval_max = models.FloatField(default=9.0)         #  9 days
+    mature_unknown_interval_min = models.FloatField(null=True, blank=True)
+    mature_unknown_interval_max = models.FloatField(null=True, blank=True)
+    unknown_interval_min = models.FloatField(null=True, blank=True)  # 
+    unknown_interval_max = models.FloatField(null=True, blank=True)  #TODO more? 0.5)
+    hard_interval_min = models.FloatField(null=True, blank=True)       #  8 hours
+    hard_interval_max = models.FloatField(null=True, blank=True)         # 12 hours
+    medium_interval_min = models.FloatField(null=True, blank=True)       #  3 days
+    medium_interval_max = models.FloatField(null=True, blank=True)       #  5 days
+    easy_interval_min = models.FloatField(null=True, blank=True)         #  7 days
+    easy_interval_max = models.FloatField(null=True, blank=True)         #  9 days
 
     def __unicode__(self):
         return self.deck.name
@@ -300,23 +309,33 @@ class SchedulingOptions(models.Model):
     def _generate_interval(self, min_duration, max_duration):
         return random.uniform(min_duration, max_duration) #TODO favor (random.triangular) conservatism
 
+    def _interval_min_max(self, grade):
+        if grade == GRADE_NONE:
+            min_, max_ = self.unknown_interval_min, self.unknown_interval_max
+        if grade == GRADE_HARD:
+            min_, max_ = self.hard_interval_min, self.hard_interval_max
+        elif grade == GRADE_GOOD:
+            min_, max_ = self.medium_interval_min, self.medium_interval_max
+        elif grade == GRADE_EASY:
+            min_, max_ = self.easy_interval_min, self.easy_interval_max
+
+        #TODO we don't use these yet since we don't allow user customizing
+        if False and (min_ is None or max_ is None): 
+            return DEFAULT_INTERVALS[grade]
+
+        return (min_, max_,)
+        
+
     def initial_interval(self, grade, do_fuzz=True):
         '''
         Generates an initial interval duration for a new card that's been reviewed.
         '''
-        if grade == cards.GRADE_NONE:
-            min, max = self.unknown_interval_min, self.unknown_interval_max
-        if grade == cards.GRADE_HARD:
-            min, max = self.hard_interval_min, self.hard_interval_max
-        elif grade == cards.GRADE_GOOD:
-            min, max = self.medium_interval_min, self.medium_interval_max
-        elif grade == cards.GRADE_EASY:
-            min, max = self.easy_interval_min, self.easy_interval_max
+        min_, max_ = self._interval_min_max(grade)
         
         if do_fuzz:
-            return self._generate_interval(min, max)
+            return self._generate_interval(min_, max_)
         else:
-            return (min + max) / 2.0
+            return (min_ + max_) / 2.0
 
 
 

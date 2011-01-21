@@ -16,9 +16,9 @@
 
                 var successCallback = function(selectedFactRowIndex, data, cardCounter) {
                     fact_ui.hideFactEditForm();
-                    var def = reviews.reloadCurrentCard();
+                    var def = reviews_ui.session.reloadCurrentCard();
                     def.addCallback(function() {
-                        reviews_ui.displayCard(reviews.currentCard, reviews_ui.cardBackVisible);
+                        reviews_ui.displayCard(reviews_ui.session.currentCard, reviews_ui.cardBackVisible);
                         //if the fact editing grid is open, update it
                         if (typeof cards_factsGrid != 'undefined') {
                             var store = cards_factsGrid.store;
@@ -31,7 +31,7 @@
                     reviews_ui.setKeyboardShortcuts();
                 };
                 
-                fact_ui.showFactEditForm(reviews.currentCard.factId, successCallback);
+                fact_ui.showFactEditForm(reviews_ui.session.currentCard.factId, successCallback);
             </script>
         </div>
         <div dojoType="dijit.form.Button" type="button" id="reviews_suspendCurrentCardButton" iconClass="manabi_icon manabi_icon_control_pause">
@@ -69,7 +69,7 @@
                                 Show Answer
                             </div>
                             <script type="dojo/connect" event="onClick" args="evt">
-                                reviews_ui.showCardBack(reviews.currentCard);
+                                reviews_ui.showCardBack(reviews_ui.session.currentCard);
                             </script>
                         </button>
                         <div>
@@ -101,7 +101,7 @@
                                 </span>
                                 <script type="dojo/connect" event="onClick" args="evt">
                                     //reviews_gradeWrongTooltip.close();
-                                    reviews_ui.reviewCard(reviews.currentCard, reviews.grades.GRADE_NONE);
+                                    reviews_ui.reviewCard(reviews_ui.session.currentCard, reviews.grades.GRADE_NONE);
                                 </script>
                             </button><br>
                             <span id="reviews_gradeNoneInterval" class="reviews_gradeButtonInterval"></span>
@@ -116,7 +116,7 @@
                                 </span>
                                 <script type="dojo/connect" event="onClick" args="evt">
                                     //reviews_gradeHardTooltip.close();
-                                    reviews_ui.reviewCard(reviews.currentCard, reviews.grades.GRADE_HARD);
+                                    reviews_ui.reviewCard(reviews_ui.session.currentCard, reviews.grades.GRADE_HARD);
                                 </script>
                             </button><br>
                             <span id="reviews_gradeHardInterval" class="reviews_gradeButtonInterval"></span>
@@ -128,7 +128,7 @@
                                 </span>
                                 <script type="dojo/connect" event="onClick" args="evt">
                                     //reviews_gradeGoodTooltip.close();
-                                    reviews_ui.reviewCard(reviews.currentCard, reviews.grades.GRADE_GOOD);
+                                    reviews_ui.reviewCard(reviews_ui.session.currentCard, reviews.grades.GRADE_GOOD);
                                 </script>
                             </button><br>
                             <span id="reviews_gradeGoodInterval" class="reviews_gradeButtonInterval"></span>
@@ -140,7 +140,7 @@
                                 </span>
                                 <script type="dojo/connect" event="onClick" args="evt">
                                     //reviews_gradeEasyTooltip.close();
-                                    reviews_ui.reviewCard(reviews.currentCard, reviews.grades.GRADE_EASY);
+                                    reviews_ui.reviewCard(reviews_ui.session.currentCard, reviews.grades.GRADE_EASY);
                                 </script>
                             </button><br>
                             <span id="reviews_gradeEasyInterval" class="reviews_gradeButtonInterval"></span>
@@ -184,7 +184,7 @@
 
 <div dojoType="dijit.Dialog" jsId="reviews_reviewDialog" id="reviews_reviewDialog" title="Flashcards">
 	<script type="dojo/connect" event="onCancel" args="evt">
-        reviews.endSession();
+        reviews_ui.session.endSession();
 	</script>
 	<script type="dojo/connect" event="onLoad" args="evt">
         //FIXME this isn't working - do it programmatically

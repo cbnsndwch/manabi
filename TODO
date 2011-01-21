@@ -22,6 +22,29 @@ http://www.formstack.com/the-anatomy-of-a-perfect-landing-page
 
 these are nice buttons! http://cubiq.org/iscroll use their css
 
+------------
+slogans, wording, etc that help explain the site
+
+Never forget to remember.
+"Forget about forgetting" -- supermemo
+the science of flashcards - have a page about the psychological bases
+
+as a summary to an article  explaining the site: "Learn once. Never forget."
+
+studying a variety of things is better than focusing on single topics: http://www.nytimes.com/2010/09/07/health/views/07mind.html?_r=2&pagewanted=all
+
+have hover text for the grade buttons:
+Wrong: Couldn't remember this one.
+hard: Correct answer, but took too long to remember.
+      Correct, but unconfident.
+      Correct, but with difficulty.
+      Correct, but a struggle to recall.
+Good: Correct after brief thought.
+Too Easy: I could have waited longer before reviewing this one.
+
+rename 'new cards' to 'unseen cards' or something?
+
+
 ----------------
 Raphael.js examples
 data viz http://projects.antpaw.org/webworker/
@@ -31,6 +54,7 @@ charting lib for raphael http://grafico.kilianvalkhof.com/documentation/index.ht
 http://highcharts.com/demo/
 
 nice graph visuals http://www.myedu.com/college-degree-timeline
+colors for graph http://getcharmed.com/
 
 -------------
 
@@ -48,14 +72,11 @@ this is way better. like my_jpn_card.reading
 
 
 named URLs
-update pinax
-update django to 1.2.3
-upgrade dojo to 1.5
-get rid of jquery deps
 magic numbers
 
 
 do i need to destroy any widgets, like my own ones?
+how about startup?
 
 
 refactoring order:
@@ -76,9 +97,10 @@ models:
 braaaaaand new features
 
 per-day scheduling
-fade change the logo on hover
 
 record time per flashcard in review! just put it in the db, dont use yet
+
+add a favicon (the kanji)
 
 
 ==========
@@ -87,6 +109,8 @@ record time per flashcard in review! just put it in the db, dont use yet
 
 ~new stuff~
 -----------
+include maturity/newness status in 'next_cards_for_review' -- use to display tally in summary screen
+
 "show hints" checkbox option in study - toggle all extra info
 
 resize grid when window is resized!!! otherwise scrollbars get lost
@@ -135,6 +159,7 @@ make field uniqueness per-deck
 ---------------------
 TODO:
 ---------------------
+
 allow adding unsorted/orphan cards/items
 
 change the page title when the hash changes, somehow
@@ -393,6 +418,9 @@ stats/graphs
 ----------------------
 IDEAS:
 ----------------------
+catch-up recovery mode: have wording like this: "You have a lot of cards due (/in fact, 2097 cards/) but if you study 60 per day for a week, you'll be all caught up!" so that we hide (deemphasize) the demotivating count.
+
+
 mark a word 'completely learned and memorized!' when interval reaches 120 - age of user. Haha!
 'view newly learned cards from this session' after session ends
 

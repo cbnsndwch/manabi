@@ -18,7 +18,16 @@
             // add our module paths for local files
             dojango.registerModulePath('jdic', '{{ MEDIA_URL }}static/js/jdic');
             dojango.registerModulePath('kanjivg', '{{ MEDIA_URL }}static/js/kanjivg');
+            dojango.registerModulePath('reviews', '{{ MEDIA_URL }}static/js/reviews');
             dojango.registerModulePath('custom', '{{ MEDIA_URL }}static/js/custom');
+
+            $(function() {
+                Highcharts.setOptions({
+                    global: {
+                        useUTC: false
+                    }
+                });
+            });
         </script>
 
         <script type="text/javascript" src="{{ MEDIA_URL }}static/js/highcharts/highcharts.js"></script>

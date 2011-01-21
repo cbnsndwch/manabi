@@ -304,7 +304,7 @@ body, html {
 
 #body_contents h1 {
     margin-top: 0px;
-    margin-bottom: 10px;
+    margin-bottom: 1.5em;
 }
 
 
@@ -473,6 +473,10 @@ div.reviews_correctGradeButtons {
     font-size:1.1em%;
     display: block;
 }
+
+/*.reviews_session_over_dialog .chart {
+}*/
+
 
 /* looks like a link, but isn't */
 .fakeLink {

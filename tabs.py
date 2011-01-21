@@ -16,6 +16,7 @@ TAB_URLS = {
         'delete_deck',
     ],
     'stats': [
+        'stats',
     ],
 }
 
