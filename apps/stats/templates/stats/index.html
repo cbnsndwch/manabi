@@ -1,0 +1,145 @@
+{% extends "body_pane_base.html" %}
+
+{% load xhrlinks %}
+
+{% block content %}
+<h1>Statistics</h1>
+<p>
+</p>
+
+
+<div id="repetitions_chart"></div>
+<script type="text/javascript">
+    $(function(){
+        var options = {
+            chart: {
+                renderTo: 'repetitions_chart',
+                defaultSeriesType: 'column'
+            },
+            title: { text: 'Repetitions' },
+            xAxis: {
+                title: { text: 'Date' },
+                type: 'datetime',
+                /*maxZoom: 1000 * 3600 * 24/*,
+                tickInterval: 1000 * 3600 * 24*/ //TODO programatically find min/max delta, and set this as appropriate
+                /*labels: {
+                    formatter: function() {
+                        console.log('date');
+                        console.log(this.value);
+                        return Highcharts.dateFormat('%e %b %Y', this.value);
+                        return this.value;
+                    }
+                }*/
+                /*dateTimeLabelFormats: {
+                    day: '%e of %b'   
+                }*/
+                
+            },
+            yAxis: {
+                title: { text: 'Number of reviews' },
+                allowDecimals: false,
+                min: 0
+            },
+            plotOptions: {
+                column: {
+                    stacking: 'normal',
+                    pointWidth: 20
+                }
+            },
+            /*series: [
+                {name:'newb',data:[[1294722000000,5]]},
+                {name:'terd',data:[[1294722000000,2][1294808400000,2],[1295240400000,1]]}
+            ]*/
+
+            
+        };
+        dojo.xhrGet({
+            url: '{% url graphs_repetitions %}',
+            handleAs: 'json'
+        }).then(function(data) {
+            if (data.success) {
+            console.log(data.data);
+                options.series = data.data.series;
+
+                dojo.forEach(options.series, function(entry, index){
+                    dojo.forEach(entry.data, function(entry, index){
+                    entry[0] = (new Date(entry[0])).getTime();
+                    });
+                });
+
+                new Highcharts.Chart(options);
+            }
+        });
+    });
+</script>
+
+
+<div id="due_counts_chart"></div>
+<script type="text/javascript">
+    $(function(){
+
+        var options = {
+            chart: {
+                renderTo: 'due_counts_chart',
+                defaultSeriesType: 'column'
+            },
+            title: { text: 'Cards due for review in future' },
+            xAxis: {
+                title: { text: 'Date' },
+                type: 'datetime',
+                min: dojo.date.add(new Date(), 'day', -1).getTime()
+                /*maxZoom: 1000 * 60 * 60 * 24/*,
+                tickInterval: 1000 * 3600 * 24*/
+                /*labels: {
+                    formatter: function() {
+                        console.log('date');
+                        console.log(this.value);
+                        return Highcharts.dateFormat('%e %b %Y', this.value);
+                        return this.value;
+                    }
+                }*/
+                /*dateTimeLabelFormats: {
+                    day: '%e of %b'   
+                }*/
+                
+            },
+            yAxis: {
+                title: { text: 'Number of cards due' },
+                allowDecimals: false
+            },
+            plotOptions: {
+                column: {
+                    stacking: 'normal',
+                    pointWidth: 20
+                },
+            },
+
+            
+        };
+        dojo.xhrGet({
+            url: '{% url graphs_due_counts %}',
+            handleAs: 'json'
+        }).then(function(data) {
+            if (data.success) {
+                options.series = data.data.series;
+                console.log(data.data.series);
+
+                dojo.forEach(options.series, function(entry, index){
+                    dojo.forEach(entry.data, function(entry, index){
+                        entry[0] = (new Date(entry[0])).getTime();
+                        //entry[0] = dojo.date.stamp.fromISOString(entry[0]).;
+                        //console.log('..');
+                        //console.log(entry);
+                        //console.log(entry[0]);
+                        //console.log( dojo.date.stamp.fromISOString('2011-01-29'));
+                    });
+                });
+
+                new Highcharts.Chart(options);
+            }
+        });
+    });
+</script>
+
+{% endblock %}
+

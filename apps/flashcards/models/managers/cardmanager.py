@@ -368,6 +368,7 @@ class CommonFiltersMixin(object):
                                          fact__deck=deck)
 
     def due_cards(self, user, deck=None):
+        #TODO support tags
         return self.of_user(user)\
             .filter(due_at__lte=datetime.datetime.utcnow(),
                     fact__deck=deck)\

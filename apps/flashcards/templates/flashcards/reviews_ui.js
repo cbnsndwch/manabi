@@ -3,14 +3,17 @@
 dojo.provide('reviews_ui');
 
 dojo.require('reviews');
+dojo.require('reviews.Session');
+dojo.require('reviews.SessionOverDialog');
 
 
 
-dojo.addOnLoad(function() {
+dojo.ready(function(){
     reviews_ui.reviewOptionsDialog = dijit.byId('reviews_reviewDialog');
-    reviews_ui.review_dialog = dijit.byId('reviews_fullscreenContainer');
+    reviews_ui.reviewDialog = dijit.byId('reviews_fullscreenContainer');
     reviews_ui.sessionStarted = false;
 
+    reviews_ui.session = null;
 });
 
 reviews_ui.humanizedInterval = function(interval) {
@@ -151,23 +154,26 @@ reviews_ui.openDialog = function() {
 };
 
 
-reviews_ui.openSessionOverDialog = function(reviewCount) {
+reviews_ui.openSessionOverDialog = function() {
+    var sessionOverDialog = new reviews.SessionOverDialog({ session: this.session });
+    sessionOverDialog.startup();
+    sessionOverDialog.show();
     // get the # due tomorrow to display
-    reviews.countOfCardsDueTomorrow(reviews_ui.lastSessionArgs.deckId).addCallback(function(count) {
+    /*reviews.countOfCardsDueTomorrow(reviews_ui.lastSessionArgs.deckId).addCallback(dojo.hitch(this, function(count) {
         if (count === 0) {
             // None due by this time tomorrow, so we'll get the time when one
             // is next due.
-            reviews.timeUntilNextCardDue(reviews_ui.lastSessionArgs.deckId, reviews_ui.lastSessionArgs.tag_id).addCallback(function(hoursUntil) {
+            reviews.timeUntilNextCardDue(reviews_ui.lastSessionArgs.deckId, reviews_ui.lastSessionArgs.tag_id).addCallback(dojo.hitch(this, function(hoursUntil) {
                 dojo.byId('reviews_sessionOverDialogNextDue').innerHTML = 'The next card is due in ' + reviews_ui._humanizeDuration(hoursUntil);
                 dojo.byId('reviews_sessionOverDialogReviewCount').innerHTML = reviewCount;
-                reviews_sessionOverDialog.show();
-            });
+                sessionOverDialog.show();
+            }));
         } else {
             dojo.byId('reviews_sessionOverDialogNextDue').innerHTML = 'At this time tomorrow, there will be ' + count + ' cards due for review.';
             dojo.byId('reviews_sessionOverDialogReviewCount').innerHTML = reviewCount;
-            reviews_sessionOverDialog.show();
+            sessionOverDialog.show();
         }
-    });
+    });*/
 
 };
 
@@ -184,11 +190,11 @@ reviews_ui.endSession = function() {
     dojo.byId('reviews_fullscreenContainer').style.display = 'none';
     //TODO fade out, less harsh
     //TODO show review session results
-    var reviewCount = reviews.sessionCardsReviewedCount;
-    reviews.endSession();
+    //var reviewCount = reviews_ui.session.reviewCount;
+    reviews_ui.session.endSession();
 
-    if (reviewCount) {
-        reviews_ui.openSessionOverDialog(reviewCount);
+    if (this.session.reviewCount) {
+        reviews_ui.openSessionOverDialog();
 
         // refresh the active page, in case it has due card counts etc
         manabi_ui.xhrReload();
@@ -231,7 +237,7 @@ reviews_ui.displayCard = function(card, show_card_back) {
 reviews_ui.goToNextCard = function() {
     //see if the session has already ended before moving on to the next card
     if (reviews_ui.sessionOverAfterCurrentCard
-            || (reviews.sessionCardsReviewedCount >= reviews.sessionCardLimit && reviews.sessionCardLimit)) {
+            || (reviews_ui.session.reviewCount >= reviews_ui.session.cardLimit && reviews_ui.session.cardLimit)) {
         reviews_ui.endSession();
     } else {
         //disable the review buttons until the back is shown again
@@ -241,7 +247,7 @@ reviews_ui.goToNextCard = function() {
         //disable the card back button until the next card is ready
         reviews_showCardBackButton.set('disabled', true);
         
-        var nextCardDef = reviews.nextCard();
+        var nextCardDef = reviews_ui.session.nextCard();
         nextCardDef.addCallback(function(nextCard) {
             if (nextCard) {
                 //next card is ready
@@ -270,7 +276,7 @@ reviews_ui.showCardBack = function(card) {
     reviews_cardBack.domNode.style.display = '';
     reviews_ui.displayNextIntervals(card);
     dojo.byId('reviews_gradeButtonsContainer').style.visibility = '';
-    reviews_ui.review_dialog.domNode.focus();
+    reviews_ui.reviewDialog.domNode.focus();
     reviews_ui.setCardBackKeyboardShortcuts();
 };
 
@@ -285,7 +291,7 @@ reviews_ui.reviewCard = function(card, grade) {
     reviews_ui.goToNextCard();
     if (grade == reviews.grades.GRADE_NONE) {
         //failed cards will be reshown
-        reviews.failsSincePrefetchRequest += 1;
+        reviews_ui.session.failsSincePrefetchRequest += 1;
     }
 };
 
@@ -308,13 +314,13 @@ reviews_ui.undo = function() {
     // disable review UI until the undo operation is finished
     reviews_ui._disableReviewScreenUI();
 
-    var undo_def = reviews.undo();
+    var undo_def = reviews_ui.session.undo();
 
     undo_def.addCallback(function() {
         // Show the next card, now that the cache is cleared.
         // Also show its back.
         reviews_ui.goToNextCard();
-        reviews_ui.showCardBack(reviews.currentCard);
+        reviews_ui.showCardBack(reviews_ui.session.currentCard);
 
         // re-enable review UI
         reviews_ui._disableReviewScreenUI(false);
@@ -364,7 +370,7 @@ reviews_ui.setKeyboardShortcuts = function() {
 };
 
 reviews_ui.suspendCurrentCard = function() {
-    reviews.currentCard.suspend();
+    reviews_ui.session.currentCard.suspend();
     reviews_ui.goToNextCard();
 };
 
@@ -373,21 +379,21 @@ reviews_ui.cardBackKeyboardShortcutConn = null;
 
 reviews_ui.setCardBackKeyboardShortcuts = function() {
     reviews_ui.unsetCardBackKeyboardShortcuts(); //don't set twice
-    //reviews_ui.cardBackKeyboardShortcutConn = dojo.connect(reviews_ui.review_dialog, 'onKeyPress', function(e) {
+    //reviews_ui.cardBackKeyboardShortcutConn = dojo.connect(reviews_ui.reviewDialog, 'onKeyPress', function(e) {
     reviews_ui.cardBackKeyboardShortcutConn = dojo.connect(window, 'onkeypress', function(e) {
         switch(e.charOrCode) {
             case '0':
             case '1':
-                reviews_ui.reviewCard(reviews.currentCard, reviews.grades.GRADE_NONE);
+                reviews_ui.reviewCard(reviews_ui.session.currentCard, reviews.grades.GRADE_NONE);
                 break;
             case '2':
-                reviews_ui.reviewCard(reviews.currentCard, reviews.grades.GRADE_HARD);
+                reviews_ui.reviewCard(reviews_ui.session.currentCard, reviews.grades.GRADE_HARD);
                 break;
             case '3':
-                reviews_ui.reviewCard(reviews.currentCard, reviews.grades.GRADE_GOOD);
+                reviews_ui.reviewCard(reviews_ui.session.currentCard, reviews.grades.GRADE_GOOD);
                 break;
             case '4':
-                reviews_ui.reviewCard(reviews.currentCard, reviews.grades.GRADE_EASY);
+                reviews_ui.reviewCard(reviews_ui.session.currentCard, reviews.grades.GRADE_EASY);
                 break;
         }
     });
@@ -400,7 +406,7 @@ reviews_ui.setCardFrontKeyboardShortcuts = function() {
     switch(e.charOrCode) {
         case k.ENTER:
         case ' ':
-            reviews_ui.showCardBack(reviews.currentCard);
+            reviews_ui.showCardBack(reviews_ui.session.currentCard);
             dojo.stopEvent(e);
             break;
         //default:
@@ -448,6 +454,19 @@ reviews_ui.startSession = function(args) { //deckId, sessionTimeLimit, sessionCa
         return;
     }
 
+    var sessionArgs = {
+        //FIXME use the user-defined session limits
+        deckId: args.deckId||null,//'-1', 
+        dailyNewCardLimit: 20, 
+        cardLimit: args.sessionCardLimit||0, 
+        timeLimit: args.sessionTimeLimit||10,
+        tagId: args.tag_id||null,//'-1',
+        earlyReview: args.earlyReview||false, 
+        learnMore: args.learnMore||false 
+    };
+
+    reviews_ui.session = new reviews.Session(sessionArgs);
+
     reviews_ui.sessionStarted = true;
 
     reviews_ui.sessionOverAfterCurrentCard = false;
@@ -457,21 +476,14 @@ reviews_ui.startSession = function(args) { //deckId, sessionTimeLimit, sessionCa
     reviews_ui.lastSessionArgs = dojo.clone(args);
 
     //start a review session with the server
-    var session_def = reviews.startSession(
-            args.deckId||'-1', 
-            20, 
-            args.sessionCardLimit||0, 
-            args.sessionTimeLimit||10,
-            args.tag_id||'-1',
-            args.earlyReview||false, 
-            args.learnMore||false); //FIXME use the user-defined session limits
+    var session_def = reviews_ui.session.startSession(sessionArgs);
 
     reviews_ui._subscribeToSessionEvents();
 
     //wait for the first cards to be returned from the server
     session_def.addCallback(function(initialCardPrefetch) {
         //show the first card
-        var nextCardDef = reviews.nextCard();
+        var nextCardDef = reviews_ui.session.nextCard();
         nextCardDef.addCallback(dojo.hitch(null, function(initialCardPrefetch, nextCard) {
 
             if (nextCard) {

@@ -1,5 +1,5 @@
 /** 
- * @license Highcharts JS v2.1.1 (2010-12-03)
+ * @license Highcharts JS v2.1.2 (2011-01-12)
  * MooTools adapter
  * 
  * (c) 2010 Torstein Hønsi
@@ -20,7 +20,7 @@ var HighchartsAdapter = {
 			morphProto = Fx.Morph.prototype,
 			morphCompute = morphProto.compute;
 			
-		// override Fx.step to allow animation of SVG element wrappers
+		// override Fx.start to allow animation of SVG element wrappers
 		fxProto.start = function(from, to) {
 			var fx = this,
 				elem = fx.element;
@@ -67,7 +67,11 @@ var HighchartsAdapter = {
 		
 		if (isSVGElement && !el.setStyle) {
 			// add setStyle and getStyle methods for internal use in Moo
-			el.setStyle = el.getStyle = el.attr;
+			el.getStyle = el.attr;
+			el.setStyle = function() { // property value is given as array in Moo - break it down
+				var args = arguments;
+				el.attr.call(el, args[0], args[1][0]);
+			}
 			// dirty hack to trick Moo into handling el as an element wrapper
 			el.$family = el.uid = true;
 		}

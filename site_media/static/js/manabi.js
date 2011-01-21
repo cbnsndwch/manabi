@@ -4,13 +4,56 @@ dojo.provide('manabi_ui');
 
 
 
-manabi.xhrGet = function(args){
+/*manabi.xhrGet = function(args){
     // a wrapper for dojo.xhrGet,
     // which handles some conventions for us.
     var oldLoad = args.load;
     args.load = function() {
         
     };
+};*/
+
+
+manabi.plural = function(value, singular, plural) {
+    // plural(1, "foot", "feet") ==> "1 foot"
+    // plural(7, "foot", "feet") ==> "7 feet"
+    // plural(2, "card") ==> "2 cards" // appends s if plural is undefined.
+
+    var prefix = value.toString() + ' ';
+
+    var plural = typeof plural === 'undefined' ? singular + 's' : plural;
+
+    if (value == 0 || value > 1) {
+        return prefix + plural;
+    } else {
+        return prefix + singular;
+    }
+};
+
+manabi.xhrGet = function(args) {
+    // Handles our custom JSON data envelope.
+    // Only works with JSON requests!
+
+    var def = new Deferred();
+    
+    // override regardless
+    args.handleAs = 'json';
+
+    dojo.hitch(this, dojo.xhrGet(args).then(
+        function(value) {
+            if (value.success) {
+                // return the data field on success
+                this.def.callback(value.data);
+            } else {
+                // errback the error string
+                this.def.errback(value.error);
+            }
+        },
+        function(error) {
+            this.def.errback(error);
+        }
+    ));
+    return def;
 };
 
 
@@ -71,7 +114,7 @@ manabi_ui._xhrLinkLoad = function(hash) {
     } else {
         href = 'home';
     }
-    target_pane.attr('href', href);
+    target_pane.set('href', href);
 };
 
 manabi_ui.xhrLink = function(href) { //, target_pane) {

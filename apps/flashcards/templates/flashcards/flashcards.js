@@ -47,6 +47,7 @@
   dojo.require("dojo.string");
   dojo.require("dojo.fx.easing"); 
   dojo.require("dojox.fx.scroll");
+  dojo.require('dojo.date');
   dojo.require("custom.dojox.layout.DragPane");
 
   
