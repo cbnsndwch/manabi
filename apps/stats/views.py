@@ -1,8 +1,9 @@
 from flashcards.views.decorators import flashcard_api as api
 from flashcards.views.decorators import ApiException
+from datetime import datetime
 from flashcards.views.decorators import has_card_query_filters
 from django.views.decorators.http import require_GET
-from flashcards.models import CardHistory
+from flashcards.models import CardHistory, Card
 from django.http import HttpResponse
 from django.contrib.auth.decorators import login_required
 from django.shortcuts import get_object_or_404, render_to_response
@@ -50,14 +51,20 @@ def repetitions(request):
 def due_counts(request):
     '''Due per day in future.'''
     series = []
-    user_items = CardHistory.objects.of_user(request.user)
+    user_items = Card.objects.of_user(request.user)
 
     for maturity in ['young', 'mature']:
-        data = getattr(user_items, maturity)().due_counts()
+        items = getattr(user_items, maturity)()
+
+        today_count = items.due_today_count()
+
+        data = [(datetime.today(), today_count,)]
+
+        future_counts = getattr(user_items, maturity)().future_due_counts()
 
         # Convert the values into pairs (from hashes)
-        data = list((value['due_on'], value['due_count'])
-                      for value in data)
+        data.extend(list((value['due_on'], value['due_count'])
+                      for value in future_counts))
 
         series.append({
             'name': maturity,

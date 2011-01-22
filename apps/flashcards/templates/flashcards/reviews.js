@@ -89,9 +89,7 @@ dojo.declare('reviews.Session', null, {
     //TODO sensible args consolidated w/ view and reviews_ui.startSession
     reviewCount: 0,
     emptyPrefetchProducer: false,
-    currentCard: null,
     failsSincePrefetchRequest: 0,
-    timer: null,
     _prefetchInProgress: false,
     //this.session_over_def = new dojo.Deferred();
     emptyPrefetchProducer: false,
@@ -108,6 +106,8 @@ dojo.declare('reviews.Session', null, {
         console.log('rev count:'+this.reviewCount);
 
         // Initialize non-primitive props
+        this.currentCard = null;
+        this.timer = null;
         this.cardsReviewedPending = [];
         this.cardsReviewedPendingDef = []; //contains the Deferred objects for each pending review
 

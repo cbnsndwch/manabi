@@ -340,10 +340,6 @@ class CardHistoryManagerMixin(object):
         '''
         return self.extra(select={'reviewed_on': 'date(reviewed_at)'})
 
-    def with_due_dates(self):
-        '''Adds a `due_on` DateField-like value.'''
-        return self.extra(select={'due_on': 'date(due_at)'})
-
 
 class CardHistoryStatsMixin(object):
     '''Stats data methods for use in graphs.'''
@@ -355,13 +351,6 @@ class CardHistoryStatsMixin(object):
         return self.with_reviewed_on_dates().values(
             'reviewed_on').order_by().annotate(
             repetitions=Count('id'))
-
-    def due_counts(self):
-        '''Number of cards due per day in the future.'''
-        return self.with_due_dates().values('due_on').annotate(
-            due_count=Count('id'))
-
-
         
 
 
