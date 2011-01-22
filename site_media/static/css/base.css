@@ -253,7 +253,6 @@ table {
     /* make it look like a tab */
     position: relative;
     top:    31px;
-    /*height: 50px;*/
     background-color: gray;
     opacity: .7;
     background-image: -webkit-gradient(
@@ -277,11 +276,14 @@ table {
     display: inline;
     float: left;
     list-style-type: none;
-    /*font-family: 'ArvoRegular';*/
     font-size: 1.4em;
     font-weight: bold;
     margin-right: 7px;
-    /*margin-bottom: .3em;*/
+}
+#subnav li {
+    -webkit-transition: opacity 80ms; 
+    -moz-transition: opacity 80ms;
+    transition: opacity 80ms;
 }
 #subnav li.active {
     background-color: white;
@@ -323,7 +325,6 @@ table {
     /*text-shadow: -1px -1px 0px #213b43, 1px 1px 0px #839ca4*/;
     padding-left: 20px;
     padding-right: 20px;
-    /*margin-right: 8px;*/
     /*background-color: #46707d;*/
     -webkit-border-radius: 8px;
     -moz-border-radius: 8px;

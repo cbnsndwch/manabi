@@ -2,13 +2,16 @@ from flashcards.views.decorators import flashcard_api as api
 from flashcards.views.decorators import ApiException
 from django.views.decorators.http import require_GET
 from django.http import HttpResponse
+from django.views.decorators.cache import cache_page
 import settings
 
 from lxml import etree
 from StringIO import StringIO
 
 
+
 @require_GET
+@cache_page(60 * 60 * 24 * 30) # 30 days
 def frames_json(request, ordinal):
     '''
     `ordinal` is the kanji's unicode ordinal.

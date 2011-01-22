@@ -254,7 +254,7 @@ div.fullscreen {
 
 }
 
-div.fullscreen_toolbar {
+.fullscreen_toolbar {
 /*    display: block;
     position: absolute;
     top: 0;
@@ -271,7 +271,7 @@ div.fullscreen_toolbar {
     -moz-transition: opacity 300ms ease-in;
     transition: opacity 300ms ease-in;
 }
-.fullscreen_toolbar:hover {
+[class=fullscreen_toolbar]:hover { /* firefox bugs out unless we select like this */
     opacity: 1;
     -webkit-transition: opacity 80ms ease-out;
     -moz-transition: opacity 80ms ease-out;

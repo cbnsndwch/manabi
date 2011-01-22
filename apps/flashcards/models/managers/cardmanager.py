@@ -346,6 +346,17 @@ class CommonFiltersMixin(object):
         user_cards = self.filter(fact__in=facts)
         return user_cards
 
+    def new(self):
+        return self.filter(last_reviewed_at__isnull=True)
+    
+    def young(self):
+        return self.filter(
+            last_reviewed_at__isnull=False,
+            interval__lt=MATURE_INTERVAL_MIN)
+
+    def mature(self):
+        return self.filter(interval__gte=MATURE_INTERVAL_MIN)
+
     #TODO just use of_user and of_deck etc. as mixins instead of this
     def _user_cards(self, user, deck=None, tags=None, excluded_ids=None):
         #TODO change excluded_ids=None to =[]
@@ -364,10 +375,12 @@ class CommonFiltersMixin(object):
         return user_cards
 
     def new_cards(self, user, deck=None):
+        #TODO refactor, get rid of in favor of self.new()
         return self.of_user(user).filter(last_reviewed_at__isnull=True,
                                          fact__deck=deck)
 
-    def due_cards(self, user, deck=None):
+    def due_cards(self, user=None, deck=None):
+        '''Either specify `user` in the params, or use `.of_user`'''
         #TODO support tags
         return self.of_user(user)\
             .filter(due_at__lte=datetime.datetime.utcnow(),
@@ -454,9 +467,35 @@ class CommonFiltersMixin(object):
         #new_cards_count = self.new_cards(user, deck).exclude(fact__in=facts).count()
         #return new_cards_count
 
+class CardStatsMixin(object):
+    '''Stats data methods, primarily used for graphs and things.'''
+
+    def with_due_dates(self):
+        '''
+        Adds a `due_on` DateField-like value. Same as `due_at` minus its 
+        time information -- so just the day.
+        '''
+        return self.extra(select={'due_on': 'date(due_at)'})
+
+    def due_counts(self):
+        '''Number of cards due per day in the future.'''
+        return self.with_due_dates().values('due_on').annotate(
+            due_count=Count('id'))
+
+    def due_today_count(self):
+        '''The # of cards already due right now or later today.'''
+        return self.filter(
+            due_at__lte=datetime.datetime.today()).count()
+
+    def future_due_counts(self):
+        '''Same as `due_counts` but only for future, after today.'''
+        return self.filter(
+            due_at__gt=datetime.datetime.today()).with_due_dates().values(
+            'due_on').annotate(due_count=Count('id'))
 
 
-CardManager = lambda: manager_from(CommonFiltersMixin, SchedulerMixin)
+CardManager = lambda: manager_from(
+    CommonFiltersMixin, SchedulerMixin, CardStatsMixin)
     
 
 #class CardManager(models.Manager):
