@@ -7,10 +7,26 @@
 
 
 {% block extra_head_base %}
-    {% include 'dojango/include.html' %}
+    {% include "dojango/include.html" %}
+
+    {% block dojango_post_dj_config %}<script type="text/javascript">djConfig['parseOnLoad'] = false;</script>{% endblock %}
+
     <link rel="stylesheet" href="{{ MEDIA_URL }}static/css/site_tabs.css" />
     <link rel="stylesheet" href="{{ MEDIA_URL }}static/css/misc.css" />
+
+
+
     {% if user.is_authenticated %}
+        <script type="text/javascript"> 
+		    dojo.ready(function(){
+			    //dojo.parser.parse(document.body);
+			    setTimeout(function(){
+				    var loader = dojo.byId('siteLoader');
+				    dojo.fadeOut({ node: loader, duration: 500, onEnd: function(){ loader.style.display = 'none'; }}).play();
+			    }, 500);
+		    });
+	    </script> 
+
         <script type="text/javascript" src="{{ MEDIA_URL }}static/js/manabi.js"></script>    
         <script type="text/javascript">
             dojo.require('dojango.dojango');
@@ -93,6 +109,12 @@
 
 {% block body_class %}{{ DOJANGO.THEME }}{% endblock %}
 
+{% block body_top %}
+    {% if user.is_authenticated %}
+        <div id="siteLoader"><div id="siteLoaderInner"></div></div> 
+    {% endif %}
+{% endblock %}
+
 {% block login %}
     {% load i18n ifsetting_tag account_tags %}
     {% if user.is_authenticated %}
@@ -106,9 +128,9 @@
 <div id="site_title_left"><!-- --></div>
 <div id="site_title">
     {% if user.is_authenticated %}
-        <a style="color:white;text-decoration:none;" href="{% url home_inline %}" onclick="manabi_ui.xhrLink(this.href);return false;">
+        <a href="{% url home_inline %}" onclick="manabi_ui.xhrLink(this.href);return false;">
     {% else %}
-        <a style="color:white;text-decoration:none;" href="{% url home %}">
+        <a href="{% url home %}">
     {% endif %}
             <span id="site_logo">学</span>
             <span class="no_hover">Manabi</span><span class="hover">まなび</span>
