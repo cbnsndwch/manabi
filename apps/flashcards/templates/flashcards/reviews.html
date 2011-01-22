@@ -4,53 +4,55 @@
 <div class="fullscreen" id="reviews_fullscreenContainer" style="display:none" dojoType="dijit.layout.ContentPane">
     <div class="fullscreen_toolbar">
         <div dojoType="dijit.form.Button" type="button" iconClass="manabi_icon manabi_icon_clock_stop">
-            Quit
+            End Session
             <script type="dojo/method" event="onClick" args="evt">
                 reviews_ui.endSession();
             </script>
         </div>
-        <div dojoType="dijit.form.Button" type="button" iconClass="manabi_icon manabi_icon_application_form_edit">
-            Edit
-            <script type="dojo/method" event="onClick" args="evt">
-                reviews_ui.unsetKeyboardShortcuts();
+        <span style="float: right">
+            <div dojoType="dijit.form.Button" type="button" iconClass="manabi_icon manabi_icon_application_form_edit">
+                Edit Card
+                <script type="dojo/method" event="onClick" args="evt">
+                    reviews_ui.unsetKeyboardShortcuts();
 
-                var successCallback = function(selectedFactRowIndex, data, cardCounter) {
-                    fact_ui.hideFactEditForm();
-                    var def = reviews_ui.session.reloadCurrentCard();
-                    def.addCallback(function() {
-                        reviews_ui.displayCard(reviews_ui.session.currentCard, reviews_ui.cardBackVisible);
-                        //if the fact editing grid is open, update it
-                        if (typeof cards_factsGrid != 'undefined') {
-                            var store = cards_factsGrid.store;
-                            store.close();
-                            store.fetch({onComplete: function(){
-                                cards_factsGrid.sort();
-                            }});
-                        }
-                    });
-                    reviews_ui.setKeyboardShortcuts();
-                };
-                
-                fact_ui.showFactEditForm(reviews_ui.session.currentCard.factId, successCallback);
-            </script>
-        </div>
-        <div dojoType="dijit.form.Button" type="button" id="reviews_suspendCurrentCardButton" iconClass="manabi_icon manabi_icon_control_pause">
-            Suspend Flashcard
-            <script type="dojo/method" event="onClick" args="evt">
-                reviews_ui.suspendCurrentCard();
-            </script>
-        </div>
-        <div dojoType="dijit.Tooltip" connectId="reviews_suspendCurrentCardButton" position="below" showDelay="10">
-            Stop learning this flashcard.<br>
-            It will no longer appear in future reviews.<br>
-            You can unsuspend later with the Flashcard Editor.
-        </div>
-        <div dojoType="dijit.form.Button" type="button" iconClass="manabi_icon manabi_icon_undo" disabled="true" jsId="reviews_undoReviewButton">
-            Undo Review
-            <script type="dojo/method" event="onClick" args="evt">
-                reviews_ui.undo();
-            </script>
-        </div>
+                    var successCallback = function(selectedFactRowIndex, data, cardCounter) {
+                        fact_ui.hideFactEditForm();
+                        var def = reviews_ui.session.reloadCurrentCard();
+                        def.addCallback(function() {
+                            reviews_ui.displayCard(reviews_ui.session.currentCard, reviews_ui.cardBackVisible);
+                            //if the fact editing grid is open, update it
+                            if (typeof cards_factsGrid != 'undefined') {
+                                var store = cards_factsGrid.store;
+                                store.close();
+                                store.fetch({onComplete: function(){
+                                    cards_factsGrid.sort();
+                                }});
+                            }
+                        });
+                        reviews_ui.setKeyboardShortcuts();
+                    };
+                    
+                    fact_ui.showFactEditForm(reviews_ui.session.currentCard.factId, successCallback);
+                </script>
+            </div>
+            <div dojoType="dijit.form.Button" type="button" id="reviews_suspendCurrentCardButton" iconClass="manabi_icon manabi_icon_control_pause">
+                Suspend Card
+                <script type="dojo/method" event="onClick" args="evt">
+                    reviews_ui.suspendCurrentCard();
+                </script>
+            </div>
+            <div dojoType="dijit.Tooltip" connectId="reviews_suspendCurrentCardButton" position="below" showDelay="10">
+                Stop learning this flashcard.<br>
+                It will no longer appear in future reviews.<br>
+                You can unsuspend later with the Flashcard Editor.
+            </div>
+            <div dojoType="dijit.form.Button" type="button" iconClass="manabi_icon manabi_icon_undo" disabled="true" jsId="reviews_undoReviewButton">
+                Undo Review
+                <script type="dojo/method" event="onClick" args="evt">
+                    reviews_ui.undo();
+                </script>
+            </div>
+        </span>
     </div>
     <div class="fullscreen_content">
         <div id="reviews_reviewScreen">
