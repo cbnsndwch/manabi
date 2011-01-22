@@ -111,7 +111,8 @@
 }
 #site_title .hover {
     opacity: 0;
-    letter-spacing: .5em;
+    letter-spacing: .68em;
+    font-size: .9em;
     display: inline-block;
 }
 #site_title .hover, #site_title .no_hover {
