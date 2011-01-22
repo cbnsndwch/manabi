@@ -6,59 +6,6 @@
 	font-weight: normal;
 	font-style: normal;
 }
-/*
-@font-face {
-	font-family: 'LeagueGothicRegular';
-	src: url('/site_media/static/fonts/League_Gothic-webfont.eot');
-	src: local('☺'), url('/site_media/static/fonts/League_Gothic-webfont.woff') format('woff'), url('/site_media/static/fonts/League_Gothic-webfont.ttf') format('truetype'), url('/site_media/static/fonts/League_Gothic-webfont.svg#webfontFHzvtkso') format('svg');
-	font-weight: normal;
-	font-style: normal;
-}
-@font-face {
-	font-family: 'HelsinkiRegular';
-	src: url('/site_media/static/fonts/helsinki-webfont.eot');
-	src: local('☺'), url('/site_media/static/fonts/helsinki-webfont.woff') format('woff'), url('/site_media/static/fonts/helsinki-webfont.ttf') format('truetype'), url('/site_media/static/fonts/helsinki-webfont.svg#webfontX9mrBzWF') format('svg');
-	font-weight: normal;
-	font-style: normal;
-}
-@font-face {
-	font-family: 'ArvoRegular';
-	src: url('/site_media/static/fonts/Arvo-Regular-webfont.eot');
-	src: local('☺'), url('/site_media/static/fonts/Arvo-Regular-webfont.woff') format('woff'), url('/site_media/static/fonts/Arvo-Regular-webfont.ttf') format('truetype'), url('/site_media/static/fonts/Arvo-Regular-webfont.svg#webfontau9vOdrl') format('svg');
-	font-weight: normal;
-	font-style: normal;
-}
-
-@font-face {
-	font-family: 'ArvoItalic';
-	src: url('/site_media/static/fonts/Arvo-Italic-webfont.eot');
-	src: local('☺'), url('/site_media/static/fonts/Arvo-Italic-webfont.woff') format('woff'), url('/site_media/static/fonts/Arvo-Italic-webfont.ttf') format('truetype'), url('/site_media/static/fonts/Arvo-Italic-webfont.svg#webfontvBl98OZ1') format('svg');
-	font-weight: normal;
-	font-style: normal;
-}
-
-@font-face {
-	font-family: 'ArvoRegular';
-	src: url('/site_media/static/fonts/Arvo-Bold-webfont.eot');
-	src: local('☺'), url('/site_media/static/fonts/Arvo-Bold-webfont.woff') format('woff'), url('/site_media/static/fonts/Arvo-Bold-webfont.ttf') format('truetype'), url('/site_media/static/fonts/Arvo-Bold-webfont.svg#webfontxi5Flt4Z') format('svg');
-	font-weight: bold;
-	font-style: normal;
-}
-
-@font-face {
-	font-family: 'ArvoItalic';
-	src: url('/site_media/static/fonts/Arvo-BoldItalic-webfont.eot');
-	src: local('☺'), url('/site_media/static/fonts/Arvo-BoldItalic-webfont.woff') format('woff'), url('/site_media/static/fonts/Arvo-BoldItalic-webfont.ttf') format('truetype'), url('/site_media/static/fonts/Arvo-BoldItalic-webfont.svg#webfontThKCEgOx') format('svg');
-	font-weight: normal;
-	font-style: normal;
-}
-@font-face {
-	font-family: 'AdelleBasicBold';
-	src: url('/site_media/static/fonts/AdelleBasic_Bold.otf');
-	font-weight: normal;
-	font-style: normal;
-}
-*/
 @font-face {
 	font-family: 'HiraginoKakuGothicStdW8';
 	src: url('/site_media/static/fonts/HiraginoKakuGothicStdW8.otf');
@@ -72,7 +19,6 @@ body, html {
     height:100%;
     margin:0;
     padding:0;
-    /*background-color: #003344;*/
     background-color: white;
 }
 
@@ -130,14 +76,18 @@ body, html {
     width: 300px;
     display: block;
     position: relative;
+    color: #ffffff;
+    text-decoration: none;
     /*top: .1em;*/
-    top: 4px;
+    /*top: 4px;*/
+    top: 1px;
     /*display: table-cell;*/
     /*vertical-align: middle;*/
 }
 #site_title .no_hover {
     position: absolute;
     top: .39em;
+    /*top: .38em;*/
 }
 #site_title .hover {
     opacity: 0;
@@ -184,7 +134,7 @@ body, html {
     /*padding-top:  .1em;*/
     /*padding-left: .2em;*/
     margin-right: .45em;
-    color: #C81010;
+    color: #b60900;
     /*text-shadow: -1px -1px 0px #101010, 1px 1px 0px #666;*/
 
 }
