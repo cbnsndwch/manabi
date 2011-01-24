@@ -2,6 +2,7 @@ from apps.utils import querycleaner
 from apps.utils.querycleaner import clean_query
 from django.contrib.auth.decorators import login_required
 from django.contrib.humanize.templatetags.humanize import naturalday
+from django.core.exceptions import PermissionDenied
 from django.db import transaction
 from django.forms import forms
 from django.shortcuts import get_object_or_404, render_to_response
@@ -138,13 +139,21 @@ def rest_card(request, card_id):
         card = get_object_or_404(Card, pk=card_id)
         return card.to_api_dict()
     elif request.method == 'POST':
-        params = clean_query(request.POST, {'grade': int})
+        # `duration` is in seconds (the time taken from viewing the card 
+        # to clicking Show Answer).
+        params = clean_query(request.POST,
+            {'grade': int, 'duration': int})
 
         if 'grade' in request.POST:
-            # this is a card review
-            #FIXME make sure this user owns this card
+            # This is a card review.
+            #
             card = get_object_or_404(Card, pk=card_id) 
+
+            if card.owner != request.user:
+                raise PermissionDenied('You do not own this flashcard.')
+
             card.review(params['grade'])
+
             return {'success': True}
 
 
@@ -163,5 +172,6 @@ def reset_review_undo_stack(request):
     if request.method == 'POST':
         UndoCardReview.objects.reset(request.user)
         return {'success': True}
+
 
 

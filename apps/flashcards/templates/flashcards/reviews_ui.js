@@ -1,5 +1,5 @@
 // user interface functions for reviews
-//
+
 dojo.provide('reviews_ui');
 
 dojo.require('reviews');
@@ -282,8 +282,14 @@ reviews_ui.showCardBack = function(card) {
 
 
 reviews_ui.reviewCard = function(card, grade) {
-    var review_def = card.review(grade);
-    review_def.addCallback(function(data) {
+    // First get the duration we recorded when the user was looking 
+    // at the front side of the card, before viewing the answer.
+    // We are going to store this value alongside the review grade, so we
+    // need it now.
+    //TODO refactor this into reviews module... _ui shouldnt need to know about currentCard etc
+    var questionDuration = this.session.currentCardQuestionDuration;
+
+    card.review(grade, questionDuration).then(function(data) {
         // Enable the Undo button (maybe should do this before the def?)
         reviews_undoReviewButton.set('disabled', false);
         //FIXME anything go here?
@@ -296,8 +302,8 @@ reviews_ui.reviewCard = function(card, grade) {
 };
 
 
-reviews_ui.displayNextCard = function() {
-};
+/*reviews_ui.displayNextCard = function() {
+};*/
 
 
 reviews_ui._disableReviewScreenUI = function(disable) {
@@ -466,13 +472,9 @@ reviews_ui.startSession = function(args) { //deckId, sessionTimeLimit, sessionCa
     };
 
     reviews_ui.session = new reviews.Session(sessionArgs);
-
     reviews_ui.sessionStarted = true;
-
     reviews_ui.sessionOverAfterCurrentCard = false;
-
     reviews_undoReviewButton.set('disabled', true);
-
     reviews_ui.lastSessionArgs = dojo.clone(args);
 
     //start a review session with the server
