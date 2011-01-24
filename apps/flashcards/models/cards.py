@@ -13,6 +13,7 @@ from django.template.loader import render_to_string
 from managers.cardmanager import CardManager
 from model_utils.managers import manager_from
 from repetitionscheduler import repetition_algo_dispatcher
+from django.db.models import Avg, Sum
 from undo import UndoCardReview
 from utils import timedelta_to_float
 import random
@@ -122,6 +123,21 @@ class Card(models.Model):
         if self.is_new() or not self.due_at:
             return False
         return self.due_at < time
+
+    def average_duration(self):
+        '''
+        Returns the average duration spent looking at the question side of 
+        this card before viewing the answer (in seconds, floating point).
+        '''
+        return this.cardhistory_set.aggregate(
+            Avg('duration'))['duration__avg']
+
+    def total_duration(self):
+        '''
+        The total time spent thinking of the answer.
+        '''
+        return this.cardhistory_set.aggregate(
+            Sum('duration'))['duration__sum']
 
     def _render(self, template_name):
         # map fieldtype-id to fieldcontents
@@ -360,7 +376,7 @@ class CardHistoryStatsMixin(object):
         return self.with_reviewed_on_dates().values(
             'reviewed_on').order_by().annotate(
             repetitions=Count('id'))
-        
+
 
 
 CardHistoryManager = lambda: manager_from(
