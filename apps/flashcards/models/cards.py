@@ -200,7 +200,7 @@ class Card(models.Model):
             reps[grade] = repetition_algo.next_repetition()
         return reps
 
-    def _update_statistics(self, grade, reviewed_at):
+    def _update_statistics(self, grade, reviewed_at, duration=None):
         '''
         Updates this card's stats. Call this for each review,
         before applying the new review. After applying the new review,
@@ -208,6 +208,8 @@ class Card(models.Model):
         this in 2 parts is that our undo system needs to know about this 
         object, but it creates the undo object before the card object gets 
         updated with the new review stats, so that we can rollback to it.
+
+        See the `self.review` docstring for info on `duration`.
         '''
         #TODO update CardStatistics
         was_new = self.is_new()
@@ -216,7 +218,8 @@ class Card(models.Model):
             card=self,
             response=grade,
             reviewed_at=reviewed_at,
-            was_new=was_new)
+            was_new=was_new,
+            duration=duration)
         card_history_item.save()
 
         self.review_count += 1
@@ -240,15 +243,21 @@ class Card(models.Model):
             self.due_at, next_repetition.due_at
 
     @transaction.commit_on_success
-    def review(self, grade):
+    def review(self, grade, duration=None):
         '''
         Commits a review rated with `grade`.
+
+        `duration` is an optional parameter which contains the time (in 
+        seconds, floating point) that the user spent looking at the 
+        question/front side of the card, before hitting "Show Answer" to 
+        see the back. It is in effect the time spent thinking of the answer.
         '''
         reviewed_at = datetime.utcnow()
         was_new = self.is_new()
 
         # Update this card's statistics
-        card_history_item = self._update_statistics(grade, reviewed_at)
+        card_history_item = self._update_statistics(
+            grade, reviewed_at, duration=duration)
 
         # Update the overall review statistics for this user
         review_stats = self.owner.reviewstatistics
@@ -371,5 +380,9 @@ class CardHistory(models.Model):
     # Was the card new when it was reviewed this time?
     was_new = models.BooleanField(default=False, db_index=True) 
 
+    duration = models.FloatField(null=True, blank=True)
+
     class Meta:
         app_label = 'flashcards'
+
+

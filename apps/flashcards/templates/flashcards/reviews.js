@@ -44,13 +44,18 @@ dojo.declare('reviews.Card', null, {
         return dojo.xhrPost(xhrArgs);
     },
 
-    review: function(grade) {
+    review: function(grade, duration) {
+        // `duration` is the time it took the user to show the answer.
+        // It is optional.
+        var duration = typeof duration === 'undefined' ? null : duration;
         xhrArgs = {
             url: '{% url api-cards %}' + this.id + '/',
-            content: { grade: grade },
+            content: { grade: grade, duration: duration },
             handleAs: 'json',
             load: dojo.hitch(this, function(data) {
                 if (data.success) {
+                    // The XHR req was successful for reviewing this card...
+                    // so remove the card from the pending-XHR queue.
                     this.session.cardsReviewedPending.splice(this.session.cardsReviewedPending.lastIndexOf(this.id), 1);
                 } else {
                     //FIXME try again on failure, or something
@@ -108,6 +113,7 @@ dojo.declare('reviews.Session', null, {
         // Initialize non-primitive props
         this.currentCard = null;
         this.timer = null;
+        this.currentCardQuestionDuration = null;
         this.cardsReviewedPending = [];
         this.cardsReviewedPendingDef = []; //contains the Deferred objects for each pending review
 
@@ -160,6 +166,24 @@ dojo.declare('reviews.Session', null, {
 
     failedReviewCount: function() {
         return this.reviewCountPerGrade[reviews.grades.GRADE_NONE];
+    },
+
+    startQuestionTimer: function() {
+        // Starts a timer for the current card
+        // This is used for measuring how long the user takes to think of 
+        // the answer to a card, before viewing the card's back.
+        this.currentCardQuestionDuration = null;
+        this._questionStartTime = new Date();
+    },
+
+    endQuestionTimer: function() {
+        // Ends the question timer, returning the elapsed time.
+        // The elapsed duration is calculated in milliseconds, but converted
+        // to seconds (floating-point).
+        // Also stores the return value in `this.currentCardQuestionDuration`
+        var now = new Date();
+        this.currentCardQuestionDuration = (now - this._questionStartTime) / 1000; // convert from ms to seconds.
+        return this.currentCardQuestionDuration;
     },
 
     _cardReviewCallback: function(card, grade, reviewDef) {

@@ -41,8 +41,6 @@ dojo.declare('reviews.SessionOverDialog', [dijit._Widget, dijit._Templated], {
     startup: function() {
         this.inherited(arguments);
 
-console.log(this.session);
-console.log(this.session.reviewCountPerGrade);
         // render the piechart which breaks down the reviewed cards
         // (uses jQuery)
         $(dojo.hitch(this, function(){
