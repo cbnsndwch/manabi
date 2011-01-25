@@ -215,7 +215,7 @@ reviews_ui.displayNextIntervals = function(card) {
 };
 
 
-reviews_ui.displayCard = function(card, show_card_back) {
+reviews_ui.displayCard = function(card, showCardBack) {
     reviews_ui.cardBackVisible = false;
     reviews_ui.unsetCardBackKeyboardShortcuts();
     reviews_cardFront.set('content', card.front);
@@ -225,13 +225,24 @@ reviews_ui.displayCard = function(card, show_card_back) {
     reviews_subfactPane.set('content', '');
     reviews_subfactPane.domNode.style.display = 'none';
     dojo.byId('reviews_gradeButtonsContainer').style.visibility = 'hidden';
-    if (show_card_back) {
+
+    if (showCardBack) {
+        // Happens when showing an undone card (and maybe other cases 
+        // in the future).
         reviews_ui.showCardBack(card);
     } else {
         reviews_ui.setCardFrontKeyboardShortcuts();
         reviews_showCardBackButton.set('disabled', false);
         reviews_showCardBackButton.focus();
+
+        // start timers
+        reviews_ui.session.startCardTimer();
+        reviews_ui.session.startQuestionTimer();
     }
+
+    dojo.publish(reviews.subscriptionNames.cardDisplayed, [{
+        card: card
+    }]);
 };
 
 reviews_ui.goToNextCard = function() {
@@ -265,6 +276,9 @@ reviews_ui.showCardBack = function(card) {
     reviews_showCardBackButton.set('disabled', true);
     reviews_ui.cardBackVisible = true;
     reviews_ui.unsetCardFrontKeyboardShortcuts();
+
+    // Stop the question timer
+    reviews_ui.session.stopQuestionTimer();
     
     //enable the grade buttons
     dojo.query('.dijitButton', dojo.byId('reviews_gradeButtons')).forEach(function(node) {
@@ -287,9 +301,19 @@ reviews_ui.reviewCard = function(card, grade) {
     // We are going to store this value alongside the review grade, so we
     // need it now.
     //TODO refactor this into reviews module... _ui shouldnt need to know about currentCard etc
-    var questionDuration = this.session.currentCardQuestionDuration;
+    
+    // Stop the card timer
+    reviews_ui.session.stopCardTimer();
 
-    card.review(grade, questionDuration).then(function(data) {
+    var questionDuration = this.session.currentCardQuestionDuration;
+    var duration = this.session.currentCardDuration;
+    console.log('durations:');
+    console.log(questionDuration);
+    console.log(duration);
+    console.log(this.session);
+
+
+    card.review(grade, duration, questionDuration).then(function(data) {
         // Enable the Undo button (maybe should do this before the def?)
         reviews_undoReviewButton.set('disabled', false);
         //FIXME anything go here?

@@ -6,6 +6,13 @@ GRADE_GOOD = 4
 GRADE_EASY = 5
 ALL_GRADES = [GRADE_NONE, GRADE_HARD, GRADE_GOOD, GRADE_EASY]
 
+GRADE_NAMES = {
+    GRADE_NONE: 'Wrong',
+    GRADE_HARD: 'Hard',
+    GRADE_GOOD: 'Good',
+    GRADE_EASY: 'Too Easy',
+}
+
 
 ISO_639_2_LANGUAGES = (
     ('eng', 'English',),

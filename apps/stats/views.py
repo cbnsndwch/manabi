@@ -1,14 +1,27 @@
-from flashcards.views.decorators import flashcard_api as api
-from flashcards.views.decorators import ApiException
+from apps.utils import querycleaner
+from apps.utils.querycleaner import clean_query
 from datetime import datetime
-from flashcards.views.decorators import has_card_query_filters
-from django.views.decorators.http import require_GET
-from flashcards.models import CardHistory, Card
-from django.http import HttpResponse
 from django.contrib.auth.decorators import login_required
+from django.contrib.humanize.templatetags.humanize import naturalday
+from django.core.exceptions import PermissionDenied
+from django.http import HttpResponse
 from django.shortcuts import get_object_or_404, render_to_response
 from django.template import RequestContext, loader
+from django.template.loader import render_to_string
+from django.views.decorators.http import require_GET
+from dojango.decorators import json_response
+from dojango.util import to_dojo_data, json_decode, json_encode
+from flashcards.models import CardHistory, Card
+from flashcards.models.constants import GRADE_NONE, GRADE_HARD, GRADE_GOOD, GRADE_EASY
+from flashcards.views.decorators import ApiException
+from flashcards.views.decorators import flashcard_api as api
+from flashcards.views.decorators import has_card_query_filters
 import settings
+
+
+
+
+
 
 
 # Views for graphs
@@ -115,3 +128,70 @@ def scheduling_summary(request, deck=None, tags=None):
                 user, deck=deck, tags=tags),
     }
     return data
+
+
+
+########################################
+#
+# Individual card and deck stats
+#
+########################################
+
+
+@api
+@require_GET
+def card_stats_json(request, card_id):
+    '''
+    '''
+    card = get_object_or_404(Card, pk=card_id)
+
+    if card.owner != request.user:
+        raise PermissionDenied('You do not own this flashcard.')
+
+    #first_reviewed_at = card.cardhistory_set.
+
+    stats = {
+        'createdAt':        card.fact.created_at,
+        'modifiedAt':       card.fact.modified_at,
+        'firstReviewedAt':  card.first_reviewed_at,
+        'dueAt':            card.due_at,
+        'interval':         card.interval,
+        'easeFactor':       card.ease_factor,
+        'lastDueAt':        card.last_due_at,
+        'lastInterval':     card.last_interval,
+        'lastEaseFactor':   card.last_ease_factor,
+        'lastFailedAt':     card.last_failed_at,
+        'lastReviewGrade':  card.last_review_grade,
+        'reviewCount':      card.review_count,
+
+        'averageDuration':         card.average_duration(),
+        'averageQuestionDuration': card.average_question_duration(),
+        'totalDuration':           card.total_duration(),
+        'totalQuestionDuration':   card.total_question_duration(),
+
+        'template':         card.template,
+    }
+
+    return stats
+
+
+@login_required
+def card_stats(request, card_id):
+    '''
+    Similar to `card_stats_json` but actually renders it in HTML.
+    '''
+    card = get_object_or_404(Card, pk=card_id)
+
+    if card.owner != request.user:
+        raise PermissionDenied('You do not own this flashcard.')
+
+    context = {
+        'card': card,
+        'early_review': card.due_at > datetime.utcnow(),
+    }
+
+    return render_to_response('stats/card_stats.html', context,
+        context_instance=RequestContext(request))
+    
+
+
