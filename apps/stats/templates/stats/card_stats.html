@@ -1,0 +1,87 @@
+{% load humanize %}
+{% load duration %}
+
+
+<div class="card_stats">
+
+    <table>
+        <tr>
+            <td>Card type</td>
+            <td>{{ card.template }}</td>
+        </tr>
+        <tr>
+            <td>First reviewed</td>
+            <td>{{ card.first_reviewed_at|timesince }} ago</td>
+        </tr>
+        <tr>
+            <td>Last review</td>
+            <td>{{ card.last_reviewed_at|timesince }} ago</td>
+        </tr>
+        <tr>
+            <td>Last review grade</td>
+            <td>{{ card.last_review_grade_name }} ago</td>
+        </tr>
+        <tr>
+        {% if early_review %}
+            <td>Was due in</td>
+            <td>{{ card.due_at|timeuntil }}</td>
+        {% else %}
+            <td>Was due</td>
+            <td>{{ card.due_at|timeuntil }} ago</td>
+        {% endif %}
+        </tr>
+        <tr>
+            <td>Interval</td>
+            <td>{{ card.interval|days_to_duration:"long,fuzz" }}</td>
+        </tr>
+        <tr>
+            <td>Ease factor</td>
+            <td>{{ card.ease_factor }}</td>
+        </tr>
+        <tr>
+            <td>Last due</td>
+            <td>{{ card.last_due_at|timesince }} ago</td>
+        </tr>
+        <tr>
+            <td>Last interval</td>
+            <td>{{ card.last_interval|days_to_duration:"long,fuzz" }}</td>
+        </tr>
+        <tr>
+            <td>Last ease factor</td>
+            <td>{{ card.last_ease_factor }}</td>
+        </tr>
+        <tr>
+            <td>Last failed</td>
+            <td>{{ card.last_failed_at|timesince }} ago</td>
+        </tr>
+        <tr>
+            <td>Review count</td>
+            <td>{{ card.review_count }}</td>
+        </tr>
+        <tr>
+            <td>Average time</td>
+            <td>
+                {{ card.average_duration|seconds_to_duration }}<br>
+                <span class="weak">(question only: {{ card.average_question_duration|seconds_to_duration }})</span>
+            </td>
+        </tr>
+        <tr>
+            <td>Total time</td>
+            <td>
+                {{ card.total_duration|seconds_to_duration }}<br>
+                <span class="weak">(question only: {{ card.total_question_duration|seconds_to_duration }})</span>
+            </td>
+        </tr>
+        <tr>
+            <td>Created</td>
+            <td>{{ card.fact.created_at|naturalday }}</td>
+        </tr>
+        {% comment %}
+        <tr>
+            <td>Modified</td>
+            <td>{{ card.fact.modified_at|naturalday }}</td>
+        </tr>
+        {% endcomment %}
+    </table>
+
+</div>

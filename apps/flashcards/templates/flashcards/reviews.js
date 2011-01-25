@@ -14,7 +14,8 @@ reviews.subscriptionNames = {
     sessionTimerOver: 'manabi.reviews.session_timer_over',
     sessionCardLimitReached: 'manabi.reviews.session_card_limit_reached',
     sessionOver: 'manabi.reviews.session_over',
-    cardReviewed: 'manabi.reviews.card_reviewed'
+    cardReviewed: 'manabi.reviews.card_reviewed',
+    cardDisplayed: 'manabi.reviews.card_displayed'
 };
 
 dojo.declare('reviews.Card', null, {
@@ -27,6 +28,14 @@ dojo.declare('reviews.Card', null, {
     nextDueAt: function(grade) {
         // Returns a date for the next due date for the given grade
         return dojo.date.stamp.fromISOString(this.nextDueAtPerGrade[grade]);
+    },
+
+    stats: function() {
+        // Retrieves general stats about this card, and returns them 
+        // as a hash object.
+        xhrArgs = {
+            url: '/flashcards/api/'
+        };
     },
 
     suspend: function() {
@@ -44,13 +53,15 @@ dojo.declare('reviews.Card', null, {
         return dojo.xhrPost(xhrArgs);
     },
 
-    review: function(grade, duration) {
+    review: function(grade, duration, questionDuration) {
         // `duration` is the time it took the user to show the answer.
         // It is optional.
         var duration = typeof duration === 'undefined' ? null : duration;
+        var questionDuration = typeof questionDuration === 'undefined' ? null : questionDuration;
+
         xhrArgs = {
             url: '{% url api-cards %}' + this.id + '/',
-            content: { grade: grade, duration: duration },
+            content: { grade: grade, duration: duration, questionDuration: questionDuration },
             handleAs: 'json',
             load: dojo.hitch(this, function(data) {
                 if (data.success) {
@@ -106,14 +117,14 @@ dojo.declare('reviews.Session', null, {
         //
         // Requires these arguments:
         //   deckId, dailyNewCardLimit, cardLimit, timeLimit, tagId, earlyReview, learnMore) {
-        console.log('rev count:'+this.reviewCount);
         dojo.safeMixin(this, args);
-        console.log('rev count:'+this.reviewCount);
 
         // Initialize non-primitive props
         this.currentCard = null;
         this.timer = null;
-        this.currentCardQuestionDuration = null;
+        this._resetQuestionTimer();
+        this._resetCardTimer();
+
         this.cardsReviewedPending = [];
         this.cardsReviewedPendingDef = []; //contains the Deferred objects for each pending review
 
@@ -168,22 +179,56 @@ dojo.declare('reviews.Session', null, {
         return this.reviewCountPerGrade[reviews.grades.GRADE_NONE];
     },
 
+    startCardTimer: function() {
+        // Same as startQuestionTimer, but for the entire duration that 
+        // the current card is viewed, including its front and back.
+        console.log('startCardTimer()');
+        this.currentCardDuration = null;
+        this._cardStartTime = new Date();
+    },
+
+    stopCardTimer: function() {
+        // Also stores the return value in `this.currentCardDuration``
+        if (this._cardStartTime) {
+            var now = new Date();
+            this.currentCardDuration = (now - this._cardStartTime) / 1000; // convert from ms to seconds.
+            this._cardStartTime = null;
+            return this.currentCardDuration;
+        }
+    },
+
+    _resetCardTimer: function() {
+        // Preps the timer for use.
+        this.currentCardDuration = null;
+        this._cardStartTime = null;
+    },
+
     startQuestionTimer: function() {
         // Starts a timer for the current card
         // This is used for measuring how long the user takes to think of 
         // the answer to a card, before viewing the card's back.
+        console.log('startQuestionTimer()');
         this.currentCardQuestionDuration = null;
         this._questionStartTime = new Date();
     },
 
-    endQuestionTimer: function() {
+    stopQuestionTimer: function() {
         // Ends the question timer, returning the elapsed time.
         // The elapsed duration is calculated in milliseconds, but converted
         // to seconds (floating-point).
         // Also stores the return value in `this.currentCardQuestionDuration`
-        var now = new Date();
-        this.currentCardQuestionDuration = (now - this._questionStartTime) / 1000; // convert from ms to seconds.
-        return this.currentCardQuestionDuration;
+        if (this._questionStartTime) {
+            var now = new Date();
+            this.currentCardQuestionDuration = (now - this._questionStartTime) / 1000; // convert from ms to seconds.
+            this._questionStartTime = null;
+            return this.currentCardQuestionDuration;
+        }
+    },
+
+    _resetQuestionTimer: function() {
+        // Preps the timer for use.
+        this.currentCardQuestionDuration = null;
+        this._questionStartTime = null;
     },
 
     _cardReviewCallback: function(card, grade, reviewDef) {
@@ -257,8 +302,6 @@ dojo.declare('reviews.Session', null, {
                 if (data.success) {
                     //start the session timer if it hasn't already been started
                     if (this.timer !== null) {
-                    console.log(this.timer);
-                    console.log(this);
                         if (!this.timer.isRunning) {
                             this.timer.start();
                         }
@@ -330,10 +373,12 @@ dojo.declare('reviews.Session', null, {
     _nextCard: function() {
         //assumes we already have a non-empty card queue, and returns the next card.
         card = this.cards.shift();
-                            console.log('pushin2');
-                            console.log(this);
         this.cardsReviewedPending.push(card.id);
         this.currentCard = card;
+
+        this._resetQuestionTimer();
+        this._resetCardTimer();
+
         return card;
     },
 
@@ -500,7 +545,6 @@ reviews.timeUntilNextCardDue = function(deck, tags) {
         url += '?' + query;
     }
     return parseInt(reviews._simpleXHRValueFetch(url), 10);
-//    console.log(data);
 //   return {hours: data['hoursUntilNextCardDue'], minutes: data['minutesUntilNextCardDue']};
 };
 

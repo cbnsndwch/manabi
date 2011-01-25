@@ -3,7 +3,7 @@ from constants import GRADE_NONE, GRADE_HARD, GRADE_GOOD, GRADE_EASY, \
     MAX_NEW_CARD_ORDINAL, EASE_FACTOR_MODIFIERS, \
     YOUNG_FAILURE_INTERVAL, MATURE_FAILURE_INTERVAL, MATURE_INTERVAL_MIN, \
     GRADE_EASY_BONUS_FACTOR, DEFAULT_EASE_FACTOR, INTERVAL_FUZZ_MAX, \
-    NEW_CARDS_PER_DAY, ALL_GRADES
+    NEW_CARDS_PER_DAY, ALL_GRADES, GRADE_NAMES
 from datetime import timedelta, datetime
 from dbtemplates.models import Template
 from django.contrib.auth.models import User
@@ -18,7 +18,7 @@ from undo import UndoCardReview
 from utils import timedelta_to_float
 import random
 import usertagging
-from django.db.models import Count
+from django.db.models import Count, Min, Max, Sum, Avg
 
 
 
@@ -108,6 +108,16 @@ class Card(models.Model):
     def deck(self):
         return self.fact.deck
 
+    @property
+    def first_reviewed_at(self):
+        return self.cardhistory_set.aggregate(
+            Min('reviewed_at'))['reviewed_at__min']
+
+    @property
+    def last_review_grade_name(self):
+        '''Returns a string version of the last review grade.'''
+        return GRADE_NAMES.get(self.last_review_grade)
+
     def is_new(self):
         '''Returns whether this card has been reviewed before.'''
         return self.last_reviewed_at is None
@@ -126,18 +136,34 @@ class Card(models.Model):
 
     def average_duration(self):
         '''
-        Returns the average duration spent looking at the question side of 
-        this card before viewing the answer (in seconds, floating point).
+        The average duration spent on the card each time it is shown
+        (seconds, floating-point).
         '''
-        return this.cardhistory_set.aggregate(
+        return self.cardhistory_set.aggregate(
             Avg('duration'))['duration__avg']
 
     def total_duration(self):
         '''
+        Total duration spent on the card each time it is shown.
+        '''
+        return self.cardhistory_set.aggregate(
+            Sum('duration'))['duration__sum']
+
+    def average_question_duration(self):
+        '''
+        Returns the average duration spent looking at the question side of 
+        this card before viewing the answer (in seconds, floating point).
+        '''
+        return self.cardhistory_set.aggregate(
+            Avg('question_duration'))['question_duration__avg']
+
+    def total_question_duration(self):
+        '''
         The total time spent thinking of the answer.
         '''
-        return this.cardhistory_set.aggregate(
-            Sum('duration'))['duration__sum']
+        return self.cardhistory_set.aggregate(
+            Sum('question_duration'))['question_duration__sum']
+
 
     def _render(self, template_name):
         # map fieldtype-id to fieldcontents
@@ -216,7 +242,8 @@ class Card(models.Model):
             reps[grade] = repetition_algo.next_repetition()
         return reps
 
-    def _update_statistics(self, grade, reviewed_at, duration=None):
+    def _update_statistics(self, grade, reviewed_at,
+                           duration=None, question_duration=None):
         '''
         Updates this card's stats. Call this for each review,
         before applying the new review. After applying the new review,
@@ -225,7 +252,8 @@ class Card(models.Model):
         object, but it creates the undo object before the card object gets 
         updated with the new review stats, so that we can rollback to it.
 
-        See the `self.review` docstring for info on `duration`.
+        See the `self.review` docstring for info on `duration` 
+        and `question_duration`.
         '''
         #TODO update CardStatistics
         was_new = self.is_new()
@@ -235,7 +263,8 @@ class Card(models.Model):
             response=grade,
             reviewed_at=reviewed_at,
             was_new=was_new,
-            duration=duration)
+            duration=duration,
+            question_duration=question_duration)
         card_history_item.save()
 
         self.review_count += 1
@@ -259,21 +288,25 @@ class Card(models.Model):
             self.due_at, next_repetition.due_at
 
     @transaction.commit_on_success
-    def review(self, grade, duration=None):
+    def review(self, grade, duration=None, question_duration=None):
         '''
         Commits a review rated with `grade`.
 
-        `duration` is an optional parameter which contains the time (in 
-        seconds, floating point) that the user spent looking at the 
+        `question_duration` is an optional parameter which contains the 
+        time (in seconds, floating point) that the user spent looking at the 
         question/front side of the card, before hitting "Show Answer" to 
         see the back. It is in effect the time spent thinking of the answer.
+
+        `duration` is the same, but for each entire duration of viewing 
+        this card (so, the time taken for the front and back of the card.)
         '''
         reviewed_at = datetime.utcnow()
         was_new = self.is_new()
 
         # Update this card's statistics
         card_history_item = self._update_statistics(
-            grade, reviewed_at, duration=duration)
+            grade, reviewed_at,
+            duration=duration, question_duration=question_duration)
 
         # Update the overall review statistics for this user
         review_stats = self.owner.reviewstatistics
@@ -396,6 +429,7 @@ class CardHistory(models.Model):
     # Was the card new when it was reviewed this time?
     was_new = models.BooleanField(default=False, db_index=True) 
 
+    question_duration = models.FloatField(null=True, blank=True)
     duration = models.FloatField(null=True, blank=True)
 
     class Meta:

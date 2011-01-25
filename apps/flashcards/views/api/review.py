@@ -142,7 +142,7 @@ def rest_card(request, card_id):
         # `duration` is in seconds (the time taken from viewing the card 
         # to clicking Show Answer).
         params = clean_query(request.POST,
-            {'grade': int, 'duration': int})
+            {'grade': int, 'duration': float, 'questionDuration': float})
 
         if 'grade' in request.POST:
             # This is a card review.
@@ -152,7 +152,9 @@ def rest_card(request, card_id):
             if card.owner != request.user:
                 raise PermissionDenied('You do not own this flashcard.')
 
-            card.review(params['grade'])
+            card.review(params['grade'],
+                duration=params.get('duration'),
+                question_duration=params.get('questionDuration'))
 
             return {'success': True}
 

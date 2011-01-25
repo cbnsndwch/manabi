@@ -12,6 +12,7 @@ graph_urlpatterns = patterns('stats.views',
 )
 
 
+
 # place app url patterns here
 urlpatterns = patterns('stats.views',
     url(r'^graphs/', include(graph_urlpatterns)),
@@ -19,6 +20,12 @@ urlpatterns = patterns('stats.views',
     url(r'^scheduling-summary/$',
         'scheduling_summary',
         name='stats_scheduling_summary'),
+
+    url(r'^cards/(?P<card_id>\d+).json$', 'card_stats_json',
+        name='api-card_stats'),
+
+    url(r'^cards/(?P<card_id>\d+)/$', 'card_stats',
+        name='card_stats'),
 
     url(r'^$', 'index', name='stats'),
 )
