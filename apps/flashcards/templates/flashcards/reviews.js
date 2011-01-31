@@ -101,6 +101,8 @@ dojo.declare('reviews.Session', null, {
     earlyReview: false,
     learnMore: false,
 
+    timeLimit: null,
+
     // private values (TODO: prepend _)
     //TODO sensible args consolidated w/ view and reviews_ui.startSession
     reviewCount: 0,
@@ -109,6 +111,7 @@ dojo.declare('reviews.Session', null, {
     _prefetchInProgress: false,
     //this.session_over_def = new dojo.Deferred();
     emptyPrefetchProducer: false,
+    _sessionTimerInterval: 3000, // ms
 
     constructor: function(args) {
         //Use deckId = -1 for all decks
@@ -122,11 +125,15 @@ dojo.declare('reviews.Session', null, {
         // Initialize non-primitive props
         this.currentCard = null;
         this.timer = null;
+        this._endTime = null;
         this._resetQuestionTimer();
         this._resetCardTimer();
 
         this.cardsReviewedPending = [];
         this.cardsReviewedPendingDef = []; //contains the Deferred objects for each pending review
+
+        // We can use this to get the count of unique cards reviewed. This will be >= this.reviewCount
+        this.reviewedCardIds = [];
 
         this.reviewCountPerGrade = {};
         this.reviewCountPerGrade[reviews.grades.GRADE_NONE] = this.reviewCountPerGrade[reviews.grades.GRADE_HARD] = this.reviewCountPerGrade[reviews.grades.GRADE_GOOD] = this.reviewCountPerGrade[reviews.grades.GRADE_EASY] = 0,
@@ -145,6 +152,7 @@ dojo.declare('reviews.Session', null, {
         var def = new dojo.Deferred();
         reviews._simpleXHRPost('{% url api-reset_review_undo_stack %}').addCallback(dojo.hitch(this, function(def) {
             var prefetchDef = this.prefetchCards(this.cardBufferSize * 2, true);
+
             prefetchDef.addCallback(dojo.hitch(this, function(def, prefetch_item) {
                 //start session timer - a published event
                 this._startSessionTimer();
@@ -163,12 +171,18 @@ dojo.declare('reviews.Session', null, {
         //session over event
         dojo.publish(reviews.subscriptionNames.sessionOver, [{
             reviewCount: this.reviewCount,
-            timeElapsed: this.endTime - this.startTime}]);
+            timeElapsed: this.duration()
+        }]);
 
         //FIXME cleanup, especially once the dialog is closed prematurely, automatically
         this.cards = [];
         this.cardsReviewedPending = [];
         this.emptyPrefetchProducer = false;
+    },
+
+    cardsReviewedCount: function() {
+        // Returns the number of unique cards reviewed -- discount repeat reviews of the same card.
+        return this.reviewedCardIds.length;
     },
 
     successfulReviewCount: function() {
@@ -177,6 +191,13 @@ dojo.declare('reviews.Session', null, {
 
     failedReviewCount: function() {
         return this.reviewCountPerGrade[reviews.grades.GRADE_NONE];
+    },
+
+    duration: function() {
+        // Returns the time elapsed, either so far or until the end of the session,
+        // whichever is earlier.
+        var endTime = this._endTime ? this._endTime : new Date();
+        return endTime - this._startTime;
     },
 
     startCardTimer: function() {
@@ -237,6 +258,10 @@ dojo.declare('reviews.Session', null, {
         this.reviewCount++;
         this.reviewCountPerGrade[grade]++;
 
+        if (dojo.indexOf(this.reviewedCardIds, card.id) == -1) {
+            this.reviewedCardIds.push(card.id);
+        }
+
         //if this card failed, then the server may have more cards for us to prefetch
         //even if it was empty before
         if (grade == reviews.grades.GRADE_NONE) {
@@ -261,7 +286,8 @@ dojo.declare('reviews.Session', null, {
                 && this.cardLimit) {
             dojo.publish(reviews.subscriptionNames.sessionCardLimitReached, [{
                 reviewCount: this.reviewCount,
-                timeElapsed: this.endTime - this.startTime}]);
+                timeElapsed: this.duration()
+            }]);
         }
     },
 
@@ -336,20 +362,24 @@ dojo.declare('reviews.Session', null, {
             this.timer.stop();
             delete this.timer;
         }
-        this.startTime = new Date();
+        this._startTime = new Date();
         this.timer = new dojox.timing.Timer();
-        this.timer.setInterval(1000); //in ms
+        this.timer.setInterval(this._sessionTimerInterval); //in ms
+
         this.timer.onTick = dojo.hitch(this, function() {
-            var time_now = new Date();
-            var elapsed = time_now - this.startTime; //in ms
+
             //see if we're over the session time limit
-            if (this.timeLimit
-                    && this.timeLimit * 60000 <= elapsed) {
-                this._stopSessionTimer();
+            //`timeLimit` is in minutes. `duration()` is ms.
+            if (this.timeLimit && this.timeLimit * 60000 <= this.duration()) {
+                //this._stopSessionTimer();
+                //TODO: need something which tells the session to end after the current card
+                //without actually stopping the timer until the session is actually fully over.
+                //We don't actually use this yet.
             } else {
                 dojo.publish(reviews.subscriptionNames.sessionTimerTick, [{
                     is_running: true,
-                    timeElapsed: elapsed }]);
+                    timeElapsed: this.duration()
+                }]);
             }
         });
     },
@@ -357,12 +387,12 @@ dojo.declare('reviews.Session', null, {
     _stopSessionTimer: function() {
         if (this.timer) {
             if (this.timer.isRunning) {
-                this.endTime = new Date();
+                this._endTime = new Date();
                 this.timer.stop();
                 this.timer = null;
                 var event_obj = {
                     is_running: false,
-                    timeElapsed: this.endTime - this.startTime
+                    timeElapsed: this.duration()
                 };
                 dojo.publish(reviews.subscriptionNames.sessionTimerTick, [event_obj]);
                 dojo.publish(reviews.subscriptionNames.sessionTimerOver, [event_obj]);

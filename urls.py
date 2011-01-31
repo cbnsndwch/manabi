@@ -52,6 +52,10 @@ urlpatterns = patterns('',
 )
 
 if settings.SERVE_MEDIA:
+    urlpatterns += patterns('',
+        (r'^favicon\.ico$', 'django.views.generic.simple.redirect_to', {'url': '/site_media/static/icons/favicon.ico'}),
+    )
+
     urlpatterns += patterns('', 
         #(r'^site_media/', include('staticfiles.urls')),
         url(r'', include('staticfiles.urls')),

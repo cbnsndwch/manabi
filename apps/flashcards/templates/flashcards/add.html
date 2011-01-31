@@ -1,19 +1,51 @@
-{% extends 'body_pane_base.html' %}
+{% extends "body_pane_base.html" %}
 
 {% load xhrlinks %}
 
+{% block content_class %}add_decks{% endblock %}
+
 {% block content %}
-<h1>Add Decks</h1>
-<p>
-    Add a flashcard deck from the list below, or create one yourself.
-</p>
-<p>
-    <h3>Public Deck Library</h3>
-    {% include "flashcards/_shareddeck_list.html" %}
-</p>
-<hr>
-<p>
-    <h3><a href="{% url create_deck %}" class="xhr_link">Create New Deck</a></h3>
-</p>
+<div class="column">
+    <img src="{{ STATIC_URL }}icons/isloo/search.png" class="icon">
+    <h2>Find a Deck</h2>
+    View decks created by other users and add them to your own study library.
+    <ul>
+        {% include "flashcards/_shareddeck_list.html" %}
+    </ul>
+</div>
+<div class="column create_deck">
+    <img src="{{ STATIC_URL }}icons/isloo/inbox_empty.png" class="icon">
+    <h2><a href="{% url create_deck %}" class="xhr_link">Create a Deck</a></h2>
+    Create a new deck of your own.
+</div>
+<div class="column create_cards">
+    <img src="{{ STATIC_URL }}icons/isloo/edit.png" class="icon">
+    <h2>Create Cards</h2>
+    Add new cards to the deck of your choosing.
+    <ul>
+        {% for deck in deck_list %}
+            <li><a href="{{ deck.get_absolute_url }}" class="xhr_link" data-deck="{{ deck.id }}">{{ deck.name }}</a></li>
+        {% endfor %}
+    </ul>
+    
+</div>
+<div style="clear:both"></div>
+
+<script type="text/javascript">
+    dojo.ready(function(){
+        // Make the "Create Cards" links open the card form dialog and
+        // follow the link to the deck simultaneously.
+        dojo.query('.add_decks .create_cards a').onclick(function(evt){
+            var node = evt.target;
+            fact_ui.showFactAddDialog(dojo.attr(node, 'data-deck'));
+        });
+
+        // make "create deck" clickable
+        dojo.query('.add_decks .create_deck').onclick(function(evt){
+            manabi_ui.xhrLink('{% url create_deck %}');
+        });
+    });
+
+</script>
 
 {% endblock %}

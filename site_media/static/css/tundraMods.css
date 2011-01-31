@@ -1,6 +1,6 @@
 
 /* Buttons */
-.tundra .dijitButton .dijitButtonNode {
+.tundra .dijitButtonNode {
 	/*background:#d1d1d1 url(images/button-bg.png) repeat-x 0 0;*/
 	border-width: 1px;
 	border-style: solid;
@@ -19,9 +19,15 @@
 }
 .tundra .dijitButtonContents {
     padding: 0.2em 0.5em;
+    position: relative;
+    top: -0.1em;
 }
 
-.tundra .dijitButton .dijitButtonNode:hover {
+.tundra .dijitButtonContents h1, .tundra .dijitButtonContents h2, .tundra .dijitButtonContents h3 {
+    margin: 0;
+}
+
+.tundra .dijitButtonNode:hover {
     -moz-box-shadow:0 0 2px #3daee6;
     -webkit-box-shadow:0 0 2px #3daee6;
     box-shadow:0 0 2px #3daee6;
@@ -73,3 +79,8 @@
     float: none;
 }
 
+
+
+.tundra .dijitTextArea {
+	padding: 6px;
+}

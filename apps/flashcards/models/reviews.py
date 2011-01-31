@@ -11,6 +11,8 @@ class ReviewStatistics(models.Model):
     '''
     Some stats per user. Notably, tracks the number of new cards
     reviewed each day, so that it can be limited.
+
+    This class is deprecated. It's pre-optimization, basically. Use CardHistory instead.
     '''
     user = models.OneToOneField(User)
 

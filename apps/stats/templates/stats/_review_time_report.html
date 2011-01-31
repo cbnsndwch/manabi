@@ -1,0 +1,8 @@
+{% load humanize %}
+{% load duration %}
+
+{% if duration %}
+    So far today, you've studied for about {{ duration|seconds_to_duration:"long" }}.
+{% else %}
+{% endif %}
+

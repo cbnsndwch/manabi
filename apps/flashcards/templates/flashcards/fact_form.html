@@ -1,5 +1,5 @@
 
-<div style="width:388px; float:left; padding-right: 20px;">
+<div style="width:388px; float:left; padding-right: 20px;" class="fact_form_container">
     <div dojoType="dijit.form.Form" jsId="cards_factForm" id="cards_factForm" encType="multipart/form-data" action="" method="">
         <script type="dojo/connect" event="onSubmit" args="evt">
             evt.preventDefault();
@@ -32,6 +32,7 @@
             name="fact-0-fact_type" 
             value="{{ fact.fact_type_id }}" 
             type="hidden">
+
         {% comment %}
         <div>
             <div>
@@ -47,6 +48,7 @@
         </div>
         <br>
         {% endcomment %}
+
         <div class="cards_factFields">
             {% for field_content in field_contents %}
                 {% with field_content.field_type as field_type %}
@@ -55,7 +57,7 @@
                     {% endif %}
                     <div{% if field_type.hidden_in_form and not field_content.content %} class="hidden_in_form" style="display:none"{% endif %}>
                         {% if field_type.is_transliteration_field_type %}
-                            <span><strong><label>{{ field_type.display_name }}:</label></strong>{% if not field_type.blank %} <span style="font-size:80%; color:gray">(required)</span>{% endif %}
+                            <span><label>{{ field_type.display_name }}:</label>{% if not field_type.blank %} <span style="font-size:80%; color:gray">(required)</span>{% endif %}
                                 {% spaceless %}
                                     <span class="fakeLink" onclick="fact_ui.generateReading(dijit.getEnclosingWidget(dojo.query('.cards_fieldContent')[0]).attr('value'), dijit.getEnclosingWidget(dojo.query('.cards_fieldContent')[1]))">
                                         <img src="{{ MEDIA_URL }}static/css/dojo_themes/tundra/images/icons/arrow_refresh.png" alt="Refresh transliteration field">
@@ -63,7 +65,7 @@
                                 {% endspaceless %}
                             </span>
                         {% else %}
-                            <strong><label>{{ field_type.display_name }}:</label></strong>{% if not field_type.blank %} <span style="font-size:80%; color:gray">(required)</span>{% endif %}
+                            <label>{{ field_type.display_name }}:</label>{% if not field_type.blank %} <span style="font-size:80%; color:gray">(required)</span>{% endif %}
                         {% endif %}
                         {% if field_type.choices %}
                             <select 
@@ -128,13 +130,13 @@
         </div>
         <br>
         <div>
-            <strong>Tags:</strong> <input name="fact-tags" type="text" dojoType="dijit.form.TextBox" 
+            <label>Tags:</label> <input name="fact-tags" type="text" dojoType="dijit.form.TextBox" 
                                     class="cards_tagsInput" style="width:343px" 
                                     value="{{ fact.edit_string_for_tags }}">
         </div>
         <br>
         <div>
-            <div><strong style="vertical-align:top">Cards:</strong>
+            <div><label style="vertical-align:top">Cards:</label>
             <select class="cards_cardTemplates" multiple="true" dojoType="dojox.form.CheckedMultiSelect" style="height:76px;">
                 {% for card_template in card_templates %}
                     <option value="{{ card_template.id }}"{% if card_template.activated_for_fact %} selected="selected"{% endif %}>

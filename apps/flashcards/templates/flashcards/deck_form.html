@@ -1,3 +1,7 @@
+{% extends "body_pane_base.html" %}
+{% load xhrlinks %}
+
+{% block content %}
 
 <h1>Create New Deck</h1>
 
@@ -18,9 +22,9 @@
         });
 	</script>
     <table>
-	    {{ form.as_table }}
+	    {{ form }}
     </table>
-	<button dojoType="dijit.form.Button" type="submit">Ok</button>
+	<button dojoType="dijit.form.Button" type="submit">Create</button>
 	<button dojoType="dijit.form.Button" jsId="deckDeleteCancelButton">
 		Cancel
 		<script type="dojo/connect" event="onClick" args="evt">
@@ -28,3 +32,5 @@
 		</script>
 	</button>
 </div>
+
+{% endblock %}

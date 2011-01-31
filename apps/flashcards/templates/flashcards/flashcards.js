@@ -2,7 +2,7 @@
 /********************
  * Disclaimer to those reading this code!
  *
- * I wrote this as I was really still learning Javascript and Dojo (and
+ * I wrote this module as I was really still learning Javascript and Dojo (and
  * Django), several years ago. I didn't get how to properly 
  * organize OO JS via prototypes, and so on. So please forgive the mess 
  * that this is :) It will be rewritten eventually, though it works somehow.
@@ -92,16 +92,16 @@
   
   
   function ajaxLink(url, container_id) {
-      dijit.byId(container_id).attr('href', url);
+      dijit.byId(container_id).set('href', url);
   }
   
   
   
   function factFormSubmit(submitSuccessCallback, submitErrorCallback, _factAddForm, factId, showStandby) {
       if (showStandby) {
-          factAddFormSubmitButton.attr('disabled', true);
+          factAddFormSubmitButton.set('disabled', true);
       }
-      var factAddFormValue = _factAddForm.attr('value');
+      var factAddFormValue = _factAddForm.get('value');
       
       var tempCardCounter = 0;
       for (var key in factAddFormValue) {
@@ -155,7 +155,7 @@
       //reset multi-choice fields
       dojo.query('.dijitSelect', dojo.byId('factFields')).forEach(function(node, index, arr) {
               var widget = dijit.getEnclosingWidget(node);
-              widget.attr('value', 'none');
+              widget.set('value', 'none');
       });
 
       //reset hidden fields
@@ -227,7 +227,7 @@
                       style: "width:300px;",
                       rows: '2'
                   }).placeAt(domNode, 'last');
-                  fieldTextarea.attr('gridStoreItemId', 'id'+fieldsStore.getValue(item, 'id')); //TODO this is a hack - all this code needs to be refactored
+                  fieldTextarea.set('gridStoreItemId', 'id'+fieldsStore.getValue(item, 'id')); //TODO this is a hack - all this code needs to be refactored
                   
                   new dijit.form.TextBox({
                       name: 'field_content-'+tempFieldCounter+'-field_type',
@@ -278,13 +278,13 @@
       if (dojo.trim(factAddFormResults.containerNode.innerHTML) == '') {
           factAddFormResults.containerNode.innerHTML = '';
       }
-      appendLineToAddedCardHistory(factAddFormResults.containerNode, 'Added '+tempCardCounter.toString()+' cards for '+dijit.byId('id_field_content-0-content').attr('value'));
+      appendLineToAddedCardHistory(factAddFormResults.containerNode, 'Added '+tempCardCounter.toString()+' cards for '+dijit.byId('id_field_content-0-content').get('value'));
       resetFactAddForm();
-      factAddFormSubmitButton.attr('disabled', false);
+      factAddFormSubmitButton.set('disabled', false);
     }, function(data, tempCardCounter) {
       //show field_content errors
       fieldContentErrors = data.errors.field_content;//[errors][field_content];
-      factAddFormSubmitButton.attr('disabled', false);
+      factAddFormSubmitButton.set('disabled', false);
       dojo.forEach(fieldContentErrors, function(errorMsg, idx) {
           if ('content' in errorMsg) {
               dojo.byId('id_field_content-'+idx+'-content-errors').innerHTML = '<font color="red"><em>'+errorMsg.content.join('<br>')+'</em></font>';
@@ -301,7 +301,7 @@
       } else {
           dojo.query('#fact-tag-errors').empty();
       }
-      factAddFormSubmitButton.attr('disabled', false);
+      factAddFormSubmitButton.set('disabled', false);
     }, factAddForm, null, true);
   }
   
@@ -333,7 +333,7 @@
         //cards_factsGrid.domNode.style.height = fact_ui.facts_grid_minimized_height;
         //cards_factsGrid.resize();
         //cards_factsGrid.scrollToRow(row_index); //TODO this can be a little awkward, moving too often
-        cards_factEditorContainer.attr('href', 'flashcards/facts/' + fact_id + '/update');
+        cards_factEditorContainer.set('href', 'flashcards/facts/' + fact_id + '/update');
         //cards_factEditorContainer.domNode.style.display = '';
         cards_factEditorContainer.show();
         dojo.query('.dijitDialogCloseIcon',cards_factEditorContainer.domNode)[0].style.visibility='hidden';
@@ -358,10 +358,10 @@
         submit_button = dijit.getEnclosingWidget(dojo.query('input[type=submit]', fact_form.domNode)[0])
         submit_button.set('disabled', true);
 
-        form_values = fact_form.attr('value');
+        form_values = fact_form.get('value');
 
         var card_templates_input = dijit.getEnclosingWidget(dojo.query('.cards_cardTemplates', fact_form.domNode)[0]);
-        var card_templates = card_templates_input.attr('value');
+        var card_templates = card_templates_input.get('value');
         var card_counter = 0;
         dojo.forEach(card_templates, function(val) {
             var new_key = 'card-' + (card_counter++) + '-template';
@@ -406,11 +406,11 @@
                 } else {
                     submit_error_callback(data, card_counter);
                 }
-                submit_button.attr('disabled', false);
+                submit_button.set('disabled', false);
             },
             error: function(error){
                 submit_error_callback(data.data, card_counter); //TODO other callback for this
-                submit_button.attr('disabled', false);
+                submit_button.set('disabled', false);
             }
         }
         dojo.xhrPost(xhrArgs); //var deferred = 
@@ -432,7 +432,7 @@
     fact_ui.clearFactSearch = function() {
             var cards_factSearchField = dijit.byId('cards_factSearchField');
             fact_ui.current_search_url_parameter = '';
-            cards_factSearchField.attr('value', '');
+            cards_factSearchField.set('value', '');
             cards_clearFactSearchButton.domNode.style.visibility = 'hidden';
             fact_ui.clearFilter('search');
     };
@@ -472,7 +472,7 @@
     fact_ui.generateReading = function(expression, reading_field, show_standby) {
         var reading_field = dijit.byId(reading_field);
         if (expression.trim() != '') {
-            reading_field.attr('disabled', true);        
+            reading_field.set('disabled', true);        
 
             var def = fact_ui._generateReading(expression);
 
@@ -488,16 +488,16 @@
             }
             def.addCallback(dojo.hitch(null, function(reading_field, expression, standby, reading) {
                 if (reading.trim()) { // != expression.trim()) {
-                    reading_field.attr('value', reading);
+                    reading_field.set('value', reading);
                 }
                 if (standby) {
                     standby.hide();
                     standby.destroy();
                 }
-                dijit.byId(reading_field).attr('disabled', false);            
+                dijit.byId(reading_field).set('disabled', false);            
             }, dijit.byId(reading_field), expression, standby));
         } else {
-            dijit.byId(reading_field).attr('value', '');
+            dijit.byId(reading_field).set('value', '');
         }
     };
 
@@ -506,7 +506,7 @@
         if (typeof deck_id == 'undefined') { deck_id = null; }
         if (deck_id) {
             //FIXME set it, hide the select
-            deckInput.attr('value', deck_id.toString());
+            deckInput.set('value', deck_id.toString());
         }
         factAddDialog.show();
     };
@@ -564,7 +564,7 @@
         var delete_field = dojo.query(subfact_node).query('[name^=fact-][name$=-DELETE]:first');
 
         if (delete_field.length) {
-            delete_field.attr('value', 'on');
+            delete_field.set('value', 'on');
             container_node[0].style.display = 'none';
             // move the cp out of its parent
             container_node.place(parent_container, 'before');

@@ -113,8 +113,10 @@ dl dd {
 }
 th,td {
 	/*borders and padding to make the table readable*/
-	border:1px solid #000;
+	/*border:1px solid #000;*/
+    border: none;
 	padding:.5em;
+    vertical-align: top;
 }
 th {
 	/*distinguishing table headers from data cells*/
@@ -132,6 +134,9 @@ p,fieldset,table {
 	margin-bottom:1em;
 }
  
+label {
+    vertical-align: top;
+}
 
 
 /* GENERAL */

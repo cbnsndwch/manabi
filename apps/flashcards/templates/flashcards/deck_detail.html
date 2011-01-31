@@ -1,3 +1,9 @@
+{% extends "body_pane_base.html" %}
+{% load xhrlinks %}
+
+{% block content %}
+
+
 {% if request.user == deck.owner or deck.shared %}
     {% comment %}
     <p>
@@ -88,3 +94,5 @@
         </p>
     {% endif %}
 {% endif %}
+
+{% endblock %}

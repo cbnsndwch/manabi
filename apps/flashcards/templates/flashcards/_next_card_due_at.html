@@ -1,12 +1,20 @@
 
 {% if count_of_cards_due_tomorrow == 0 %}
+
     The next card is due in <strong>
     {% if hours_until_next_card_due > 0 %} {{ hours_until_next_card_due }} hours{% else %}
     {% if minutes_until_next_card_due > 0 %} {{ minutes_until_next_card_due }} minutes {% else %}
         under a minute
     {% endif %} {% endif %}
     </strong>
+
 {% else %}
-    At this time tomorrow, there will be <strong>{{ count_of_cards_due_tomorrow }}</strong> cards due for review.
+
+    By this time tomorrow, there will be <strong>{{ count_of_cards_due_tomorrow }}</strong> cards due for review.
+
 {% endif %}
+
+{% comment %}
+<div class="weak subtext">You may review more now, but it would be more efficient to wait until then.</div>
+{% endcomment %}
 
