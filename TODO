@@ -60,6 +60,10 @@ colors for graph http://getcharmed.com/
 
 brand new refactor todo
 ---------
+make the review buttons into a templatetag, instead of include
+(theyre buggy now cos of context code dupe - learn more doesnt appear on the homepage when it should)
+
+make some things into optional contextprocs
 
 add shortnames to field objects
 so we can reference them by name rather than by ID, if we're writing some 

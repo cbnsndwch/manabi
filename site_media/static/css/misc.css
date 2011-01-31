@@ -24,7 +24,10 @@
 
 
 .weak {
-    color: lightgray;
+    color: #999;
+}
+.subtext {
+    font-size: .8em;
 }
 
 #siteLoader { 
@@ -237,10 +240,9 @@
     color: #555;
 }
 
-#body_contents h1:first-of-type, #body_contents h2:first-of-type {
+#body_contents h1:first-of-type, #body_contents h2:first-of-type, #body_contents h3:first-of-type, .dijitDialog h1:first-of-type, .dijitDialog h2:first-of-type {
     margin-top: 0px;
 }
-
 
 
 div.fullscreen {
@@ -438,6 +440,99 @@ div.reviews_correctGradeButtons {
 .card_stats tr td:first-of-type {
     text-align: right;
     font-weight: bold;
+}
+
+
+.study_button_pretext {
+    display: block;
+}
+.study_buttons .dijitButton {
+    float: left;
+}
+.study_button_meaning {
+    float: left;
+    margin-left: 1em;
+    padding-top: .55em;
+}
+.study_button_stats {
+    font-size: .8em;
+    color: #888;
+}
+.study_buttons:after {
+    clear: both;
+}
+.study_now {
+/*style="float:left; margin-right:.5em;margin-top:-.7em"*/
+}
+
+
+
+div.column {
+    float: left;
+    display: block;
+}
+
+.add_decks .column:first-of-type {
+    border-left: none;
+}
+.add_decks .column {
+    border-left: solid 3px lightgray;
+    width: 30%;
+    text-align: center;
+    padding: 1em 1em;
+    min-height: 30em;
+}
+.add_decks .column ul {
+    margin-left: 1em;
+    margin-right: 1em;
+}
+.add_decks .column ul li {
+    list-style: none;
+}
+.add_decks .icon {
+    display: block;
+    margin: 0em auto 1em auto;
+}
+.add_decks .create_deck:hover {
+    cursor: pointer;
+    background-color: #f3f3f3;
+}
+
+
+.fact_form_container label {
+    font-weight: bold;
+}
+.fact_form_container .dijitTextBox {
+    margin-top: .5em;
+    margin-bottom: .5em;
+    width: 99%;
+}
+.fact_form_container .required {
+    font-size: .8em;
+    color: gray;
+}
+.fact_form_container .field:first-of-type {
+    margin-top: 0;
+}
+.fact_form_container .field {
+    margin: .5em 0;
+}
+.fact_form_container .field .dijitTextBox {
+    font-size: 1.3em;
+}
+.fact_form_container .field .refresh {
+    position: relative;
+    top: 3px;
+    margin-left: 4px;
+}
+.fact_form_container .cards_form_container {
+    margin-top: 1em;
+}
+.fact_form_container .cards_form_container label {
+    font-weight: normal;
+}
+.fact_form_container .cards_form_container .card_templates {
+    margin: .4em 0;
 }
 
 /*.reviews_session_over_dialog .chart {

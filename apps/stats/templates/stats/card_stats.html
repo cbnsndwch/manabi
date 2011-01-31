@@ -10,6 +10,10 @@
             <td>{{ card.template }}</td>
         </tr>
         <tr>
+            <td>From deck</td>
+            <td>{{ card.deck.name }}</td>
+        </tr>
+        <tr>
             <td>First reviewed</td>
             <td>{{ card.first_reviewed_at|timesince }} ago</td>
         </tr>
@@ -55,8 +59,8 @@
             <td>{{ card.last_failed_at|timesince }} ago</td>
         </tr>
         <tr>
-            <td>Review count</td>
-            <td>{{ card.review_count }}</td>
+            <td>Reviewed</td>
+            <td>{{ card.review_count }} time{{ card.review_count|pluralize }}</td>
         </tr>
         <tr>
             <td>Average time</td>

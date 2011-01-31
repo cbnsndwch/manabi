@@ -12,6 +12,7 @@ def is_active_tab(request, tab_name):
     '''
 
     url_name = resolve_to_name(request.path)
+    print url_name
 
     if url_name in tabs.TAB_URLS[tab_name]:
         return 'active'
@@ -20,6 +21,8 @@ def is_active_tab(request, tab_name):
 
 @register.simple_tag
 def active_tab(request):
+    print 'active_tab'
+    print request.path
     url_name = resolve_to_name(request.path)
     print request.path
     print url_name

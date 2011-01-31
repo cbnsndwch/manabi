@@ -1,20 +1,20 @@
-{% extends 'body_pane_base.html' %}
+{% extends "body_pane_base.html" %}
 
 {% load i18n %}
 {% load openid_tags %}
 {% load ifsetting_tag %}
+{% load reviewtime_tags %}
+{% load humanize %}
+{% load duration %}
 
 {% load kanji_tags %}
 
 
 {% block content %}
-<h2>Welcome</h2>
-
-Thanks for joining my site. I hope that it will help you learn vocab and kanji from your class and, 
-more importantly, retain your memory of what you've already learned.<br>
-<br>
-Manabi uses a <a href="http://en.wikipedia.org/wiki/Spaced_repetition" target="_blank">spaced repetition system</a> to remind you when you need to review, by keeping track of your <a href="http://en.wikipedia.org/wiki/Forgetting_curve" target="_blank">forgetting curve</a>.
-<hr>
+<h3>Welcome back, {{ user }}.</h3>
+<p>
+    {% show_review_time_report user %}
+</p>
 <br>
 <p>
 {% if deck_count == 0 %}
@@ -25,12 +25,17 @@ Manabi uses a <a href="http://en.wikipedia.org/wiki/Spaced_repetition" target="_
     Get started by <a href="{% url add_decks %}" class="xhr_link">adding some pre-made flashcard decks</a>{% if deck_count > 0 %}, 
     or by creating new flashcards in <a href="{% url decks %}" class="xhr_link">one of your existing decks</a>{% endif %}.
 {% else %}
-
     {% include "flashcards/_reviews_start_buttons.html" %}
-    <br>
-    <br>
-    <span style="color:gray">(Or click <a href="{% url decks %}" class="xhr_link">Manage</a> to select a deck to review.)</span>
+    <span class="weak subtext">(Or <a href="{% url decks %}" class="xhr_link">choose a deck</a> to review.)</span>
 {% endif %} {% endif %}
+</p>
+
+<br>
+<br>
+<hr>
+
+<p>
+Manabi uses a <a href="http://en.wikipedia.org/wiki/Spaced_repetition" target="_blank">spaced repetition system</a> to remind you when you need to review, by keeping track of your <a href="http://en.wikipedia.org/wiki/Forgetting_curve" target="_blank">forgetting curve</a>.
 </p>
 
 <p>

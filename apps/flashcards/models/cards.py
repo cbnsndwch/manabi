@@ -19,6 +19,7 @@ from utils import timedelta_to_float
 import random
 import usertagging
 from django.db.models import Count, Min, Max, Sum, Avg
+from apps.utils.usertime import start_and_end_of_day
 
 
 
@@ -398,6 +399,18 @@ class CardHistoryManagerMixin(object):
         '''
         return self.extra(select={'reviewed_on': 'date(reviewed_at)'})
 
+    def of_day(self, user, date=None, field_name='reviewed_at'):
+        '''
+        Filters on the start and end of day for `user` adjusted to UTC.
+
+        `date` is a date object. Defaults to today.
+        '''
+        start, end = start_and_end_of_day(user, date=None)
+
+        kwargs = {field_name + '__range': (start, end)}
+        return self.filter(**kwargs)
+    
+
 
 class CardHistoryStatsMixin(object):
     '''Stats data methods for use in graphs.'''
@@ -409,6 +422,14 @@ class CardHistoryStatsMixin(object):
         return self.with_reviewed_on_dates().values(
             'reviewed_on').order_by().annotate(
             repetitions=Count('id'))
+
+    def daily_duration(self, user, date=None):
+        '''
+        Returns the time spent reviewing on the given date 
+        (defaulting to today) for `user`, in seconds.
+        '''
+        items = self.of_user(user).of_day(user, date=date)
+        return items.aggregate(Sum('duration'))['duration__sum']
 
 
 

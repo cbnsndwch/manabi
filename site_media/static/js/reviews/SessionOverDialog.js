@@ -35,7 +35,20 @@ dojo.declare('reviews.SessionOverDialog', [dijit._Widget, dijit._Templated], {
 
     postCreate: function() {
         this.inherited(arguments);
-        this.reviewCount.innerHTML = manabi.plural(this.session.reviewCount, 'card');
+        
+        // review counts
+        this.reviewCount.innerHTML = manabi.plural(this.session.cardsReviewedCount(), 'card');
+        if (this.session.cardsReviewedCount() != this.session.reviewCount) {
+            this.reviewCount.innerHTML += ' a total of ' + manabi.plural(this.session.reviewCount, 'time');
+        }
+
+        // session time
+        var minutes = Math.round(this.session.duration() / (1000 * 60));
+        if (minutes == 0) {
+            this.sessionDuration.innerHTML = 'under a minute';
+        } else {
+            this.sessionDuration.innerHTML = manabi.plural(minutes, 'minute');
+        }
     },
 
     startup: function() {
@@ -80,12 +93,12 @@ dojo.declare('reviews.SessionOverDialog', [dijit._Widget, dijit._Templated], {
                     //name: 'Browser share',
                     data: [
                         {
-                            name: 'Correct cards',
+                            name: 'Correct reviews',
                             y: this.session.successfulReviewCount(),
                             color: '#66cf66',
                         },
                         {
-                            name: 'Incorrect cards',
+                            name: 'Incorrect reviews',
                             y: this.session.failedReviewCount(),
                             color: '#ff3939',
                         }

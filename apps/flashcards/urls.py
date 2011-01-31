@@ -16,7 +16,8 @@ urlpatterns = patterns('flashcards.views.crud',
         name='add_decks'),
 
     #TODO add permissions enforcement for viewing
-    url(r'^decks/(?P<deck_id>\d+)/$', 'deck_detail'), 
+    url(r'^decks/(?P<deck_id>\d+)/$', 'deck_detail',
+        name='deck_detail'), 
     url(r'^decks/$', 'deck_list',
         name='decks'),
     url(r'^decks/(\w+)/update/$', 'deck_update',

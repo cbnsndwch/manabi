@@ -37,7 +37,7 @@ def seconds_to_duration(value, arg=''):
     """
         
     # Place seconds in to integer
-    secs = int(value)
+    secs = int(float(value))
     
     args = [e.strip() for e in arg.split(',')]
     do_long = 'long' in args

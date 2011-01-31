@@ -28,9 +28,10 @@ import usertagging
 @login_required
 def add_decks(request):
     '''Starting point for adding a deck, whether by creating or by downloading a shared deck.'''
-    shared_decks = Deck.objects.shared_decks().order_by('name')
+    shared_decks = Deck.objects.shared_decks().exclude(owner=request.user).order_by('name')
     context = {
-        'shared_deck_list': shared_decks
+        'shared_deck_list': shared_decks,
+        'deck_list': Deck.objects.filter(owner=request.user, active=True).order_by('name'),
     }
     return render_to_response('flashcards/add.html', context, context_instance=RequestContext(request))
 
@@ -169,5 +170,6 @@ def deck_create(request, post_save_redirect='/flashcards/decks'):
             deck_form = DeckForm()
     return render_to_response('flashcards/deck_form.html', 
         {'form': deck_form,
-         'post_save_redirect': post_save_redirect}) #todo:post/pre redirs
+         'post_save_redirect': post_save_redirect}
+        , context_instance=RequestContext(request)) #todo:post/pre redirs
 

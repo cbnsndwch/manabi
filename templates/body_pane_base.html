@@ -3,8 +3,11 @@
 {% block back_link %}
 {% if back_link %}<p><a href="{{ back_link.href }}">&laquo; Back to {{ back_link.name }}</a></p>{% endif %}
 {% endblock %}
-{% block content %}
-{% endblock %}
+
+<div class="{% block content_class %}{% endblock %}">
+    {% block content %}
+    {% endblock %}
+</div>
 
 <script type="text/javascript">
     // Broadcast the subnav tab that should be activated by this page loading
