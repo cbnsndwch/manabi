@@ -2,18 +2,18 @@
 from flashcards.models import FactType, Fact, Deck, CardTemplate, \
     FieldType, FieldContent, Card, \
     GRADE_NONE, GRADE_HARD, GRADE_GOOD, GRADE_EASY, \
-    SchedulingOptions, NEW_CARDS_PER_DAY
+    SchedulingOptions
 from django.shortcuts import render_to_response
 from django.template import RequestContext
 from django.db.models import F
-from flashcards.contextprocessors import study_options_context, subfact_form_context
+from flashcards.contextprocessors import subfact_form_context
 
 from django.contrib.auth.decorators import login_required
 
 
 @login_required
 def home(request):
-    context = study_options_context(request)
+    context = {}
     return render_to_response('home.html', context, context_instance=RequestContext(request))
 
 

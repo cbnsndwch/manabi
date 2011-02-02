@@ -6,6 +6,7 @@
 {% load reviewtime_tags %}
 {% load humanize %}
 {% load duration %}
+{% load review_tags %}
 
 {% load kanji_tags %}
 
@@ -25,7 +26,7 @@
     Get started by <a href="{% url add_decks %}" class="xhr_link">adding some pre-made flashcard decks</a>{% if deck_count > 0 %}, 
     or by creating new flashcards in <a href="{% url decks %}" class="xhr_link">one of your existing decks</a>{% endif %}.
 {% else %}
-    {% include "flashcards/_reviews_start_buttons.html" %}
+    {% show_review_start_buttons %}
     <span class="weak subtext">(Or <a href="{% url decks %}" class="xhr_link">choose a deck</a> to review.)</span>
 {% endif %} {% endif %}
 </p>

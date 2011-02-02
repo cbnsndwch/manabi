@@ -23,6 +23,7 @@ dojo.declare('reviews.Card', null, {
         /* `json_card` is the JSON object representing a card from Django.*/
         dojo.safeMixin(this, jsonCard);
         this.session = session;
+        this.lastReviewGrade = null;
     },
 
     nextDueAt: function(grade) {
@@ -77,6 +78,8 @@ dojo.declare('reviews.Card', null, {
         //start sending the review in ASAP
         var def = dojo.xhrPost(xhrArgs);
 
+        this.lastReviewGrade = grade;
+
         dojo.publish(reviews.subscriptionNames.cardReviewed, [{
             card: this,
             grade: grade,
@@ -124,6 +127,7 @@ dojo.declare('reviews.Session', null, {
 
         // Initialize non-primitive props
         this.currentCard = null;
+        this._prevCard = null;
         this.timer = null;
         this._endTime = null;
         this._resetQuestionTimer();
@@ -404,6 +408,7 @@ dojo.declare('reviews.Session', null, {
         //assumes we already have a non-empty card queue, and returns the next card.
         card = this.cards.shift();
         this.cardsReviewedPending.push(card.id);
+        this._prevCard = this.currentCard;
         this.currentCard = card;
 
         this._resetQuestionTimer();
@@ -454,6 +459,7 @@ dojo.declare('reviews.Session', null, {
             handleAs: 'json',
             load: dojo.hitch(this, function(data) {
                 if (data.success) {
+                    this._prevCard = this.currentCard;
                     this.currentCard = new reviews.Card(data.card, this);
                 }
             })
@@ -467,6 +473,7 @@ dojo.declare('reviews.Session', null, {
         // Clear cache
         this.cardsReviewedPending.splice(this.cardsReviewedPending.lastIndexOf(this.currentCard.id), 1);
         this.cards = [];
+        this._prevCard = null;
         this.currentCard = null;
 
         // Refill it
@@ -487,8 +494,14 @@ dojo.declare('reviews.Session', null, {
             
             // Clear and refill card cache
             actual_undo_def.addCallback(dojo.hitch(this, function(undo_def) {
+                // undo our record-keeping
+                console.log('prevcard:');
+                console.log(this._prevCard);
                 this.reviewCount -= 1;
-                this._resetCardBuffer().addCallback(dojo.hitch(this, function(undo_def) {
+                this.reviewCountPerGrade[this._prevCard.lastReviewGrade]--;
+                this.reviewedCardIds.splice(this.reviewedCardIds.indexOf(this._prevCard.id), 1);
+
+                this._resetCardBuffer().then(dojo.hitch(this, function(undo_def) {
                     undo_def.callback();
                 }, undo_def));
             }, undo_def));

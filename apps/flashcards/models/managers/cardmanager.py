@@ -7,8 +7,7 @@ from flashcards.models.constants import \
     GRADE_NONE, GRADE_HARD, GRADE_GOOD, GRADE_EASY, \
     MAX_NEW_CARD_ORDINAL, EASE_FACTOR_MODIFIERS, \
     YOUNG_FAILURE_INTERVAL, MATURE_FAILURE_INTERVAL, MATURE_INTERVAL_MIN, \
-    GRADE_EASY_BONUS_FACTOR, DEFAULT_EASE_FACTOR, INTERVAL_FUZZ_MAX, \
-    NEW_CARDS_PER_DAY
+    GRADE_EASY_BONUS_FACTOR, DEFAULT_EASE_FACTOR, INTERVAL_FUZZ_MAX
 
 
 class SchedulerMixin(object):
@@ -340,11 +339,19 @@ class CommonFiltersMixin(object):
 
     def of_user(self, user):
         from flashcards.models.facts import Fact
+
         #TODO this is probably really slow
         user_cards = self.filter(suspended=False, active=True)
         facts = Fact.objects.with_synchronized(user)
         user_cards = self.filter(fact__in=facts)
         return user_cards
+
+    def with_tags(self, tags):
+        from flashcards.models.facts import Fact
+        from usertagging.models import UserTaggedItem
+
+        facts = UserTaggedItem.objects.get_by_model(Fact, tags)
+        return self.filter(fact__in=facts)
 
     def new(self):
         return self.filter(last_reviewed_at__isnull=True)
@@ -361,33 +368,28 @@ class CommonFiltersMixin(object):
     def _user_cards(self, user, deck=None, tags=None, excluded_ids=None):
         #TODO change excluded_ids=None to =[]
         from flashcards.models.facts import Fact
+
         user_cards = self.of_user(user)
 
         if deck:
             user_cards = user_cards.filter(fact__deck=deck)
 
         if tags:
-            facts = usertagging.models.UserTaggedItem.objects.get_by_model(Fact, tags)
+            facts = usertagging.models.UserTaggedItem.objects.get_by_model(
+                Fact, tags)
             user_cards = user_cards.filter(fact__in=facts)
 
         if excluded_ids:
             user_cards = user_cards.exclude(id__in=excluded_ids)
+
         return user_cards
 
-    def new_cards(self, user, deck=None):
-        #TODO refactor, get rid of in favor of self.new()
-        return self.of_user(user).filter(last_reviewed_at__isnull=True,
-                                         fact__deck=deck)
+    def due(self):
+        return self.filter(
+            due_at__lte=datetime.datetime.utcnow()).order_by('-interval')
 
-    def due_cards(self, user=None, deck=None):
-        '''Either specify `user` in the params, or use `.of_user`'''
-        #TODO support tags
-        return self.of_user(user)\
-            .filter(due_at__lte=datetime.datetime.utcnow(),
-                    fact__deck=deck)\
-            .order_by('-interval')
-
-    #FIXME distinguish from cards_new_count or merge or make some new kind of review optioned class
+    #FIXME distinguish from cards_new_count or merge 
+    #or make some new kind of review optioned class
     #TODO consolidate with next_cards (see below)
     #FIXME make it work for synced decks
     def new_cards_count(self, user, excluded_ids, deck=None, tags=None):
@@ -429,27 +431,18 @@ class CommonFiltersMixin(object):
                               + datetime.timedelta(days=1))
         cards = cards.filter(due_at__lt=this_time_tomorrow)
         due_count = cards.count()
-        new_count = min(
-            NEW_CARDS_PER_DAY,
-            self.new_cards_count(user, [], deck=deck, tags=tags))
+        new_count = self.new_cards_count(user, [], deck=deck, tags=tags)
+        #new_count = min(
+            #NEW_CARDS_PER_DAY,
+            #self.new_cards_count(user, [], deck=deck, tags=tags))
         return due_count + new_count
 
-    def next_card_due_at(self, user, deck=None, tags=None):
+    def next_card_due_at(self):
         '''
         Returns the due date of the next due card.
+        If one is already due, this will be in the past.
         '''
-        from flashcards.models.facts import Fact
-        cards = self.of_user(user)
-        if deck:
-            cards = cards.filter(fact__deck=deck)
-        if tags:
-            facts = usertagging.models.UserTaggedItem.objects.get_by_model(Fact, tags)
-            cards = cards.filter(fact__in=facts)
-        try:
-            card = cards.filter(due_at__isnull=False).order_by('due_at')[0]
-        except IndexError:
-            return None
-        return card.due_at
+        return self.aggregate(Min('due_at'))['due_at__min']
 
     #def count(self, user, deck=None, tags=None):
         #cards = self.of_user(user)

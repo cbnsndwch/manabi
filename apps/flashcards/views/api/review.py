@@ -12,7 +12,6 @@ from dojango.decorators import json_response
 from dojango.util import to_dojo_data, json_decode, json_encode
 from flashcards.models import Card
 from flashcards.models.constants import GRADE_NONE, GRADE_HARD, GRADE_GOOD, GRADE_EASY
-from flashcards.models.constants import NEW_CARDS_PER_DAY
 from flashcards.models.undo import UndoCardReview
 from flashcards.views.decorators import flashcard_api as api
 from flashcards.views.decorators import has_card_query_filters
@@ -62,13 +61,13 @@ def next_cards_for_review(request, deck=None, tags=None):
 
         # New cards per day limit.
         #TODO implement this to be user-configurable instead of hard-coded
-        daily_new_card_limit = NEW_CARDS_PER_DAY
+        #daily_new_card_limit = NEW_CARDS_PER_DAY
 
         # Learn More new cards. Usually this will be 
         # combined with early_review.
-        if params.get('learn_more'):
+        #if params.get('learn_more'):
             # Overrides the daily new card limit
-            daily_new_card_limit = None
+            #daily_new_card_limit = None
 
         next_cards = Card.objects.next_cards(
             request.user,
@@ -77,8 +76,8 @@ def next_cards_for_review(request, deck=None, tags=None):
             session_start=params.get('session_start'),
             deck=deck,
             tags=tags,
-            early_review=params.get('early_review'),
-            daily_new_card_limit=daily_new_card_limit)
+            early_review=params.get('early_review'))
+            #daily_new_card_limit=daily_new_card_limit)
 
         #FIXME need to account for 0 cards returned 
 
@@ -91,11 +90,11 @@ def next_cards_for_review(request, deck=None, tags=None):
 
 @api
 def due_card_count(request):
-    return Card.objects.due_cards(request.user).count()
+    return Card.objects.of_usre(request.user).due().count()
 
 @api
 def new_card_count(request):
-    return Card.objects.new_cards(request.user).count()
+    return Card.objects.of_user(request.user).new().count()
 
 
 @api
@@ -107,8 +106,14 @@ def due_tomorrow_count(request, deck=None, tags=None):
 @api
 @has_card_query_filters
 def hours_until_next_card_due(request, deck=None, tags=None):
-    due_at = Card.objects.next_card_due_at(
-        request.user, deck=deck, tags=tags)
+    cards = Card.objects.of_user(request.user)
+
+    if deck:
+        cards = cards.of_deck(deck)
+    if tags:
+        cards = cards.with_tags(tags)
+
+    due_at = cards.next_card_due_at()
     difference = due_at - datetime.datetime.utcnow()
     hours_from_now = (difference.days * 24.0
                       + difference.seconds / (60.0 * 60.0))
@@ -120,12 +125,15 @@ def next_card_due_at(request, deck=None, tags=None):
     '''
     Returns a human-readable format of the next date that the card is due.
     '''
-    due_at = Card.objects.next_card_due_at(
-        request.user, deck=deck, tags=tags)
-    due_at = naturalday(due_at.date())
-    return due_at
+    cards = Card.objects.of_user(request.user)
 
+    if deck:
+        cards = cards.of_deck(deck)
+    if tags:
+        cards = cards.with_tags(tags)
 
+    due_at = cards.next_card_due_at()
+    return naturalday(due_at.date())
 
 
 @api

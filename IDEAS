@@ -12,6 +12,18 @@ achievements like lingt.com
 
 
 
+Sparklines
+-----------
+light gray background progress bar to show % started
+dark gray inner bar to show... % mid-interval (i.e. started but not yet due)?
+colorize the inner bar somehow - segmented by grade?
+
+cell with # due in fg. bg color darkness is severity -- % of deck which is due? or how badly overdue maybe? (amount overdue : interval ratio ???)
+
+colored cell:
+hue shows memory strength
+saturation or brightness shows % overdue? or amount over due in relation to intervals or something
+
 
 
 

@@ -1,5 +1,6 @@
 {% extends "body_pane_base.html" %}
 {% load xhrlinks %}
+{% load review_tags %}
 
 {% block content %}
 
@@ -19,7 +20,7 @@
     <p>
         {% if request.user == deck.owner %}
             {% if deck.card_count %}
-                {% include "flashcards/_reviews_start_buttons.html" %}
+                {% show_deck_review_start_buttons deck %}
             {% endif %}
         {% else %}
             <button dojoType="dijit.form.Button">

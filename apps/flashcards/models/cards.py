@@ -3,7 +3,7 @@ from constants import GRADE_NONE, GRADE_HARD, GRADE_GOOD, GRADE_EASY, \
     MAX_NEW_CARD_ORDINAL, EASE_FACTOR_MODIFIERS, \
     YOUNG_FAILURE_INTERVAL, MATURE_FAILURE_INTERVAL, MATURE_INTERVAL_MIN, \
     GRADE_EASY_BONUS_FACTOR, DEFAULT_EASE_FACTOR, INTERVAL_FUZZ_MAX, \
-    NEW_CARDS_PER_DAY, ALL_GRADES, GRADE_NAMES
+    ALL_GRADES, GRADE_NAMES
 from datetime import timedelta, datetime
 from dbtemplates.models import Template
 from django.contrib.auth.models import User
