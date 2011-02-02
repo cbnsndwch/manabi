@@ -190,7 +190,7 @@ def card_stats(request, card_id):
 
     context = {
         'card': card,
-        'early_review': card.due_at > datetime.utcnow(),
+        'early_review': card.due_at and card.due_at > datetime.utcnow(),
     }
 
     return render_to_response('stats/card_stats.html', context,

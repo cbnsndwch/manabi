@@ -484,6 +484,8 @@ reviews_ui.startSession = function(args) { //deckId, sessionTimeLimit, sessionCa
         return;
     }
 
+    manabi_ui.showLoader();
+
     var sessionArgs = {
         //FIXME use the user-defined session limits
         deckId: args.deckId||null,//'-1', 
@@ -511,6 +513,7 @@ reviews_ui.startSession = function(args) { //deckId, sessionTimeLimit, sessionCa
         //show the first card
         var nextCardDef = reviews_ui.session.nextCard();
         nextCardDef.addCallback(dojo.hitch(null, function(initialCardPrefetch, nextCard) {
+            manabi_ui.hideLoader();
 
             if (nextCard) {
                 //hide this dialog and show the review screen
