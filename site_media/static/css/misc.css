@@ -31,15 +31,16 @@
 }
 
 #siteLoader { 
-	padding:0;
-	margin:0;
-	position:absolute; 
-	top:0; left:0; 
-	width:100%; height:100%;  
-	background:#efefef;
+	padding: 0;
+	margin: 0;
+	position: absolute; 
+	top: 0; left: 0; 
+    width: 100%;
+    height: 100%; 
+	background: #efefef;
 	opacity: 0.97; 
-	z-index:999;
-	vertical-align:middle;
+	z-index: 999;
+	vertical-align: middle;
 }
 #siteLoaderInner {
 	position: absolute;
@@ -48,6 +49,20 @@
 	width: 32px;
 	height: 32px;
 	margin-top: -16px;
+	margin-left: -16px;
+	background-image: url('/site_media/static/images/loader_lg.gif');
+	background-repeat: no-repeat;
+}
+
+.bodyPaneLoader { 
+}
+.bodyPaneLoaderInner {
+	position: absolute;
+	top: 50%;
+	left: 50%;
+	width: 32px;
+	height: 32px;
+	margin-top: 25px; /* (82 / 2) - 16 */
 	margin-left: -16px;
 	background-image: url('/site_media/static/images/loader_lg.gif');
 	background-repeat: no-repeat;
@@ -278,9 +293,9 @@ div.fullscreen {
 }
 [class=fullscreen_toolbar]:hover { /* firefox bugs out unless we select like this */
     opacity: 1;
-    -webkit-transition: opacity 80ms ease-out;
-    -moz-transition: opacity 80ms ease-out;
-    transition: opacity 80ms ease-out;
+    -webkit-transition: opacity 60ms ease-out;
+    -moz-transition: opacity 60ms ease-out;
+    transition: opacity 60ms ease-out;
 }
 
 div.fullscreen_content {

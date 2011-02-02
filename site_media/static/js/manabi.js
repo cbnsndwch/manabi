@@ -76,6 +76,8 @@ if (document.URL.indexOf('#') != -1) {
 
 manabi_ui.showLoader = function() {
 	var loader = dojo.byId('siteLoader');
+
+
     loader.style.display = '';
 };
 
