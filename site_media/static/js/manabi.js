@@ -77,12 +77,16 @@ if (document.URL.indexOf('#') != -1) {
 manabi_ui.showLoader = function() {
 	var loader = dojo.byId('siteLoader');
     loader.style.display = '';
-	//dojo.fadeOut({ node: loader, duration: 500, onEnd: function(){ loader.style.display = 'none'; }}).play();
 };
 
 manabi_ui.hideLoader = function() {
 	var loader = dojo.byId('siteLoader');
     loader.style.display = 'none';
+    //loader.style.display = 'none';
+    /*dojo.fadeOut({
+        node: loader, duration: 200, onEnd: function(){
+            dojo.byId('siteLoader').style.display = 'none';
+    }}).play();*/
 };
 
 manabi_ui.onHashChange = function(hash) {
