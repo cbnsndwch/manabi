@@ -31,14 +31,13 @@
 }
 
 #siteLoader { 
-    display:none;
 	padding:0;
 	margin:0;
 	position:absolute; 
 	top:0; left:0; 
 	width:100%; height:100%;  
 	background:#efefef;
-	opacity: 0.98; 
+	opacity: 0.97; 
 	z-index:999;
 	vertical-align:middle;
 }

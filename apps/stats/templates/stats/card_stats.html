@@ -13,69 +13,76 @@
             <td>From deck</td>
             <td>{{ card.deck.name }}</td>
         </tr>
+        {% if card.is_new %}
         <tr>
             <td>First reviewed</td>
-            <td>{{ card.first_reviewed_at|timesince }} ago</td>
+            <td>never (new card)</td>
         </tr>
-        <tr>
-            <td>Last reviewed</td>
-            <td>{{ card.last_reviewed_at|timesince }} ago</td>
-        </tr>
-        <tr>
-            <td>Last review grade</td>
-            <td>{{ card.last_review_grade_name }}</td>
-        </tr>
-        <tr>
-        {% if early_review %}
-            <td>Was due in</td>
-            <td>{{ card.due_at|timeuntil }}</td>
         {% else %}
-            <td>Was due</td>
-            <td>{{ card.due_at|timeuntil }} ago</td>
+            <tr>
+                <td>First reviewed</td>
+                <td>{{ card.first_reviewed_at|timesince }} ago</td>
+            </tr>
+            <tr>
+                <td>Last reviewed</td>
+                <td>{{ card.last_reviewed_at|timesince }} ago</td>
+            </tr>
+            <tr>
+                <td>Last review grade</td>
+                <td>{{ card.last_review_grade_name }}</td>
+            </tr>
+            <tr>
+            {% if early_review %}
+                <td>Was due in</td>
+                <td>{{ card.due_at|timeuntil }}</td>
+            {% else %}
+                <td>Was due</td>
+                <td>{{ card.due_at|timeuntil }} ago</td>
+            {% endif %}
+            </tr>
+            <tr>
+                <td>Interval</td>
+                <td>{{ card.interval|days_to_duration:"long,fuzz" }}</td>
+            </tr>
+            <tr>
+                <td>Ease factor</td>
+                <td>{{ card.ease_factor }}</td>
+            </tr>
+            <tr>
+                <td>Last due</td>
+                <td>{{ card.last_due_at|timesince }} ago</td>
+            </tr>
+            <tr>
+                <td>Last interval</td>
+                <td>{{ card.last_interval|days_to_duration:"long,fuzz" }}</td>
+            </tr>
+            <tr>
+                <td>Last ease factor</td>
+                <td>{{ card.last_ease_factor }}</td>
+            </tr>
+            <tr>
+                <td>Last failed</td>
+                <td>{{ card.last_failed_at|timesince }} ago</td>
+            </tr>
+            <tr>
+                <td>Reviewed</td>
+                <td>{{ card.review_count }} time{{ card.review_count|pluralize }}</td>
+            </tr>
+            <tr>
+                <td>Average time</td>
+                <td>
+                    {{ card.average_duration|seconds_to_duration }}<br>
+                    (question only: {{ card.average_question_duration|seconds_to_duration }})
+                </td>
+            </tr>
+            <tr>
+                <td>Total time</td>
+                <td>
+                    {{ card.total_duration|seconds_to_duration }}<br>
+                    (question only: {{ card.total_question_duration|seconds_to_duration }})
+                </td>
+            </tr>
         {% endif %}
-        </tr>
-        <tr>
-            <td>Interval</td>
-            <td>{{ card.interval|days_to_duration:"long,fuzz" }}</td>
-        </tr>
-        <tr>
-            <td>Ease factor</td>
-            <td>{{ card.ease_factor }}</td>
-        </tr>
-        <tr>
-            <td>Last due</td>
-            <td>{{ card.last_due_at|timesince }} ago</td>
-        </tr>
-        <tr>
-            <td>Last interval</td>
-            <td>{{ card.last_interval|days_to_duration:"long,fuzz" }}</td>
-        </tr>
-        <tr>
-            <td>Last ease factor</td>
-            <td>{{ card.last_ease_factor }}</td>
-        </tr>
-        <tr>
-            <td>Last failed</td>
-            <td>{{ card.last_failed_at|timesince }} ago</td>
-        </tr>
-        <tr>
-            <td>Reviewed</td>
-            <td>{{ card.review_count }} time{{ card.review_count|pluralize }}</td>
-        </tr>
-        <tr>
-            <td>Average time</td>
-            <td>
-                {{ card.average_duration|seconds_to_duration }}<br>
-                (question only: {{ card.average_question_duration|seconds_to_duration }})
-            </td>
-        </tr>
-        <tr>
-            <td>Total time</td>
-            <td>
-                {{ card.total_duration|seconds_to_duration }}<br>
-                (question only: {{ card.total_question_duration|seconds_to_duration }})
-            </td>
-        </tr>
         <tr>
             <td>Created</td>
             <td>{{ card.fact.created_at|naturalday }}</td>

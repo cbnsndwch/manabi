@@ -73,6 +73,18 @@ if (document.URL.indexOf('#') != -1) {
     manabi_ui._baseURL = document.URL;
 }
 
+
+manabi_ui.showLoader = function() {
+	var loader = dojo.byId('siteLoader');
+    loader.style.display = '';
+	//dojo.fadeOut({ node: loader, duration: 500, onEnd: function(){ loader.style.display = 'none'; }}).play();
+};
+
+manabi_ui.hideLoader = function() {
+	var loader = dojo.byId('siteLoader');
+    loader.style.display = 'none';
+};
+
 manabi_ui.onHashChange = function(hash) {
     if (!hash) {
         manabi_ui._xhrLinkLoad('/home');
