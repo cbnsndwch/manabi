@@ -25,6 +25,7 @@
 				    dojo.fadeOut({ node: loader, duration: 500, onEnd: function(){ loader.style.display = 'none'; }}).play();
 			    }, 500);*/
                 manabi_ui.hideLoader();
+
 		    });
 	    </script> 
 
@@ -181,8 +182,26 @@
         <div id="body_contents">
             {% block body %}
             <div dojoType="dojox.layout.ContentPane" jsId="body_pane" style="overflow:hidden" executeScripts="true" scriptHasHooks="true">
+                <script type="dojo/method" event="onDownloadStart">
+                    /*var bodyNode = dojo.byId('body_contents');
+                    var pos = dojo.position(bodyNode, true);
+
+                    dojo.style(loader, {
+                        left: pos.x + 'px',
+                        top: pos.y + 'px',
+                        height: 200,//pos.h,
+                        width: pos.w,
+	                    background: 'white',
+	                    opacity: 1 
+                    });*/
+                    dojo.query('.legal').style({ display: 'none' });
+
+                    return '<div class="bodyPaneLoader"><div class="bodyPaneLoaderInner"></div></div>';
+                </script>
                 <script type="dojo/connect" event="onDownloadEnd">
+                    dojo.query('.legal').style({ display: '' });
                     manabi_ui.convertLinksToXhr(body_pane.domNode);            
+                    //manabi_ui.hideLoader();
                 </script>
                 {% block body_contents %}
                 {% endblock %}
