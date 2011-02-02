@@ -17,7 +17,7 @@ from django.views.generic.create_update import update_object, delete_object, cre
 from django.views.generic.list_detail import object_list, object_detail
 from dojango.decorators import json_response
 from dojango.util import to_dojo_data, json_decode, json_encode
-from flashcards.contextprocessors import study_options_context, subfact_form_context
+from flashcards.contextprocessors import subfact_form_context
 from flashcards.forms import DeckForm, FactForm, FieldContentForm
 from flashcards.models import FactType, Fact, Deck, CardTemplate, FieldType
 from flashcards.models import FieldContent, Card
@@ -45,7 +45,7 @@ def deck_detail(request, deck_id=None):
         },
         'object_id': deck_id,
     }
-    detail_args['extra_context'].update(study_options_context(request, deck_id=deck_id))
+    #detail_args['extra_context'].update(study_options_context(request, deck_id=deck_id))
     return object_detail(request, **detail_args)
 
 

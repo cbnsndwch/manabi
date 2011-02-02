@@ -63,11 +63,11 @@
 
         <div class="study_button_meaning">
             {% if due_card_count > 0 %}
-                You have <strong>{{ due_card_count|add:new_cards_left_for_today }}</strong> card{{ due_card_count|add:new_cards_left_for_today|pluralize }} due for review.
+                You have <strong>{{ due_card_count }}</strong> card{{ due_card_count|pluralize }} due for review.
             {% else %}
-                You have <strong>{{ new_cards_left_for_today }}</strong> card{{ new_cards_left_for_today|pluralize }} due for review.
+                You have <strong>{{ new_card_count }}</strong> card{{ new_card_count|pluralize }} due for review.
             {% endif %}
-            <div class="study_button_stats">{% if new_cards_left_for_today %}{{ new_cards_left_for_today }} new, {% endif %}{{ due_card_count }} urgent.</div>
+            <div class="study_button_stats">{% if new_card_count %}{{ new_card_count }} new, {% endif %}{{ due_card_count }} urgent.</div>
         </div>
 
     {% endif %}

@@ -45,6 +45,7 @@ class FieldType(models.Model):
 
     language = models.CharField(
         max_length=3, choices=ISO_639_2_LANGUAGES, blank=True, null=True)
+
     character_restriction = models.CharField(
         max_length=3, choices=OPTIONAL_CHARACTER_RESTRICTIONS,
         blank=True, null=True)

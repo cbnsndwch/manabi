@@ -116,16 +116,19 @@ def scheduling_summary(request, deck=None, tags=None):
         # new cards
         next card's due date (datetime)
     '''
-    user = request.user
+    cards = Card.objects.of_user(request.user)
+
+    if deck:
+        cards = cards.of_deck(deck)
+    if tags:
+        cards = cards.with_tags(tags)
+
     data = {
-        'due_now': Card.objects.due_cards(
-                user, deck=deck).count(),
+        'due_now': cards.due().count(),
         'due_tomorrow': Card.objects.count_of_cards_due_tomorrow(
-                user, deck=deck, tags=tags),
-        'new': Card.objects.new_cards_count(
-                user, [], deck=deck, tags=tags),
-        'next_card_due_at': Card.objects.next_card_due_at(
-                user, deck=deck, tags=tags),
+                request.user, deck=deck, tags=tags),
+        'new': card.new().count(),
+        'next_card_due_at': cards.next_card_due_at(),
     }
     return data
 
