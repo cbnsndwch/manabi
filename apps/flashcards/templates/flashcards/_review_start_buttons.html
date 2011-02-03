@@ -29,7 +29,6 @@
                     <span class="study_button_meaning">See more new cards. You have <strong>{{ new_card_count }}</strong> new card{{ new_card_count|pluralize }} waiting.</span>
                 </div>
                 <div style="clear:both"></div>
-
             {% endif %}
 
             <button dojoType="dijit.form.Button">
@@ -43,7 +42,7 @@
 	            </script>
             </button>
 
-            <div class="study_button_meaning">
+            <div class="study_button_meaning" style="position:relative; top:-.7em">
                 Start reviewing cards before they're due.<br>
                 <span class="weak subtext">You may review more now, but it would be more efficient to wait or find new cards to learn instead.</span>
             </div>

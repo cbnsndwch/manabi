@@ -473,7 +473,11 @@ div.reviews_correctGradeButtons {
 .study_button_meaning {
     float: left;
     margin-left: 1em;
-    padding-top: .55em;
+    padding-top: .9em;
+    /*padding-top: .55em;*/
+    /*border: 1px solid #9BC;
+    display: inline-block;
+    height: 3em;*/
 }
 .study_button_stats {
     font-size: .8em;
