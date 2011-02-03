@@ -100,19 +100,25 @@ def due_counts(request):
 @has_card_query_filters
 def usage_history(request, deck=None, tags=None):
     '''
+    For now, just gives review counts per day. Doesn't split into correct/incorrect.
+    The last element is today. Each element before that is one day earlier.
     '''
-    return {
-        'series': [
-            {
-                'color': 'green',
-                'data': [29.9, 71.5, 106.4, 129.2, 144.0, 176.0, 135.6, 148.5, 216.4, 194.1, 95.6, 54.4]
-            },
-            {
-                'color': 'red',
-                'data': [19.9, 11.5, 6.4, 9.2, 4.0, 6.0, 5.6, 8.5, 6.4, 4.1, 1, 4.4]
-            }
-        ]
-    }
+    # How many days of history?
+    days = request.GET.get('days', 60)
+
+    return [199, 115, 64, 92, 40, 60, 56, 85, 2, 4, 8, 64, 41, 1, 44, 19, 115, 64, 82, 40, 60, 56, 5, 288, 4, 8, 64, 41, 1, 44]
+    #return {
+    #    'series': [
+    #        {
+    #            'color': 'green',
+    #            'data': [29.9, 71.5, 106.4, 129.2, 144.0, 176.0, 135.6, 148.5, 216.4, 194.1, 95.6, 54.4]
+    #        },
+    #        {
+    #            'color': 'red',
+    #            'data': [19.9, 11.5, 6.4, 9.2, 4.0, 6.0, 5.6, 8.5, 6.4, 4.1, 1, 4.4]
+    #        }
+    #    ]
+     #}
 
 
 
