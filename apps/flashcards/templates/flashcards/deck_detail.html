@@ -1,6 +1,7 @@
 {% extends "body_pane_base.html" %}
 {% load xhrlinks %}
 {% load review_tags %}
+{% load stats_tags %}
 
 {% block content %}
 
@@ -32,6 +33,12 @@
             </button> Add this deck to your personal deck collection, so that you can start studying it.
         {% endif %}
     </p>
+
+    <div>
+        <div style="display: block">{% deck_usage_history deck %}</div>
+        <span class="weak subtext">Review history</span> 
+    </div>
+
     <hr>
     <p>
         <h3>Deck Contents</h3>

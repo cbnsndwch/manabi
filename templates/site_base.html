@@ -17,17 +17,6 @@
 
 
     {% if user.is_authenticated %}
-        <script type="text/javascript"> 
-		    dojo.ready(function(){
-			    //dojo.parser.parse(document.body);
-			    /*setTimeout(function(){
-				    var loader = dojo.byId('siteLoader');
-				    dojo.fadeOut({ node: loader, duration: 500, onEnd: function(){ loader.style.display = 'none'; }}).play();
-			    }, 500);*/
-                manabi_ui.hideLoader();
-
-		    });
-	    </script> 
 
         <script type="text/javascript" src="{{ MEDIA_URL }}static/js/manabi.js"></script>    
         <script type="text/javascript">
@@ -37,6 +26,7 @@
             dojango.registerModulePath('jdic', '{{ MEDIA_URL }}static/js/jdic');
             dojango.registerModulePath('kanjivg', '{{ MEDIA_URL }}static/js/kanjivg');
             dojango.registerModulePath('reviews', '{{ MEDIA_URL }}static/js/reviews');
+            dojango.registerModulePath('stats', '{{ MEDIA_URL }}static/js/stats');
             dojango.registerModulePath('custom', '{{ MEDIA_URL }}static/js/custom');
 
             $(function() {
@@ -46,6 +36,10 @@
                     }
                 });
             });
+
+		    dojo.ready(function(){
+                manabi_ui.hideLoader();
+		    });
         </script>
 
         <script type="text/javascript" src="{{ MEDIA_URL }}static/js/highcharts/highcharts.js"></script>

@@ -34,24 +34,24 @@ manabi.xhrGet = function(args) {
     // Handles our custom JSON data envelope.
     // Only works with JSON requests!
 
-    var def = new Deferred();
+    var def = new dojo.Deferred();
     
     // override regardless
     args.handleAs = 'json';
 
     dojo.hitch(this, dojo.xhrGet(args).then(
-        function(value) {
+        dojo.hitch(this, function(value) {
             if (value.success) {
                 // return the data field on success
-                this.def.callback(value.data);
+                def.callback(value.data);
             } else {
                 // errback the error string
-                this.def.errback(value.error);
+                def.errback(value.error);
             }
-        },
-        function(error) {
-            this.def.errback(error);
-        }
+        }),
+        dojo.hitch(this, function(error) {
+            def.errback(error);
+        })
     ));
     return def;
 };

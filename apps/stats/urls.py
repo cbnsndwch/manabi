@@ -9,6 +9,10 @@ graph_urlpatterns = patterns('stats.views',
     url(r'^due_counts.json$',
         'due_counts',
         name='graphs_due_counts'),
+
+    url(r'^usage_history.json$',
+        'usage_history',
+        name='graphs_usage_history'),
 )
 
 

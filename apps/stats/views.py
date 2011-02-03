@@ -19,6 +19,12 @@ from flashcards.views.decorators import has_card_query_filters
 import settings
 
 
+@login_required
+def index(request):
+    context = {
+    }
+    return render_to_response('stats/index.html', context,
+        context_instance=RequestContext(request))
 
 
 
@@ -89,12 +95,27 @@ def due_counts(request):
 
 
 
-@login_required
-def index(request):
-    context = {
+@api
+@require_GET
+@has_card_query_filters
+def usage_history(request, deck=None, tags=None):
+    '''
+    '''
+    return {
+        'series': [
+            {
+                'color': 'green',
+                'data': [29.9, 71.5, 106.4, 129.2, 144.0, 176.0, 135.6, 148.5, 216.4, 194.1, 95.6, 54.4]
+            },
+            {
+                'color': 'red',
+                'data': [19.9, 11.5, 6.4, 9.2, 4.0, 6.0, 5.6, 8.5, 6.4, 4.1, 1, 4.4]
+            }
+        ]
     }
-    return render_to_response('stats/index.html', context,
-        context_instance=RequestContext(request))
+
+
+
 
 
 
