@@ -27,7 +27,8 @@
     or by creating new flashcards in <a href="{% url decks %}" class="xhr_link">one of your existing decks</a>{% endif %}.
 {% else %}
     {% show_review_start_buttons %}
-    <span class="weak subtext">(Or <a href="{% url decks %}" class="xhr_link">choose a deck</a> to review.)</span>
+    <br>
+    <em class="weak ">Or <a href="{% url decks %}" class="xhr_link">choose a deck</a> to review.</em>
 {% endif %} {% endif %}
 </p>
 

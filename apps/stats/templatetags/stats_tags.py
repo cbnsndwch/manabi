@@ -15,7 +15,7 @@ def _usage_history(deck=None):
 
 
 @register.simple_tag
-def usage_history(user):
+def usage_history():
     return _usage_history()
     
     
@@ -24,3 +24,16 @@ def deck_usage_history(deck):
     return _usage_history(deck=deck)
 
 
+
+def _overview_stat_counts(deck=None):
+    context = {
+        #'':
+    }
+
+@register.inclusion_tag('stats/_overview_stat_counts.html')
+def overview_stat_counts():
+    return _overview_stat_counts()
+
+@register.inclusion_tag('stats/_overview_stat_counts.html')
+def deck_overview_stat_counts(deck):
+    return _overview_stat_counts(deck=deck)
