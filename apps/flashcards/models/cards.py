@@ -383,6 +383,9 @@ class CardHistoryManagerMixin(object):
     def of_user(self, user):
         return self.filter(card__fact__deck__owner=user)
 
+    def of_deck(self, deck):
+        return self.filter(card__fact__deck=deck)
+
     def new(self):
         return self.filter(was_new=True)
     

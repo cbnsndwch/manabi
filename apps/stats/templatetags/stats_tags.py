@@ -9,9 +9,9 @@ def _usage_history(deck=None):
     s = '''<div dojoType="stats.UsageSparkline"{0}></div>'''
 
     if deck:
-        return s.format('')
+        return s.format(' deckId="{0}"'.format(deck.id))
     else:
-        return s.format(' deckId="{}"'.format(deck.id))
+        return s.format('')
 
 
 @register.simple_tag
