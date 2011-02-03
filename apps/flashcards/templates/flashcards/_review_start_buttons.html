@@ -3,7 +3,7 @@
     {% if is_early_review %}
 
         <div class="review_early">
-            <div class="study_button_pretext">
+            <div class="study_button_pretext none_due_yet">
                 {% if deck %}
                     No cards in this deck are due for review yet.
                 {% else %}
@@ -13,6 +13,24 @@
                 {% include "flashcards/_next_card_due_at.html" %}
             </div>
 
+            {% if can_learn_more %}
+
+                <div class="learn_more">
+                    <button dojoType="dijit.form.Button">
+	                    <div style="margin:.7em .6em;"><h3>Learn new cards</h3></div>
+	                    <script type="dojo/connect" event="onClick" args="evt">
+                            var args = {};
+                            {% if deck %}args.deckId = {{ deck.id }}{% endif %}
+                            args.earlyReview = true;
+                            args.learnMore = true;
+                            reviews_ui.startSession(args);
+	                    </script>
+                    </button>
+                    <span class="study_button_meaning">See more new cards. You have <strong>{{ new_card_count }}</strong> new card{{ new_card_count|pluralize }} waiting.</span>
+                </div>
+                <div style="clear:both"></div>
+
+            {% endif %}
 
             <button dojoType="dijit.form.Button">
 	            <div style="margin:.7em 1.7em;"><h3>Review early</h3></div>
@@ -27,28 +45,10 @@
 
             <div class="study_button_meaning">
                 Start reviewing cards before they're due.<br>
-                <span class="weak subtext">You may review more now, but it would be more efficient to wait.</span>
+                <span class="weak subtext">You may review more now, but it would be more efficient to wait or find new cards to learn instead.</span>
             </div>
         </div>
 
-        {% if can_learn_more %}
-            <div style="clear:both"></div>
-
-            <div class="learn_more">
-                <button dojoType="dijit.form.Button">
-	                <div style="margin:.7em .58em;"><h3>Learn new cards</h3></div>
-	                <script type="dojo/connect" event="onClick" args="evt">
-                        var args = {};
-                        {% if deck %}args.deckId = {{ deck.id }}{% endif %}
-                        args.earlyReview = true;
-                        args.learnMore = true;
-                        reviews_ui.startSession(args);
-	                </script>
-                </button>
-                <span class="study_button_meaning">See more new cards. You have <strong>{{ new_card_count }}</strong> new card{{ new_card_count|pluralize }} waiting.</span>
-            </div>
-
-        {% endif %}
 
     {% else %}
 

@@ -30,6 +30,13 @@
     font-size: .8em;
 }
 
+.horizontal_list {
+    display: inline;
+}
+.horizontal_list li {
+    display: inline;
+}
+
 #siteLoader { 
 	padding: 0;
 	margin: 0;
@@ -479,6 +486,16 @@ div.reviews_correctGradeButtons {
 /*style="float:left; margin-right:.5em;margin-top:-.7em"*/
 }
 
+.none_due_yet {
+    background-color: #FDF7EB;
+    -moz-border-radius: 6px;
+    -webkit-border-radius: 6px;
+    border-radius: 6px;
+
+    padding: .5em 1em;
+    display: inline-block;
+    margin-bottom: .5em;
+}
 
 
 div.column {

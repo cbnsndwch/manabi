@@ -8,15 +8,19 @@
 	-moz-border-radius: 3px;
 	/*-webkit-border-radius: 3px;*/
 	border-radius: 3px;
-	-moz-box-shadow:0 1px 2px #ddd;
-	-webkit-box-shadow:0 1px 2px #ddd;
-	box-shadow:0 1px 2px #ddd;
-	text-shadow:0 1px 0 #fff;
 	color:#222;
 
     /*padding: 0.1em 0.2em 0.2em 0.2em;*/
     padding: 0;
 }
+.tundra span:not(.dijitDisabled) .dijitButtonNode {
+	-moz-box-shadow:0 1px 2px #ddd;
+	-webkit-box-shadow:0 1px 2px #ddd;
+	box-shadow:0 1px 2px #ddd;
+	text-shadow:0 1px 0 #fff;
+}
+
+
 .tundra .dijitButtonContents {
     padding: 0.2em 0.5em;
     position: relative;
@@ -27,14 +31,14 @@
     margin: 0;
 }
 
-.tundra .dijitButtonNode:hover {
+.tundra span:not(.dijitDisabled) .dijitButtonNode:hover {
     -moz-box-shadow:0 0 2px #3daee6;
     -webkit-box-shadow:0 0 2px #3daee6;
     box-shadow:0 0 2px #3daee6;
     border-color: #3daee6;
 }
 
-.tundra .dijitButtonNode:active {
+.tundra span:not(.dijitDisabled) .dijitButtonNode:active {
     background: #ddd;
 }
 
