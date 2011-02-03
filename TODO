@@ -165,6 +165,7 @@ make field uniqueness per-deck
 ---------------------
 TODO:
 ---------------------
+stat counts shoudl take into account active or suspended cards/facts too
 
 allow adding unsorted/orphan cards/items
 

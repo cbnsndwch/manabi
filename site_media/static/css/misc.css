@@ -26,6 +26,9 @@
 .weak {
     color: #999;
 }
+.weak a, a.weak {
+    color: #4662E5;
+}
 .subtext {
     font-size: .8em;
 }
@@ -508,7 +511,28 @@ div.reviews_correctGradeButtons {
     display: inline-block;
     margin-bottom: .5em;
 }
-
+.overview_stat_counts {
+    display: inline-block;
+    text-align: center;
+    margin: .5em 0 2em 0;
+    position: relative;
+    left: -.9em;
+}
+.overview_stat_counts li {
+    display: inline-block;
+    width: 4em;
+}
+.overview_stat_counts .stat {
+    display: block;
+    font-size: 1.5em;
+    font-weight: bold;
+}
+.overview_stat_counts .stat_name {
+    display: block;
+    font-size: .8em;
+    position: relative;
+    top: -.3em;
+}
 
 div.column {
     float: left;
