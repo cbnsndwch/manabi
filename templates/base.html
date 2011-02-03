@@ -26,7 +26,14 @@
             </style>
         {% endif %}
 
-        <script src="http://ajax.googleapis.com/ajax/libs/jquery/1.4.4/jquery.min.js" type="text/javascript"></script>
+        {% comment %}<script src="http://ajax.googleapis.com/ajax/libs/jquery/1.4.4/jquery.min.js" type="text/javascript"></script>{% endcomment %}
+        <script src="http://www.google.com/jsapi" type="text/javascript"></script> 
+	    <script type="text/javascript"> 
+		    google.load("jquery","1.4.4");
+		    //google.load("jqueryui", "1.8.9");
+	    </script>
+
+        {% comment %}<link rel="stylesheet" href="http://ajax.googleapis.com/ajax/libs/jqueryui/1.8.9/themes/ui-lightness/jquery-ui.css">{% endcomment %}
 
         {% block extra_head_base %}
             {% block extra_head %}{% endblock %}
