@@ -13,6 +13,8 @@
                 {% include "flashcards/_next_card_due_at.html" %}
             </div>
 
+            <div style="clear:both"></div>
+
             {% if can_learn_more %}
 
                 <div class="learn_more">
@@ -60,13 +62,13 @@
             </button>
         </div>
 
-        <div class="study_button_meaning">
+        <div class="study_button_meaning" style="position:relative; top:-.7em">
             {% if due_card_count > 0 %}
                 You have <strong>{{ due_card_count }}</strong> card{{ due_card_count|pluralize }} due for review.
             {% else %}
                 You have <strong>{{ new_card_count }}</strong> card{{ new_card_count|pluralize }} due for review.
             {% endif %}
-            <div class="study_button_stats">{% if new_card_count %}{{ new_card_count }} new, {% endif %}{{ due_card_count }} urgent.</div>
+            <div class="study_button_stats">{% if new_card_count %}{{ new_card_count }} unseen, {% endif %}{{ due_card_count }} urgent.</div>
         </div>
 
     {% endif %}
