@@ -7,6 +7,7 @@
 {% load humanize %}
 {% load duration %}
 {% load review_tags %}
+{% load stats_tags %}
 
 {% load kanji_tags %}
 
@@ -26,9 +27,19 @@
     Get started by <a href="{% url add_decks %}" class="xhr_link">adding some pre-made flashcard decks</a>{% if deck_count > 0 %}, 
     or by creating new flashcards in <a href="{% url decks %}" class="xhr_link">one of your existing decks</a>{% endif %}.
 {% else %}
-    {% show_review_start_buttons %}
+    <p>
+        {% show_review_start_buttons %}
+        <em class="weak ">Or <a href="{% url decks %}" class="xhr_link">choose a deck</a> to review.</em>
+    </p>
     <br>
-    <em class="weak ">Or <a href="{% url decks %}" class="xhr_link">choose a deck</a> to review.</em>
+
+    <div>
+        {% overview_stat_counts request.user %}
+    </div>
+
+    <div>
+        {% usage_history %}
+    </div>
 {% endif %} {% endif %}
 </p>
 
@@ -38,7 +49,7 @@
 
 <p>
 <em>Why Manabi?</em><br>
-Manabi uses a <a href="http://en.wikipedia.org/wiki/Spaced_repetition" target="_blank" class="definition">spaced repetition</a> algorithm to remind you when and what you need to review, by tracking your <a href="http://en.wikipedia.org/wiki/Forgetting_curve" target="_blank" class="definition">forgetting curve</a> for every card you study.
+Manabi uses a <a href="http://en.wikipedia.org/wiki/Spaced_repetition" target="_blank" class="definition">spaced repetition</a> algorithm to remind you when and what you need to review, by tracking your <a href="http://en.wikipedia.org/wiki/Forgetting_curve" target="_blank" class="definition">forgetting curve</a> for every card you study. We're also free, and always will be.
 </p>
 
 <p>

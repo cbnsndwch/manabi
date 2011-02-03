@@ -52,18 +52,24 @@
                 <td>Last due</td>
                 <td>{{ card.last_due_at|timesince }} ago</td>
             </tr>
-            <tr>
-                <td>Last interval</td>
-                <td>{{ card.last_interval|days_to_duration:"long,fuzz" }}</td>
-            </tr>
-            <tr>
-                <td>Last ease factor</td>
-                <td>{{ card.last_ease_factor }}</td>
-            </tr>
-            <tr>
-                <td>Last failed</td>
-                <td>{{ card.last_failed_at|timesince }} ago</td>
-            </tr>
+            {% if card.last_interval %}
+                <tr>
+                    <td>Last interval</td>
+                    <td>{{ card.last_interval|days_to_duration:"long,fuzz" }}</td>
+                </tr>
+            {% endif %}
+            {% if card.last_ease_factor %}
+                <tr>
+                    <td>Last ease factor</td>
+                    <td>{{ card.last_ease_factor }}</td>
+                </tr>
+            {% endif %}
+            {% if card.last_failed_at %}
+                <tr>
+                    <td>Last failed</td>
+                    <td>{{ card.last_failed_at|timesince }} ago</td>
+                </tr>
+            {% endif %}
             <tr>
                 <td>Reviewed</td>
                 <td>{{ card.review_count }} time{{ card.review_count|pluralize }}</td>
