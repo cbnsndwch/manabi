@@ -1,6 +1,6 @@
 from apps.utils import querycleaner
 from apps.utils.querycleaner import clean_query
-from datetime import datetime
+from datetime import datetime, timedelta
 from django.contrib.auth.decorators import login_required
 from django.contrib.humanize.templatetags.humanize import naturalday
 from django.core.exceptions import PermissionDenied
@@ -98,15 +98,25 @@ def due_counts(request):
 @api
 @require_GET
 @has_card_query_filters
-def usage_history(request, deck=None, tags=None):
+def daily_repetition_history(request, deck=None, tags=None):
     '''
     For now, just gives review counts per day. Doesn't split into correct/incorrect.
     The last element is today. Each element before that is one day earlier.
     '''
     # How many days of history?
-    days = request.GET.get('days', 60)
+    days = int(request.GET.get('days', 60))
+    from_ = datetime.utcnow() - timedelta(days=days)
 
-    return [199, 115, 64, 92, 40, 60, 56, 85, 2, 4, 8, 64, 41, 1, 44, 19, 115, 64, 82, 40, 60, 56, 5, 288, 4, 8, 64, 41, 1, 44]
+    user_items = CardHistory.objects.of_user(request.user).filter(
+        reviewed_at__gte=from_)
+
+    if deck:
+        user_items = user_items.of_deck(deck)
+
+    data = [val['repetitions'] for val in user_items.repetitions()]
+    return data
+
+    #return [199, 115, 64, 92, 40, 60, 56, 85, 2, 4, 8, 64, 41, 1, 44, 19, 115, 64, 82, 40, 60, 56, 5, 288, 4, 8, 64, 41, 1, 44]
     #return {
     #    'series': [
     #        {
