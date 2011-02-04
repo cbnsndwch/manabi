@@ -60,28 +60,11 @@ colors for graph http://getcharmed.com/
 
 brand new refactor todo
 ---------
-make the review buttons into a templatetag, instead of include
-(theyre buggy now cos of context code dupe - learn more doesnt appear on the homepage when it should)
+BUG: suspended cards are showing up in reviews
 
 make some things into optional contextprocs
 
-add shortnames to field objects
-so we can reference them by name rather than by ID, if we're writing some 
-kind of API that relies on a certain card model.
-Despite being in the DB, card models are fairly static, and we are going 
-to be writing custom code for each anyway.
-or, just use a proxy model...... JapaneseCard
-with methods for its fields
-this is way better. like my_jpn_card.reading
-
-
-named URLs
 magic numbers
-
-
-do i need to destroy any widgets, like my own ones?
-how about startup?
-
 
 refactoring order:
 views
@@ -90,7 +73,6 @@ forms
 models
 
 add basic auditing to some more models
-
 
 views.py: refactor GET/POST methods
 
@@ -101,10 +83,6 @@ models:
 braaaaaand new features
 
 per-day scheduling
-
-record time per flashcard in review! just put it in the db, dont use yet
-
-add a favicon (the kanji)
 
 
 ==========
