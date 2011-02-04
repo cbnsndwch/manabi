@@ -250,8 +250,8 @@ class SchedulerMixin(object):
             card_funcs = self._next_cards(
                 early_review=early_review,
                 daily_new_card_limit=daily_new_card_limit)
-        user_cards = self._user_cards(
-            user, deck=deck, excluded_ids=excluded_ids, tags=tags)
+        user_cards = self.common_filters(user,
+            deck=deck, excluded_ids=excluded_ids, tags=tags)
         count = 0
         cards_left = 99999 #TODO find a more elegant approach
         for card_func in card_funcs:
@@ -292,8 +292,10 @@ class SchedulerMixin(object):
         card_funcs = self._next_cards(
             early_review=early_review,
             daily_new_card_limit=daily_new_card_limit)
-        user_cards = self._user_cards(
-            user, deck=deck, excluded_ids=excluded_ids, tags=tags)
+
+        user_cards = self.common_filters(user,
+            deck=deck, excluded_ids=excluded_ids, tags=tags)
+
         cards_left = count
         card_queries = []
 
@@ -353,6 +355,13 @@ class CommonFiltersMixin(object):
         facts = UserTaggedItem.objects.get_by_model(Fact, tags)
         return self.filter(fact__in=facts)
 
+    def exclude_ids(self, excluded_ids):
+        return self.exclude(id__in=excluded_ids)
+
+    def unsuspended(self):
+        '''Returns unsuspended cards.'''
+        return self.filter(suspended=False)
+
     def new(self):
         return self.filter(last_reviewed_at__isnull=True)
     
@@ -364,25 +373,15 @@ class CommonFiltersMixin(object):
     def mature(self):
         return self.filter(interval__gte=MATURE_INTERVAL_MIN)
 
-    #TODO just use of_user and of_deck etc. as mixins instead of this
-    def _user_cards(self, user, deck=None, tags=None, excluded_ids=None):
-        #TODO change excluded_ids=None to =[]
-        from flashcards.models.facts import Fact
-
-        user_cards = self.of_user(user)
-
+    def common_filters(user,
+            deck=None, tags=None, excluded_ids=None):
+        cards = self.of_user(user).unsuspended()
         if deck:
-            user_cards = user_cards.filter(fact__deck=deck)
-
-        if tags:
-            facts = usertagging.models.UserTaggedItem.objects.get_by_model(
-                Fact, tags)
-            user_cards = user_cards.filter(fact__in=facts)
-
+            cards = cards.of_deck(deck)
         if excluded_ids:
-            user_cards = user_cards.exclude(id__in=excluded_ids)
-
-        return user_cards
+            cards = cards.exclude_ids(excluded_ids)
+        if tags:
+            cards = cards.with_tags(tags)
 
     def due(self):
         return self.filter(
