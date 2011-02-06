@@ -41,7 +41,7 @@ urlpatterns = patterns('flashcards.views.crud',
 #)
         
 
-# RESTy API
+# kinda-sorta-RESTy API
 urlpatterns += patterns('flashcards.views.api',
     url(r'^api/decks/(\w+)/subscribe/$', 'rest_deck_subscribe',
         name='api-subscribe_to_deck'),

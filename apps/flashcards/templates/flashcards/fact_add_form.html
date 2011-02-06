@@ -1,4 +1,4 @@
-{% comment %}Update this to use the standard fact_form.html, need to update the js to use the new names mostly{% endcomment %}
+{% comment %}TODO:Update this to use the standard fact_form.html, need to update the js to use the new names mostly{% endcomment %}
 
 <div dojoType="dojo.data.ItemFileReadStore" jsId="decksStore" 
     url="{% url api-decks %}" clearOnClose="true">
@@ -155,3 +155,17 @@
         <div jsId="factAddFormResults" dojoType="dijit.layout.ContentPane"></div>
     </div>
 </div>
+
+<script type="text/javascript">
+    // Turn our tags field into a widget
+    $(function(){
+		$('#cardTagsInput').tagit({
+			availableTags: ["c++", "java", "php", "coldfusion", "javascript", "asp", "ruby", "python", "c", "scala", "groovy", "haskell", "perl"],
+			// configure the name of the input field (will be submitted with form), default: item[tags]
+			itemName: 'item',
+			fieldName: 'tags'
+		});
+	});
+</script>
+
+
