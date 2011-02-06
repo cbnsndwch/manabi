@@ -33,11 +33,9 @@
     </p>
     <br>
 
-    <div>
+    <div class="mini_stats_container">
+        <div class="mini_stats_title">Progress Summary</div>
         {% overview_stat_counts request.user %}
-    </div>
-
-    <div>
         {% usage_history %}
     </div>
 {% endif %} {% endif %}

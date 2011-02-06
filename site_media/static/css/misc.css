@@ -14,7 +14,13 @@
 }
 }
 @font-face {
-	font-family: 'FontinBold';
+	font-family: 'Fontin';
+	src: url('/site_media/static/fonts/Fontin-Regular.ttf');
+	font-weight: normal;
+	font-style: normal;
+}
+@font-face {
+	font-family: 'Fontin';
 	src: url('/site_media/static/fonts/Fontin-Bold.ttf');
 	font-weight: bold;
 	font-style: normal;
@@ -38,6 +44,14 @@
 }
 .subtext {
     font-size: .8em;
+}
+hr {
+    border: none;
+    background-color: #999;
+    height: 1px;
+}
+#body_contents hr {
+    margin: 1em 0;
 }
 #body_contents a.definition {
     text-decoration: none;
@@ -120,7 +134,7 @@
     /*font-size: 3.5em;*/
     font-size: 56px; /*48px*/
     /*font-family: 'ArvoRegular';*/
-    font-family: 'FontinBold';/*'ChunkFiveRegular';*/
+    font-family: 'Fontin';/*'ChunkFiveRegular';*/
     font-weight: bold;
     /*position: relative;*/
     text-decoration: none;
@@ -487,6 +501,30 @@ div.reviews_correctGradeButtons {
     text-align: right;
     font-weight: bold;
 }
+.mini_stats_title, .mini_stats_container {
+}
+.mini_stats_container {
+    border: 1px solid #ddd;
+    padding: .5em;
+    -moz-border-radius: 6px;
+    -webkit-border-radius: 6px;
+    border-radius: 6px;
+    display: inline-block;
+}
+.mini_stats_title {
+    -moz-border-radius: 2px;
+    -webkit-border-radius: 2px;
+    border-radius: 2px;
+    font-weight: bold;
+    background-color: #999;
+    color: white;
+    padding: 0 .5em;
+    margin-bottom: 1em;
+}
+.mini_stats_container > div:not(.mini_stats_title) {
+    margin-top: 1em;
+    padding: 0 .3em;
+}
 
 
 .study_button_pretext {
@@ -525,12 +563,18 @@ div.reviews_correctGradeButtons {
     display: inline-block;
     margin-bottom: .5em;
 }
+.overview_stats {
+    width: 16em;
+    overflow-x: hidden;
+}
 .overview_stat_counts {
     display: inline-block;
     text-align: center;
-    margin: .5em 0 2em 0;
+    /*margin: .5em 0 2em 0;*/
+    margin: 0;
     position: relative;
     left: -.9em;
+    width: 17em;
 }
 .overview_stat_counts li {
     display: inline-block;
