@@ -43,7 +43,11 @@
         </script>
 
         <script type="text/javascript" src="{{ MEDIA_URL }}static/js/highcharts/highcharts.js"></script>
-        <script type="text/javascript" src="{{ MEDIA_URL }}static/js/jquery-sparkline/jquery.sparkline.js"></script>
+        <script type="text/javascript" src="{{ MEDIA_URL }}static/js/jquery-sparkline/jquery.sparkline.js" charset="utf-8"></script>
+
+        <script type="text/javascript" src="{{ MEDIA_URL }}static/tag-it/js/ie-compat.js" charset="utf-8"></script>
+        <script type="text/javascript" src="{{ MEDIA_URL }}static/tag-it/js/tag-it.js" charset="utf-8"></script>
+        <link rel="stylesheet" href="{{ MEDIA_URL }}static/tag-it/css/jquery-ui/jquery.ui.autocomplete.custom.css"></link>
 
         <script type="text/javascript" src="{{ MEDIA_URL }}static/js/jdic/jPlayer/jquery.jplayer.min.js"></script>
         <link rel="stylesheet" href="{{ MEDIA_URL }}static/js/jdic/jPlayer/skins/manabi/jplayer.css"></link>
@@ -54,10 +58,11 @@
             dojo.addOnLoad(function() {
                 if (dojo.isIE) {
                     dojo.byId('body_contents').innerHTML = "\
-                    Unfortunately your browser, Internet Explorer, doesn't work with this site just yet.<br><br>\
+                    Unfortunately your browser, Internet Explorer, doesn't work with this site just yet.
+                    It's in the pipeline, but IE doesn't make it easy on us.<br><br>\
                     Please use a more standards-compliant browser such as \
-                    <a href=\"http://www.mozilla.com/firefox/\">Firefox</a>, \
-                    <a href=\"http://www.google.com/chrome\">Google Chrome</a>, or <a href=\"http://www.apple.com/safari/\">Safari</a>.<br><br>\
+                    <a href=\"http://www.google.com/chrome\">Google Chrome</a>, <a href=\"http://www.mozilla.com/firefox/\">Firefox</a>, \
+                    or <a href=\"http://www.apple.com/safari/\">Safari</a>.<br><br>\
                     Sorry for the inconvenience! We'll add IE support eventually!";
               }
             });

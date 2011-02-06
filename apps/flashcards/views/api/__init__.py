@@ -3,6 +3,7 @@
 
 from apps.utils import japanese
 from apps.utils.querycleaner import clean_query
+from django.utils import simplejson
 from django.db import transaction
 from django.forms import forms
 from django.forms.models import modelformset_factory, formset_factory
@@ -16,6 +17,9 @@ from flashcards.forms import DeckForm, FactForm, FieldContentForm, CardForm
 from flashcards.models import FactType, Fact, Deck, CardTemplate, FieldType
 from flashcards.models import FieldContent, Card
 from flashcards.models.constants import MAX_NEW_CARD_ORDINAL
+from django.contrib.auth.decorators import login_required
+from django.views.decorators.http import require_GET
+from dojango.decorators import json_response
 from flashcards.views.decorators import all_http_methods
 from flashcards.views.decorators import flashcard_api as api
 from flashcards.views.decorators \
@@ -170,11 +174,22 @@ def rest_card_templates_for_fact(request, fact_id):
     return to_dojo_data(card_templates, identifier=None)
 
 
-@api_dojo_data
+@login_required
+@require_GET
 def rest_facts_tags(request):
+    '''
+    Returns a JSON list of tags. Nothing more.
+    '''
     tags = Fact.objects.all_tags_per_user(request.user)
-    tags = [{'name': tag.name, 'id': tag.id} for tag in tags]
-    return to_dojo_data(tags)
+    ret = [tag.name for tag in tags]
+    return HttpResponse(simplejson.dumps(ret), mimetype='application/json')
+
+    #TODO we can use `term` which jquery's autocomplete gives us to search prefixes -- an optimization
+    #for now we just give back all the tags
+    #term = request.GET.get('term', None)
+
+    #tags = [{'name': tag.name, 'id': tag.id} for tag in tags]
+    #return to_dojo_data(tags)
 
 
 @api_dojo_data

@@ -50,9 +50,12 @@ class FactType(models.Model):
 class FactManager(models.Manager):
     #TODO move to User
     def all_tags_per_user(self, user):
-        user_facts = self.filter(deck__owner=user).all()
-        return usertagging.models.Tag.objects.usage_for_queryset(
-                user_facts)
+        '''
+        Includes tags on facts made on subscribed facts.
+        '''
+        #user_facts = self.filter(deck__owner=user) 
+        user_facts = self.with_synchronized(user)
+        return usertagging.models.Tag.objects.usage_for_queryset(user_facts)
     
     def search(self, fact_type, query, query_set=None):
         '''Returns facts which have FieldContents containing the query.
