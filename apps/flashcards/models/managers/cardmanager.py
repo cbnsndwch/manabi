@@ -362,6 +362,16 @@ class CommonFiltersMixin(object):
         '''Returns unsuspended cards.'''
         return self.filter(suspended=False)
 
+    def common_filters(user,
+            deck=None, tags=None, excluded_ids=None):
+        cards = self.of_user(user).unsuspended()
+        if deck:
+            cards = cards.of_deck(deck)
+        if excluded_ids:
+            cards = cards.exclude_ids(excluded_ids)
+        if tags:
+            cards = cards.with_tags(tags)
+
     def new(self):
         return self.filter(last_reviewed_at__isnull=True)
     
@@ -372,16 +382,6 @@ class CommonFiltersMixin(object):
 
     def mature(self):
         return self.filter(interval__gte=MATURE_INTERVAL_MIN)
-
-    def common_filters(user,
-            deck=None, tags=None, excluded_ids=None):
-        cards = self.of_user(user).unsuspended()
-        if deck:
-            cards = cards.of_deck(deck)
-        if excluded_ids:
-            cards = cards.exclude_ids(excluded_ids)
-        if tags:
-            cards = cards.with_tags(tags)
 
     def due(self):
         return self.filter(
