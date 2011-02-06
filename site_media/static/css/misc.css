@@ -1,15 +1,22 @@
 
-@font-face {
+/*@font-face {
 	font-family: 'ChunkFiveRegular';
 	src: url('/site_media/static/fonts/Chunkfive-webfont.eot');
 	src: local('☺'), url('/site_media/static/fonts/Chunkfive-webfont.woff') format('woff'), url('/site_media/static/fonts/Chunkfive-webfont.ttf') format('truetype'), url('/site_media/static/fonts/Chunkfive-webfont.svg#webfont90E2uSjN') format('svg');
 	font-weight: normal;
 	font-style: normal;
-}
+}*/
 @font-face {
 	font-family: 'HiraginoKakuGothicStdW8';
 	src: url('/site_media/static/fonts/HiraginoKakuGothicStdW8.otf');
 	font-weight: normal;
+	font-style: normal;
+}
+}
+@font-face {
+	font-family: 'FontinBold';
+	src: url('/site_media/static/fonts/Fontin-Bold.ttf');
+	font-weight: bold;
 	font-style: normal;
 }
 
@@ -93,13 +100,27 @@
 #site_title, #site_title_left, #site_title_right {
     background-color: #003344;
 }
+#site_logo {
+    /*font-family: 'HiraginoKakuGothicStdW8';*/
+    /*font-size: 1.2em;*/
+    text-decoration: none;
+    /*padding-top:  .1em;*/
+    /*padding-left: .2em;*/
+    /*margin-right: .45em;*/
+    color: #b60900;
+    position: relative;
+    top: .1em;
+
+    /*text-shadow: -1px -1px 0px #101010, 1px 1px 0px #666;*/
+
+}
 #site_title {
     line-height: 1;
     /*font-size: 3em;*/
     /*font-size: 3.5em;*/
-    font-size: 48px;
+    font-size: 56px; /*48px*/
     /*font-family: 'ArvoRegular';*/
-    font-family: 'ChunkFiveRegular';
+    font-family: 'FontinBold';/*'ChunkFiveRegular';*/
     font-weight: bold;
     /*position: relative;*/
     text-decoration: none;
@@ -117,7 +138,7 @@
     z-index: 20;
     padding-left: 55px;
     /*padding-right: 15px;*/
-    padding-right: 45px;
+    /*padding-right: 45px;*/
     /*padding-right: 90px;*/
     /*width: 400px;*/
     margin-bottom: 8px;
@@ -138,21 +159,26 @@
     /*display: table-cell;*/
     /*vertical-align: middle;*/
 }
-#site_logo, #site_title .hover {
+#site_title .hover {
     position: relative;
     top: .2em;
 }
 #site_title .no_hover {
     position: absolute;
-    top: .39em;
+    top: .17em;
+    left: 1.4em;
+    /*top: .39em;*/
     /*top: 14px;*/
     /*top: .38em;*/
 }
 #site_title .hover {
     opacity: 0;
-    letter-spacing: .68em;
+    letter-spacing: .42em;
     font-size: .9em;
     display: inline-block;
+    position: absolute;
+    top: .24em;
+    left: 1.5em;
 }
 #site_title .hover, #site_title .no_hover {
     -webkit-transition: opacity 120ms ease-in; 
@@ -186,18 +212,6 @@
     left: -20px;
     margin-right: 30px;
     width: 50px;
-}
-#site_logo {
-    font-family: 'HiraginoKakuGothicStdW8';
-    /*font-size: 1.2em;*/
-    text-decoration: none;
-    /*padding-top:  .1em;*/
-    /*padding-left: .2em;*/
-    margin-right: .45em;
-    color: #b60900;
-
-    /*text-shadow: -1px -1px 0px #101010, 1px 1px 0px #666;*/
-
 }
 
 #column_wrap {

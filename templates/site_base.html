@@ -124,14 +124,16 @@
 {% block logo_link_image %}
 <div id="site_title_left"><!-- --></div>
 <div id="site_title">
+    {% spaceless %}
     {% if user.is_authenticated %}
         <a href="{% url home_inline %}" onclick="manabi_ui.xhrLink(this.href);return false;">
     {% else %}
         <a href="{% url home %}">
     {% endif %}
-            <span id="site_logo">学</span>
+            <span id="site_logo"><img src="{{ STATIC_URL }}images/gaku.png"></span>
             <span class="no_hover">Manabi</span><span class="hover">まなび</span>
         </a>
+    {% endspaceless %}
 </div>
 <div id="site_title_right"><!-- --></div>
 {% endblock %}
