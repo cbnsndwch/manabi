@@ -29,12 +29,12 @@
 {% else %}
     <p>
         {% show_review_start_buttons %}
-        <em class="weak ">Or <a href="{% url decks %}" class="xhr_link">choose a deck</a> to review.</em>
+        <em class="weak">Or <a href="{% url decks %}" class="xhr_link">choose a deck</a> to review.</em>
     </p>
     <br>
 
     <div class="mini_stats_container">
-        <div class="mini_stats_title">Progress Summary</div>
+        <div class="mini_stats_title">Total Progress Summary</div>
         {% overview_stat_counts request.user %}
         {% usage_history %}
     </div>
@@ -47,7 +47,7 @@
 
 <p>
 <em>Why Manabi?</em><br>
-Manabi uses a <a href="http://en.wikipedia.org/wiki/Spaced_repetition" target="_blank" class="definition">spaced repetition</a> algorithm to remind you when and what you need to review, by tracking your <a href="http://en.wikipedia.org/wiki/Forgetting_curve" target="_blank" class="definition">forgetting curve</a> for every card you study. We're also a free service.
+Manabi uses a <a href="http://en.wikipedia.org/wiki/Spaced_repetition" target="_blank" class="definition">spaced repetition</a> algorithm to remind you when and what you need to review, by tracking your <a href="http://en.wikipedia.org/wiki/Forgetting_curve" target="_blank" class="definition">forgetting curve</a> for every card you study. It's also a free service.
 </p>
 
 <p>

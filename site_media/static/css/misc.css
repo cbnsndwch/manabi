@@ -47,8 +47,8 @@
 }
 hr {
     border: none;
-    background-color: #999;
-    height: 1px;
+    background-color: lightgray;
+    height: 3px;
 }
 #body_contents hr {
     margin: 1em 0;
