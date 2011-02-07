@@ -461,7 +461,7 @@
             headers: { "Content-Type": "application/x-www-form-urlencoded; charset=utf-8" },
             load: dojo.hitch(null, function(success_def, data) {
                 if (data.success) {
-                    success_def.callback(data.reading);
+                    success_def.callback(data.data.reading);
                 } else {
                     success_def.errback(data); //FIXME errback?
                 }

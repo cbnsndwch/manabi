@@ -1,6 +1,7 @@
 import subprocess
 import jcconv
 from itertools import takewhile
+from settings import MECAB_ENCODING
 
 CODE_PAGES = {
               'ascii'   : (2, 126), #todo: full-width roman
@@ -107,9 +108,9 @@ def _furiganaize(word, reading, is_at_beginning_of_transliteration=False):
 
 
 def generate_reading(expression):
-    expression = expression.encode('eucjp')
+    expression = expression.encode(MECAB_ENCODING)
     proc = subprocess.Popen('mecab', shell=False, stdin=subprocess.PIPE, stdout=subprocess.PIPE)
-    mecab_output = proc.communicate(expression)[0].decode('eucjp')
+    mecab_output = proc.communicate(expression)[0].decode(MECAB_ENCODING)
     lines = mecab_output.split(u'\n')[:-2] #skip the \nEOS\n
 
     ret = u''

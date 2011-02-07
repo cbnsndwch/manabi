@@ -62,7 +62,7 @@ def rest_deck_subscribe(request, deck_id):
 def rest_generate_reading(request):
     if request.method == 'POST':
         reading = japanese.generate_reading(request.POST['expression'])
-        return {'success':True, 'reading': ret}
+        return {'success': True, 'reading': reading}
 
 @api_dojo_data
 def rest_decks(request):
