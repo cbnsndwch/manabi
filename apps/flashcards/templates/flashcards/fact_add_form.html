@@ -117,11 +117,14 @@
             <div>
                 <div id="fact-tag-errors" class="field_content_error"></div>
                 <label>Tags:</label> 
-                <input type="text" name="fact-tags" dojoType="dijit.form.TextBox" 
-                id="cardTagsInput" style="width:362px" tabIndex="58">
-                <div dojoType="dijit.Tooltip" connectId="cardTagsInput" position="below">
-                    Separate tag names by commas.
-                </div>
+                <ul id="cardTagsList" class="fact_form_tags"></ul>
+                <input type="hidden" name="fact-tags" id="cardTagsInput" style="display:none">
+                {% comment %}
+                    <input type="text" name="fact-tags" dojoType="dijit.form.TextBox" id="cardTagsInput" style="width:362px" tabIndex="58">
+                    <div dojoType="dijit.Tooltip" connectId="cardTagsInput" position="below">
+                        Separate tag names by commas.
+                    </div>
+                {% endcomment %}
 
             </div>
             <div class="cards_form_container">
@@ -159,11 +162,16 @@
 <script type="text/javascript">
     // Turn our tags field into a widget
     $(function(){
-		$('#cardTagsInput').tagit({
-			availableTags: ["c++", "java", "php", "coldfusion", "javascript", "asp", "ruby", "python", "c", "scala", "groovy", "haskell", "perl"],
+		$('#cardTagsList').tagit({
+			//availableTags: ["c++", "java", "php", "coldfusion", "javascript", "asp", "ruby", "python", "c", "scala", "groovy", "haskell", "perl"],
 			// configure the name of the input field (will be submitted with form), default: item[tags]
-			itemName: 'item',
-			fieldName: 'tags'
+            tagSource: '{% url api-fact_tags %}',
+			singleField: true,
+            singleFieldNode: $('#cardTagsInput'),
+            caseSensitive: false,
+            allowSpaces: true,
+            removeConfirmation: true,
+            tabIndex: 58
 		});
 	});
 </script>
