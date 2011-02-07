@@ -666,6 +666,12 @@ div.column {
 .fact_form_container ul.tagit input[type="text"] {
     font-size: 1em;
 }
+.fact_form_container .fakeLink {
+    color: gray;
+}
+.fact_form_container .fakeLink:hover {
+    color: #333;
+}
 ul.fact_form_tags {
     margin: 0;
     display: inline-block;

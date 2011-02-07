@@ -29,7 +29,7 @@ urlpatterns = patterns('flashcards.views.crud',
 
     url(r'^facts/$', 'facts_editor',
         name='facts'),
-    url(r'^facts/(\w+)/update', 'fact_update',
+    url(r'^facts/(\w+)/update/$', 'fact_update',
         name='update_fact'),
 )
 
