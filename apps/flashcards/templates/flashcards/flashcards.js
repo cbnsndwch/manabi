@@ -125,7 +125,7 @@
           handleAs: 'json',
           load: dojo.hitch(null, function(tempCardCounter, data){
               if (data.success) {
-                  submitSuccessCallback(data.data, tempCardCounter);
+                  submitSuccessCallback(data, tempCardCounter);
                   //if the fact editing grid is open, update it
                   if (typeof cards_factsGrid != 'undefined') {
                       var store = cards_factsGrid.store;
@@ -134,7 +134,7 @@
                       cards_factsGrid.sort();
                   }
               } else {
-                  submitErrorCallback(data.data, tempCardCounter);
+                  submitErrorCallback(data, tempCardCounter);
               }
           }, tempCardCounter),
           error: function(error){
@@ -335,7 +335,7 @@
         //cards_factsGrid.domNode.style.height = fact_ui.facts_grid_minimized_height;
         //cards_factsGrid.resize();
         //cards_factsGrid.scrollToRow(row_index); //TODO this can be a little awkward, moving too often
-        cards_factEditorContainer.set('href', 'flashcards/facts/' + fact_id + '/update');
+        cards_factEditorContainer.set('href', 'flashcards/facts/' + fact_id + '/update/');
         //cards_factEditorContainer.domNode.style.display = '';
         cards_factEditorContainer.show();
         dojo.query('.dijitDialogCloseIcon',cards_factEditorContainer.domNode)[0].style.visibility='hidden';
@@ -403,7 +403,7 @@
             handleAs: 'json',
             load: function(data){
                 if (data.success) {
-                    fact_ui._submit_success_callback(data.data, card_counter);
+                    fact_ui._submit_success_callback(data, card_counter);
 
                 } else {
                     submit_error_callback(data, card_counter);
@@ -411,7 +411,7 @@
                 submit_button.set('disabled', false);
             },
             error: function(error){
-                submit_error_callback(data.data, card_counter); //TODO other callback for this
+                submit_error_callback(data, card_counter); //TODO other callback for this
                 submit_button.set('disabled', false);
             }
         }
@@ -461,9 +461,9 @@
             headers: { "Content-Type": "application/x-www-form-urlencoded; charset=utf-8" },
             load: dojo.hitch(null, function(success_def, data) {
                 if (data.success) {
-                    success_def.callback(data.data.reading);
+                    success_def.callback(data.reading);
                 } else {
-                    success_def.errback(data.data); //FIXME errback?
+                    success_def.errback(data); //FIXME errback?
                 }
             }, ret_def)
         };
