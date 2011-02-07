@@ -180,8 +180,9 @@ def rest_facts_tags(request):
     '''
     Returns a JSON list of tags. Nothing more.
     '''
+    term = request.GET.get('term', None)
     tags = Fact.objects.all_tags_per_user(request.user)
-    ret = [tag.name for tag in tags]
+    ret = [tag.name for tag in tags if (term and tag.name.startswith(term))]
     return HttpResponse(simplejson.dumps(ret), mimetype='application/json')
 
     #TODO we can use `term` which jquery's autocomplete gives us to search prefixes -- an optimization

@@ -274,7 +274,8 @@
   fact_add_ui.factAddFormSubmit = function() {
     //var cardTemplatesInput = dijit.byId('cardTemplatesInput');
     factFormSubmit(function(data, tempCardCounter){
-    //dojo.place('Added '+tempCardCounter.toString()+' cards for '+factAddFormValue['field_content-0-content']+'<br>','factAddFormResults', 'last');
+      // Success callback
+      //dojo.place('Added '+tempCardCounter.toString()+' cards for '+factAddFormValue['field_content-0-content']+'<br>','factAddFormResults', 'last');
       if (dojo.trim(factAddFormResults.containerNode.innerHTML) == '') {
           factAddFormResults.containerNode.innerHTML = '';
       }
@@ -282,6 +283,7 @@
       resetFactAddForm();
       factAddFormSubmitButton.set('disabled', false);
     }, function(data, tempCardCounter) {
+      // Error callback
       //show field_content errors
       fieldContentErrors = data.errors.field_content;//[errors][field_content];
       factAddFormSubmitButton.set('disabled', false);
@@ -305,13 +307,13 @@
     }, factAddForm, null, true);
   }
   
-  //connect to Add Fact form submit
-  dojo.addOnLoad(function() {
-          dojo.connect(factAddForm, 'onSubmit', function(e) {
+    //connect to Add Fact form submit
+    dojo.addOnLoad(function() {
+        dojo.connect(factAddForm, 'onSubmit', function(e) {
             e.preventDefault();
             fact_add_ui.factAddFormSubmit();
-          });
-  });
+        });
+    });
 
 
 
