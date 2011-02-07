@@ -68,7 +68,7 @@
             {% else %}
                 You have <strong>{{ new_card_count }}</strong> card{{ new_card_count|pluralize }} due for review.
             {% endif %}
-            <div class="study_button_stats">{% if new_card_count %}{{ new_card_count }} unseen, {% endif %}{{ due_card_count }} urgent.</div>
+            <div class="study_button_stats">{{ due_card_count }} urgent{% if new_card_count %}, plus {{ new_card_count }} more new card{{ new_card_count|pluralize }}{% endif %}.</div>
         </div>
 
     {% endif %}
