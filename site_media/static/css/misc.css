@@ -672,6 +672,9 @@ div.column {
 .fact_form_container .fakeLink:hover {
     color: #333;
 }
+.fact_form_container .dijitDialogPaneActionBar .dijitContentPane {
+    overflow: hidden;
+}
 ul.fact_form_tags {
     margin: 0;
     display: inline-block;

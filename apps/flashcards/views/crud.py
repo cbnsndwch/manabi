@@ -37,11 +37,15 @@ def add_decks(request):
 
 @login_required
 def deck_detail(request, deck_id=None):
+    deck = get_object_or_404(Deck, pk=deck_id)
+    fact_tags = deck.fact_tags()
+
     detail_args = {
         'queryset': Deck.objects.filter(active=True),
         'template_object_name': 'deck',
         'extra_context': {
             'field_types': FactType.objects.get(id=1).fieldtype_set.all().order_by('ordinal'),
+            'fact_tags': fact_tags,
         },
         'object_id': deck_id,
     }

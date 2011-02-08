@@ -88,3 +88,7 @@
 .tundra .dijitTextArea {
 	padding: 6px;
 }
+
+.tundra .dijitComboBox .dijitButtonNode {
+    padding: 0.2em 0.2em;
+}
