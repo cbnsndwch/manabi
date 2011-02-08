@@ -73,7 +73,9 @@
     fact_add_ui.keyboard_shortcut_connection = dojo.connect(factAddDialog, 'onKeyPress', function(e) {
         var k = dojo.keys;
 
-        if (dojo.isCopyKey(e)) {
+        // isCopyKey doesn't work here since cmd isn't seen as a modifier key
+        //if (dojo.isCopyKey(e)) {
+        if (e.ctrlKey) {
             //meta (on mac) or ctrl (on PC) is pressed
             switch(e.charOrCode) {
                 case k.ENTER:
@@ -169,6 +171,10 @@
       dojo.query('#cardSubfactFormsContainer').empty().style('display', 'none');
       //subfact_container.attr('content', '');
       //subfact_container.domNode.style.display = 'none';
+
+      //reset the tags input
+      //dojo.query('#cardTagsInput')
+      $('#cardTagsList').tagit('removeAll');
 
       //destroy any error messages
       dojo.query('.field_content_error', dojo.byId('factAddFormWrapper')).empty();

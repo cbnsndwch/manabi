@@ -58,7 +58,7 @@
             dojo.addOnLoad(function() {
                 if (dojo.isIE) {
                     dojo.byId('body_contents').innerHTML = "\
-                    Unfortunately your browser, Internet Explorer, doesn't work with this site just yet.
+                    Unfortunately your browser, Internet Explorer, doesn't work with this site just yet.\
                     It's in the pipeline, but IE doesn't make it easy on us.<br><br>\
                     Please use a more standards-compliant browser such as \
                     <a href=\"http://www.google.com/chrome\">Google Chrome</a>, <a href=\"http://www.mozilla.com/firefox/\">Firefox</a>, \
@@ -217,7 +217,8 @@
 {% block footer %}
 <div class="legal">
     {% trans "&copy; Alex Ehlke 2011" %}{% if user.is_authenticated %}. 
-    Feedback or support: <a href="mailto:manabi.org@gmail.com">manabi.org@gmail.com</a>
+    Feedback or support: <a href="mailto:support@manabi.org">support@manabi.org</a> | <a href="{% url terms_of_service %}" class="xhr_link">Terms of Service</a> | <a href="{% url privacy_policy %}" class="xhr_link">Privacy Policy</a>
+
     {% endif %}
     {% comment %}
     <div class="sub_legal">

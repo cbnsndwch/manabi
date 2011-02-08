@@ -55,7 +55,8 @@ class FactManager(models.Manager):
         '''
         #user_facts = self.filter(deck__owner=user) 
         user_facts = self.with_synchronized(user)
-        return usertagging.models.Tag.objects.usage_for_queryset(user_facts)
+        return usertagging.models.Tag.objects.usage_for_queryset(
+            user_facts)
     
     def search(self, fact_type, query, query_set=None):
         '''Returns facts which have FieldContents containing the query.
@@ -122,7 +123,7 @@ class FactManager(models.Manager):
             decks = Deck.objects.filter(owner=user, active=True)
         if tags:
             tagged_facts = usertagging.models.UserTaggedItem.objects.get_by_model(Fact, tags)
-            user_facts = user_facts.filter(fact__in=tagged_facts)
+            user_facts = user_facts.filter(id__in=tagged_facts)
         subscriber_decks = decks.filter(synchronized_with__isnull=False)
         subscribed_decks = [deck.synchronized_with for deck in subscriber_decks if deck.synchronized_with is not None]
         #shared_facts = self.filter(deck_id__in=shared_deck_ids)

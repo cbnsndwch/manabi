@@ -24,7 +24,11 @@ urlpatterns = patterns('',
     #}, name="home"),
     url(r'^$', 'views.index', name='home'),
 
-    url(r'^home$', 'views.home', name='home_inline'),
+    url(r'^home/$', 'views.home', name='home_inline'),
+    url(r'^terms-of-service/$', direct_to_template,
+        {'template': 'tos.html'}, name='terms_of_service'),
+    url(r'^privacy-policy/$', direct_to_template,
+        {'template': 'privacy.html'}, name='privacy_policy'),
     
     url(r'^admin/invite_user/$', 'signup_codes.views.admin_invite_user',
         name="admin_invite_user"),

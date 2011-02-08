@@ -8,6 +8,8 @@
 </div>
 <div dojoType="dojox.grid.formatterScopeObj" store="cards_factStore" jsId="factsStoreFormatter"></div> 
 
+<div dojoType="dojo.data.ItemFileReadStore" jsId="cards_factsTagsStore" url="{% url api-fact_tags %}">
+</div>
 
 
 {% if request.user == deck.owner %}
@@ -15,7 +17,7 @@
 	    <script type="dojo/connect" event="onSubmit" args="evt">
 		    evt.preventDefault();
             var cards_factSearchField = dijit.byId('cards_factSearchField');
-            var search_query = cards_factSearchField.attr('value');
+            var search_query = cards_factSearchField.get('value');
             if (search_query.trim()) {
                 var store = cards_factsGrid.store;
                 store.close();
@@ -41,45 +43,42 @@
         </button>
         {% endspaceless %}
     </div>
-    {% comment %}
-    <div dojoType="dijit.form.Form" encType="multipart/form-data" action="" method="">
-	    <script type="dojo/connect" event="onSubmit" args="evt">
-            evt.preventDefault();
-            tag = dijit.byId('cards_factFilterByTagInput').attr('value');
-            if (tag) {
-                //add to filter tag list
-                fact_ui.current_tag_filter_list = new Array(); //temp until multi filters are added
-                fact_ui.current_tag_filter_list.push(tag);
-                //filter grid results
-                var store = cards_factsGrid.store;
-                store.close();
-                fact_ui.facts_url_query['tags'] = fact_ui.current_tag_filter_list;
-                store.url = '{% url api-facts %}?' + dojo.objectToQuery(fact_ui.facts_url_query);
-                store.fetch();
-                cards_factsGrid.sort(); //forces a refresh
-                //add closable tag div
-                //TODO implement this
-                //for now, we'll only allow 1 tag filter at a time
-                cards_clearTagFiltersButton.domNode.style.visibility = '';
-            } else if (fact_ui.facts_url_query['tags']) {
-                fact_ui.clearTagFilters();
-            }
-        </script>
-        {% spaceless %}
-        Filter by tag: <input dojoType="dijit.form.FilteringSelect" store="cards_factsTagsStore"
-                            searchAttr="name" name="fact_tag" id="cards_factFilterByTagInput">
-        <button dojoType="dijit.form.Button" type="submit">
-            Filter
-        </button>
-        <button dojoType="dijit.form.Button" type="button" style="visibility: hidden;" jsId="cards_clearTagFiltersButton">
-            Clear Filter
-            <script type="dojo/connect" event="onClick" args="evt">
-                fact_ui.clearTagFilters();
-            </script>
-        </button>
-        {% endspaceless %}
-    </div>
-    {% endcomment %}
+    {% if fact_tags %}
+        <div dojoType="dijit.form.Form" encType="multipart/form-data" action="" method="">
+            Filter by tag:
+            <select dojoType="dijit.form.FilteringSelect"  searchAttr="name" name="fact_tag" id="cards_factFilterByTagInput">
+                <option value=""></option>
+                {% for tag in fact_tags %}
+                <option value="{{ tag.id }}">{{ tag.name }}</option>
+                {% endfor %}
+                
+	            <script type="dojo/connect" event="onChange" args="evt">
+                    //evt.preventDefault();
+                    tag = dijit.byId('cards_factFilterByTagInput').get('value');
+                    if (tag) {
+                        //add to filter tag list
+                        fact_ui.current_tag_filter_list = new Array(); //temp until multi filters are added
+                        fact_ui.current_tag_filter_list.push(tag);
+                        //filter grid results
+                        var store = cards_factsGrid.store;
+                        store.close();
+                        fact_ui.facts_url_query['tag'] = fact_ui.current_tag_filter_list;
+                        store.url = '{% url api-facts %}?' + dojo.objectToQuery(fact_ui.facts_url_query);
+                        store.fetch();
+                        cards_factsGrid.sort(); //forces a refresh
+                        //add closable tag div
+                        //TODO implement this
+                        //for now, we'll only allow 1 tag filter at a time
+                        //cards_clearTagFiltersButton.domNode.style.visibility = '';
+                    } else { //if (fact_ui.facts_url_query['tag']) {
+                        fact_ui.clearFilter('tag');
+                        //fact_ui.clearTagFilters();
+                    //fact_ui.clearTagFilters();
+                    }
+                </script>
+            </select>
+        </div>
+    {% endif %}
 {% endif %}
 
 <table dojoType="dojox.grid.DataGrid" store="cards_factStore" query="{ }"
@@ -100,12 +99,12 @@
     <script type="dojo/connect" event="onRowClick" args="evt">
         var row_index = evt.rowIndex;
         //enable the fact editing buttons
-        cards_deleteButton.attr('disabled', false);
+        cards_deleteButton.set('disabled', false);
 
         // Set the suspend toggle button's state
         var card_is_suspended = cards_factsGrid.selection.getSelected()[0]['suspended'][0];
-        cards_toggleSuspendButton.attr('checked', card_is_suspended);
-        cards_toggleSuspendButton.attr('disabled', false);
+        cards_toggleSuspendButton.set('checked', card_is_suspended);
+        cards_toggleSuspendButton.set('disabled', false);
     </script>
     <thead>
         <tr>
@@ -137,7 +136,7 @@
                             //remove the deleted row from the grid store
                             cards_factsGrid.store.deleteItem(grid_item);
                             cards_factsGrid.store.save(); //FIXME handle error?
-                            //cards_deleteButton.attr('disabled', true);
+                            //cards_deleteButton.set('disabled', true);
                         } //FIXME handle error - if fails, don't remove from store'
                     });
                 }
@@ -147,16 +146,16 @@
             Suspend Flashcard
             <script type="dojo/connect" event="onChange" args="evt">
                 if (evt) {
-                    this.attr('label', 'Unsuspend Flashcard');
-                    this.attr('iconClass', 'manabi_icon manabi_icon_control_play');
+                    this.set('label', 'Unsuspend Flashcard');
+                    this.set('iconClass', 'manabi_icon manabi_icon_control_play');
                 } else {
-                    this.attr('label', 'Suspend Flashcard');
-                    this.attr('iconClass', 'manabi_icon manabi_icon_control_pause');
+                    this.set('label', 'Suspend Flashcard');
+                    this.set('iconClass', 'manabi_icon manabi_icon_control_pause');
                 }
             </script>
             <script type="dojo/connect" event="onClick" args="evt">
                 // Suspends this fact's cards.
-                var suspend = this.attr('checked');
+                var suspend = this.get('checked');
                 var grid_item = cards_factsGrid.selection.getSelected()[0];
                 var fact_id = grid_item['fact-id'][0]; //TODO allow multiple selections
                 var url = '{% url api-facts %}' + fact_id;
@@ -166,7 +165,7 @@
                     url: url,
                     handleAs: 'json',
                     load: dojo.hitch(null, function(grid_item, suspend, data) {
-                        cards_toggleSuspendButton.attr('disabled', false);
+                        cards_toggleSuspendButton.set('disabled', false);
                         if (data.success) {
                             // update the suspended status in the grid
                             cards_factsGrid.store.setValue(grid_item, 'suspended', suspend);
@@ -175,7 +174,7 @@
                         }
                     }, grid_item, suspend)
                 };
-                cards_toggleSuspendButton.attr('disabled', true);
+                cards_toggleSuspendButton.set('disabled', true);
                 dojo.xhrPost(xhr_args);
             </script>            
         </button>

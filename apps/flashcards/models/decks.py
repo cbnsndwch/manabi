@@ -33,6 +33,8 @@ class DeckManager(models.Manager):
         return self.filter(owner=user, synchronized_with__isnull=False)
 
 
+
+
 #TODO use this
 #TODO rename to Book or something instead?
 class Textbook(models.Model):
@@ -95,21 +97,33 @@ class Deck(models.Model):
     #    return cards.Card.objects.filter(fact__deck=self, active=True, suspended=False).count()
     #    #return self.fact_set.filter(active=True, suspended=False).count()
 
-
-    def facts(self):
-        '''Returns all Facts for this deck,
-        including subscribed ones, not including subfacts.
+    def fact_tags(self):
         '''
-        from facts import FieldContent
-        if self.synchronized_with:
-            updated_fields = FieldContent.objects.filter(fact__deck=self, fact__active=True, fact__synchronized_with__isnull=False) #fact__in=self.subscriber_facts.all())
-            # 'other' here means non-updated, subscribed
-            other_facts = Fact.objects.filter(parent_fact__isnull=True, id__in=updated_fields.values_list('fact', flat=True))
-            other_fields = FieldContent.objects.filter(fact__deck=self.synchronized_with).exclude(fact__active=True, fact__in=other_facts.values_list('synchronized_with', flat=True))
-            #active_subscribers = active_subscribers | other_fields
-            return updated_fields | other_fields
-        else:
-            return FieldContent.objects.filter(fact__deck=self, fact__active=True)
+        Returns tags for all facts inside this deck.
+        Includes tags on facts made on subscribed facts.
+        '''
+        #return usertagging.models.Tag.objects.usage_for_queryset(
+            #self.facts())
+        from facts import Fact
+        deck_facts = Fact.objects.with_synchronized(
+            self.owner, deck=self)
+        return usertagging.models.Tag.objects.usage_for_queryset(
+            deck_facts)
+
+    #def facts(self):
+    #    '''Returns all Facts for this deck,
+    #    including subscribed ones, not including subfacts.
+    #    '''
+    #    from fields import FieldContent
+    #    if self.synchronized_with:
+    #        updated_fields = FieldContent.objects.filter(fact__deck=self, fact__active=True, fact__synchronized_with__isnull=False) #fact__in=self.subscriber_facts.all())
+    #        # 'other' here means non-updated, subscribed
+    #        other_facts = Fact.objects.filter(parent_fact__isnull=True, id__in=updated_fields.values_list('fact', flat=True))
+    #        other_fields = FieldContent.objects.filter(fact__deck=self.synchronized_with).exclude(fact__active=True, fact__in=other_facts.values_list('synchronized_with', flat=True))
+    #        #active_subscribers = active_subscribers | other_fields
+    #        return updated_fields | other_fields
+    #    else:
+    #        return FieldContent.objects.filter(fact__deck=self, fact__active=True)
 
 
     def field_contents(self):
@@ -117,7 +131,7 @@ class Deck(models.Model):
         preferring updated subscriber fields to subscribed ones,
         when the deck is synchronized.
         '''
-        from facts import FieldContent
+        from fields import FieldContent
         if self.synchronized_with:
             updated_fields = FieldContent.objects.filter(fact__deck=self, fact__active=True, fact__synchronized_with__isnull=False) #fact__in=self.subscriber_facts.all())
             # 'other' here means non-updated, subscribed

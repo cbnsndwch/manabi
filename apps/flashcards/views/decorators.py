@@ -6,6 +6,7 @@ from dojango.util import to_json_response
 from dojango.decorators import json_response
 from django.http import HttpResponseServerError
 from django.utils import simplejson as json
+import usertagging
 
 #decorator_with_arguments = lambda decorator: lambda *args, **kwargs: lambda func: decorator(func, *args, **kwargs)
 
@@ -45,7 +46,9 @@ def has_card_query_filters(func):
 
         # Tags
         try:
-            tag_id = int(request.GET.get('tag', -1))
+            #TODO support for multiple tags
+            tag_id = int(request.GET.get('tags',
+                request.GET.get('tag', -1)))
         except ValueError:
             tag_id = -1
         if tag_id != -1:
