@@ -5,6 +5,7 @@ from django.forms.util import ErrorList
 from dbtemplates.models import Template
 from django.db.models import Avg
 from constants import GRADE_NONE, GRADE_HARD, GRADE_GOOD, GRADE_EASY
+from django.core.urlresolvers import reverse
 
 import datetime
 import random
@@ -86,7 +87,7 @@ class Deck(models.Model):
         #TODO unique_together = (('owner', 'name'), )
     
     def get_absolute_url(self):
-        return '/flashcards/decks/{0}'.format(self.id)
+        return reverse('deck_detail', kwargs={'deck_id': self.id})
 
     def delete(self, *args, **kwargs):
         # You shouldn't delete a shared deck - just set active=False
