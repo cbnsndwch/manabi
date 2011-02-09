@@ -230,7 +230,7 @@ def rest_facts(request, deck=None, tags=None):
                     }
 
                     ident, name = '', ''
-                    for field_content in fact.field_contents: #.all():
+                    for field_content in fact.field_contents:
                         #TODO rename to be clearer, like field_id, or ???
                         key = 'id{0}'.format(field_content.field_type_id) 
 
