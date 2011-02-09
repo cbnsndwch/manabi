@@ -24,6 +24,8 @@ def clean_query(query_params, structure):
     for param, val in query_params.items():
         # Default to an "identity" constructor.
         type_ = structure.get(param, lambda x: x)
+        if type_ == bool:
+            type_ = bool_
         cleaned[param] = type_(val)
 
     return cleaned
@@ -32,6 +34,16 @@ def clean_query(query_params, structure):
 
 # Helper "types" to use with clean_query
 
+def bool_(query_param):
+    s = unicode(query_param).lower()
+    if s == 'true':
+        return True
+    elif s == 'false':
+        return False
+    else:
+        return bool(query_param)
+
 def int_list(query_param):
     return [int(e) for e in query_param.split(LIST_DELIMITER)]
+
 
