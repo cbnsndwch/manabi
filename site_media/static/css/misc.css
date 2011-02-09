@@ -708,7 +708,8 @@ ul.fact_form_tags {
 
 
 .suspended_grid_row {
-    text-decoration: line-through;
+    /*text-decoration: line-through;*/
+    color: #bbb;
 }
 
 /* furigana */
