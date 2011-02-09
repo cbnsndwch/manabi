@@ -75,6 +75,7 @@ class SchedulerMixin(object):
             return []
         cards = initial_query.filter(
             last_review_grade=GRADE_NONE,
+            due_at__isnull=False,
             due_at__lte=review_time).order_by('due_at')
         # Don't space these #self._space_cards(cards, count, review_time)
         return cards[:count] 
@@ -93,6 +94,7 @@ class SchedulerMixin(object):
             return []
         due_cards = initial_query.exclude(
             last_review_grade=GRADE_NONE).filter(
+            due_at__isnull=False,
             due_at__lte=review_time).order_by('-interval')
         #TODO Also get cards that aren't quite due yet, but will be soon,
         # and depending on their maturity
@@ -219,6 +221,7 @@ class SchedulerMixin(object):
             last_review_grade=GRADE_NONE).filter(
             due_at__gt=review_time).order_by('due_at')
         fresher_cards = cards.filter(
+            last_reviewed_at__isnull=False,
             last_reviewed_at__lte=priority_cutoff).order_by('due_at')
         return self._space_cards(
             fresher_cards, count, review_time, early_review=True)
@@ -379,14 +382,31 @@ class CommonFiltersMixin(object):
     def young(self):
         return self.filter(
             last_reviewed_at__isnull=False,
+            interval__isnull=False,
             interval__lt=MATURE_INTERVAL_MIN)
 
     def mature(self):
         return self.filter(interval__gte=MATURE_INTERVAL_MIN)
 
-    def due(self):
-        return self.filter(
-            due_at__lte=datetime.datetime.utcnow()).order_by('-interval')
+    def due(self, _space_cards=True):
+        '''
+        `_space_cards` is whether to space out due cards before returning
+        them (which can result in fewer being returned).
+        '''
+        now = datetime.datetime.utcnow()
+        due_cards = self.filter(
+            due_at__isnull=False,
+            due_at__lte=now)
+
+        if _space_cards:
+            self._space_cards(due_cards, due_cards.count(), now)
+
+            # Re-get them since some may have been spaced
+            due_cards = due_cards.filter(
+                due_at__lte=now)
+
+        return due_cards.order_by('-interval')
+
 
     #FIXME distinguish from cards_new_count or merge 
     #or make some new kind of review optioned class
@@ -429,7 +449,9 @@ class CommonFiltersMixin(object):
             cards = cards.filter(fact__in=facts)
         this_time_tomorrow = (datetime.datetime.utcnow()
                               + datetime.timedelta(days=1))
-        cards = cards.filter(due_at__lt=this_time_tomorrow)
+        cards = cards.filter(
+            due_at__isnull=False,
+            due_at__lt=this_time_tomorrow)
         due_count = cards.count()
         new_count = self.new_cards_count(user, [], deck=deck, tags=tags)
         #new_count = min(
@@ -478,6 +500,7 @@ class CardStatsMixin(object):
     def due_today_count(self):
         '''The # of cards already due right now or later today.'''
         return self.filter(
+            due_at__isnull=False,
             due_at__lte=datetime.datetime.today()).count()
 
     def future_due_counts(self):

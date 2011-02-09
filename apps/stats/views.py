@@ -48,7 +48,7 @@ def repetitions(request):
     Graph data for repetitions per day.
     '''
     series = []
-    user_items = CardHistory.objects.of_user(request.user)
+    user_items = Card.objects.common_filters(request.user)
 
     for maturity in ['new', 'young', 'mature']:
         data = getattr(user_items, maturity)().repetitions()
@@ -70,7 +70,7 @@ def repetitions(request):
 def due_counts(request):
     '''Due per day in future.'''
     series = []
-    user_items = Card.objects.of_user(request.user)
+    user_items = Card.objects.common_filters(request.user)
 
     for maturity in ['young', 'mature']:
         items = getattr(user_items, maturity)()
@@ -153,12 +153,8 @@ def scheduling_summary(request, deck=None, tags=None):
         # new cards
         next card's due date (datetime)
     '''
-    cards = Card.objects.of_user(request.user)
-
-    if deck:
-        cards = cards.of_deck(deck)
-    if tags:
-        cards = cards.with_tags(tags)
+    cards = Card.objects.common_filters(
+        request.user, deck=deck, tags=tags)
 
     data = {
         'due_now': cards.due().count(),
@@ -178,41 +174,41 @@ def scheduling_summary(request, deck=None, tags=None):
 ########################################
 
 
-@api
-@require_GET
-def card_stats_json(request, card_id):
-    '''
-    '''
-    card = get_object_or_404(Card, pk=card_id)
+#@api
+#@require_GET
+#def card_stats_json(request, card_id):
+#    '''
+#    '''
+#    card = get_object_or_404(Card, pk=card_id)
 
-    if card.owner != request.user:
-        raise PermissionDenied('You do not own this flashcard.')
+#    if card.owner != request.user:
+#        raise PermissionDenied('You do not own this flashcard.')
 
-    #first_reviewed_at = card.cardhistory_set.
+#    #first_reviewed_at = card.cardhistory_set.
 
-    stats = {
-        'createdAt':        card.fact.created_at,
-        'modifiedAt':       card.fact.modified_at,
-        'firstReviewedAt':  card.first_reviewed_at,
-        'dueAt':            card.due_at,
-        'interval':         card.interval,
-        'easeFactor':       card.ease_factor,
-        'lastDueAt':        card.last_due_at,
-        'lastInterval':     card.last_interval,
-        'lastEaseFactor':   card.last_ease_factor,
-        'lastFailedAt':     card.last_failed_at,
-        'lastReviewGrade':  card.last_review_grade,
-        'reviewCount':      card.review_count,
+#    stats = {
+#        'createdAt':        card.fact.created_at,
+#        'modifiedAt':       card.fact.modified_at,
+#        'firstReviewedAt':  card.first_reviewed_at,
+#        'dueAt':            card.due_at,
+#        'interval':         card.interval,
+#        'easeFactor':       card.ease_factor,
+#        'lastDueAt':        card.last_due_at,
+#        'lastInterval':     card.last_interval,
+#        'lastEaseFactor':   card.last_ease_factor,
+#        'lastFailedAt':     card.last_failed_at,
+#        'lastReviewGrade':  card.last_review_grade,
+#        'reviewCount':      card.review_count,
 
-        'averageDuration':         card.average_duration(),
-        'averageQuestionDuration': card.average_question_duration(),
-        'totalDuration':           card.total_duration(),
-        'totalQuestionDuration':   card.total_question_duration(),
+#        'averageDuration':         card.average_duration(),
+#        'averageQuestionDuration': card.average_question_duration(),
+#        'totalDuration':           card.total_duration(),
+#        'totalQuestionDuration':   card.total_question_duration(),
 
-        'template':         card.template,
-    }
+#        'template':         card.template,
+#    }
 
-    return stats
+#    return stats
 
 
 @login_required

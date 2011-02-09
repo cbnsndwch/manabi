@@ -90,7 +90,7 @@ reviews_ui._humanizedTimeUntil = function(timeUntil) {
 
 
 reviews_ui.showNoCardsDue = function(canLearnMore, emptyQuery) {
-    reviews_beginReviewButton.st('disabled', true);
+    reviews_beginReviewButton.set('disabled', true);
     if (!reviews_ui.reviewOptionsDialog.get('open')) {
         //reviews_ui.reviewOptionsDialog.show();
         reviews_ui.openDialog();

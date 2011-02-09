@@ -64,17 +64,12 @@ colors for graph http://getcharmed.com/
 
 brand new refactor todo
 ---------
-BUG: suspended cards are showing up in reviews
+BUG: suspended cards are showing up in reviews (fixed?)
+BUG: suspended cards arent grayed out in grid
 
 make some things into optional contextprocs
 
 magic numbers
-
-refactoring order:
-views
-js
-forms
-models
 
 add basic auditing to some more models
 
@@ -124,8 +119,6 @@ reading generation for sentences is broken (see firebug, js error)
 'x due this time tomorrow' is screwed up - it shouldnt include new cards probably
 
 early review cut short
-
--change email on page to manabi.org@gmail.com
 
 -dont show duplicate kana in reviews. (same word in reading)
 
