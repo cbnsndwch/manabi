@@ -32,7 +32,9 @@ class CardTemplate(models.Model):
     ordinal = models.IntegerField(null=True, blank=True)
     hide_front = models.BooleanField(default=False, blank=True) #hide front when showing back
     allow_blank_back = models.BooleanField(default=True, blank=True) #don't activate cards with missing answers #TODO implement this
+
     active = models.BooleanField(default=True, blank=True)
+
     created_at = models.DateTimeField(auto_now_add=True, editable=False)
     modified_at = models.DateTimeField(auto_now=True, editable=False)
     

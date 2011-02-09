@@ -109,7 +109,8 @@ class FactManager(models.Manager):
 
 
     def with_synchronized(self, user, deck=None, tags=None):
-        '''Returns a queryset of all active Facts which the user owns, or which 
+        '''
+        Returns a queryset of all active Facts which the user owns, or which 
         the user is subscribed to (via a subscribed deck).
         Optionally filter by deck and tags too.
         '''

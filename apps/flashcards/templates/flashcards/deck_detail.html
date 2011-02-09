@@ -90,6 +90,12 @@
                     If you share this deck, then other users can subscribe to it and receive your updates to it.
                 </span>
             {% endif %}
+        </p>
+        <hr>
+        <p>
+            <a href="{% url exported_deck_csv deck.id %}" class="weak">Export to CSV</a>
+        </p>
+        <p>
             <button dojoType="dijit.form.Button">
 	            Delete Deck
 	            <script type="dojo/connect" event="onClick" args="evt">

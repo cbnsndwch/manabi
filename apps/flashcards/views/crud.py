@@ -118,7 +118,7 @@ def deck_list(request):
 
 @login_required
 def deck_update(request, deck_id):
-    deck = Deck.objects.get(id=deck_id)
+    deck = get_object_or_404(Deck, pk=deck_id)
     if deck.owner_id != request.user.id: #and not request.User.is_staff():
         raise forms.ValidationError('You do not have permission to access this flashcard deck.')
     if request.method == 'POST':
@@ -137,7 +137,7 @@ def deck_update(request, deck_id):
 
 @login_required
 def deck_delete(request, deck_id, post_delete_redirect='/flashcards/decks'): #todo: pass post_*_redirect from urls.py
-    obj = Deck.objects.get(id=deck_id)
+    obj = get_object_or_404(Deck, pk=deck_id)
     if obj.owner_id != request.user.id: #and not request.User.is_staff():
         raise forms.ValidationError('You do not have permission to access this flashcard deck.')
     if request.method == 'POST':
@@ -176,4 +176,117 @@ def deck_create(request, post_save_redirect='/flashcards/decks'):
         {'form': deck_form,
          'post_save_redirect': post_save_redirect}
         , context_instance=RequestContext(request)) #todo:post/pre redirs
+
+
+
+
+
+@login_required
+def deck_export_to_csv(request, deck_id):
+    '''
+    Terrible CSV generator.
+
+    sample:
+        Expression,Reading,Meaning,Production,Recognition
+        TAberu,TA[ta]beru,to eat,off,on
+    '''
+    deck = get_object_or_404(Deck, pk=deck_id)
+
+    if deck.owner_id != request.user.id: #and not request.User.is_staff():
+        raise forms.ValidationError('You do not have permission to access this flashcard deck.')
+
+
+    import csv, StringIO
+    class UnicodeWriter(object):
+        '''
+        http://djangosnippets.org/snippets/993/
+        Usage example:
+            fp = open('my-file.csv', 'wb')
+            writer = UnicodeWriter(fp)
+            writer.writerows([
+                [u'Bob', 22, 7],
+                [u'Sue', 28, 6],
+                [u'Ben', 31, 8],
+                # \xc3\x80 is LATIN CAPITAL LETTER A WITH MACRON
+                ['\xc4\x80dam'.decode('utf8'), 11, 4],
+            ])
+            fp.close()
+        '''
+        def __init__(self, f, dialect=csv.excel_tab, encoding="utf-16", **kwds):
+            # Redirect output to a queue
+            self.queue = StringIO.StringIO()
+            self.writer = csv.writer(self.queue, dialect=dialect, **kwds)
+            self.stream = f
+
+            # Force BOM
+            if encoding=="utf-16":
+                import codecs
+                f.write(codecs.BOM_UTF16)
+
+            self.encoding = encoding
+
+        def writerow(self, row):
+            # Modified from original: now using unicode(s) to deal with e.g. ints
+            self.writer.writerow([unicode(s).encode("utf-8") for s in row])
+            # Fetch UTF-8 output from the queue ...
+            data = self.queue.getvalue()
+            data = data.decode("utf-8")
+            # ... and reencode it into the target encoding
+            data = data.encode(self.encoding)
+
+            # strip BOM
+            if self.encoding == "utf-16":
+                data = data[2:]
+
+            # write to the target stream
+            self.stream.write(data)
+            # empty queue
+            self.queue.truncate(0)
+                
+        
+        def writerows(self, rows):
+            for row in rows:
+                self.writerow(row)
+        
+
+
+    # make a valid filename for the deck based on its alphanumeric characters
+    filename = filter(unicode.isalnum, deck.name)
+    if not filename:
+        filename = 'manabi_deck'
+    filename += '.csv'
+    
+    # Create the HttpResponse object with the appropriate CSV header.
+    response = HttpResponse(mimetype='text/csv')
+    response['Content-Disposition'] = 'attachment; filename={0}'.format(filename)
+
+    writer = UnicodeWriter(response)
+
+    fact_type = FactType.objects.get(id=1)
+    field_types = FieldType.objects.filter(fact_type=fact_type).order_by('id')
+    facts = Fact.objects.with_synchronized(request.user, deck=deck)
+    card_templates = fact_type.cardtemplate_set.all().order_by('id')
+
+    header = [field.display_name for field in field_types] + \
+             [template.name for template in card_templates]
+    writer.writerow(header)
+
+    for fact in facts:
+        fields = list(field_content.content
+                      for field_content
+                      in fact.field_contents.order_by('field_type__id'))
+
+        templates = []
+        activated_card_templates = [e.template for e in fact.card_set.filter(active=True)]
+        for card_template in fact_type.cardtemplate_set.all():
+            if card_template  in activated_card_templates:
+                templates.append('on')
+            else:
+                templates.append('off')
+
+        writer.writerow(fields + templates)
+
+    return response
+
+
 

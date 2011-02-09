@@ -27,6 +27,9 @@ urlpatterns = patterns('flashcards.views.crud',
     url(r'^decks/(\w+)/delete/$', 'deck_delete',
         name='delete_deck'),
 
+    url(r'^decks/(\w+)/exported-csv/$', 'deck_export_to_csv',
+        name='exported_deck_csv'),
+
     url(r'^facts/$', 'facts_editor',
         name='facts'),
     url(r'^facts/(\w+)/update/$', 'fact_update',
