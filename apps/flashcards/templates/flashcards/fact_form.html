@@ -1,13 +1,13 @@
 
 <div class="fact_form_container">
     <div dojoType="dijit.form.Form" jsId="cards_factForm" id="cards_factForm" encType="multipart/form-data" action="" method="">
-        <div class="dijitDialogPaneContentArea">
-            <script type="dojo/connect" event="onSubmit" args="evt">
-                evt.preventDefault();
-                selected_fact_id = '{{ fact.id }}'; //cards_factForm.get('value')['fact-0-id'];
-                fact_ui.submitFactForm(cards_factForm, selected_fact_id);
-            </script>
+        <script type="dojo/connect" event="onSubmit" args="evt">
+            evt.preventDefault();
+            selected_fact_id = '{{ fact.id }}'; //cards_factForm.get('value')['fact-0-id'];
+            fact_ui.submitFactForm(cards_factForm, selected_fact_id);
+        </script>
 
+        <div class="dijitDialogPaneContentArea">
             <input dojoType="dijit.form.TextBox" 
                 name="_method" 
                 value="PUT" 
