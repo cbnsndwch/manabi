@@ -102,7 +102,7 @@ def rest_deck(request, deck_id):
                 if not deck.shared:
                     return {'success': False}
                 deck.unshare()
-        return {'success': True} #TODO automate/abstract this thing
+        return {'shared': deck.shared} #TODO automate/abstract this thing
 
 @api_dojo_data
 def rest_card_templates(request, fact_type_id):
