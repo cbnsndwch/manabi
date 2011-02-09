@@ -48,7 +48,7 @@ def repetitions(request):
     Graph data for repetitions per day.
     '''
     series = []
-    user_items = Card.objects.common_filters(request.user)
+    user_items = CardHistory.objects.of_user(request.user).filter()
 
     for maturity in ['new', 'young', 'mature']:
         data = getattr(user_items, maturity)().repetitions()
