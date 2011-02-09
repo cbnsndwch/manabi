@@ -26,7 +26,7 @@
                             var reading_field_node = dojo.query('.reading_field'))[0];
                             if (reading_field_node) {
                                 fact_ui.generateReading(
-                                    this.attr('value'),
+                                    this.get('value'),
                                     dijit.getEnclosingWidget(reading_field_node));
                             }
                         });

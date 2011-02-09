@@ -5,8 +5,8 @@
 </div>
 
 
-<div id="factAddFormWrapper" style="width:35em" class="fact_form_container">
-    <div dojoType="dijit.form.Form" jsId="factAddForm" encType="multipart/form-data" action="" method="" style="margin-bottom:0em">
+<div id="factAddFormWrapper"  class="fact_form_container">
+    <div dojoType="dijit.form.Form" jsId="factAddForm" encType="multipart/form-data" action="" method="">
         <div class="dijitDialogPaneContentArea">
             <span id="deckInputContainer" style="display:none">
                 <input name="fact-deck" jsId="deckInput" dojoType="dijit.form.Select" tabIndex="49">
@@ -29,7 +29,7 @@
                                     <span class="required">(required)</span>
                                 {% endif %}
                                 {% spaceless %}
-                                    <span class="fakeLink" onclick="fact_ui.generateReading(dijit.byId('id_field_content-0-content').attr('value'),'id_field_content-1-content')">
+                                    <span class="fakeLink" onclick="fact_ui.generateReading(dijit.byId('id_field_content-0-content').get('value'),'id_field_content-1-content')">
                                         <img src="{{ MEDIA_URL }}static/css/dojo_themes/tundra/images/icons/arrow_refresh.png" class="refresh" alt="Refresh transliteration field">
                                     </span>
                                 {% endspaceless %}
@@ -84,7 +84,7 @@
                                                     var reading_field_node = dojo.query('.reading_field', dojo.byId('factFields'))[0];
                                                     if (reading_field_node) {
                                                         fact_ui.generateReading(
-                                                            this.attr('value'),
+                                                            this.get('value'),
                                                             dijit.getEnclosingWidget(reading_field_node));
                                                     }
                                                 });
@@ -119,7 +119,7 @@
                 <ul id="cardTagsList" class="fact_form_tags"></ul>
                 <input type="hidden" name="fact-tags" id="cardTagsInput" style="display:none">
                 {% comment %}
-                    <input type="text" name="fact-tags" dojoType="dijit.form.TextBox" id="cardTagsInput" style="width:362px" tabIndex="58">
+                    <input type="text" name="fact-tags" dojoType="dijit.form.TextBox" id="cardTagsInput" tabIndex="58">
                     <div dojoType="dijit.Tooltip" connectId="cardTagsInput" position="below">
                         Separate tag names by commas.
                     </div>
@@ -127,7 +127,7 @@
 
             </div>
             <div class="cards_form_container">
-                <strong style="vertical-align:top">Cards:</strong>
+                <label>Cards:</label>
                 {% comment %}<select multiple="true" dojoType="dojox.form.CheckedMultiSelect" 
                     jsId="cardTemplatesInput" style="height:6.2em;">
                     </select>
@@ -158,21 +158,8 @@
     </div>
 </div>
 
-<script type="text/javascript">
-    // Turn our tags field into a widget
-    $(function(){
-		$('#cardTagsList').tagit({
-			//availableTags: ["c++", "java", "php", "coldfusion", "javascript", "asp", "ruby", "python", "c", "scala", "groovy", "haskell", "perl"],
-			// configure the name of the input field (will be submitted with form), default: item[tags]
-            tagSource: '{% url api-fact_tags %}',
-			singleField: true,
-            singleFieldNode: $('#cardTagsInput'),
-            caseSensitive: false,
-            allowSpaces: true,
-            removeConfirmation: true,
-            tabIndex: 58
-		});
-	});
-</script>
+
+
+{% include "flashcards/_fact_form_tag_widget_js.html" %}
 
 

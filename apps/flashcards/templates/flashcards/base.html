@@ -4,7 +4,7 @@
 {% include "flashcards/reviews.html" %}
 
 
-<div dojoType="dijit.Dialog" jsId="cards_factEditorContainer" title="Edit Flashcard" modal="true">
+<div dojoType="dojox.widget.DialogSimple" jsId="cards_factEditorContainer" title="Edit Flashcard" modal="true" executeScripts="true">
 </div>
 
 <div dojoType="dijit.Dialog" jsId="factAddDialog" title="Create Flashcards">
@@ -22,7 +22,7 @@
             if (text_nodes.length) {
                 var widget = dijit.getEnclosingWidget(text_nodes[0]);
                 
-                if (widget.attr('value').trim() != '') {
+                if (widget.get('value').trim() != '') {
                     to_hide = false;
                 }
                 if (to_hide) {

@@ -6,7 +6,7 @@
                 <strong><label>{{ field_type.name }}:</label></strong>
                 {% if field_type.is_transliteration_field_type %}
                     {% spaceless %}
-                        <span class="fakeLink" onclick="fact_ui.generateReading(dijit.byId('id_field_content-{% if subfact_form.is_js_template %}${% templatetag openbrace %}{{ forloop.counter0|add:-1 }}{% templatetag closebrace %}{% else %}{{ forloop.counter0|add:subfact_form.field_content_offset|add:-1 }}{% endif %}-content').attr('value'),'id_field_content-{% if subfact_form.is_js_template %}${% templatetag openbrace %}{{ forloop.counter0 }}{% templatetag closebrace %}{% else %}{{ forloop.counter0|add:subfact_form.field_content_offset }}{% endif %}-content')">
+                        <span class="fakeLink" onclick="fact_ui.generateReading(dijit.byId('id_field_content-{% if subfact_form.is_js_template %}${% templatetag openbrace %}{{ forloop.counter0|add:-1 }}{% templatetag closebrace %}{% else %}{{ forloop.counter0|add:subfact_form.field_content_offset|add:-1 }}{% endif %}-content').get('value'),'id_field_content-{% if subfact_form.is_js_template %}${% templatetag openbrace %}{{ forloop.counter0 }}{% templatetag closebrace %}{% else %}{{ forloop.counter0|add:subfact_form.field_content_offset }}{% endif %}-content')">
                             <img src="{{ MEDIA_URL }}static/css/dojo_themes/tundra/images/icons/arrow_refresh.png" alt="Refresh transliteration field">
                         </span>
                     {% endspaceless %}

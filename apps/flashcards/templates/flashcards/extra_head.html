@@ -42,16 +42,16 @@
                 var field_content_type_item = dijit.getEnclosingWidget(field_content_item.nextElementSibling);
                 var field_content_item = dijit.getEnclosingWidget(field_content_item);
                 var new_value = '';
-                if (field_content_item.attr('baseClass') == 'dijitSelect') {
-                    new_value = field_content_item.attr('displayedValue');
-                    if (field_content_item.attr('value') == 'none') {
+                if (field_content_item.get('baseClass') == 'dijitSelect') {
+                    new_value = field_content_item.get('displayedValue');
+                    if (field_content_item.get('value') == 'none') {
                         new_value = '';
                     }
                 } else {
-                    new_value = field_content_item.attr('value');
+                    new_value = field_content_item.get('value');
                 }
                 cards_factsGrid.store.setValue(grid_item, 
-                    'id' + field_content_type_item.attr('value'), 
+                    'id' + field_content_type_item.get('value'), 
                     new_value);
             });
             cards_factsGrid.store.save(); //TODO handle errors
