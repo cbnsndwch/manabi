@@ -71,16 +71,16 @@
                     {% if deck.shared %}Unshare{% else %}Share{% endif %} Deck
                     <script type="dojo/connect" event="onChange" args="evt">
                         if (evt) {
-                            this.attr('label', 'Unshare Deck');
-                            /*this.attr('iconClass', 'manabi_icon manabi_icon_control_play');*/
+                            this.set('label', 'Unshare Deck');
+                            /*this.set('iconClass', 'manabi_icon manabi_icon_control_play');*/
                         } else {
-                            this.attr('label', 'Share Deck');
-                            /*this.attr('iconClass', 'manabi_icon manabi_icon_control_pause');*/
+                            this.set('label', 'Share Deck');
+                            /*this.set('iconClass', 'manabi_icon manabi_icon_control_pause');*/
                         }
                     </script>
                     <script type="dojo/connect" event="onClick" args="evt">
                         // Shares or unshares this deck.
-                        var share = this.attr('checked');
+                        var share = this.get('checked');
                         var url = '{% url api-deck deck.id %}';
                         manabi_ui.xhrPutData(url, {'shared': share});
                     </script>            

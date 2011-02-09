@@ -10,45 +10,46 @@
  *********************/
 
 
-  dojo.require("dijit.Dialog");
-  dojo.require("dijit.form.TextBox");
-  dojo.require("dijit.form.Button");
-  dojo.require("dijit.form.ToggleButton");
-  //dojo.require("dijit.form.FilteringSelect");
-  dojo.require("dojo.data.ItemFileReadStore");
-  dojo.require("dijit.form.MultiSelect");
-  //dojo.require("dojox.form.DropDownSelect");
-  dojo.require("dijit.form.Textarea");
-  dojo.require("dijit.form.SimpleTextarea");
-  dojo.require("dojo.DeferredList");
-  dojo.require("dojox.form.CheckedMultiSelect");
-  dojo.require("dijit.form.Form");
-  dojo.require("dijit.layout.ContentPane");
-  dojo.require("dojox.layout.ContentPane");
-  //dojo.require("dojox.form.BusyButton");
-  dojo.require("dojox.widget.Standby");
-  dojo.require("dojox.grid.DataGrid");
-  //dojo.require("dijit.layout.TabContainer");
-  dojo.require("dijit.Declaration");
-  dojo.require("dojo.data.ItemFileWriteStore");
-  dojo.require("dijit.form.NumberSpinner");
-  //dojo.require("dijit.layout.BorderContainer");
-  dojo.require("dijit.TooltipDialog");
-  dojo.require("dijit.form.Select");
-  dojo.require("dojox.grid._RadioSelector");
-  dojo.require("dijit.form.FilteringSelect");
-  //dojo.require("dojox.grid.EnhancedGrid");
-  //dojo.require("dojox.layout.FloatingPane"); 
-  dojo.require("dojo.NodeList-traverse");
-  dojo.require("dijit.Tooltip");
-  dojo.require("dojox.timing");
-  dojo.require("dojox.widget.Dialog");
-  dojo.require("dojo.hash");
-  dojo.require("dojo.string");
-  dojo.require("dojo.fx.easing"); 
-  dojo.require("dojox.fx.scroll");
+  dojo.require('dijit.Dialog');
+  dojo.require('dijit.form.TextBox');
+  dojo.require('dijit.form.Button');
+  dojo.require('dijit.form.ToggleButton');
+  //dojo.require('dijit.form.FilteringSelect');
+  dojo.require('dojo.data.ItemFileReadStore');
+  dojo.require('dijit.form.MultiSelect');
+  //dojo.require('dojox.form.DropDownSelect');
+  dojo.require('dijit.form.Textarea');
+  dojo.require('dijit.form.SimpleTextarea');
+  dojo.require('dojo.DeferredList');
+  dojo.require('dojox.form.CheckedMultiSelect');
+  dojo.require('dijit.form.Form');
+  dojo.require('dijit.layout.ContentPane');
+  dojo.require('dojox.layout.ContentPane');
+  //dojo.require('dojox.form.BusyButton');
+  dojo.require('dojox.widget.Standby');
+  dojo.require('dojox.grid.DataGrid');
+  //dojo.require('dijit.layout.TabContainer');
+  dojo.require('dijit.Declaration');
+  dojo.require('dojo.data.ItemFileWriteStore');
+  dojo.require('dijit.form.NumberSpinner');
+  //dojo.require('dijit.layout.BorderContainer');
+  dojo.require('dijit.TooltipDialog');
+  dojo.require('dijit.form.Select');
+  dojo.require('dojox.grid._RadioSelector');
+  dojo.require('dijit.form.FilteringSelect');
+  //dojo.require('dojox.grid.EnhancedGrid');
+  //dojo.require('dojox.layout.FloatingPane'); 
+  dojo.require('dojo.NodeList-traverse');
+  dojo.require('dijit.Tooltip');
+  dojo.require('dojox.timing');
+  dojo.require('dojox.widget.Dialog');
+  dojo.require('dojo.hash');
+  dojo.require('dojo.string');
+  dojo.require('dojo.fx.easing'); 
+  dojo.require('dojox.fx.scroll');
   dojo.require('dojo.date');
-  dojo.require("custom.dojox.layout.DragPane");
+  //dojo.require('custom.dojox.widget.DialogSimple');
+  dojo.require('custom.dojox.layout.DragPane');
 
   
   
@@ -368,13 +369,23 @@
 
         form_values = fact_form.get('value');
 
-        var card_templates_input = dijit.getEnclosingWidget(dojo.query('.cards_cardTemplates', fact_form.domNode)[0]);
-        var card_templates = card_templates_input.get('value');
+        var card_counter = 0;
+        dojo.query('.card_templates input', fact_form.domNode).forEach(function(cardInput) {
+            cardInput = dijit.getEnclosingWidget(cardInput);
+            var val = cardInput.get('value');
+            if (val !== false) {
+                var new_key = 'card-' + (card_counter++) + '-template';
+                form_values[new_key] = val;
+            }
+        });
+        
+        /*var card_templates_input = dijit.getEnclosingWidget(dojo.query('.card_templates', fact_form.domNode)[0]);
+        /var card_templates = card_templates_input.get('value');
         var card_counter = 0;
         dojo.forEach(card_templates, function(val) {
             var new_key = 'card-' + (card_counter++) + '-template';
             form_values[new_key] = val;
-        });
+        });*/
         
         //get the number of fields
         field_count = dojo.query('.cards_fieldContent', fact_form.domNode).length;

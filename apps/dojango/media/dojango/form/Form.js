@@ -11,7 +11,7 @@ dojo.declare("dojango.form.Form", dijit.form.Form, {
 		// 	myForm.attr('dojangoValue') returns all form field values 
 		// 	in a Django backend compatible format
 		// 	myForm.attr("value") still can be used to retrieve the normal dijit.form.Form result
-		var values = this.attr("value");
+		var values = this.get("value");
 		return dojango.form.converter.convert_values(values);
 	}
 });

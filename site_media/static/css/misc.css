@@ -287,6 +287,7 @@ hr {
     /*padding: 10px;*/
     clear: both;
     /*width: 800px;*/
+    margin-bottom: 1.5em;
 }
 #footer .sub_legal, #footer .sub_legal a, #footer .sub_legal a:visited {
     color: #ccc;
@@ -624,6 +625,12 @@ div.column {
 }
 
 
+.fact_form_container {
+    width: 35em;
+}
+.fact_form_container form {
+    margin-bottom: 0;
+}
 .fact_form_container label {
     font-weight: bold;
 }
@@ -652,8 +659,9 @@ div.column {
 }
 .fact_form_container .cards_form_container {
     margin-top: 1em;
+    display: block;
 }
-.fact_form_container .cards_form_container label {
+.fact_form_container .card_templates label {
     font-weight: normal;
 }
 .fact_form_container .cards_form_container .card_templates {

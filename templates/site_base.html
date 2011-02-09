@@ -9,7 +9,7 @@
 {% block extra_head_base %}
     {% include "dojango/include.html" %}
 
-    {% block dojango_post_dj_config %}<script type="text/javascript">djConfig['parseOnLoad'] = false;</script>{% endblock %}
+    {% block dojango_post_dj_config %}<script type="text/javascript">//djConfig['parseOnLoad'] = false;</script>{% endblock %}
 
     <link rel="stylesheet" href="{{ MEDIA_URL }}static/css/site_tabs.css" />
     <link rel="stylesheet" href="{{ MEDIA_URL }}static/css/misc.css" />
@@ -18,16 +18,16 @@
 
     {% if user.is_authenticated %}
 
-        <script type="text/javascript" src="{{ MEDIA_URL }}static/js/manabi.js"></script>    
         <script type="text/javascript">
             dojo.require('dojango.dojango');
 
             // add our module paths for local files
-            dojango.registerModulePath('jdic', '{{ MEDIA_URL }}static/js/jdic');
-            dojango.registerModulePath('kanjivg', '{{ MEDIA_URL }}static/js/kanjivg');
-            dojango.registerModulePath('reviews', '{{ MEDIA_URL }}static/js/reviews');
-            dojango.registerModulePath('stats', '{{ MEDIA_URL }}static/js/stats');
-            dojango.registerModulePath('custom', '{{ MEDIA_URL }}static/js/custom');
+            var relUrl = '../../../js/'; //{{ MEDIA_URL }}
+            dojango.registerModulePath('jdic', '{{ MEDIA_URL }}static/js/jdic', relUrl + 'jdic');
+            dojango.registerModulePath('kanjivg', '{{ MEDIA_URL }}static/js/kanjivg', relUrl + 'kanjivg');
+            dojango.registerModulePath('reviews', '{{ MEDIA_URL }}static/js/reviews', relUrl + 'reviews');
+            dojango.registerModulePath('stats', '{{ MEDIA_URL }}static/js/stats', relUrl + 'stats');
+            dojango.registerModulePath('custom', '{{ MEDIA_URL }}static/js/custom', relUrl + 'custom');
 
             $(function() {
                 Highcharts.setOptions({
@@ -41,6 +41,8 @@
                 manabi_ui.hideLoader();
 		    });
         </script>
+
+        <script type="text/javascript" src="{{ MEDIA_URL }}static/js/manabi.js"></script>    
 
         <script type="text/javascript" src="{{ MEDIA_URL }}static/js/highcharts/highcharts.js"></script>
         <script type="text/javascript" src="{{ MEDIA_URL }}static/js/jquery-sparkline/jquery.sparkline.js" charset="utf-8"></script>
@@ -216,7 +218,7 @@
 
 {% block footer %}
 <div class="legal">
-<a rel="license" href="http://creativecommons.org/licenses/by-sa/3.0/"><img alt="Creative Commons License" style="border-width:0; opacity:.2; position:relative; top:.25em" src="http://i.creativecommons.org/l/by-sa/3.0/80x15.png" /></a> 
+<a rel="license" href="http://creativecommons.org/licenses/by-sa/3.0/"><img alt="Creative Commons License" style="border-width:0; opacity:.2; position:relative; top:.25em" src="{{ STATIC_URL }}images/cc.png" /></a> 
     {% trans "&copy; Alex Ehlke 2011" %}{% if user.is_authenticated %}. 
     Feedback or support: <a href="mailto:support@manabi.org">support@manabi.org</a> | <a href="{% url terms_of_service %}" class="xhr_link">Terms of Service</a> | <a href="{% url privacy_policy %}" class="xhr_link">Privacy Policy</a>
 
