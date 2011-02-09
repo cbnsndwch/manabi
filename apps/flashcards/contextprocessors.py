@@ -47,11 +47,10 @@ def review_start_context(request, deck_id=None):
     This is for the screen before actually reviewing, which shows the buttons
     to start the review.
     '''
-    cards = Card.objects.of_user(request.user)
     deck = Deck.objects.get(id=deck_id) if deck_id else None
 
-    if deck:
-        cards = cards.of_deck(deck)
+    cards = Card.objects.common_filters(
+        request.user, deck=deck)
 
     due_card_count = cards.due().count()
     new_card_count = cards.new().count()
@@ -68,6 +67,7 @@ def review_start_context(request, deck_id=None):
             due_card_count == 0
             and card_count
             and card_count != new_card_count),
+        'count_of_cards_due_tomorrow': Card.objects.count_of_cards_due_tomorrow(request.user, deck=deck),
     }
 
     #spaced_new_card_count = Card.objects.next_cards_count(request.user, deck=deck, new_cards_only=True)
