@@ -14,7 +14,7 @@ dojo.declare('reviews.CardPreview._base', [dijit._Widget, dijit._Templated], {
     templateString: dojo.cache('reviews', 'templates/CardPreview.html'),
 
     _rubyScriptRegExp: /\s?(\S?)\[(.*?)\]/g,
-    _rubyTemplate: '<span class="ezRuby" title="{reading}">{expression}</span>',
+    _rubyTemplate: '<span class="ezRuby" title="{reading}">{kanji}</span>',
 
     frontPrompt: '',
     formContainerNode: null,
@@ -57,8 +57,16 @@ dojo.declare('reviews.CardPreview._base', [dijit._Widget, dijit._Templated], {
     
     _furiganaize: function(text) {
         that = this;
-        return text.replace(this._rubyScriptRegExp, function(match, expression, reading){
-            return dojo.replace(that._rubyTemplate, {expression: expression, reading: reading});
+        return text.replace(this._rubyScriptRegExp, function(match, kanji, reading){
+            return dojo.replace(that._rubyTemplate, {kanji: kanji, reading: reading});
+        });
+    },
+
+    _stripRubyText: function(text) {
+        // TA[ta]beru becomes TAberu
+        that = this;
+        return text.replace(this._rubyScriptRegExp, function(match, kanji, reading){
+            return kanji;
         });
     },
 
@@ -82,7 +90,11 @@ dojo.declare('reviews.CardPreview.Production', [reviews.CardPreview._base], {
             expression: this.fields.expression,
             reading: this._furiganaize(this.fields.reading)
         };
-        return dojo.replace('<span class="expression">{expression}</span><span class="reading">{reading}</span>', fields);
+        var ret = dojo.replace('<span class="reading">{reading}</span>', fields);
+        if (this._stripRubyText(this.fields.reading) != this.fields.expression) {
+            ret = dojo.replace('<span class="expression">{expression}</span>', fields) + ret;
+        }
+        return ret;
     }
 });
 
