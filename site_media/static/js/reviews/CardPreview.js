@@ -13,6 +13,9 @@ dojo.declare('reviews.CardPreview._base', [dijit._Widget, dijit._Templated], {
 
     templateString: dojo.cache('reviews', 'templates/CardPreview.html'),
 
+    _rubyScriptRegExp: /\s?(\S?)\[(.*?)\]/g,
+    _rubyTemplate: '<span class="ezRuby" title="{reading}">{expression}</span>',
+
     frontPrompt: '',
     formContainerNode: null,
 
@@ -22,21 +25,15 @@ dojo.declare('reviews.CardPreview._base', [dijit._Widget, dijit._Templated], {
             meaning: 'meaning',
             reading: 'reading'
         };
-
         dojo.safeMixin(this, args);
     },
 
     postCreate: function(){
         //  summary
         //      Initializes the jPlayer plugin widget on this node.
-        console.log('startup');
-		if(this._started){ return; }
         this.formContainerNode = dojo.query(this.domNode).closest('.fact_form_container')[0];
-        console.log('formContainerNode:');
-        console.log(this.formContainerNode);
         this._bindFields();
         this.render();
-
         this.inherited(arguments);
     },
 
@@ -58,6 +55,13 @@ dojo.declare('reviews.CardPreview._base', [dijit._Widget, dijit._Templated], {
         }
     },
     
+    _furiganaize: function(text) {
+        that = this;
+        return text.replace(this._rubyScriptRegExp, function(match, expression, reading){
+            return dojo.replace(that._rubyTemplate, {expression: expression, reading: reading});
+        });
+    },
+
     render: function() {
         var front = this._renderFront();
         var back = this._renderBack();
@@ -74,7 +78,11 @@ dojo.declare('reviews.CardPreview.Production', [reviews.CardPreview._base], {
     },
 
     _renderBack: function() {
-        return dojo.replace('<span class="expression">{expression}</span><span class="reading">{reading}</span>', this.fields);
+        var fields = {
+            expression: this.fields.expression,
+            reading: this._furiganaize(this.fields.reading)
+        };
+        return dojo.replace('<span class="expression">{expression}</span><span class="reading">{reading}</span>', fields);
     }
 });
 
