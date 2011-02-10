@@ -251,7 +251,7 @@ manabi_ui._getOptionsFromStore = function(store) {
 
 
 //a hack since dijit.form.Select isnt fully data-aware
-dojo.addOnLoad(function(){manabi_ui.refreshDeckInput()});
+/*dojo.addOnLoad(function(){manabi_ui.refreshDeckInput()});
 manabi_ui.refreshDeckInput = function() {
     //dojo.byId('deckInputContainer').empty();
     //deckInput.destroy();
@@ -264,14 +264,7 @@ manabi_ui.refreshDeckInput = function() {
             manabi_ui.refreshSelectInput(cards_deckFilterInput, options);
         }
     });
-
-    ///reviews_decksStore.close();
-    /*reviews_decksStore.fetch({
-        onComplete: function() {
-            reviews_decksGrid.sort();
-        }
-    });*/
-}
+}*/
 
 
 

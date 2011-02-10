@@ -17,9 +17,6 @@
             {% endif %}
             dojo.byId('deckForm'), 
             null/*'{{ post_save_redirect }}'*/);
-        def.addCallback(function() {
-            manabi_ui.refreshDeckInput();
-        });
 	</script>
     <table>
 	    {{ form }}

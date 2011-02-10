@@ -75,14 +75,14 @@
                                     {% if field_type.multi_line %}
                                         <textarea  
                                             name="field_content-{{ forloop.counter0 }}-content" 
-                                            class="cards_fieldContent" 
+                                            class="cards_fieldContent field_content {{ field_type.name }}" 
                                             dojoType="dijit.form.Textarea" 
                                             tabIndex="5{{ forloop.counter }}"
                                             rows="2">{{ field_content.content }}</textarea>
                                     {% else %}
                                         <input  
                                             name="field_content-{{ forloop.counter0 }}-content" 
-                                            class="cards_fieldContent" 
+                                            class="cards_fieldContent field_content {{ field_type.name }}" 
                                             dojoType="dijit.form.TextBox" 
                                             tabIndex="5{{ forloop.counter }}"
                                             value="{{ field_content.content }}">

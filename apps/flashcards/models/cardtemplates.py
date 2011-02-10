@@ -18,6 +18,10 @@ class CardTemplate(models.Model):
     front_prompt = models.CharField(max_length=200, blank=True)
     back_prompt = models.CharField(max_length=200, blank=True)
 
+    # Used to render card previews live -- a simplified version of the full templates
+    # This is fed through dojo.string.substitute
+    js_template = models.TextField(max_length=600, blank=True)
+
     #used for generating/enabling cards for a fact which is missing certain fields
     #can show validation errors to the user based on this (e.g. "Enter a reading if you want to do kanji writing")
     requisite_field_types = models.ManyToManyField('flashcards.FieldType',
@@ -32,7 +36,6 @@ class CardTemplate(models.Model):
     ordinal = models.IntegerField(null=True, blank=True)
     hide_front = models.BooleanField(default=False, blank=True) #hide front when showing back
     allow_blank_back = models.BooleanField(default=True, blank=True) #don't activate cards with missing answers #TODO implement this
-
     active = models.BooleanField(default=True, blank=True)
 
     created_at = models.DateTimeField(auto_now_add=True, editable=False)

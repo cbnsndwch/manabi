@@ -1,9 +1,5 @@
 {% comment %}TODO:Update this to use the standard fact_form.html, need to update the js to use the new names mostly{% endcomment %}
 
-<div dojoType="dojo.data.ItemFileReadStore" jsId="decksStore" 
-    url="{% url api-decks %}" clearOnClose="true">
-</div>
-
 
 <div id="factAddFormWrapper"  class="fact_form_container">
     <div dojoType="dijit.form.Form" jsId="factAddForm" encType="multipart/form-data" action="" method="">
@@ -70,7 +66,7 @@
                                     {% endif %}
                                             id="id_field_content-{{ forloop.counter0 }}-content" 
                                             name="field_content-{{ forloop.counter0 }}-content" 
-                                            class="field_content{% if field_type.transliteration_field_type %} kanji_field{% endif %}{% if field_type.reverse_transliteration_field_type %} reading_field{% endif %}"
+                                            class="field_content{% if field_type.transliteration_field_type %} kanji_field{% endif %}{% if field_type.reverse_transliteration_field_type %} reading_field{% endif %} {{ field_type.name }}"
                                             tabIndex="{% if field_type.is_transliteration_field_type %}-1{% else %}3{{ forloop.counter }}{% endif %}">{% if field_type.multi_line %}</textarea>{% endif %}
 
                                     {% if field_type.transliteration_field_type %}
@@ -128,14 +124,14 @@
             </div>
             <div class="cards_form_container">
                 <label>Cards:</label>
-                {% comment %}<select multiple="true" dojoType="dojox.form.CheckedMultiSelect" 
-                    jsId="cardTemplatesInput" style="height:6.2em;">
-                    </select>
-                {% endcomment %}
                 <div class="card_templates">
                     {% for card_template in fact_add_form.card_templates %}
                         <input name="card_template-{{ card_template.id }}" id="id_card_template-{{ card_template.id }}" dojoType="dijit.form.CheckBox" value="{{ card_template.id }}"{% if card_template.generate_by_default %} checked{% endif %}>
                         <label for="id_card_template-{{ card_template.id }}">{{ card_template.name }}</label>
+
+                        {% autoescape off %}
+                            {{ card_template.js_template }}
+                        {% endautoescape %}
                     {% endfor %}
                 </div>
             </div>

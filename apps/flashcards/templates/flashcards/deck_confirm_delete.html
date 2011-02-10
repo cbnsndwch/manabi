@@ -11,9 +11,6 @@
             '{% url delete_deck deck.id %}',
             dojo.byId('deckDeleteForm'),
             '{{ post_delete_redirect }}');
-        def.addCallback(function() {
-            manabi_ui.refreshDeckInput();
-        });
 	</script>
 	
 	Really delete {{ deck.name }}?<br>
