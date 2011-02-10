@@ -6,25 +6,67 @@ dojo.provide('reviews.CardPreview.Production');
 dojo.require('dijit._Widget');
 dojo.require('dijit._Templated');
 
+var format = function(tmpl, dict, formatters){
+    // convert dict to a function, if needed
+    var fn = dojo.isFunction(dict) ? dict : function(_, name) {
+        return dojo.getObject(name, false, dict);
+    };
+    // perform the substitution
+    return dojo.replace(tmpl, function(_, name) {
+        var parts = name.split(":"),
+            value = fn(_, parts[0]);
+        if(parts.length > 1) {
+            value = formatters[parts[1]](value, parts.slice(2));
+        }
+        return value;
+    });
+}
 
+// custom formatters for format
+var rubyScriptRegExp = /\s?(\S?)\[(.*?)\]/g;
+var rubyTemplate = '<span class="ezRuby" title="{reading}">{kanji}</span>';
+
+var formatters = {
+    furiganaize: function(text) {
+    console.log('furiganaize!');
+    console.log(text);
+    console.log(rubyTemplate);
+        return text.replace(rubyScriptRegExp, function(match, kanji, reading){
+            return format(rubyTemplate, {kanji: kanji, reading: reading});
+        });
+    },
+
+    stripRubyText: function(text) {
+        // TA[ta]beru becomes TAberu
+        return text.replace(rubyScriptRegExp, function(match, kanji, reading){
+            return kanji;
+        });
+    },
+
+    stripKanji: function(reading) {
+        // strips the kanji from a reading
+        // TA[ta]beru becomes taberu
+        return reading.replace(rubyScriptRegExp, function(match, kanji, reading){
+            return reading;
+        });
+    }
+};
 
 dojo.declare('reviews.CardPreview._base', [dijit._Widget, dijit._Templated], {
     //  summary:
 
     templateString: dojo.cache('reviews', 'templates/CardPreview.html'),
 
-    _rubyScriptRegExp: /\s?(\S?)\[(.*?)\]/g,
-    _rubyTemplate: '<span class="ezRuby" title="{reading}">{kanji}</span>',
-
     frontPrompt: '',
     formContainerNode: null,
 
     constructor: function(args) {
-        this.fields = {
-            expression: 'expression',
-            meaning: 'meaning',
-            reading: 'reading'
+        this.fieldDefaults = {
+            expression: '<span class="weak">expression</span>',
+            meaning: '<span class="weak">meaning</span>',
+            reading: '<span class="weak">reading</span>'
         };
+        this.fields = dojo.clone(this.fieldDefaults);
         dojo.safeMixin(this, args);
     },
 
@@ -45,7 +87,8 @@ dojo.declare('reviews.CardPreview._base', [dijit._Widget, dijit._Templated], {
             dojo.query('.field_content.'+fieldName, this.formContainerNode).forEach(function(node){
                 var field = dijit.getEnclosingWidget(node);
                 var handler = function(fieldName, e){
-                    that.fields[fieldName] = field.get('value');
+                    var val = field.get('value');
+                    that.fields[fieldName] = val ? val : that.fieldDefaults[fieldName];
                     that.render();
                 };
                 // use that.connect so that _Widget automatically unconnects on destroy
@@ -55,19 +98,14 @@ dojo.declare('reviews.CardPreview._base', [dijit._Widget, dijit._Templated], {
         }
     },
     
-    _furiganaize: function(text) {
-        that = this;
-        return text.replace(this._rubyScriptRegExp, function(match, kanji, reading){
-            return dojo.replace(that._rubyTemplate, {kanji: kanji, reading: reading});
-        });
-    },
 
-    _stripRubyText: function(text) {
-        // TA[ta]beru becomes TAberu
-        that = this;
-        return text.replace(this._rubyScriptRegExp, function(match, kanji, reading){
-            return kanji;
-        });
+    _renderReadingAndExpression: function() {
+        // Hides the expression if the reading sans ruby text matches it
+        var ret = format('<span class="reading">{reading:furiganaize}</span>', this.fields, formatters);
+        if (formatters.stripRubyText(this.fields.reading) != this.fields.expression) {
+            ret = format('<span class="expression">{expression}</span>', this.fields) + ret;
+        }
+        return ret;
     },
 
     render: function() {
@@ -80,23 +118,47 @@ dojo.declare('reviews.CardPreview._base', [dijit._Widget, dijit._Templated], {
 });
 
 
+
+
 dojo.declare('reviews.CardPreview.Production', [reviews.CardPreview._base], {
     _renderFront: function() {
-        return dojo.replace('<span class="meaning">{meaning}</span>', this.fields);
+        return format('<span class="meaning">{meaning}</span>', this.fields, formatters);
     },
 
     _renderBack: function() {
-        var fields = {
-            expression: this.fields.expression,
-            reading: this._furiganaize(this.fields.reading)
-        };
-        var ret = dojo.replace('<span class="reading">{reading}</span>', fields);
-        if (this._stripRubyText(this.fields.reading) != this.fields.expression) {
-            ret = dojo.replace('<span class="expression">{expression}</span>', fields) + ret;
-        }
-        return ret;
+        return this._renderReadingAndExpression();
     }
 });
 
 
+dojo.declare('reviews.CardPreview.Recognition', [reviews.CardPreview._base], {
+    _renderFront: function() {
+        return this._renderReadingAndExpression();
+    },
+
+    _renderBack: function() {
+        return format('<span class="meaning">{meaning}</span>', this.fields, formatters);
+    }
+});
+
+
+dojo.declare('reviews.CardPreview.KanjiReading', [reviews.CardPreview._base], {
+    _renderFront: function() {
+        return format('<span class="expression">{expression}</span>', this.fields, formatters);
+    },
+
+    _renderBack: function() {
+        return format('<span class="reading">{reading:furiganaize}</span><span class="meaning">{meaning}</span>', this.fields, formatters);
+    }
+});
+
+dojo.declare('reviews.CardPreview.KanjiWriting', [reviews.CardPreview._base], {
+    _renderFront: function() {
+        return format('<span class="reading">{reading:stripKanji}</span><span class="meaning">{meaning}</span>', this.fields, formatters);
+    },
+
+    _renderBack: function() {
+        return format('<span class="expression">{expression}</span>', this.fields);
+    }
+});
 
