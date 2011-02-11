@@ -1,10 +1,9 @@
 dojo.provide('reviews.CardPreview');
 dojo.provide('reviews.CardPreview.Production');
-//dojo.provide('facts.CardPreview._CardPreview');
-//dojo.provide('facts.CardPreview.ProductionCardPreview');
 
 dojo.require('dijit._Widget');
 dojo.require('dijit._Templated');
+
 
 var format = function(tmpl, dict, formatters){
     // convert dict to a function, if needed
@@ -28,9 +27,6 @@ var rubyTemplate = '<span class="ezRuby" title="{reading}">{kanji}</span>';
 
 var formatters = {
     furiganaize: function(text) {
-    console.log('furiganaize!');
-    console.log(text);
-    console.log(rubyTemplate);
         return text.replace(rubyScriptRegExp, function(match, kanji, reading){
             return format(rubyTemplate, {kanji: kanji, reading: reading});
         });
@@ -112,6 +108,8 @@ dojo.declare('reviews.CardPreview._base', [dijit._Widget, dijit._Templated], {
         var front = this._renderFront();
         var back = this._renderBack();
 
+        console.log(this.frontPrompt);
+        dojo.query(this.frontPromptNode).html(this.frontPrompt);
         dojo.query(this.frontNode).html(front);
         dojo.query(this.backNode).html(back);
     }
@@ -148,7 +146,7 @@ dojo.declare('reviews.CardPreview.KanjiReading', [reviews.CardPreview._base], {
     },
 
     _renderBack: function() {
-        return format('<span class="reading">{reading:furiganaize}</span><span class="meaning">{meaning}</span>', this.fields, formatters);
+        return format('<span class="reading">{reading:stripKanji}</span><span class="meaning">{meaning}</span>', this.fields, formatters);
     }
 });
 
@@ -161,4 +159,5 @@ dojo.declare('reviews.CardPreview.KanjiWriting', [reviews.CardPreview._base], {
         return format('<span class="expression">{expression}</span>', this.fields);
     }
 });
+
 
