@@ -126,12 +126,14 @@
                 <label>Cards:</label>
                 <div class="card_templates">
                     {% for card_template in fact_add_form.card_templates %}
-                        <input name="card_template-{{ card_template.id }}" id="id_card_template-{{ card_template.id }}" dojoType="dijit.form.CheckBox" value="{{ card_template.id }}"{% if card_template.generate_by_default %} checked{% endif %}>
-                        <label for="id_card_template-{{ card_template.id }}">{{ card_template.name }}</label>
+                        <div class="card_template_container">
+                            <input name="card_template-{{ card_template.id }}" id="id_card_template-{{ card_template.id }}" dojoType="dijit.form.CheckBox" value="{{ card_template.id }}"{% if card_template.generate_by_default %} checked{% endif %}>
+                            <label for="id_card_template-{{ card_template.id }}">{{ card_template.name }}</label>
 
-                        {% autoescape off %}
-                            {{ card_template.js_template }}
-                        {% endautoescape %}
+                            {% autoescape off %}
+                                <div dojoType="{{ card_template.js_template }}" frontPrompt="{{ card_template.front_prompt }}"></div>
+                            {% endautoescape %}
+                        </div>
                     {% endfor %}
                 </div>
             </div>

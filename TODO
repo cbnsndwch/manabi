@@ -67,6 +67,10 @@ brand new refactor todo
 BUG: suspended cards are showing up in reviews (fixed?)
 BUG: suspended cards arent grayed out in grid
 
+bugs with the form
+
+use keydown for space bar shortcut in reviews -- feels more responsive
+
 make some things into optional contextprocs
 
 magic numbers
