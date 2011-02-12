@@ -11,7 +11,8 @@
 }
 .card_template_container input, .card_template_container label {
 }
-.dijitCheckBox:not(.dijitChecked) + label + .card_preview {
+/*.dijitCheckBox:not(.dijitChecked) + label + .card_preview {*/
+.card_preview:not(.on) {
     opacity: .7;
     border: 2px dotted #ccc;
     background-color: #fafafa;
@@ -33,6 +34,8 @@
     width: 8.3em;
     margin-top: .3em;
     padding: .4em;
+
+    cursor: pointer;
 
     background-color: #f7f7f7;
     border: 2px solid #ddd;
