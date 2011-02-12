@@ -72,6 +72,10 @@ dojo.declare('reviews.CardPreview._base', [dijit._Widget, dijit._Templated], {
         this.formContainerNode = dojo.query(this.domNode).closest('.fact_form_container')[0];
         this._bindFields();
         this.render();
+        
+        // connect to click events
+        dojo.query(this.domNode).onclick(dojo.hitch(this, 'onClick'));
+
         this.inherited(arguments);
     },
 
@@ -112,7 +116,9 @@ dojo.declare('reviews.CardPreview._base', [dijit._Widget, dijit._Templated], {
         dojo.query(this.frontPromptNode).html(this.frontPrompt);
         dojo.query(this.frontNode).html(front);
         dojo.query(this.backNode).html(back);
-    }
+    },
+
+    onClick: function() {}
 });
 
 
