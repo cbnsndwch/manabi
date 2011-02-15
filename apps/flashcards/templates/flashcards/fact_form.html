@@ -130,8 +130,23 @@
                     <label>Cards:</label>
                     <div class="card_templates">
                         {% for card_template in card_templates %}
-                            <input id="fact_form_cardTemplate{{ card_template.id }}" dojoType="dijit.form.CheckBox" value="{{ card_template.id }}"{% if card_template.activated_for_fact %} checked{% endif %}>
-                            <label for="fact_form_cardTemplate{{ card_template.id }}">{{ card_template.name }}</label>
+                            <div class="card_template_container">
+                                <div id="fact_form_cardTemplate{{ card_template.id }}" dojoType="dijit.form.CheckBox" value="{{ card_template.id }}"{% if card_template.activated_for_fact %} checked{% endif %}>
+                                    <script type="dojo/connect" event="onChange" args="evt">
+                                        dojo.query('#fact_form_cardTemplate{{ card_template.id }}').closest('.card_template_container').children('.card_preview').toggleClass('on', evt);
+                                    </script>
+                                </div>
+                                <label for="fact_form_cardTemplate{{ card_template.id }}">{{ card_template.name }}</label>
+
+                                {% autoescape off %}
+                                    <div dojoType="{{ card_template.js_template }}" frontPrompt="{{ card_template.front_prompt }}" class="{% if card_template.activated_for_fact %}on{% endif %}">
+                                        <script type="dojo/connect" event="onClick" args="evt">
+                                            var checkbox = dijit.getEnclosingWidget(dojo.query('#fact_form_cardTemplate{{ card_template.id }}')[0]);
+                                            checkbox.set('value', !checkbox.get('value'));
+                                        </script>
+                                    </div>
+                                {% endautoescape %}
+                            </div>
                         {% endfor %}
                     </div>
                 {% comment %}<select class="cards_cardTemplates" multiple="true" dojoType="dojox.form.CheckedMultiSelect" style="height:76px;">
