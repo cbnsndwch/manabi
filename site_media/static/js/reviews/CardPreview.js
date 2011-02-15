@@ -79,6 +79,8 @@ dojo.declare('reviews.CardPreview._base', [dijit._Widget, dijit._Templated], {
         this.inherited(arguments);
     },
 
+    
+
     _bindFields: function() {
         // Binds callbacks to each input field in the form
         // to tell when their values change, so we can re-render.
@@ -99,6 +101,9 @@ dojo.declare('reviews.CardPreview._base', [dijit._Widget, dijit._Templated], {
                 that.connect(field, 'onKeyUp', handler_);
                 that.connect(field, 'value', handler_);
                 that.connect(form, 'onSubmit', handler_);
+
+                // force an initial refresh
+                handler_(fieldName);
             });
         }
     },
