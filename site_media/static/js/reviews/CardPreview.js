@@ -22,7 +22,7 @@ var format = function(tmpl, dict, formatters){
 }
 
 // custom formatters for format
-var rubyScriptRegExp = /\s?(\S?)\[(.*?)\]/g;
+var rubyScriptRegExp = /\s?(\S*?)\[(.*?)\]/g;
 var rubyTemplate = '<span class="ezRuby" title="{reading}">{kanji}</span>';
 
 var formatters = {
@@ -83,6 +83,8 @@ dojo.declare('reviews.CardPreview._base', [dijit._Widget, dijit._Templated], {
         // Binds callbacks to each input field in the form
         // to tell when their values change, so we can re-render.
         var that = this;
+        var form = dijit.getEnclosingWidget(dojo.query('form', this.formContainerNode)[0]);
+
         for (var fieldName in this.fields) {
             dojo.query('.field_content.'+fieldName, this.formContainerNode).forEach(function(node){
                 var field = dijit.getEnclosingWidget(node);
@@ -92,8 +94,11 @@ dojo.declare('reviews.CardPreview._base', [dijit._Widget, dijit._Templated], {
                     that.render();
                 };
                 // use that.connect so that _Widget automatically unconnects on destroy
-                that.connect(field, 'onChange', dojo.hitch(this, handler, fieldName));
-                that.connect(field, 'onKeyUp', dojo.hitch(this, handler, fieldName));
+                var handler_ = dojo.hitch(this, handler, fieldName);
+                that.connect(field, 'onChange', handler_);
+                that.connect(field, 'onKeyUp', handler_);
+                that.connect(field, 'value', handler_);
+                that.connect(form, 'onSubmit', handler_);
             });
         }
     },
@@ -112,7 +117,6 @@ dojo.declare('reviews.CardPreview._base', [dijit._Widget, dijit._Templated], {
         var front = this._renderFront();
         var back = this._renderBack();
 
-        console.log(this.frontPrompt);
         dojo.query(this.frontPromptNode).html(this.frontPrompt);
         dojo.query(this.frontNode).html(front);
         dojo.query(this.backNode).html(back);

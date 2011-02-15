@@ -68,6 +68,10 @@ hr {
 .horizontal_list li {
     display: inline;
 }
+.dijitCheckBox + label {
+    position: relative;
+    top: .1em;
+}
 
 #siteLoader { 
 	padding: 0;
@@ -628,6 +632,13 @@ div.column {
 .fact_form_container {
     width: 39em;
 }
+.fact_form_container label {
+    /*vertical-align: top;*/
+}
+.fact_form_container .tags_container label {
+    position: relative;
+    top: .5em;
+}
 .fact_form_container form {
     margin-bottom: 0;
 }
@@ -635,7 +646,7 @@ div.column {
     font-weight: bold;
 }
 .fact_form_container .dijitTextBox {
-    margin-top: .5em;
+    margin-top: .3em;
     margin-bottom: .5em;
     width: 99%;
 }
@@ -654,7 +665,8 @@ div.column {
 }
 .fact_form_container .field .refresh {
     position: relative;
-    top: 3px;
+    /*top: 3px;*/
+    top: 1px;
     margin-left: 4px;
 }
 .fact_form_container .cards_form_container {
