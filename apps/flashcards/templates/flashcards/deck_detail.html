@@ -39,11 +39,11 @@
         {% deck_overview_stat_counts deck %}
         {% deck_usage_history deck %}
     </div>
-
+    <br>
+    <br>
     <hr>
     <p>
         <h3>Deck Contents</h3>
-        <br>
         {% if request.user == deck.owner %}
             <button dojoType="dijit.form.Button">
 	            Create Flashcards
