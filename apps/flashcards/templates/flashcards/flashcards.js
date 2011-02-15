@@ -75,9 +75,7 @@
         var k = dojo.keys;
 
         // isCopyKey doesn't work here since cmd isn't seen as a modifier key
-        //if (dojo.isCopyKey(e)) {
         if (e.ctrlKey) {
-            //meta (on mac) or ctrl (on PC) is pressed
             switch(e.charOrCode) {
                 case k.ENTER:
                     //submit form
@@ -153,7 +151,11 @@
   function resetFactAddForm() {
       //factAddForm.reset(); //don't reset everything... just the field contents
       dojo.query('.dijitTextBox:not([type=hidden]), .dijitTextarea:not([type=hidden])',factAddDialog.domNode).forEach(function(node, index, arr){
-              node.value=''; }); //TODO clear via dijit, not dom
+        var field = dijit.getEnclosingWidget(node);
+        field.set('value', '');
+        // force an onChange event, to be safe
+        field.onChange();
+      });
 
       //reset multi-choice fields
       dojo.query('.dijitSelect', dojo.byId('factFields')).forEach(function(node, index, arr) {
@@ -525,7 +527,9 @@
         if (typeof deck_id == 'undefined') { deck_id = null; }
         if (deck_id) {
             //FIXME set it, hide the select
-            deckInput.set('value', deck_id.toString());
+            //TODO .set('value', etc) wasn't working for some reason
+            dojo.attr(deckInput, 'value', deck_id.toString());
+            //deckInput.set('value', deck_id.toString());
         }
         factAddDialog.show();
     };
