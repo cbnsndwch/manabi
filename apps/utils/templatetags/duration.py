@@ -50,43 +50,47 @@ def seconds_to_duration(value, arg=''):
             return parts >= FUZZ_LIMIT
         return False
     
+    # Place durations of given units in to variables
+    daySecs = 86400
+    hourSecs = 3600
+    minSecs = 60
+    
+    # If short string is enabled
+    if not do_long:
+        
+        # Set short names
+        dayUnitName = ' day'
+        hourUnitName = ' hr'
+        minUnitName = ' min'
+        secUnitName = ' sec'
+        
+        # Set short duration unit splitters
+        lastDurSplitter = ' '
+        nextDurSplitter = lastDurSplitter
+    
+    # If short string is not provided or any other value
+    else:
+        
+        # Set long names
+        dayUnitName = ' day'
+        hourUnitName = ' hour'
+        minUnitName = ' minute'
+        secUnitName = ' second'
+        
+        # Set long duration unit splitters
+        #lastDurSplitter = ' and '
+        lastDurSplitter = ', '
+        nextDurSplitter = ', '
+
+    if secs == 0 and float(value) > 0:
+        return 'under a second'
+
     # If seconds are greater than 0
     if secs > 0:
         
         # Import math library
         import math
         
-        # Place durations of given units in to variables
-        daySecs = 86400
-        hourSecs = 3600
-        minSecs = 60
-        
-        # If short string is enabled
-        if not do_long:
-            
-            # Set short names
-            dayUnitName = ' day'
-            hourUnitName = ' hr'
-            minUnitName = ' min'
-            secUnitName = ' sec'
-            
-            # Set short duration unit splitters
-            lastDurSplitter = ' '
-            nextDurSplitter = lastDurSplitter
-        
-        # If short string is not provided or any other value
-        else:
-            
-            # Set long names
-            dayUnitName = ' day'
-            hourUnitName = ' hour'
-            minUnitName = ' minute'
-            secUnitName = ' second'
-            
-            # Set long duration unit splitters
-            #lastDurSplitter = ' and '
-            lastDurSplitter = ', '
-            nextDurSplitter = ', '
         
         # Create string to hold outout
         durationString = ''
