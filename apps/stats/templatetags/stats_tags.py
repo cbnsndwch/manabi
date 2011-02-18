@@ -1,37 +1,42 @@
+from copy import copy
+from datetime import datetime, timedelta
 from django import template
 from flashcards.models import CardHistory, Deck, Card
-from copy import copy
 
 register = template.Library()
 
+SPARKLINE_DAYS = 60
 
-def _usage_history_sparkline(deck=None):
-    s = '''<div dojoType="stats.UsageSparkline"{0}></div>'''
 
+def _usage_history_sparkline(user, deck=None):
+    # First make sure that any of these cards have actually 
+    # been reviewed yet, within the given timespan.
+    from_ = datetime.utcnow() - timedelta(days=SPARKLINE_DAYS)
+
+    user_items = CardHistory.objects.of_user(user).filter(
+        reviewed_at__gte=from_)
     if deck:
-        return s.format(' deckId="{0}"'.format(deck.id))
+        user_items = user_items.of_deck(deck)
+    if user_items.exists():
+        s = u'''<div dojoType="stats.UsageSparkline"{0}></div>'''
+
+        if deck:
+            return s.format(' deckId="{0}"'.format(deck.id))
+        else:
+            return s.format('')
     else:
-        return s.format('')
+        return u''
 
-
-@register.simple_tag
-def usage_history_sparkline():
-    return _usage_history()
-    
-    
-@register.simple_tag
-def deck_usage_history_sparkline(deck):
-    return _usage_history(deck=deck)
 
 
 @register.inclusion_tag('stats/_usage_history.html')
-def usage_history():
-    return {'sparkline': _usage_history_sparkline()}
+def usage_history(user):
+    return {'sparkline': _usage_history_sparkline(user)}
 
     
 @register.inclusion_tag('stats/_usage_history.html')
 def deck_usage_history(deck):
-    return {'sparkline': _usage_history_sparkline(deck=deck)}
+    return {'sparkline': _usage_history_sparkline(deck.owner, deck=deck)}
 
 
 
@@ -56,3 +61,5 @@ def overview_stat_counts(user):
 @register.inclusion_tag('stats/_overview_stat_counts.html')
 def deck_overview_stat_counts(deck):
     return _overview_stat_counts(deck.owner, deck=deck)
+
+

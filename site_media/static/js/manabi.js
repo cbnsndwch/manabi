@@ -59,10 +59,12 @@ manabi.xhrGet = function(args) {
 
 
 dojo.addOnLoad(function() {
-    manabi_ui.body_pane = body_pane; //dijit.byId('body_pane');
+    if (typeof body_pane != 'undefined') {
+        manabi_ui.body_pane = body_pane; //dijit.byId('body_pane');
 
-    //make all the links ajaxy
-    manabi_ui.convertLinksToXhr(dojo.body());
+        //make all the links ajaxy
+        manabi_ui.convertLinksToXhr(dojo.body());
+    }
 });
 
 

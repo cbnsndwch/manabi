@@ -5,127 +5,31 @@
 {% load ifsetting_tag %}
 {% load activetab_tags %}
 
+{# this is a static, non-ajax site base, for things like login and signup #}
+
 
 {% block extra_head_base %}
-    {% include "dojango/include.html" %}
-
-    {% block dojango_post_dj_config %}
-    {% endblock %}
-
     <link rel="stylesheet" href="{{ MEDIA_URL }}static/css/site_tabs.css" />
     <link rel="stylesheet" href="{{ MEDIA_URL }}static/css/misc.css" />
 
-
-
-    {% if user.is_authenticated %}
-
-        <script type="text/javascript">
-            dojo.require('dojango.dojango');
-
-            // add our module paths for local files
-            var relUrl = '../../../js/'; //{{ MEDIA_URL }}
-            dojango.registerModulePath('jdic', '{{ MEDIA_URL }}static/js/jdic', relUrl + 'jdic');
-            dojango.registerModulePath('kanjivg', '{{ MEDIA_URL }}static/js/kanjivg', relUrl + 'kanjivg');
-            dojango.registerModulePath('reviews', '{{ MEDIA_URL }}static/js/reviews', relUrl + 'reviews');
-            dojango.registerModulePath('stats', '{{ MEDIA_URL }}static/js/stats', relUrl + 'stats');
-            dojango.registerModulePath('custom', '{{ MEDIA_URL }}static/js/custom', relUrl + 'custom');
-
-            $(function() {
-                Highcharts.setOptions({
-                    global: {
-                        useUTC: false
-                    }
-                });
-            });
-
-		    dojo.ready(function(){
-                manabi_ui.hideLoader();
-		    });
-        </script>
-
-        <script type="text/javascript" src="{{ MEDIA_URL }}static/js/manabi.js"></script>    
-
-        <script type="text/javascript" src="{{ MEDIA_URL }}static/js/highcharts/highcharts.js"></script>
-        <script type="text/javascript" src="{{ MEDIA_URL }}static/js/jquery-sparkline/jquery.sparkline.js" charset="utf-8"></script>
-
-        <script type="text/javascript" src="{{ MEDIA_URL }}static/tag-it/js/ie-compat.js" charset="utf-8"></script>
-        <script type="text/javascript" src="{{ MEDIA_URL }}static/tag-it/js/tag-it.js" charset="utf-8"></script>
-        <link rel="stylesheet" href="{{ MEDIA_URL }}static/tag-it/css/jquery-ui/jquery.ui.autocomplete.custom.css"></link>
-
-        <script type="text/javascript" src="{{ MEDIA_URL }}static/js/jdic/jPlayer/jquery.jplayer.min.js"></script>
-        <link rel="stylesheet" href="{{ MEDIA_URL }}static/js/jdic/jPlayer/skins/manabi/jplayer.css"></link>
-
-    {% else %}
-        <script type="text/javascript">
-            // don't allow IE users yet :( ... >:]
-            dojo.addOnLoad(function() {
-                if (dojo.isIE) {
-                    dojo.byId('body_contents').innerHTML = "\
-                    Unfortunately your browser, Internet Explorer, doesn't work with this site just yet.\
-                    It's in the pipeline, but IE doesn't make it easy on us.<br><br>\
-                    Please use a more standards-compliant browser such as \
-                    <a href=\"http://www.google.com/chrome\">Google Chrome</a>, <a href=\"http://www.mozilla.com/firefox/\">Firefox</a>, \
-                    or <a href=\"http://www.apple.com/safari/\">Safari</a>.<br><br>\
-                    Sorry for the inconvenience! We'll add IE support eventually!";
-              }
-            });
-
-            {% if user.is_authenticated %}
-                dojo.require('manabi_ui');
-            {% endif %}
-
-        </script>
-    {% endif %}
-
     {% block extra_head %}{% endblock %}
 
-    {% comment %}<script type="text/javascript" src="{{ MEDIA_URL }}static/js/pixastic.custom.js"></script>    
-    <script type="text/javascript">
-        // Desaturate our nav images
-        /*
-        dojo.ready(function() {
-            var desaturate = function(node) {
-                Pixastic.process(node, 'edges', { mono:true, invert:true });
-            };
-            dojo.query('#subnav a').forEach(function(node) {
-                dojo.query('img', node).forEach(function(node) {
-                    desaturate(node);
-                });
-                dojo.query('canvas', node).forEach(function(node) {
-                    dojo.style(node, 'opacity', '.3');
-                });
-                dojo.query(node).onmouseenter(dojo.hitch(this, function() {
-                    dojo.query('canvas', node).forEach(function(node) {
-                        dojo.style(node, 'opacity', '1.0');
-                        Pixastic.revert(node);
-                        dojo.style(node, 'opacity', '1.0');
-                    });
-                }));
-                dojo.query(node).parent().onmouseleave(dojo.hitch(this, function() {
-                    dojo.query('img', node).forEach(function(node) {
-                        desaturate(node);
-                        dojo.style(node, 'opacity', '.3');
-                    });
-                }));
-            });
-        });*/
-    </script>{% endcomment %}
 {% endblock %}
 
 {% block body_class %}{{ DOJANGO.THEME }}{% endblock %}
 
-{% block body_top %}
-    {% if user.is_authenticated %}
-        <div id="siteLoader"><div id="siteLoaderInner"></div></div> 
-    {% endif %}
-{% endblock %}
-
 {% block login %}
     {% load i18n ifsetting_tag account_tags %}
-    {% if user.is_authenticated %}
-    <b>{% user_display user %}</b> {% comment %} | <a href="{% url acct_email %}">{% trans "Account" %}</a> {% endcomment %}| {% if user.is_staff %}<a href="/admin/">{% trans "Admin" %}</a> | {% endif %}<a href="{% url acct_logout %}">{% trans "Logout" %}</a>
+    {% load lazysignup_tags %}
+
+    {% if user|is_lazy_user %}
+            <a href="{% url acct_login %}">{% trans "Login" %}</a> {% ifsetting ACCOUNT_OPEN_SIGNUP %}{% trans "or" %} <a href="{% url lazysignup_convert %}" class="xhr_link"><b>{% trans "Sign up" %}</b></a>{% endifsetting %}
     {% else %}
-        <a href="{% url acct_login %}">{% trans "Login" %}</a> {% ifsetting ACCOUNT_OPEN_SIGNUP %}{% trans "or" %} <a href="{% url acct_signup %}"><b>{% trans "Sign up" %}</b></a>{% endifsetting %}
+        {% if user.is_authenticated %}
+            <b>{% user_display user %}</b> {% comment %} | <a href="{% url acct_email %}">{% trans "Account" %}</a> {% endcomment %}| {% if user.is_staff %}<a href="/admin/">{% trans "Admin" %}</a> | {% endif %}<a href="{% url acct_logout %}">{% trans "Logout" %}</a>
+        {% else %}
+            <a href="{% url acct_login %}">{% trans "Login" %}</a> {% ifsetting ACCOUNT_OPEN_SIGNUP %}{% trans "or" %} <a href="{% url acct_signup %}"><b>{% trans "Sign up" %}</b></a>{% endifsetting %}
+        {% endif %}
     {% endif %}
 {% endblock %}
 
@@ -133,11 +37,9 @@
 <div id="site_title_left"><!-- --></div>
 <div id="site_title">
     {% spaceless %}
-    {% if user.is_authenticated %}
-        <a href="{% url home_inline %}" onclick="manabi_ui.xhrLink(this.href);return false;">
-    {% else %}
+    {% block site_title_link_tag %}
         <a href="{% url home %}">
-    {% endif %}
+    {% endblock %}
             <span id="site_logo"><img src="{{ STATIC_URL }}images/gaku.png"></span>
             <span class="no_hover">Manabi</span><span class="hover">まなび</span>
         </a>
@@ -148,22 +50,7 @@
 
 {% block subnav %}
     <ul>
-        {% if user.is_authenticated %}
-            <li id="nav_tab_home" class="tab {% is_active_tab request "home" %}"><a href="{% url home_inline %}" id="subnav_home_link" class="xhr_link">Home</a>
-            <li id="nav_tab_add" class="tab {% is_active_tab request "add" %}"><a href="{% url add_decks %}" id="subnav_add_link" class="xhr_link">Add</a>
-            <li id="nav_tab_manage" class="tab {% is_active_tab request "manage" %}"><a href="{% url decks %}" id="subnav_manage_link" class="xhr_link">Manage</a>
-            <li id="nav_tab_stats" class="tab {% is_active_tab request "stats" %}"><a href="{% url stats %}" class="xhr_link">Stats</a>
-
-            <script type="text/javascript">
-                dojo.subscribe('manabi.tab_activated', function(tab_name) {
-                    // make all tabs inactive first
-                    dojo.query('#subnav .tab').removeClass('active');
-                    
-                    // Make the appropriate tab active
-                    dojo.query('#nav_tab_' + tab_name).addClass('active');
-                });
-            </script>
-        {% endif %}
+        <li id="nav_tab_home" class="tab {% is_active_tab request "home" %}"><a href="{% url home %}" id="subnav_home_link">Home</a>
     </ul>
 {% endblock %}
 
@@ -180,37 +67,13 @@
 
 {% block body_outer %}
     <div id="column_wrap">
-        {% if user.is_authenticated %}
-            {% include "flashcards/base.html" %}
-        {% endif %}
+        {% block above_body_contents %}{% endblock %}
         
         <div id="body_contents">
             {% block body %}
-            <div dojoType="dojox.layout.ContentPane" jsId="body_pane" style="overflow:hidden" executeScripts="true" scriptHasHooks="true">
-                <script type="dojo/method" event="onDownloadStart">
-                    /*var bodyNode = dojo.byId('body_contents');
-                    var pos = dojo.position(bodyNode, true);
-
-                    dojo.style(loader, {
-                        left: pos.x + 'px',
-                        top: pos.y + 'px',
-                        height: 200,//pos.h,
-                        width: pos.w,
-	                    background: 'white',
-	                    opacity: 1 
-                    });*/
-                    dojo.query('.legal').style({ display: 'none' });
-
-                    return '<div class="bodyPaneLoader"><div class="bodyPaneLoaderInner"></div></div>';
-                </script>
-                <script type="dojo/connect" event="onDownloadEnd">
-                    dojo.query('.legal').style({ display: '' });
-                    manabi_ui.convertLinksToXhr(body_pane.domNode);            
-                    //manabi_ui.hideLoader();
-                </script>
                 {% block body_contents %}
+                    {% block content %}{% endblock %}
                 {% endblock %}
-            </div>
             {% endblock %}
         </div>
     </div>

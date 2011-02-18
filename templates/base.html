@@ -42,6 +42,26 @@
 
         <link rel="stylesheet" href="{{ MEDIA_URL }}static/css/tundraMods.css" />
 
+        <script type="text/javascript">
+            // don't allow IE users yet :( ... >:]
+            dojo.addOnLoad(function() {
+                if (dojo.isIE) {
+                    dojo.byId('body_contents').innerHTML = "\
+                    Unfortunately your browser, Internet Explorer, doesn't work with this site just yet.\
+                    It's in the pipeline, but IE doesn't make it easy on us.<br><br>\
+                    Please use a more standards-compliant browser such as \
+                    <a href=\"http://www.google.com/chrome\">Google Chrome</a>, <a href=\"http://www.mozilla.com/firefox/\">Firefox</a>, \
+                    or <a href=\"http://www.apple.com/safari/\">Safari</a>.<br><br>\
+                    Sorry for the inconvenience! We'll add IE support eventually!";
+              }
+            });
+
+            {% if user.is_authenticated %}
+                dojo.require('manabi_ui');
+            {% endif %}
+
+        </script>
+
     </head>
     
     <body class="{% block body_class %}{% endblock %}" style="overflow-x:hidden">
