@@ -1,12 +1,13 @@
 {% load stats_tags %}
 
-<div style="text-align:right; display:inline-block">
-    <div style="display: inline">
-        {% autoescape off %}
-            {{ sparkline }}
-        {% endautoescape %}
+{% if sparkline %}
+    <div style="text-align:right; display:inline-block">
+        <div style="display: inline">
+            {% autoescape off %}
+                {{ sparkline }}
+            {% endautoescape %}
+        </div>
+            <span class="subtext" style="position:relative; top:-.4em; left:-1px; float:left;">Review history</span>
+            <span class="weak subtext" style="position:relative; top:-.4em; left:3.15em; float:right;"><span style="font-size:.9em; position:relative; top:-1px; margin-right:1px;">▲</span>today</span>
     </div>
-        <span class="subtext" style="position:relative; top:-.4em; left:-1px; float:left;">Review history</span>
-        <span class="weak subtext" style="position:relative; top:-.4em; left:3.15em; float:right;"><span style="font-size:.9em; position:relative; top:-1px; margin-right:1px;">▲</span>today</span>
-</div>
-
+{% endif %}

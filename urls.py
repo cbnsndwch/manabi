@@ -1,12 +1,15 @@
-from django.conf.urls.defaults import *
 from django.conf import settings
-
+from django.conf.urls.defaults import *
 from django.views.generic.simple import direct_to_template
+from forms import SignupForm
+from utils.urldecorators import decorated_patterns
+from lazysignup.decorators import allow_lazy_user
+from utils.authforms import PinaxLazyConvertForm
+
 
 from django.contrib import admin
 admin.autodiscover()
 
-from forms import SignupForm
 
 
 if settings.ACCOUNT_OPEN_SIGNUP:
@@ -14,11 +17,14 @@ if settings.ACCOUNT_OPEN_SIGNUP:
 else:
     signup_view = "signup_codes.views.signup"
 
-#class ManabiConsumer(PinaxConsumer):
-#    def get_registration_form_class(self, request):
-#        return OpenIDSignupForm
 
 urlpatterns = patterns('',
+    # Use our customized form
+    url(r'^account/signup/$', signup_view,
+        name="acct_signup", kwargs={'form_class': SignupForm}), 
+    (r'^account/', include('account.urls')),
+    (r'^admin/', include(admin.site.urls)),
+) + decorated_patterns('', allow_lazy_user,
     #url(r'^$', direct_to_template, {
     #    "template": "homepage.html",
     #}, name="home"),
@@ -30,24 +36,28 @@ urlpatterns = patterns('',
     url(r'^privacy-policy/$', direct_to_template,
         {'template': 'privacy.html'}, name='privacy_policy'),
     
-    url(r'^admin/invite_user/$', 'signup_codes.views.admin_invite_user',
-        name="admin_invite_user"),
+    #url(r'^admin/invite_user/$', 'signup_codes.views.admin_invite_user',
+        #name="admin_invite_user"),
 
-    # Use our customized form
-    url(r'^account/signup/$', signup_view,
-        name="acct_signup", kwargs={'form_class': SignupForm}), 
-    
-    (r'^about/', include('about.urls')),
-    (r'^account/', include('account.urls')),
+    url(r'^convert/convert/$', 'views.convert',
+        name='lazysignup_convert',
+        kwargs={
+            'form_class': PinaxLazyConvertForm,
+            'default_redirect_to': 'home_inline',
+        }),
+    #url(r'^convert/convert/done/$', direct_to_template, {
+        #'template': 'lazysignup/done.html',
+        #}, name='lazysignup_convert_done'),
+
     #(r'^profiles/', include('basic_profiles.urls')),
     #url(r'^profiles/', include('idios.urls')),
+
+    (r'^about/', include('about.urls')),
     (r'^notices/', include('notification.urls')),
     (r'^announcements/', include('announcements.urls')),
     
-    (r'^admin/', include(admin.site.urls)),
-    
     # my own
-    (r'^reports/', include('reports.urls')),
+    #(r'^reports/', include('reports.urls')),
     (r'^dojango/', include('dojango.urls')),
     (r'^flashcards/', include('flashcards.urls')),
     (r'^jdic/', include('jdic.urls')),
@@ -64,3 +74,5 @@ if settings.SERVE_MEDIA:
         #(r'^site_media/', include('staticfiles.urls')),
         url(r'', include('staticfiles.urls')),
     )
+
+

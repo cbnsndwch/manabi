@@ -30,3 +30,32 @@ saturation or brightness shows % overdue? or amount over due in relation to inte
 random ideas
 ------------
 stats like most missed words for all users
+
+
+
+insert readings into eijiro
+  sed 's/^..\([^ ;:]*\).*$/\1/' waeiji98.txt  | nkf -w | mecab -Oyomi | perl -MLingua::JA::Hepburn::Passport -ape 'BEGIN{binmode STDIN,"utf8";binmode STDOUT,"utf8"}$h=new Lingua::JA::Hepburn::Passport;$_=lc($h->romanize($_))' > waeiji_kana.txt &
+
+
+
+
+
+
+
+reading level algo
+-----------------
+For Japanese, the critical factors are: sentence length, length of runs of Roman letters and symbols and of the different Japanese characters (Hiragana, Kanji and Katakana), and the ratio of tooten(comma) to kuten(period). The original formula used 10 factors, the following is only based off of six.
+
+Readability Score = -(0.12 * LS) - (1.37 * LA) + (7.4 * LH) - (23.18 * LC) - (5.4 * LK) - (4.67 * CP) + 115.79
+
+LS = length of the sentences
+LA = average number of Roman letters and symbols per run
+LH = average number of Hiragana characters per run
+LC = average number of Kanji character per run
+LK = average number of Katakana character per run
+CP = ratio of tooten (comma) to kuten (period)
+Run = a continuous string of the same type of character
+
+http://www.ideosity.com/SEO/SEO-Readability-Tests.aspx#Hayashi
+
+

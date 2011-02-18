@@ -42,6 +42,9 @@
 .weak a, a.weak {
     color: #4662E5;
 }
+a.weak.subtext, .weak.subtext a {
+    color: #999;
+}
 .subtext {
     font-size: .8em;
 }
@@ -423,6 +426,7 @@ div.fullscreen_content {
 .flashcard_container .kanji_stroke_frames_container {
     width: 70%;
     overflow-x: auto;
+    overflow-y: hidden;
     margin: 2em auto;
     background-color:#fafafa;
 }
@@ -607,7 +611,7 @@ div.column {
 }
 .add_decks .column {
     border-left: solid 3px lightgray;
-    width: 30%;
+    width: 29%;
     text-align: center;
     padding: 1em 1em;
     min-height: 30em;

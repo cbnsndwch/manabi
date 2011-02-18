@@ -36,13 +36,6 @@ urlpatterns = patterns('flashcards.views.crud',
         name='update_fact'),
 )
 
-# Views that return Dojo templates
-# (because some things are easier done without all-out xhr)
-#urlpatterns += patterns('flashcards.views.dojo',
-    #url(r'^dojo-templates/SessionOverDialog.html$', 'session_over_dialog',
-        #name='dojo-session_over_dialog'),
-#)
-        
 
 # kinda-sorta-RESTy API
 urlpatterns += patterns('flashcards.views.api',
@@ -79,7 +72,7 @@ urlpatterns += patterns('flashcards.views.api',
 
 
 urlpatterns += patterns('flashcards.views.api.review',
-    url(r'^facts/(\w+)/subfacts', 'subfacts',
+    url(r'^facts/(\w+)/subfacts/$', 'subfacts',
         name='fact_subfacts'),
 
     url(r'^api/cards/(\w+)/$', 'rest_card',
