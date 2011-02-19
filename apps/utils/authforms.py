@@ -12,7 +12,7 @@ class PinaxLazyConvertForm(PinaxSignupForm):
         if 'instance' in kwargs:
             # PinaxSignupForm breaks if we pass it this
             self.instance = kwargs.pop('instance')
-        super(LazyConvertForm, self).__init__(*args, **kwargs)
+        super(PinaxLazyConvertForm, self).__init__(*args, **kwargs)
 
     def create_user(self, username=None, commit=True):
         '''Gets called by PinaxSignupForm.save'''
