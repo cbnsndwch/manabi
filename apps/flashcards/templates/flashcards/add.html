@@ -22,19 +22,19 @@
     <img src="{{ STATIC_URL }}icons/isloo/edit.png" class="icon">
     <h2>Create Cards</h2>
     Add new cards to the deck of your choosing.
-    <ul>
-        {% if deck_list %}
+    {% if deck_list %}
+        <ul>
             {% for deck in deck_list %}
                 <li><a href="{{ deck.get_absolute_url }}" class="xhr_link" data-deck="{{ deck.id }}">{{ deck.name }}</a></li>
             {% endfor %}
-        {% else %}
-            <div class="weak">
-                <p>No decks in your library.</p>
-                <p><a href="{% url create_deck %}" class="xhr_link">Create a deck</a><br>
-                or find a pre-made deck first.</p>
-            </div>
-        {% endif %}
-    </ul>
+        </ul>
+    {% else %}
+        <div class="weak">
+            <p>No decks in your library.</p>
+            <p><a href="{% url create_deck %}" class="xhr_link">Create a deck</a><br>
+            or find a pre-made deck first.</p>
+        </div>
+    {% endif %}
     
 </div>
 <div style="clear:both"></div>
@@ -43,7 +43,7 @@
     dojo.ready(function(){
         // Make the "Create Cards" links open the card form dialog and
         // follow the link to the deck simultaneously.
-        dojo.query('.add_decks .create_cards a').onclick(function(evt){
+        dojo.query('.add_decks .create_cards ul a').onclick(function(evt){
             var node = evt.target;
             fact_ui.showFactAddDialog(dojo.attr(node, 'data-deck'));
         });
@@ -57,3 +57,4 @@
 </script>
 
 {% endblock %}
+
