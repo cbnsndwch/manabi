@@ -1,8 +1,10 @@
 {% load activetab_tags %}
+{% load i18n lazysignup_tags %}
+{% load lazy_warning %}
 
-{% block back_link %}
-{% if back_link %}<p><a href="{{ back_link.href }}">&laquo; Back to {{ back_link.name }}</a></p>{% endif %}
-{% endblock %}
+{% if user|is_lazy_user %}
+    {% show_lazy_user_warning user %}
+{% endif %}
 
 <div class="{% block content_class %}{% endblock %}">
     {% block content %}
