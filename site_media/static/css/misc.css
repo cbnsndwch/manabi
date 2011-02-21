@@ -770,6 +770,13 @@ ul.fact_form_tags {
     color: white;
     padding: .4em 1em;
 }
+.lazy_user_warning {
+    color: gray;
+    background-color: #fffbb1;
+    border: 1px dashed #ccc;
+    margin-bottom: 1.5em;
+    padding: 0 .3em;
+}
 
 /*.reviews_session_over_dialog .chart {
 }*/
