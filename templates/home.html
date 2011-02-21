@@ -21,14 +21,19 @@
     <div id="lazy_user_landing_box">
         <div class="column new_user">
             <h3>New to the site?</h3>
-               {# <div> {% include "flashcards/_get_started_or_review.html" %} </div> #}
-                <div>
-                    You can start using it right away.
-                </div>
+            {# <div> {% include "flashcards/_get_started_or_review.html" %} </div> #}
+            <div>
+                You can start using it right away.
+            </div>
+            {% if not cards_exist %}
                 <div class="eyecatching_action_button"><a href="{% url add_decks %}" class="xhr_link">Find Decks</a></div>
-                <div>
-                    After you've tried it out, <a href="{% url lazysignup_convert %}">sign up for a free account</a> to save your progress.
-                </div>
+            {% endif %}
+            <div>
+                After you've tried it out, <a href="{% url lazysignup_convert %}">sign up for a free account</a> to save your progress.
+            </div>
+            {% if cards_exist %}
+                <div class="eyecatching_action_button"><a href="{% url lazysignup_convert %}">Sign Up!</a></div>
+            {% endif %}
         </div>
         <div class="column login_link">
             <h3>Already signed up?</h3>
@@ -36,8 +41,8 @@
                 <a href="{% url acct_login %}">Log in here</a>.
             </div>
         </div>
+        <div style="clear:both"></div>
     </div>
-    <div style="clear:both"></div>
 {% else %}
     <h3>Welcome back, {{ user }}.</h3>
 {% endif %}
@@ -46,8 +51,7 @@
     {% show_review_time_report user %}
 </p>
 <br>
-
-{% if not user|is_lazy_user %}
+{% if not user|is_lazy_user or decks_exist %}
     <p>
         {% include "flashcards/_get_started_or_review.html" %}
     </p>
