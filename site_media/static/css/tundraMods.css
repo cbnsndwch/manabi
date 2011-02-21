@@ -92,3 +92,18 @@
 .tundra .dijitComboBox .dijitButtonNode {
     padding: 0.2em 0.2em;
 }
+
+
+/* inline editing */
+.dijitInlineEditBoxDisplayModeHover {
+    /*background-color: #eee;*/
+    border: none;
+}
+.dijitInlineEditBoxDisplayMode {
+    border: none;
+}
+/*.dijitInlineEditBoxDisplayModeHover:after {
+    content: 'click to edit';
+    color: lightgray;
+    font-size: .5em;
+}*/

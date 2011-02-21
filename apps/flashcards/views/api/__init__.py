@@ -103,6 +103,36 @@ def rest_deck(request, deck_id):
                     return {'success': False}
                 deck.unshare()
         return {'shared': deck.shared} #TODO automate/abstract this thing
+@api
+def rest_deck_name(request, deck_id):
+    deck = get_object_or_404(Deck, pk=deck_id)
+    if deck.owner_id != request.user.id: #and not request.User.is_staff():
+        #TODO should be a permissions error instead
+        raise forms.ValidationError(
+            'You do not have permission to access this flashcard deck.')
+
+    if request.method == 'GET':
+        return deck.name
+    elif request.method == 'POST':
+        deck.name = request.POST['name']
+        deck.save()
+        return {'success': True}
+
+@api
+def rest_deck_description(request, deck_id):
+    deck = get_object_or_404(Deck, pk=deck_id)
+    if deck.owner_id != request.user.id: #and not request.User.is_staff():
+        #TODO should be a permissions error instead
+        raise forms.ValidationError(
+            'You do not have permission to access this flashcard deck.')
+
+    if request.method == 'GET':
+        return deck.description
+    elif request.method == 'POST':
+        deck.description = request.POST['description']
+        deck.save()
+        return {'success': True}
+
 
 @api_dojo_data
 def rest_card_templates(request, fact_type_id):

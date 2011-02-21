@@ -7,16 +7,33 @@
 
 
 {% if request.user == deck.owner or deck.shared %}
-    {% comment %}
-    <p>
-        {% if request.user == deck.owner %}<a href="{% url decks %}" class="xhr_link">&laquo; Back to Manage</a>
-        {% else %}<a href="{% add_decks %}" class="xhr_link">&laquo; Back to Add</a>{% endif %}
-    </p>
-    {% endcomment %}
+    {% if request.user == deck.owner %}
+        <h1 dojoType="dijit.InlineEditBox" autosave="false">
+            <script type="dojo/connect" event="onChange" args="value">
+                console.log(this.id + " changed to value" + value);
+                dojo.xhrPost({
+                    'url': '{% url api-deck_name deck.id %}',
+                    content: {name: value},
+                    handleAs: 'json'
+                });
+            </script>
+            {{ deck.name }}
+        </h1>
+        <div dojoType="dijit.InlineEditBox" autosave="false" editor="dijit.form.Textarea">
+            <script type="dojo/connect" event="onChange" args="value">
+                dojo.xhrPost({
+                    'url': '{% url api-deck_description deck.id %}',
+                    content: {description: value},
+                    handleAs: 'json'
+                });
+            </script>
+            {{ deck.description|linebreaksbr }}
+        </div>
+    {% else %}
+        <h1>{{ deck.name }}</h1>
+        <p>{{ deck.description }}</p>
+    {% endif %}
 
-    <h1>{{ deck.name }}</h1>
-
-    <p>{{ deck.description }}</p>
 
     <p>
         {% if request.user == deck.owner %}

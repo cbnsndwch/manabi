@@ -50,6 +50,8 @@
   dojo.require('dojo.date');
   dojo.require('dojo.NodeList-html');
   dojo.require('custom.dojox.layout.DragPane');
+  dojo.require('dijit.InlineEditBox');
+  
 
   
   
