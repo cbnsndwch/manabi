@@ -29,8 +29,7 @@
             {% endfor %}
         </ul>
     {% else %}
-        <div class="weak">
-            <p>No decks in your library.</p>
+        <div class="weak" style="margin-top:1.5em">
             <p><a href="{% url create_deck %}" class="xhr_link">Create a deck</a><br>
             or find a pre-made deck first.</p>
         </div>
