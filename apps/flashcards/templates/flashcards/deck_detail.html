@@ -2,6 +2,7 @@
 {% load xhrlinks %}
 {% load review_tags %}
 {% load stats_tags %}
+{% load i18n lazysignup_tags %}
 
 {% block content %}
 
@@ -76,55 +77,58 @@
     </p> 
 
     {% if request.user == deck.owner %}
-        <hr>
-        {% if deck.shared %}
+        {% if not user|is_lazy_user %}
+            <hr>
+            {% if deck.shared %}
+                <p>
+                    This deck has {{ deck.subscriber_decks.count }} subscriber{{ deck.subscriber_decks.count|pluralize }}.
+                </p>
+            {% endif %}
+
             <p>
-                This deck has {{ deck.subscriber_decks.count }} subscriber{{ deck.subscriber_decks.count|pluralize }}.
+                {% if not deck.synchronized_with %}
+                    <button dojoType="dijit.form.ToggleButton" id="flashcards_shareDeckInput" iconClass="" checked="{{ deck.shared }}">
+                        {% if deck.shared %}Unshare{% else %}Share{% endif %} Deck
+                        <script type="dojo/connect" event="onChange" args="evt">
+                            if (evt) {
+                                this.set('label', 'Unshare Deck');
+                                /*this.set('iconClass', 'manabi_icon manabi_icon_control_play');*/
+                            } else {
+                                this.set('label', 'Share Deck');
+                                /*this.set('iconClass', 'manabi_icon manabi_icon_control_pause');*/
+                            }
+                        </script>
+                        <script type="dojo/connect" event="onClick" args="evt">
+                            // Shares or unshares this deck.
+                            var share = this.get('checked');
+                            var url = '{% url api-deck deck.id %}';
+                            manabi_ui.xhrPutData(url, {'shared': share});
+                        </script>            
+                    </button>
+                    <span dojoType="dijit.Tooltip" connectId="flashcards_shareDeckInput" showDelay="0">
+                        Choose whether to make this deck publicly available to other users on this site.<br>
+                        If you share this deck, then other users can subscribe to it and receive your updates to it.
+                    </span>
+                {% endif %}
             </p>
         {% endif %}
-        <p>
-            {% if not deck.synchronized_with %}
-                <button dojoType="dijit.form.ToggleButton" id="flashcards_shareDeckInput" iconClass="" checked="{{ deck.shared }}">
-                    {% if deck.shared %}Unshare{% else %}Share{% endif %} Deck
-                    <script type="dojo/connect" event="onChange" args="evt">
-                        if (evt) {
-                            this.set('label', 'Unshare Deck');
-                            /*this.set('iconClass', 'manabi_icon manabi_icon_control_play');*/
-                        } else {
-                            this.set('label', 'Share Deck');
-                            /*this.set('iconClass', 'manabi_icon manabi_icon_control_pause');*/
-                        }
-                    </script>
-                    <script type="dojo/connect" event="onClick" args="evt">
-                        // Shares or unshares this deck.
-                        var share = this.get('checked');
-                        var url = '{% url api-deck deck.id %}';
-                        manabi_ui.xhrPutData(url, {'shared': share});
-                    </script>            
-                </button>
-                <span dojoType="dijit.Tooltip" connectId="flashcards_shareDeckInput" showDelay="0">
-                    Choose whether to make this deck publicly available to other users on this site.<br>
-                    If you share this deck, then other users can subscribe to it and receive your updates to it.
-                </span>
-            {% endif %}
-        </p>
-        <hr>
-        <p>
-            <a href="{% url exported_deck_csv deck.id %}" class="weak" target="_blank">Export to CSV</a>
-        </p>
-        <p>
-            <button dojoType="dijit.form.Button">
-	            Delete Deck
-	            <script type="dojo/connect" event="onClick" args="evt">
-                    var delete_response = window.confirm('Really delete this deck, and all the flashcards it contains? This action cannot be undone.');
-                    if (delete_response) {
-                        var url = '{% url delete_deck deck.id %}';
-                        manabi_ui.xhrPostData(url, null, '{% url decks %}');//.addCallback(function(){ manabi_ui.refreshDeckInput(); });
-                    }
-	            </script>
-            </button>
-        </p>
-    {% endif %}
+    <hr>
+    <p>
+        <a href="{% url exported_deck_csv deck.id %}" class="weak" target="_blank">Export to CSV</a>
+    </p>
+    <p>
+        <button dojoType="dijit.form.Button">
+	        Delete Deck
+	        <script type="dojo/connect" event="onClick" args="evt">
+                var delete_response = window.confirm('Really delete this deck, and all the flashcards it contains? This action cannot be undone.');
+                if (delete_response) {
+                    var url = '{% url delete_deck deck.id %}';
+                    manabi_ui.xhrPostData(url, null, '{% url decks %}');//.addCallback(function(){ manabi_ui.refreshDeckInput(); });
+                }
+	        </script>
+        </button>
+    </p>
+{% endif %}
 {% endif %}
 
 {% endblock %}

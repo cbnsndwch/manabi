@@ -335,7 +335,7 @@ class SchedulingOptions(models.Model):
             min_, max_ = self.easy_interval_min, self.easy_interval_max
 
         #TODO we don't use these yet since we don't allow user customizing
-        if False and (min_ is None or max_ is None): 
+        if True or (min_ is None or max_ is None): 
             return DEFAULT_INTERVALS[grade]
 
         return (min_, max_,)
