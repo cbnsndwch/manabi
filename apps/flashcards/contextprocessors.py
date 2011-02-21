@@ -32,6 +32,16 @@ def subfact_form_context(request, subfact=None, field_content_offset=0, fact_for
         })
     return {'subfact_form': context}
 
+def card_existence_context(request):
+    '''
+    adds 'cards_exist', 'decks_exist' (booleans)
+    '''
+    decks = Deck.objects.of_user(request.user)
+    cards = Card.objects.of_user(request.user)
+    return {
+        'decks_exist': decks.exists(),
+        'cards_exist': cards.exists(),
+    }
 
 def deck_count_context(request):
     '''

@@ -7,6 +7,7 @@ from django.db.models import F
 from django.shortcuts import render_to_response
 from django.template import RequestContext
 from flashcards.contextprocessors import subfact_form_context
+from flashcards.contextprocessors import deck_count_context, card_existence_context
 
 # Entry point to the site
 def index(request):
@@ -37,7 +38,8 @@ def index(request):
 def home(request):
     '''The homepage that gets loaded via ajax.'''
     context = {}
-    return render_to_response('home.html', context, context_instance=RequestContext(request))
+    return render_to_response('home.html', context,
+        context_instance=RequestContext(request, processors=[card_existence_context]))
 
 
 

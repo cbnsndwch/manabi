@@ -10,7 +10,7 @@
     {% if user.is_authenticated and not user|is_lazy_user %}
         <p>{% trans "You are already logged in." %}</p>
     {% else %}
-        <p>{% trans "Already have an account?" %} <a href="{% url acct_login %}">{% trans "Log In" %}</a>!</p>
+        <p class="subtext">{% trans "Already have an account?" %} <a href="{% url acct_login %}">{% trans "Log In" %}</a>!</p>
 
         <form class="signup uniForm" id="signup_form" method="post" action="{% url lazysignup_convert %}">
             {% csrf_token %}
