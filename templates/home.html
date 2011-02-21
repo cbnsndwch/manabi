@@ -50,7 +50,6 @@
 <p>
     {% show_review_time_report user %}
 </p>
-<br>
 {% if not user|is_lazy_user or decks_exist %}
     <p>
         {% include "flashcards/_get_started_or_review.html" %}

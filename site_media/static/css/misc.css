@@ -722,6 +722,7 @@ ul.fact_form_tags {
     box-shadow:inset 0 2px 4px #999;
     /*border: 1px solid #ababab;*/
     padding: .8em;
+    margin-bottom: 2em;
 }
 #lazy_user_landing_box .column.login_link {
     border-left: solid 5px lightgray;
