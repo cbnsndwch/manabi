@@ -22,7 +22,7 @@ class CardForm(forms.ModelForm):
         
 
 class DeckForm(forms.ModelForm):
-    tags = usertagging.forms.TagField(required=False)
+    #tags = usertagging.forms.TagField(required=False)
 
     def __init__(self, *args, **kwargs):
         super(DeckForm, self).__init__(*args, **kwargs)

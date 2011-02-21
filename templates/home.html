@@ -13,36 +13,45 @@
 
 {% block content %}
 {% if user|is_lazy_user %}
-    <h3>Welcome</h3>
+{% else %}
+{% endif %}
+
+{% if user|is_lazy_user %}
+    <h2>Japanese flashcards based on real science</h2>
+    <div id="lazy_user_landing_box">
+        <div class="column new_user">
+            <h3>New to the site?</h3>
+               {# <div> {% include "flashcards/_get_started_or_review.html" %} </div> #}
+                <div>
+                    You can start using it right away.
+                </div>
+                <div class="eyecatching_action_button"><a href="{% url add_decks %}" class="xhr_link">Find Decks</a></div>
+                <div>
+                    After you've tried it out, <a href="{% url lazysignup_convert %}">sign up for a free account</a> to save your progress.
+                </div>
+        </div>
+        <div class="column login_link">
+            <h3>Already signed up?</h3>
+            <div>
+                <a href="{% url acct_login %}">Log in here</a>.
+            </div>
+        </div>
+    </div>
+    <div style="clear:both"></div>
 {% else %}
     <h3>Welcome back, {{ user }}.</h3>
 {% endif %}
+
 <p>
     {% show_review_time_report user %}
 </p>
 <br>
-<p>
-{% if not deck_count %}
-    {% comment %}<h3>Wondering what next?</h3>{% endcomment %}
-    Get started by <a href="{% url add_decks %}" class="xhr_link">adding some flashcard decks</a>.
-{% else %}{% if not card_count %}
-    {% comment %}<h3>Wondering what next?</h3>{% endcomment %}
-    Get started by <a href="{% url add_decks %}" class="xhr_link">adding some pre-made flashcard decks</a>{% if deck_count > 0 %}, 
-    or by creating new flashcards in <a href="{% url decks %}" class="xhr_link">one of your existing decks</a>{% endif %}.
-{% else %}
-    <p>
-        {% show_review_start_buttons %}
-        <em class="weak">Or <a href="{% url decks %}" class="xhr_link">choose a deck</a> to review.</em>
-    </p>
-    <br>
 
-    <div class="mini_stats_container">
-        <div class="mini_stats_title">Total Progress Summary</div>
-        {% overview_stat_counts request.user %}
-        {% usage_history request.user %}
-    </div>
-{% endif %} {% endif %}
-</p>
+{% if not user|is_lazy_user %}
+    <p>
+        {% include "flashcards/_get_started_or_review.html" %}
+    </p>
+{% endif %}
 
 <br>
 <br>
@@ -59,8 +68,6 @@ Manabi uses a <a href="http://en.wikipedia.org/wiki/Spaced_repetition" target="_
 {% endcomment %}
 
 <br /> 
-{% comment %}
-{% endcomment %}
 
 {% comment %}
     {% if user.is_authenticated %}
