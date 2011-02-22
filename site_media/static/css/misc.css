@@ -369,7 +369,7 @@ div.fullscreen_content {
 }
 
 
-.flashcard_container:first-of-type {
+.flashcard_container.flashcard_front {
     /*background-color: #BEB9B3;
     background: -webkit-gradient(radial, 50% 50%, 0, 50% 30%, 500, from(#FDFCFA), color-stop(0.8, #E6E1DB), to(#BEB9B3));
     background: -moz-radial-gradient(50% 50%, farthest-side, #FDFCFA, #E6E1DB, #BEB9B3);*/
@@ -378,8 +378,8 @@ div.fullscreen_content {
 
     border-bottom: 1px solid #d5d5d5;
 
-    min-height: 240px;
-    padding-top: 3em;
+    /*min-height: 240px;*/
+    /*padding-top: 3em;*/
     padding-bottom: 1em;
 }
 
@@ -387,23 +387,31 @@ div.fullscreen_content {
     /*width: 700px;*/
     margin: 0px auto;
     text-align: center;
-    min-height: 150px;
-    padding-top: 2em;
-    /*text-align: center;*/
-    /*vertical-align: middle;*/
+    /*min-height: 150px;*/
+    /*padding-top: 2em;*/
 }
-.flashcard_content .ezRuby:before {
-  font-size: 0.44em;
-  line-height: 1.2;
+
+/*.flashcard_content .table_container, .flashcard_content_container.flashcard_front, .flashcard_content_container.flashcard_back {*/
+.flashcard_content .table_container {
+    height: 17.5em;
+    width: 100%;
+}
+.flashcard_content .table_container {
+    display: table;
+}
+.flashcard_content .vertical_container {
+    display: table-cell;
+    vertical-align: middle;
+    text-align: center;
+}
+.flashcard_content_container .ezRuby:before {
+    font-size: 0.44em;
+    line-height: 1.2;
 }
 .flashcard_container .half_floater {
 }
-.flashcard_content {
+.flashcard_content_container {
     font-size: 1em;
-    /*margin: auto;*/
-    /*display: inline-block;*/
-    /*line-height: 100%;*/
-    /*vertical-align: middle;*/
 }
 .flashcard_content .meaning {
     font-size: 2em;
