@@ -26,7 +26,7 @@
             <a href="{% url acct_login %}">{% trans "Login" %}</a> {% ifsetting ACCOUNT_OPEN_SIGNUP %}{% trans "or" %} <a href="{% url lazysignup_convert %}" class="xhr_link"><b>{% trans "Sign up" %}</b></a>{% endifsetting %}
     {% else %}
         {% if user.is_authenticated %}
-            <b>{% user_display user %}</b> {% comment %} | <a href="{% url acct_email %}">{% trans "Account" %}</a> {% endcomment %}| {% if user.is_staff %}<a href="/admin/">{% trans "Admin" %}</a> | {% endif %}<a href="{% url acct_logout %}">{% trans "Logout" %}</a>
+            <b>{% user_display user %}</b> | <a href="{% url acct_email %}">{% trans "Account" %}</a> | {% if user.is_staff %}<a href="/admin/">{% trans "Admin" %}</a> | {% endif %}<a href="{% url acct_logout %}">{% trans "Logout" %}</a>
         {% else %}
             <a href="{% url acct_login %}">{% trans "Login" %}</a> {% ifsetting ACCOUNT_OPEN_SIGNUP %}{% trans "or" %} <a href="{% url acct_signup %}"><b>{% trans "Sign up" %}</b></a>{% endifsetting %}
         {% endif %}
