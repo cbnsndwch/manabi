@@ -48,9 +48,9 @@
 <div id="site_title_right"><!-- --></div>
 {% endblock %}
 
-{% block subnav %}
+{% block nav %}
     <ul>
-        <li id="nav_tab_home" class="tab {% is_active_tab request "home" %}"><a href="{% url home %}" id="subnav_home_link">Home</a>
+        <li id="nav_tab_home" class="tab {% is_active_tab request "home" %}"><a href="{% url home %}" id="nav_home_link">Home</a>
     </ul>
 {% endblock %}
 
@@ -69,12 +69,23 @@
     <div id="column_wrap">
         {% block above_body_contents %}{% endblock %}
         
-        <div id="body_contents">
-            {% block body %}
-                {% block body_contents %}
-                    {% block content %}{% endblock %}
+        <div id="body_contents_container">
+            <div id="subnav_container" class="clearfix">
+                <div id="subnav" class="clearfix">
+                    {% block subnav_base %}
+                        <div class="clearfix">
+                            {% block subnav %}{% endblock %}
+                        </div>
+                    {% endblock %}
+                </div>
+            </div>
+            <div id="body_contents">
+                {% block body %}
+                    {% block body_contents %}
+                        {% block content %}{% endblock %}
+                    {% endblock %}
                 {% endblock %}
-            {% endblock %}
+            </div>
         </div>
     </div>
     <div jsId="manabi_standby" target="body_contents" dojoType="dojox.widget.Standby"></div>

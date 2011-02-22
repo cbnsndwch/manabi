@@ -118,29 +118,29 @@ h1 {
     display: inline;
 }
 
-#subnav {
+#nav {
     margin: 0;
     padding: 0;
     background: #DEF; /* tab colour */
     border-bottom: 1px solid #9BC;
 }
-#subnav ul {
+#nav ul {
     float: right;
     margin: 0 20px;
     padding: 0;
 }
-#subnav ul li {
+#nav ul li {
     display: inline;
     list-style-type: none;
 }
-#subnav ul a:link, #subnav ul a:visited {
+#nav ul a:link, #nav ul a:visited {
     float: left;
     font-weight: bold;
     text-decoration: none;
     color: #444;
     padding: 4px 20px;
 }
-#subnav ul a:hover {
+#nav ul a:hover {
     color: #FFF;
     background: #9BC;
 }

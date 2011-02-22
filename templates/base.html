@@ -85,11 +85,11 @@
             <div id="left_tabs" >{% block left_tabs %}{% endblock %}</div>
             <div id="right_tabs" >{% block right_tabs %}{% endblock %}</div>
         </div>
-        <div id="subnav_container" class="clearfix">
-            <div id="subnav" class="clearfix">
-                {% block subnav_base %}
+        <div id="nav_container" class="clearfix">
+            <div id="nav" class="clearfix">
+                {% block nav_base %}
                     <div class="clearfix">
-                        {% block subnav %}&nbsp;{% endblock %}
+                        {% block nav %}&nbsp;{% endblock %}
                     </div>
                 {% endblock %}
             </div>
@@ -100,6 +100,7 @@
 
         {% block body_outer %}
         <div id="body">
+
             {% if messages %}
                 <ul id="messages">
                     {% for message in messages %}
@@ -107,11 +108,9 @@
                     {% endfor %}
                 </ul>
             {% endif %}
-            
+
             {% block body %}
             {% endblock %}
-            
-
         </div>
         {% endblock %}
 

@@ -12,7 +12,6 @@
 	font-weight: normal;
 	font-style: normal;
 }
-}
 @font-face {
 	font-family: 'Fontin';
 	src: url('/site_media/static/fonts/Fontin-Regular.ttf');
@@ -250,25 +249,27 @@ hr {
 }
 
 
-#body_contents, #footer {
+#body_contents_container, #footer {
     margin-right: 30px;
     margin-left: 30px;
     padding-left: 30px;
     padding-right: 25px;
 }
 
-#body_contents {
+#body_contents_container {
     /*margin-right: 330px;*/
     /*padding-top: 15px;*/
     /*padding-bottom: 15px;*/
-    padding-top: 40px;
-    padding-bottom: 50px;
     background-color: white;
-    line-height: 1.6em;
     -moz-border-radius-topright: 10px;
     -webkit-border-top-right-radius: 10px;
     -moz-border-radius-topleft: 10px;
     -webkit-border-top-left-radius: 10px;
+}
+#body_contents {
+    padding-top: 35px;
+    padding-bottom: 50px;
+    line-height: 1.6em;
 }
 #body {
     width: 100%;
@@ -393,11 +394,10 @@ div.fullscreen_content {
 
 /*.flashcard_content .table_container, .flashcard_content_container.flashcard_front, .flashcard_content_container.flashcard_back {*/
 .flashcard_content .table_container {
+    display: table;
+    table-layout: fixed;
     height: 17.5em;
     width: 100%;
-}
-.flashcard_content .table_container {
-    display: table;
 }
 .flashcard_content .vertical_container {
     display: table-cell;
