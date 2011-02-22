@@ -12,9 +12,6 @@
 {% load i18n lazysignup_tags %}
 
 {% block content %}
-{% if user|is_lazy_user %}
-{% else %}
-{% endif %}
 
 {% if user|is_lazy_user %}
     <h2>Japanese flashcards based on real science</h2>
