@@ -15,7 +15,7 @@
 
 {% if user|is_lazy_user %}
     <h2>Japanese flashcards based on real science</h2>
-    <div id="lazy_user_landing_box">
+    <div id="lazy_user_landing_box" class="new_user_info_box">
         <div class="column new_user">
             <h3>New to the site?</h3>
             {# <div> {% include "flashcards/_get_started_or_review.html" %} </div> #}
@@ -23,7 +23,7 @@
                 You can start using it right away.
             </div>
             {% if not cards_exist %}
-                <div class="eyecatching_action_button"><a href="{% url add_decks %}" class="xhr_link">Find Decks</a></div>
+                <div class="eyecatching_action_button"><a href="{% url add_decks %}" class="xhr_link">Start learning now!</a></div>
             {% endif %}
             <div>
                 After you've tried it out, <a href="{% url lazysignup_convert %}">sign up for a free account</a> to save your progress.

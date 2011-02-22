@@ -1,10 +1,18 @@
 {% extends "body_pane_base.html" %}
 
 {% load xhrlinks %}
+{% load i18n lazysignup_tags %}
 
 {% block content_class %}add_decks{% endblock %}
 
 {% block content %}
+
+{% if user|is_lazy_user %}
+    <p class="new_user_info_box">
+        <strong>Welcome to Manabi!</strong> First choose a deck of flashcards below that you want to study (or create your own).
+    </p>
+{% endif %}
+
 <div class="column">
     <img src="{{ STATIC_URL }}icons/isloo/search.png" class="icon">
     <h2>Find a Deck</h2>

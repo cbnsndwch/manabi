@@ -720,9 +720,9 @@ ul.fact_form_tags {
     width: 30em;
 }
 
-/* home.html stuff */
-#lazy_user_landing_box {
-    /*background-color: #fffccb;*/
+
+/* home.html and lazy signup notice-related stuff */
+.new_user_info_box {
     background-color: #fafafa;
     -moz-border-radius: 10px;
     -webkit-border-radius: 10px;
@@ -731,6 +731,9 @@ ul.fact_form_tags {
     /*border: 1px solid #ababab;*/
     padding: .8em;
     margin-bottom: 2em;
+}
+#lazy_user_landing_box {
+    /*background-color: #fffccb;*/
 }
 #lazy_user_landing_box .column.login_link {
     border-left: solid 5px lightgray;
