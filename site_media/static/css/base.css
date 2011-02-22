@@ -236,10 +236,10 @@ table {
 #locale_switcher {
     display: inline;
 }
-#subnav_container {
+#nav_container {
     background-color: white;
 }
-#subnav {
+#nav {
     margin: 0;
     padding: 0;
     background-color: #36606D;
@@ -249,12 +249,12 @@ table {
     /*border-bottom: 0px solid #003344;*/
     /*height: 88px;*/
 }
-#subnav ul {
+#nav ul {
     margin: 0;
     padding: 0;
     /*padding-top: 1em;*/
 }
-#subnav li {
+#nav li {
     /* make it look like a tab */
     position: relative;
     top:    31px;
@@ -285,12 +285,12 @@ table {
     font-weight: bold;
     margin-right: 7px;
 }
-#subnav li {
+#nav li {
     -webkit-transition: opacity 80ms; 
     -moz-transition: opacity 80ms;
     transition: opacity 80ms;
 }
-#subnav li.active {
+#nav li.active {
     background-color: white;
     background-image: none;
     opacity: 1;
@@ -298,29 +298,29 @@ table {
     border-left:  solid 4px #f0f0f0;
     border-right: solid 4px #f0f0f0;
 }
-#subnav li.active a:link, #subnav li.active a:visited {
+#nav li.active a:link, #nav li.active a:visited {
     position: relative;
     top: -4px;
     padding-left: 16px;
     padding-right: 16px;
 }
-#subnav li:hover:not(.active) {
+#nav li:hover:not(.active) {
     opacity: .9;
 }
-#subnav li img {
+#nav li img {
     display: none;
     margin: 0 auto;
     opacity: .6;
 }
-#subnav li a {
+#nav li a {
     display: block;
     padding-top: 9px;
     height: 38px;
 }
-#subnav li a:hover img {
+#nav li a:hover img {
     opacity: 1;
 }
-#subnav li a:link, #subnav li a:visited {
+#nav li a:link, #nav li a:visited {
     display: block;
     text-align: center;
     /*font-size: 1.55em;*/
@@ -335,11 +335,37 @@ table {
     -moz-border-radius: 8px;
     border-radius: 8px;
 }
-#subnav ul a:hover {
+#nav ul a:hover {
     /*color: #FFF;*/
     /*background: #9BC;*/
 }
 
+#subnav_container {
+    background-color: white;
+}
+#subnav {
+    margin: 0;
+    padding: 0;
+}
+#subnav ul {
+    margin: 0;
+    padding 0;
+    padding-top: 1em;
+    padding-bottom: .5em;
+    /*padding-top: 1em;*/
+}
+#subnav li {
+    display: inline;
+    float: left;
+    list-style-type: none;
+}
+#subnav li:after {
+     content: '|';
+     margin: 0 1em;
+}
+#subnav li:last-of-type:after {
+    content: '';
+}
 
 /* FORMS */
 

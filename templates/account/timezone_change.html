@@ -8,7 +8,7 @@
 {% block body %}
     <h1>{% trans "Timezone" %}</h1>
     
-    <p>{% trans "Pinax can localize all times into your preferred timezone. Change your timezone below." %}</p>
+    <p>{% trans "Manabi uses your timezone to predict when your waking day begins and ends, which it takes into account for scheduling card repetitions. Change your timezone below." %}</p>
     
     <form method="POST" action="" class="uniForm">
         {% csrf_token %}

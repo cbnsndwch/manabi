@@ -77,19 +77,19 @@
     <a href="{% url home_inline %}" class="xhr_link">
 {% endblock %}
 
-{% block subnav %}
+{% block nav %}
     <ul>
-        <li id="nav_tab_home" class="tab {% is_active_tab request "home" %}"><a href="{% url home_inline %}" id="subnav_home_link" class="xhr_link">Home</a>
+        <li id="nav_tab_home" class="tab {% is_active_tab request "home" %}"><a href="{% url home_inline %}" id="nav_home_link" class="xhr_link">Home</a>
         {% if user.is_authenticated %}
-            <li id="nav_tab_add" class="tab {% is_active_tab request "add" %}"><a href="{% url add_decks %}" id="subnav_add_link" class="xhr_link">Add</a>
-            <li id="nav_tab_manage" class="tab {% is_active_tab request "manage" %}"><a href="{% url decks %}" id="subnav_manage_link" class="xhr_link">Manage</a>
+            <li id="nav_tab_add" class="tab {% is_active_tab request "add" %}"><a href="{% url add_decks %}" id="nav_add_link" class="xhr_link">Add</a>
+            <li id="nav_tab_manage" class="tab {% is_active_tab request "manage" %}"><a href="{% url decks %}" id="nav_manage_link" class="xhr_link">Manage</a>
             <li id="nav_tab_stats" class="tab {% is_active_tab request "stats" %}"><a href="{% url stats %}" class="xhr_link">Stats</a>
         {% endif %}
 
         <script type="text/javascript">
             dojo.subscribe('manabi.tab_activated', function(tab_name) {
                 // make all tabs inactive first
-                dojo.query('#subnav .tab').removeClass('active');
+                dojo.query('#nav .tab').removeClass('active');
                 
                 // Make the appropriate tab active
                 dojo.query('#nav_tab_' + tab_name).addClass('active');
