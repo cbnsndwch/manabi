@@ -37,7 +37,7 @@
                 <td>{{ card.due_at|timeuntil }}</td>
             {% else %}
                 <td>Was due</td>
-                <td>{{ card.due_at|timeuntil }} ago</td>
+                <td>{{ card.due_at|timesince }} ago</td>
             {% endif %}
             </tr>
             <tr>
@@ -48,10 +48,12 @@
                 <td>Ease factor</td>
                 <td>{{ card.ease_factor }}</td>
             </tr>
-            <tr>
-                <td>Last due</td>
-                <td>{{ card.last_due_at|timesince }} ago</td>
-            </tr>
+            {% if card.last_due_at %}
+                <tr>
+                    <td>Last due</td>
+                    <td>{{ card.last_due_at|timesince }} ago</td>
+                </tr>
+            {% endif %}
             {% if card.last_interval %}
                 <tr>
                     <td>Last interval</td>
