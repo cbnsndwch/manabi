@@ -502,7 +502,8 @@ div.reviews_correctGradeButtons {
 }
 
 #reviews_showCardBack {
-    padding-top: 20px;
+    padding-top: 18em;
+    /*position: relative;*/
 }
 
 .reviews_gradeButtonInner {
