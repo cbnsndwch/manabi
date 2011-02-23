@@ -7,7 +7,8 @@
 
 
 {% block extra_head_base %}
-    {{ block.super }}
+    <link rel="stylesheet" href="{{ MEDIA_URL }}static/tag-it/css/jquery-ui/jquery.ui.autocomplete.custom.css"></link>
+    <link rel="stylesheet" href="{{ MEDIA_URL }}static/js/jdic/jPlayer/skins/manabi/jplayer.css"></link>
 
     {% include "dojango/include.html" %}
 
@@ -24,6 +25,7 @@
         dojango.registerModulePath('reviews', '{{ MEDIA_URL }}static/js/reviews', relUrl + 'reviews');
         dojango.registerModulePath('stats', '{{ MEDIA_URL }}static/js/stats', relUrl + 'stats');
         dojango.registerModulePath('custom', '{{ MEDIA_URL }}static/js/custom', relUrl + 'custom');
+        dojango.registerModulePath('manabi', '{{ MEDIA_URL }}static/js/manabi', relUrl + 'manabi');
 
         $(function() {
             Highcharts.setOptions({
@@ -38,6 +40,10 @@
 		});
     </script>
 
+    {# manabi.requirements #}
+    {# <script type="text/javascript" src="{{ MEDIA_URL }}static/js/manabi/requirements.js"></script> #}
+    <script type="text/javascript" src="{{ MEDIA_URL }}static/js/manabi/manabiRelease.js"></script>    
+
     <script type="text/javascript" src="{{ MEDIA_URL }}static/js/manabi.js"></script>    
 
     <script type="text/javascript" src="{{ MEDIA_URL }}static/js/highcharts/highcharts.js"></script>
@@ -45,10 +51,10 @@
 
     <script type="text/javascript" src="{{ MEDIA_URL }}static/tag-it/js/ie-compat.js" charset="utf-8"></script>
     <script type="text/javascript" src="{{ MEDIA_URL }}static/tag-it/js/tag-it.js" charset="utf-8"></script>
-    <link rel="stylesheet" href="{{ MEDIA_URL }}static/tag-it/css/jquery-ui/jquery.ui.autocomplete.custom.css"></link>
 
     <script type="text/javascript" src="{{ MEDIA_URL }}static/js/jdic/jPlayer/jquery.jplayer.min.js"></script>
-    <link rel="stylesheet" href="{{ MEDIA_URL }}static/js/jdic/jPlayer/skins/manabi/jplayer.css"></link>
+
+    {{ block.super }}
 
     {% block extra_head %}{% endblock %}
 

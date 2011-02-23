@@ -74,8 +74,6 @@ bugs with the form
 
 use keydown for space bar shortcut in reviews -- feels more responsive
 
-make some things into optional contextprocs
-
 magic numbers
 
 add basic auditing to some more models
@@ -97,6 +95,8 @@ per-day scheduling
 
 ~new stuff~
 -----------
+option to hide furigana on cards
+
 include maturity/newness status in 'next_cards_for_review' -- use to display tally in summary screen
 
 "show hints" checkbox option in study - toggle all extra info
