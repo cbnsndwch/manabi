@@ -8,9 +8,11 @@
 {# this is a static, non-ajax site base, for things like login and signup #}
 
 
-{% block extra_head_base %}
+{% block extra_head_stylesheets %}
     <link rel="stylesheet" href="{{ MEDIA_URL }}static/css/site_tabs.css" />
     <link rel="stylesheet" href="{{ MEDIA_URL }}static/css/misc.css" />
+{% endblock %}
+{% block extra_head_base %}
 
     {% block extra_head %}{% endblock %}
 

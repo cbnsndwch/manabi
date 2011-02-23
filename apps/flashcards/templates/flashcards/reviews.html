@@ -152,20 +152,32 @@
                         <div style="clear:both"></div>
                     </div>
                     <div style="margin-top:1em;text-align:center;">
-                        <img src="{{ MEDIA_URL }}static/css/dojo_themes/tundra/images/icons/information.png" align="top"> <span class="fakeLink" id="reviews_gradesHelpLink" style="font-size:12px;color:#0174DF" onclick="dijit.byId('reviews_gradesHelpDialog').show()">What do these buttons mean?</span>
+                        <img src="{{ STATIC_URL }}css/dojo_themes/tundra/images/icons/information.png" align="top"> <span class="fakeLink" id="reviews_gradesHelpLink" style="font-size:12px;color:#0174DF" onclick="dijit.byId('reviews_gradesHelpDialog').show()">What do these buttons mean?</span>
                     </div>
-                    <div id="reviews_gradesHelpDialog" dojoType="dojox.widget.Dialog" dimensions="[570,430]">
-                        <div style="padding-left:15px;padding-right:15px;">
+                    <div id="reviews_gradesHelpDialog" dojoType="dijit.Dialog">
+                        <div style="width:40em">
                             <p>
-                                This flashcard software uses the grades that you give each card to determine when you should review that card next in the future. When you're just starting to learn a new card, it's okay (and expected) that you'll have to rate the card review as a failure (the <em>Wrong</em> grade). After this initial learning period, ideally most of your grades will be <em>Good</em>. Please grade your cards honestly, and don't be afraid to give it a low rating if you're unsure of yourself.
+                                Manabi uses the grades you give each card to determine the best time for you to review that card next in the future.
                             </p>                    
-			                <p style="">
-                                <strong>Wrong</strong> - Rate a card as this if you couldn't remember its answer, or if you remembered it incorrectly or made a mistake.<br><br>
-                                <strong>Hard</strong> - This grade means that you remembered the card's answer, but it was difficult to recall and took too long. This tells the flashcard algorithm that you should have reviewed this card earlier than you did.<br><br>
-                                <strong>Good</strong> - This means that you recalled the card's answer correctly and with just a small amount of difficulty. This is the ideal response and means that this software is working effectively.<br><br>
-                                <strong>Too Easy</strong> - This means that you recalled the answer very easily. You could have waited a while longer to review this card - it wasn't necessary to review it this early.
-			                </p>
-                            <p><strong>Hint:</strong> Press 1-4 to grade, instead of clicking the buttons. (1=Wrong, 2=Hard, 3=Good, 4=Too Easy)</p>
+                            <p>
+                                <strong>Wrong</strong> means you couldn't recall the answer, or you recalled it incorrectly. It could also mean that it's a new card you haven't learned yet. The card will be shown again very soon.
+                            </p>
+                            <p>
+                                <strong>Hard</strong> means you got the answer right, but it was a struggle. Manabi learns from this that it should have shown you that card much earlier than it did, since you were very close to forgetting it.
+                            </p>
+                            <p>
+                                <strong>Good</strong> means you recalled the answer without much trouble. This is the ideal response &mdash; Manabi is working effectively if this is your response most of the time.
+                            </p>
+                            <p>
+                                <strong>Too Easy</strong> means you recalled it so easily that you didn't need to review it so soon. Manabi learns that it should have waited much longer before showing you this card.
+                            </p>
+                            <p>
+                                Please grade honestly &mdash; don't be afraid to give it a low grade if you're at all unsure of yourself. Especially with brand new cards, it's normal to have to mark them <em>Wrong</em> several times before you start to learn them. Manabi takes your entire review history for each card into account, so it will go easy on you if it knows you're only getting a card wrong because it's still pretty new, or because you waited too long to review it.
+                            </p>
+                            <p>
+                                <strong style="color:red">Hint!</strong> Press 1-4 on your keyboard to grade, instead of clicking the buttons. (1=Wrong, 2=Hard, 3=Good, 4=Too Easy). Press Space to show the answer.
+                            </p>
+                                <button dojoType="dijit.form.Button" type="submit">OK</button>
                         </div>
 		            </div>
                 </div>

@@ -1,7 +1,5 @@
-
 dojo.provide('manabi');
 dojo.provide('manabi_ui');
-
 
 
 /*manabi.xhrGet = function(args){
