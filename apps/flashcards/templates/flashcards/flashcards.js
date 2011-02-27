@@ -146,7 +146,7 @@
   function createFieldInputsForUpdate(domNode, factTypeId, factFieldValues, cardTemplatesOnCompleteCallback, factFieldsOnCompleteCallback) { //todo:refactor into 2 meths
       if (factTypeId) {
           //add card template options
-          var cardUpdateTemplatesStore = new dojo.data.ItemFileReadStore({url: '/flashcards/api/facts/'+factFieldValues['fact-id'][0]+'/card_templates/'});
+          var cardUpdateTemplatesStore = new dojo.data.ItemFileReadStore({url: '/flashcards/internal-api/facts/'+factFieldValues['fact-id'][0]+'/card_templates/'});
           var cardUpdateTemplatesButton = new DropDownMultiSelect({inputId: 'cardUpdateTemplatesInput'+factTypeId});//TODO counter suffix
           var cardUpdateTemplatesInput = dijit.byId('cardUpdateTemplatesInput'+factTypeId);
           
@@ -173,7 +173,7 @@
           });
           
           //add FieldContent textboxes (based on Fields)
-          var fieldsStore = new dojo.data.ItemFileReadStore({url:'/flashcards/api/fact_types/'+factTypeId+'/fields/', clearOnClose:true}); //todo:try with marked up one instead
+          var fieldsStore = new dojo.data.ItemFileReadStore({url:'/flashcards/internal-api/fact_types/'+factTypeId+'/fields/', clearOnClose:true}); //todo:try with marked up one instead
           var fieldCounter = 0;
           fieldsStore.fetch({
               onItem: function(item) {
@@ -251,7 +251,7 @@
     }, function(data, tempCardCounter) {
       // Error callback
       //show field_content errors
-      fieldContentErrors = data.errors.field_content;//[errors][field_content];
+      fieldContentErrors = data.error.field_content;//[errors][field_content];
       factAddFormSubmitButton.set('disabled', false);
       dojo.forEach(fieldContentErrors, function(errorMsg, idx) {
           if ('content' in errorMsg) {
@@ -264,8 +264,8 @@
           }
       });
       
-      if (data.errors.fact.length && 'tags' in data.errors.fact[0]) {
-          dojo.byId('fact-tag-errors').innerHTML = '<font color="red"><em>' + data.errors.fact[0].tags.join('<br>') + '</em></font>';
+      if (data.error.fact.length && 'tags' in data.error.fact[0]) {
+          dojo.byId('fact-tag-errors').innerHTML = '<font color="red"><em>' + data.error.fact[0].tags.join('<br>') + '</em></font>';
       } else {
           dojo.query('#fact-tag-errors').empty();
       }
@@ -359,7 +359,7 @@
 
         //submit the form
         var submit_error_callback = function(data, card_counter) {
-            field_content_errors = data.errors.field_content;
+            field_content_errors = data.error.field_content;
             dojo.forEach(field_content_errors, function(error_message, idx) {
                 //idx corresponds to the nth field content
                 field_content_error_divs = dojo.query('.field_content_error', fact_form.domNode);
@@ -373,8 +373,8 @@
 
         var xhrArgs = {
             url: fact_id ? 
-                     '/flashcards/api/facts/' + fact_id + '/' : 
-                     '/flashcards/api/facts/',
+                     '/flashcards/internal-api/facts/' + fact_id + '/' : 
+                     '/flashcards/internal-api/facts/',
             content: form_values,
             handleAs: 'json',
             load: function(data){
@@ -401,7 +401,7 @@
         var store = cards_factsGrid.store;
         store.close();
         delete fact_ui.facts_url_query[filter_name];
-        store.url = '/flashcards/api/facts/?' + dojo.objectToQuery(fact_ui.facts_url_query);
+        store.url = '/flashcards/internal-api/facts/?' + dojo.objectToQuery(fact_ui.facts_url_query);
         store.fetch();
         cards_factsGrid.sort(); //forces a refresh
     };
@@ -431,13 +431,13 @@
         //var expression = expression_field.attr('value');
         var ret_def = new dojo.Deferred();
         var xhr_args = {
-            url: 'flashcards/api/generate_reading/',
+            url: 'flashcards/internal-api/generate_reading/',
             content: {expression: expression},
             handleAs: 'json',
             headers: { "Content-Type": "application/x-www-form-urlencoded; charset=utf-8" },
             load: dojo.hitch(null, function(success_def, data) {
                 if (data.success) {
-                    success_def.callback(data.data.reading);
+                    success_def.callback(data.data);
                 } else {
                     success_def.errback(data); //FIXME errback?
                 }

@@ -39,7 +39,7 @@ def subfacts(request, parent_fact_id):
     It renders the subfacts for a given fact.
     '''
     parent_fact = get_object_or_404(Fact, pk=parent_fact_id)
-    context = { 'subfacts': parent_fact.subfacts.all() }
+    context = {'subfacts': parent_fact.subfacts.all()}
     return render_to_response('flashcards/subfacts.html', context)
 
 
@@ -96,7 +96,6 @@ def due_card_count(request):
 def new_card_count(request):
     return Card.objects.common_filters(request.user).new().count()
 
-
 @api
 @has_card_query_filters
 def due_tomorrow_count(request, deck=None, tags=None):
@@ -106,13 +105,8 @@ def due_tomorrow_count(request, deck=None, tags=None):
 @api
 @has_card_query_filters
 def hours_until_next_card_due(request, deck=None, tags=None):
-    cards = Card.objects.of_user(request.user)
-
-    if deck:
-        cards = cards.of_deck(deck)
-    if tags:
-        cards = cards.with_tags(tags)
-
+    cards = Card.objects.common_filters(request.user,
+        deck=deck, tags=tags)
     due_at = cards.next_card_due_at()
     difference = due_at - datetime.datetime.utcnow()
     hours_from_now = (difference.days * 24.0
@@ -125,13 +119,8 @@ def next_card_due_at(request, deck=None, tags=None):
     '''
     Returns a human-readable format of the next date that the card is due.
     '''
-    cards = Card.objects.of_user(request.user)
-
-    if deck:
-        cards = cards.of_deck(deck)
-    if tags:
-        cards = cards.with_tags(tags)
-
+    cards = Card.objects.common_filters(request.user,
+        deck=deck, tags=tags)
     due_at = cards.next_card_due_at()
     return naturalday(due_at.date())
 

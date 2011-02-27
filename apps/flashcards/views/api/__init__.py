@@ -3,183 +3,137 @@
 
 from apps.utils import japanese
 from apps.utils.querycleaner import clean_query
-from django.utils import simplejson
+from django.contrib.auth.decorators import login_required
 from django.db import transaction
 from django.forms import forms
 from django.forms.models import modelformset_factory, formset_factory
 from django.http import Http404, HttpResponseRedirect, HttpResponse
 from django.shortcuts import get_object_or_404, render_to_response
 from django.template import RequestContext, loader
+from django.utils import simplejson
+from django.views.decorators.http import require_GET
 from django.views.generic.create_update \
     import update_object, delete_object, create_object
+from dojango.decorators import json_response
 from dojango.util import to_dojo_data, json_decode, json_encode
 from flashcards.forms import DeckForm, FactForm, FieldContentForm, CardForm
 from flashcards.models import FactType, Fact, Deck, CardTemplate, FieldType
 from flashcards.models import FieldContent, Card
 from flashcards.models.constants import MAX_NEW_CARD_ORDINAL
-from django.contrib.auth.decorators import login_required
-from django.views.decorators.http import require_GET
-from dojango.decorators import json_response
 from flashcards.views.decorators import all_http_methods
 from flashcards.views.decorators import flashcard_api as api
-from flashcards.views.decorators \
-    import flashcard_api_with_dojo_data as api_dojo_data
+from flashcards.views.decorators import \
+    flashcard_api_with_dojo_data as api_dojo_data, \
+    ApiException
+        
 from flashcards.views.decorators import has_card_query_filters
 import apps.utils.querycleaner
 import random
 #import jcconv
+from flashcards.views.shortcuts import get_deck_or_404
 
 
-#todo:
-# respond with a better failure message if an xhr request is made from an unauthenticated user
+#FIXME add permissions validation for every method
 
+        
+        
 
-#def _validate_deck_ownership(user, deck_id):
-
-def rest_entry_point(request):
-    pass
 
 @api
 def rest_deck_subscribe(request, deck_id):
     if request.method == 'POST':
-        deck = get_object_or_404(Deck, pk=deck_id)
-
-        if deck.owner_id == request.user.id: #and not request.User.is_staff():
-            raise forms.ValidationError(
-                'You cannot subscribe to a deck which you created '
-                'yourself. Subscription is for other users.')
-        elif not deck.shared:
-            raise forms.ValidationError(
-                'This deck is not shared, so you cannot subscribe to it.')
-
+        deck = get_deck_or_404(request.user, deck_id)
         new_deck = deck.subscribe(request.user)
 
-        return {'success': True, 
-                'deckId': new_deck.id,
+        return {'deckId': new_deck.id,
                 'postRedirect': new_deck.get_absolute_url()}
 
 @api
 def rest_generate_reading(request):
     if request.method == 'POST':
-        reading = japanese.generate_reading(request.POST['expression'])
-        return {'success': True, 'reading': reading}
+        return japanese.generate_reading(request.POST['expression'])
 
-@api_dojo_data
-def rest_decks(request):
-    #if request.method == 'POST':
-        #raise Http404
-    #elif request.method == 'GET':
-    ret = Deck.objects.filter(
-        owner=request.user,
-        active=True).values('id', 'name', 'description')
-    return to_dojo_data(ret, label='name')
+#@api_dojo_data
+#def rest_decks(request):
+#    #if request.method == 'GET':
+#    ret = Deck.objects.filter(
+#        owner=request.user,
+#        active=True).values('id', 'name', 'description')
+#    return to_dojo_data(ret, label='name')
 
 @api
 def rest_deck(request, deck_id):
-    deck = get_object_or_404(Deck, pk=deck_id)
-    if deck.owner_id != request.user.id: #and not request.User.is_staff():
-        #TODO should be a permissions error instead
-        raise forms.ValidationError(
-            'You do not have permission to access this flashcard deck.')
+    deck = get_deck_or_404(request.user, deck_id)
 
     if request.method == 'DELETE':
-        if deck.subscriber_decks.filter(active=True).count() > 0: 
-            #exists():
+        if deck.subscriber_decks.filter(active=True).exists(): 
             deck.active = False
             deck.save()
         else:
             deck.delete_cascading()
-        return {'success':True}
     elif request.method == 'PUT':
         params = clean_query(request.POST, {'shared': bool})
         # change shared status
         if params.get('shared') is not None:
             if params['shared']:
                 if deck.synchronized_with:
-                    return {'success': False}
+                    raise ApiException
                 deck.share()
             else:
                 if not deck.shared:
-                    return {'success': False}
+                    raise ApiException
                 deck.unshare()
-        return {'shared': deck.shared} #TODO automate/abstract this thing
+        return {'shared': deck.shared}
+
 @api
 def rest_deck_name(request, deck_id):
-    deck = get_object_or_404(Deck, pk=deck_id)
-    if deck.owner_id != request.user.id: #and not request.User.is_staff():
-        #TODO should be a permissions error instead
-        raise forms.ValidationError(
-            'You do not have permission to access this flashcard deck.')
+    deck = get_deck_or_404(request.user, deck_id)
 
     if request.method == 'GET':
         return deck.name
     elif request.method == 'POST':
         deck.name = request.POST['name']
         deck.save()
-        return {'success': True}
 
 @api
 def rest_deck_description(request, deck_id):
-    deck = get_object_or_404(Deck, pk=deck_id)
-    if deck.owner_id != request.user.id: #and not request.User.is_staff():
-        #TODO should be a permissions error instead
-        raise forms.ValidationError(
-            'You do not have permission to access this flashcard deck.')
+    deck = get_deck_or_404(request.user, deck_id)
 
     if request.method == 'GET':
         return deck.description
     elif request.method == 'POST':
         deck.description = request.POST['description']
         deck.save()
-        return {'success': True}
 
 
 @api_dojo_data
 def rest_card_templates(request, fact_type_id):
     '''Returns list of CardTemplate objects given a parent FactType id'''
-    try:
-        #TODO error handling
-        fact_type = FactType.objects.get(id=fact_type_id)
-        ret = fact_type.cardtemplate_set.all()
-    except FactType.DoesNotExist:
-        ret = []
-    return to_dojo_data(ret)
+    fact_type = get_object_or_404(FactType, pk=fact_type_id)
+    return to_dojo_data(fact_type.cardtemplate_set.all())
 
 
 @api_dojo_data
 def rest_fields(request, fact_type_id):
     '''Returns list of Field objects given a FactType id'''
-    try:
-        #TODO error handling
-        fact_type = FactType.objects.get(id=fact_type_id)
-        ret = fact_type.fieldtype_set.all().order_by('ordinal')
-    except FactType.DoesNotExist:
-        ret = []
-    return to_dojo_data(ret)
-
+    fact_type = get_object_or_404(FactType, pk=fact_type_id)
+    return to_dojo_data(fact_type.fieldtype_set.all().order_by('ordinal'))
 
 @api_dojo_data
 def rest_fact_types(request):
-    fact_types = FactType.objects.all()
-    #SOMEDAY filter(deck__owner=request.user)
-    return to_dojo_data(fact_types)
+    return to_dojo_data(FactType.objects.all())
 
 
-#FIXME add validation for every method, like if obj.owner.id != request.user.id: #and not request.User.is_staff():      raise forms.ValidationError('You do not have permission to access this flashcard deck.')
 
-#TODO add 'success':True where missing
 
 @api_dojo_data
 def rest_cards(request): #todo:refactor into facts (no???)
     '''
-    Returns the cards for a given fact.
-    Excepts `fact` in the GET params.
+    Returns the cards for a given fact. Accepts `fact` in the GET params.
     '''
     if request.GET['fact']:
-        ret = {}
         fact = get_object_or_404(Fact, pk=request.GET['fact'])
-        cards = fact.card_set.get_query_set()
-        return to_dojo_data(cards)
+        return to_dojo_data(fact.card_set.get_query_set())
 
 
 @api_dojo_data
@@ -188,11 +142,11 @@ def rest_card_templates_for_fact(request, fact_id):
     Returns a list of card templates for which the given fact 
     has corresponding cards activated.
     '''
-    card_templates = []
     fact = get_object_or_404(Fact, pk=fact_id)
-    activated_card_templates = [e.template for e \
-                                in fact.card_set.filter(active=True)]
+    activated_card_templates = list(
+        e.template for e in fact.card_set.filter(active=True))
 
+    card_templates = []
     for card_template in fact.fact_type.cardtemplate_set.all():
         #TODO only send the id(uri)/name/status
         card_templates.append({
@@ -200,7 +154,6 @@ def rest_card_templates_for_fact(request, fact_id):
             'activated_for_fact': 
                 (card_template in activated_card_templates),
         })
-
     return to_dojo_data(card_templates, identifier=None)
 
 
@@ -229,76 +182,65 @@ def rest_facts_tags(request):
 #TODO refactor into facts (no???)
 def rest_facts(request, deck=None, tags=None): 
     if request.method == 'GET':
+        ret = []
         if request.GET['fact_type']:
             #TODO allow omitting this option
             fact_type_id = request.GET['fact_type'] 
             ret = {}
-            try:
-                fact_type = FactType.objects.get(id=fact_type_id)
+            fact_type = get_object_or_404(FactType, pk=fact_type_id)
 
-                user = deck.owner if deck else request.user
+            user = deck.owner if deck else request.user
 
-                facts = Fact.objects.with_synchronized(
-                    user, deck=deck, tags=tags).filter(active=True)
+            facts = Fact.objects.with_synchronized(
+                user, deck=deck, tags=tags).filter(active=True)
 
-                #is the user searching his facts?
-                if ('search' in request.GET
-                        and request.GET['search'].strip()):
-                    search_query = request.GET['search']
-                    facts = Fact.objects.search(
-                        fact_type, search_query, query_set=facts)
-                    #FIXME add search for synchronized facts too!
+            #is the user searching his facts?
+            if ('search' in request.GET
+                    and request.GET['search'].strip()):
+                search_query = request.GET['search']
+                facts = Fact.objects.search(
+                    fact_type, search_query, query_set=facts)
+                #FIXME add search for synchronized facts too!
 
-                preret = []
-                for fact in facts.iterator():
-                    row = {
-                        'fact-id': fact.id, 
-                        'suspended':
-                            (len(fact.card_set.filter(active=True)) and
-                             all([card.suspended for card
-                                  in fact.card_set.filter(active=True)])),
-                    }
+            for fact in facts.iterator():
+                row = {
+                    'fact-id': fact.id, 
+                    'suspended':
+                        (len(fact.card_set.filter(active=True)) and
+                            all([card.suspended for card
+                                in fact.card_set.filter(active=True)])),
+                }
 
-                    ident, name = '', ''
-                    for field_content in fact.field_contents:
-                        #TODO rename to be clearer, like field_id, or ???
-                        key = 'id{0}'.format(field_content.field_type_id) 
+                ident, name = '', ''
+                for field_content in fact.field_contents:
+                    #TODO rename to be clearer, like field_id, or ???
+                    key = 'id{0}'.format(field_content.field_type_id) 
 
-                        if not ident:
-                            ident = key
-                        elif not name:
-                            name = key
+                    if not ident:
+                        ident = key
+                    elif not name:
+                        name = key
 
-                        row[key] = field_content.human_readable_content
-                        row['{0}_field-content-id'.format(key)] = \
-                            field_content.id
+                    row[key] = field_content.human_readable_content
+                    row['{0}_field-content-id'.format(key)] = \
+                        field_content.id
 
-                    if not name:
-                        name = ident
+                if not name:
+                    name = ident
 
-                    preret.append(row)
-                ret = to_dojo_data(preret)
-                ret['identifier'] = 'fact-id'#ident
-                #ret['name'] = name #todo:for <2 cols/fields...?
-                return ret
-            except FactType.DoesNotExist:
-                ret = {}
-            return to_dojo_data(ret)
+                ret.append(row)
+            ret = to_dojo_data(ret)
+            ret['identifier'] = 'fact-id'
+            #ret['name'] = name #todo:for <2 cols/fields...?
+            return ret
     elif request.method == 'POST':
         # Create fact in deck, including its fields and cards. POST method.
         #TODO unicode support
         #TODO refactor into other module probably
         ret = {}
         #TODO just get this from the form
-        deck_id = request.POST['fact-deck'] 
     
-        # make sure the logged-in user owns this deck
-        if Deck.objects.get(id=deck_id).owner_id != request.user.id: 
-            ##and not request.User.is_staff():
-            ret['success'] = False
-            raise forms.ValidationError(
-                'You do not have permission to access '
-                'this flashcard deck.')
+        deck = get_deck_or_404(request.user, request.POST['fact-deck'])
 
         # Override the submitted deck ID with the ID from the URL, 
         # since this is a RESTful interface.
@@ -365,38 +307,26 @@ def rest_facts(request, deck=None, tags=None):
                     priority = 0)
                 new_card.save()
         else:
-            print field_content_formset.errors
-            ret['success'] = False
-            ret['errors'] = {
-                    #'card': card_formset.errors,
-                    'field_content': field_content_formset.errors,
-                    'fact': [fact_form.errors]}
+            raise ApiException({
+                #'card': card_formset.errors,
+                'field_content': field_content_formset.errors,
+                'fact': [fact_form.errors]
+            })
         return ret
 
 @api
 @transaction.commit_on_success
 def rest_fact_suspend(request, fact_id):
     if request.method == 'POST':
-        fact = Fact.objects.get_for_owner_or_subscriber(
-            fact_id, request.user)
-        #TODO add fact.suspend() method
-        for card in fact.card_set.all():
-            card.suspended = True
-            card.save()
-        return {'success': True}
+        Fact.objects.get_for_owner_or_subscriber(
+            fact_id, request.user).suspend()
 
 @api
 @transaction.commit_on_success
 def rest_fact_unsuspend(request, fact_id):
     if request.method == 'POST':
-        fact = Fact.objects.get_for_owner_or_subscriber(
-            fact_id, request.user)
-        #fact.suspended = False
-        #fact.save()
-        for card in fact.card_set.all():
-            card.suspended = False
-            card.save()
-        return {'success': True}
+        Fact.objects.get_for_owner_or_subscriber(
+            fact_id, request.user).unsuspend()
 
 @api
 @transaction.commit_on_success
@@ -405,9 +335,6 @@ def rest_fact(request, fact_id): #todo:refactor into facts
         # Update fact
         ret = {}
         #FIXME make sure the logged-in user owns this FACT
-        #if Deck.objects.get(id=deck_id).owner.id != request.user.id: #and not request.User.is_staff():
-        #  ret['success'] = False
-        #  raise forms.ValidationError('You do not have permission to access this flashcard deck.')
 
         #override the submitted deck ID with the ID from the URL, since this is a RESTful interface
         post_data = request.POST.copy()
@@ -560,14 +487,12 @@ def rest_fact(request, fact_id): #todo:refactor into facts
                             card.save()
                         except Card.DoesNotExist:
                             pass
-                            
-            ret['success'] = True
         else:
-            ret['success'] = False
-            ret['errors'] = {'card': card_formset.errors,
-                            'fact': fact_formset.errors,
-                            'field_content': field_content_formset.errors, }
-                            #'fact': [fact_form.errors]}
+            raise ApiException({
+                'card': card_formset.errors,
+                'fact': fact_formset.errors,
+                'field_content': field_content_formset.errors,
+            })
         return ret
     elif request.method == 'DELETE':
         fact = Fact.objects.get_for_owner_or_subscriber(fact_id, request.user)
@@ -576,6 +501,5 @@ def rest_fact(request, fact_id): #todo:refactor into facts
             fact.save()
         else:
             fact.delete()
-        return {'success': True}
 
 
