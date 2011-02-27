@@ -78,6 +78,8 @@ magic numbers
 
 add basic auditing to some more models
 
+use conditional views
+
 views.py: refactor GET/POST methods
 
 models:
@@ -117,9 +119,10 @@ is there a good way to get new cards without knowing if a user has his own card 
 
 SUPER CRITICAL BUGS:
 --------------------
-verification emails arent being sent!
-
-broken on firefox 3.0.x on mac
+mini graph for today includes stuff from yesterday night -- the 'so far today' time isn't show since it's at 0. 
+so they calculate day endings differently or something.
+NO! Actually it is just that if there is none today, the mini graph needs to have an empty value for today,
+instead of truncating too early.
 
 reading generation for sentences is broken (see firebug, js error)
 
@@ -127,13 +130,9 @@ reading generation for sentences is broken (see firebug, js error)
 
 early review cut short
 
--dont show duplicate kana in reviews. (same word in reading)
-
 -NY isnt default timezone
 
 ensure the next card up is the one that was undone
-
--when not signed in, bugs! (click title) (also, dojo errors)
 
 gray out the fields while fact submission is in progress (and make sure cmd-enter is disabled then too)
 
@@ -202,13 +201,7 @@ put the card grade buttons on the bottom of the screen
 
 make fact form requirements dependent on cards selected
 
-example sentence UI
-
 fact type templating system for adding/editing form
-
-move 'All decks' grid option above grid
-
--disable form submission buttons while they're being processed, after clicked - 
 
 allow selecting multiple facts
 
@@ -242,15 +235,11 @@ undo suspend,
 
 more undo levels
 
-smart.fm integration (audio first)
-
 allow a language choice field for the user to select for every flashcard added, per field, optionally (like smart.fm)
 or default a 'meaning' field to the user's native language (since it'll either be that, or the same as the card's foreign language)
 or perhaps add a 'monolingual?' kind of bool field
 
 allow unicode full-width (japanese) [] for transliterations, as well as < > because theyre easier to type in the japanese IME
-
-make english text in cards have a smaller font than japanese text
 
 allow a 'new card order' for cards within a fact (like recall before other ones since recall is more important)
 
@@ -286,12 +275,8 @@ furiganaize regex is still a little sketchy
 
 freeze my pip reqs
 
-respect hidden fields for fact update form - with the 'Add Foobar' link
-
 don't create blank fieldcontent objects. but add the missing ones to update forms, 
 and create them upon update (upon submission of the fact update form).
-
-add ability to have help text per each choice in a field
 
 use json instead of pickled tuples for flashcard choice fields
 
@@ -451,6 +436,8 @@ field for word type - verb, na-adj, etc
 ---------------------
 Scheduling ideas:
 ---------------------
+start showing failed cards that arent due yet if we accumulate N failed cards (like, 20)
+
 consider 'due very soon' cards due now when in a review session
 (depending on their interval too)
 

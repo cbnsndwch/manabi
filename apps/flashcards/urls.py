@@ -37,71 +37,81 @@ urlpatterns = patterns('flashcards.views.crud',
 )
 
 
+
 # kinda-sorta-RESTy API
-urlpatterns += patterns('flashcards.views.api',
-    url(r'^api/decks/(\w+)/subscribe/$', 'rest_deck_subscribe',
+api_urlpatterns = patterns('flashcards.views.api',
+    url(r'^decks/(\w+)/subscribe/$', 'rest_deck_subscribe',
         name='api-subscribe_to_deck'),
     #url(r'^api$', 'rest_entry_point'),
-    url(r'^api/generate_reading/$', 'rest_generate_reading',
+    url(r'^generate_reading/$', 'rest_generate_reading',
         name='api-generate_reading'),
-    url(r'^api/decks/$', 'rest_decks',
-        name='api-decks'),
-    url(r'^api/decks/(\w+)/name/$', 'rest_deck_name',
+    #url(r'^decks/$', 'rest_decks',
+    #    name='api-decks'),
+    
+    url(r'^decks/(\w+)/name/$', 'rest_deck_name',
         name='api-deck_name'),
-    url(r'^api/decks/(\w+)/description/$', 'rest_deck_description',
+    url(r'^decks/(\w+)/description/$', 'rest_deck_description',
         name='api-deck_description'),
-    url(r'^api/decks/(\w+)/$', 'rest_deck',
+    url(r'^decks/(\w+)/$', 'rest_deck',
         name='api-deck'), #POST: can set 'shared' field
-    url(r'^api/fact_types/$', 'rest_fact_types',
+
+    url(r'^fact_types/$', 'rest_fact_types',
         name='api-fact_types'),
-    url(r'^api/fact_types/(\w+)/card_templates/$', 'rest_card_templates'),
-    url(r'^api/fact_types/(\w+)/fields/$', 'rest_fields',
+    url(r'^fact_types/(\w+)/card_templates/$', 'rest_card_templates'),
+    url(r'^fact_types/(\w+)/fields/$', 'rest_fields',
         name='api-fact_type_fields'),
-    url(r'^api/facts/$', 'rest_facts',
+    url(r'^facts/$', 'rest_facts',
         name='api-facts'),
-    url(r'^api/facts/tags/$', 'rest_facts_tags',
+    url(r'^facts/tags/$', 'rest_facts_tags',
         name='api-fact_tags'),
-    url(r'^api/facts/(\w+)/$', 'rest_fact'),
-    url(r'^api/facts/(\w+)/suspend/$', 'rest_fact_suspend'),
-    url(r'^api/facts/(\w+)/unsuspend/$', 'rest_fact_unsuspend'),
+    url(r'^facts/(\w+)/$', 'rest_fact'),
+    url(r'^facts/(\w+)/suspend/$', 'rest_fact_suspend'),
+    url(r'^facts/(\w+)/unsuspend/$', 'rest_fact_unsuspend'),
 
 
     #TODO should be a query on /card_templates instead? ?fact=1&activated=true
-    url(r'^api/facts/(\w+)/card_templates/$',
+    url(r'^facts/(\w+)/card_templates/$',
         'rest_card_templates_for_fact'), 
-    url(r'^api/cards/$', 'rest_cards',
+    url(r'^cards/$', 'rest_cards',
         name='api-cards'),
 
 )
 
 
-urlpatterns += patterns('flashcards.views.api.review',
+api_urlpatterns += patterns('flashcards.views.api.review',
     url(r'^facts/(\w+)/subfacts/$', 'subfacts',
         name='fact_subfacts'),
 
-    url(r'^api/cards/(\w+)/$', 'rest_card',
+    url(r'^cards/(\w+)/$', 'rest_card',
         name='api-card'),
-    url(r'^api/cards_for_review/due_count/$', 'due_card_count',
+    url(r'^cards_for_review/due_count/$', 'due_card_count',
         name='api-due_card_count'),
-    url(r'^api/cards_for_review/new_count/$', 'new_card_count',
+    url(r'^cards_for_review/new_count/$', 'new_card_count',
         name='api-new_card_count'),
-    url(r'^api/cards_for_review/due_tomorrow_count/$', 'due_tomorrow_count',
+    url(r'^cards_for_review/due_tomorrow_count/$', 'due_tomorrow_count',
         name='api-due_tomorrow_count'),
-    url(r'^api/cards_for_review/next_due_at/$', 'next_card_due_at',
+    url(r'^cards_for_review/next_due_at/$', 'next_card_due_at',
         name='api-next_card_due_at'),
-    url(r'^api/cards_for_review/hours_until_next_due/$', 'hours_until_next_card_due',
+    url(r'^cards_for_review/hours_until_next_due/$', 'hours_until_next_card_due',
         name='api-hours_until_next_card_due'),
-    url(r'^api/next_cards_for_review/$', 'next_cards_for_review',
+    url(r'^next_cards_for_review/$', 'next_cards_for_review',
         name='api-next_cards_for_review'),
 
     #card review undo
-    url(r'^api/cards_for_review/undo/$', 'undo_review',
+    url(r'^cards_for_review/undo/$', 'undo_review',
         name='api-undo_review'),
-    url(r'^api/cards_for_review/undo/reset/$', 'reset_review_undo_stack',
+    url(r'^cards_for_review/undo/reset/$', 'reset_review_undo_stack',
         name='api-reset_review_undo_stack'),
 
 )
 
+# REST API
+urlpatterns += patterns('',
+    url(r'^internal-api/', include(api_urlpatterns),
+))
+
+
+# Dynamic ...static files
 urlpatterns += patterns('',
     url(r'^flashcards.js$', direct_to_template,
         { 'template': 'flashcards/flashcards.js',

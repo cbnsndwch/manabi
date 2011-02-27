@@ -31,18 +31,18 @@ dojo.declare('reviews.Card', null, {
         return dojo.date.stamp.fromISOString(this.nextDueAtPerGrade[grade]);
     },
 
-    stats: function() {
+    /*stats: function() {
         // Retrieves general stats about this card, and returns them 
         // as a hash object.
         xhrArgs = {
             url: '/flashcards/api/'
         };
-    },
+    },*/
 
     suspend: function() {
         // Suspends this and sibling cards.
         xhrArgs = {
-            url: '/flashcards/api/facts/' + this.factId + '/suspend/',
+            url: '/flashcards/internal-api/facts/' + this.factId + '/suspend/',
             handleAs: 'json',
             load: dojo.hitch(this, function(data) {
                 if (data.success) {

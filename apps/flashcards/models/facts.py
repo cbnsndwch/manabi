@@ -288,6 +288,16 @@ class Fact(models.Model):
         #return dict((field_content.field_type_id, field_content) for field_content in field_contents)
         return field_contents
 
+    def suspend(self):
+        for card in fact.card_set.all():
+            card.suspended = True
+            card.save()
+        
+    def unsuspend(self):
+        for card in fact.card_set.all():
+            card.suspended = False
+            card.save()
+
     def has_updated_content(self):
         '''Only call this for subscriber facts.
         Returns whether the subscriber user has edited any 

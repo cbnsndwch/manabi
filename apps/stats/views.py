@@ -16,7 +16,6 @@ from flashcards.models.constants import GRADE_NONE, GRADE_HARD, GRADE_GOOD, GRAD
 from flashcards.views.decorators import ApiException
 from flashcards.views.decorators import flashcard_api as api
 from flashcards.views.decorators import has_card_query_filters
-import settings
 
 
 @login_required
