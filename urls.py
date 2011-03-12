@@ -10,6 +10,7 @@ from utils.authforms import PinaxLazyConvertForm
 from django.contrib import admin
 admin.autodiscover()
 
+from flashcards.urls import rest_api_urlpatterns
 
 
 if settings.ACCOUNT_OPEN_SIGNUP:
@@ -24,6 +25,10 @@ urlpatterns = patterns('',
         name="acct_signup", kwargs={'form_class': SignupForm}), 
     (r'^account/', include('account.urls')),
     (r'^admin/', include(admin.site.urls)),
+
+
+    url(r'^flashcards/api/', include(rest_api_urlpatterns)),
+
 ) + decorated_patterns('', allow_lazy_user,
     #url(r'^$', direct_to_template, {
     #    "template": "homepage.html",

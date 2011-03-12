@@ -39,7 +39,7 @@ urlpatterns = patterns('flashcards.views.crud',
 
 
 # kinda-sorta-RESTy API
-api_urlpatterns = patterns('flashcards.views.api',
+internal_api_urlpatterns = patterns('flashcards.views.api',
     url(r'^decks/(\w+)/subscribe/$', 'rest_deck_subscribe',
         name='api-subscribe_to_deck'),
     #url(r'^api$', 'rest_entry_point'),
@@ -78,7 +78,7 @@ api_urlpatterns = patterns('flashcards.views.api',
 )
 
 
-api_urlpatterns += patterns('flashcards.views.api.review',
+internal_api_urlpatterns += patterns('flashcards.views.api.review',
     url(r'^facts/(\w+)/subfacts/$', 'subfacts',
         name='fact_subfacts'),
 
@@ -105,10 +105,28 @@ api_urlpatterns += patterns('flashcards.views.api.review',
 
 )
 
-# REST API
+
+
+# Actual REST API
+from flashcards.views.rest import *
+rest_api_urlpatterns = patterns('',
+    url(r'^$', EntryPoint.as_view(),
+        name='rest-entry_point'),
+
+    url(r'^decks/$', DeckList.as_view(),
+        name='rest-deck_list'),
+    url(r'^shared-decks/$', SharedDeckList.as_view(),
+        name='rest-shared_deck_list'),
+    url(r'^decks/(?P<pk>\d+)/$', Deck.as_view(),
+        name='rest-deck'),
+    url(r'^decks/(?P<pk>\d+)/subscriptions/$', DeckSubscription.as_view(),
+        name='rest-deck_subscription'),
+)
+
+
 urlpatterns += patterns('',
-    url(r'^internal-api/', include(api_urlpatterns),
-))
+    url(r'^internal-api/', include(internal_api_urlpatterns)),
+)
 
 
 # Dynamic ...static files

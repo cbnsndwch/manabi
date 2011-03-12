@@ -150,7 +150,7 @@ class Deck(models.Model):
         '''Returns whether there are subscribers to this deck, because
         it is shared, or it had been shared before.
         '''
-        return self.subscriber_decks.filter(active=True).count() > 0
+        return self.subscriber_decks.filter(active=True).exists()
 
 
     @transaction.commit_on_success    
@@ -173,6 +173,16 @@ class Deck(models.Model):
         self.shared = False
         self.save()
 
+    def get_subscriber_deck_for_user(self, user):
+        '''
+        Returns the subscriber deck for `user` of this deck.
+        If it doesn't exist, returns None.
+        If multiple exist, even though this shouldn't happen,
+        we just return the first one.
+        '''
+        subscriber_decks = self.subscriber_decks.filter(owner=user, active=True)
+        if len(subscriber_decks):
+            return existing_decks[0]
 
     @transaction.commit_on_success    
     def subscribe(self, user):
@@ -186,10 +196,11 @@ class Deck(models.Model):
         returns the existing deck.
         '''
         from facts import Fact
+
         # check if the user is already subscribed to this deck
-        existing_decks = Deck.objects.filter(owner=user, synchronized_with=self, active=True)
-        if len(existing_decks):
-            return existing_decks[0]
+        subscriber_deck = self.get_subscriber_deck_for_user(user)
+        if subscriber_deck:
+            return subscriber_deck
 
         if not self.shared:
             raise TypeError('This is not a shared deck - cannot subscribe to it.')
@@ -259,6 +270,7 @@ class Deck(models.Model):
 
     @property
     def card_count(self):
+        #FIXME this is inaccurate for synchronized deck which the (subscriber) user has added cards to
         deck = self.synchronized_with if self.synchronized_with else self
         return cards.Card.objects.filter(fact__deck=deck, active=True, suspended=False).count()
 
