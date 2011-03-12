@@ -5,8 +5,7 @@ class DecoratedURLPattern(RegexURLPattern):
     def resolve(self, *args, **kwargs):
         result = RegexURLPattern.resolve(self, *args, **kwargs)
         if result:
-            result = list(result)
-            result[0] = self._decorate_with(result[0])
+            result.func = self._decorate_with(result.func)
         return result
 
 def decorated_patterns(prefix, func, *args, **kwargs):
