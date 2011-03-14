@@ -117,10 +117,10 @@ rest_api_urlpatterns = patterns('',
         name='rest-deck_list'),
     url(r'^shared-decks/$', SharedDeckList.as_view(),
         name='rest-shared_deck_list'),
-    url(r'^decks/(?P<pk>\d+)/$', Deck.as_view(),
-        name='rest-deck'),
     url(r'^decks/(?P<pk>\d+)/subscriptions/$', DeckSubscription.as_view(),
         name='rest-deck_subscription'),
+    url(r'^decks/(?P<pk>\d+)/$', Deck.as_view(),
+        name='rest-deck'),
 )
 
 

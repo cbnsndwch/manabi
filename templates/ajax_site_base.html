@@ -18,6 +18,20 @@
     <script type="text/javascript">
         dojo.require('dojango.dojango');
 
+        // xhr csrf for django
+        dojo.require('dojo.cookie');
+        dojo.ready(function(){
+            var xhr = dojo.xhr;
+            dojo.xhr = function(method, args, hasBody) {
+                if(!args.headers){
+                    args.headers = {};
+                }
+                args.headers['X-CSRFToken'] = dojo.cookie('csrftoken');
+                return xhr(method, args, hasBody);
+            };
+        });
+        
+
         // add our module paths for local files
         var relUrl = '../../../js/'; //{{ MEDIA_URL }}
         dojango.registerModulePath('jdic', '{{ MEDIA_URL }}static/js/jdic', relUrl + 'jdic');

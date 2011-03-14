@@ -186,7 +186,6 @@ def rest_facts(request, deck=None, tags=None):
         if request.GET['fact_type']:
             #TODO allow omitting this option
             fact_type_id = request.GET['fact_type'] 
-            ret = {}
             fact_type = get_object_or_404(FactType, pk=fact_type_id)
 
             user = deck.owner if deck else request.user
