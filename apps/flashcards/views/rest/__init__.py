@@ -10,6 +10,7 @@ from django.forms.models import modelformset_factory, formset_factory
 from django.http import Http404, HttpResponseRedirect, HttpResponse
 from django.shortcuts import get_object_or_404, render_to_response
 from django.template import RequestContext, loader
+from django.template.loader import render_to_string
 from django.views.generic.create_update import (
         update_object, delete_object, create_object)
 from dojango.decorators import json_response
@@ -18,19 +19,23 @@ from flashcards.forms import DeckForm, FactForm, FieldContentForm, CardForm
 #from flashcards.models import FactType, Fact, Deck, CardTemplate, FieldType
 #from flashcards.models import FieldContent, Card
 from flashcards import models
+from flashcards.models import Card
 from flashcards.models.constants import MAX_NEW_CARD_ORDINAL
-
 from catnap.django_urls import absolute_reverse as reverse
 from flashcards.views.decorators import has_card_query_filters
-import apps.utils.querycleaner
+from apps.utils import querycleaner
+from apps.utils.querycleaner import clean_query
 import random
 from flashcards.views.shortcuts import get_deck_or_404
 from django.utils.decorators import method_decorator
 from catnap.restviews import (JsonEmitterMixin, AutoContentTypeMixin,
         RestView, ListView, DetailView, DeletionMixin)
-from flashcards.restresources import UserResource, DeckResource
-from catnap.exceptions import HttpForbiddenException
+from flashcards.restresources import (
+        UserResource, DeckResource, CardResource)
+from catnap.exceptions import (HttpForbiddenException,
+        HttpTemporaryRedirectException)
 from catnap.auth import BasicAuthentication
+from flashcards.contextprocessors import review_start_context
 
 
 class ManabiRestView(JsonEmitterMixin, AutoContentTypeMixin, RestView):
@@ -41,9 +46,24 @@ class ManabiRestView(JsonEmitterMixin, AutoContentTypeMixin, RestView):
 
     authenticator = BasicAuthentication(realm='manabi')
 
-    ##@method_decorator(login_required)
-    #def dispatch(self, *args, **kwargs):
-    #    return super(ManabiRestView, self).dispatch(*args, **kwargs)
+
+class CardQueryFiltersMixin(object):
+    def get_deck(self):
+        if self.request.GET.get('deck'):
+            return get_object_or_404(Deck, pk=self.request.GET['deck'])
+
+    def get_tags(self):
+        try:
+            #TODO support for multiple tags
+            tag_id = int(self.request.GET.get('tags',
+                    self.request.GET.get('tag', -1)))
+        except ValueError:
+            tag_id = -1
+        if tag_id != -1:
+            tag_ids = [tag_id] #TODO support multiple tags
+            return usertagging.models.Tag.objects.filter(
+                    id__in=tag_ids)
+
 
 
 
@@ -62,6 +82,8 @@ class EntryPoint(ManabiRestView):
         context = {
             'deck_list_url': reverse('rest-deck_list'),
             'shared_deck_list_url': reverse('rest-shared_deck_list'),
+            'next_cards_for_review_url': reverse(
+                    'rest-next_cards_for_review'),
             #'users': reverse('rest-users'),
         }
         return self.render_to_response(context)
@@ -94,6 +116,14 @@ class Deck(DeletionMixin, DetailView, ManabiRestView):
 
     def get_object(self):
         deck = get_deck_or_404(self.request.user, self.kwargs.get('pk'))
+
+        # If the user is already subscribed to this deck,
+        # redirect to their subscribed copy.
+        subscriber = deck.get_subscriber_deck_for_user(self.request.user)
+        if subscriber:
+            raise HttpTemporaryRedirectException(
+                    reverse('rest-deck', args=[subscriber.id]))
+
         return deck
 
     def get_context_data(self, *args, **kwargs):
@@ -104,12 +134,20 @@ class Deck(DeletionMixin, DetailView, ManabiRestView):
         deck = self.get_object()
 
         context['owned_by_current_user'] = deck.owner == self.request.user
-        context['card_count'] = deck.card_count
 
-        if deck.owner != self.request.user:
+        # add the review-related data.
+        if context['owned_by_current_user']:
+            context.update(review_start_context(self.request, deck))
+
+            context['next_card_due_at_message'] = render_to_string(
+                    'flashcards/_next_card_due_at.txt', context).strip()
+        else:
             context['subscription_url'] = reverse(
                     'rest-deck_subscription', args=[deck.id])
+
+
         return context
+        
 
     def allowed_methods(self, request, *args, **kwargs):
         '''Don't return "DELETE" if the user has no permission.'''
@@ -169,6 +207,43 @@ class DeckSubscription(ManabiRestView):
                 reverse('rest-deck', args=[new_deck.id]))
 
         
+class NextCardsForReview(CardQueryFiltersMixin, ManabiRestView):
+    '''
+    Returns a list of Card resources -- the next cards up for review.  
+    Accepts some query parameters for filtering and influencing what
+    cards will be selected.
+    '''
+    content_subtype = 'CardList'
+    
+    query_structure = {
+        'count': int,
+        'early_review': bool,
+        'learn_more': bool,
+        'session_start': bool, # Beginning of review session?
+        'excluded_cards': querycleaner.int_list,
+    }
+
+    def get(self, request, **kwargs):
+        params = clean_query(request.GET, self.query_structure)
+
+        count = params.get('count', 5)
+
+        next_cards = Card.objects.next_cards(
+            request.user,
+            count,
+            excluded_ids=params.get('excluded_cards', []),
+            session_start=params.get('session_start'),
+            deck=self.get_deck(),
+            tags=self.get_tags(),
+            early_review=params.get('early_review'))
+
+        #FIXME need to account for 0 cards returned 
+
+        # Assemble a list of the cards to be serialized.
+        return self.render_to_response(
+                [CardResource(card).get_data() for card in next_cards])
+
+
 
 
 

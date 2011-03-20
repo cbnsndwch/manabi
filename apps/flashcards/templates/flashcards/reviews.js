@@ -31,6 +31,11 @@ dojo.declare('reviews.Card', null, {
         return dojo.date.stamp.fromISOString(this.nextDueAtPerGrade[grade]);
     },
 
+    humanizedNextInterval: function(grade) {
+        // Returns a humanized string of `nextDueAt(grade) - (new Date())`
+        return this._humanizedInterval(this.nextDueAt(grade) - (new Date()));
+    }
+
     /*stats: function() {
         // Retrieves general stats about this card, and returns them 
         // as a hash object.
@@ -87,6 +92,39 @@ dojo.declare('reviews.Card', null, {
         }]);
 
         return def;
+    },
+
+    _humanizedInterval: function(interval) {
+        // `interval` is in milliseconds, we convert it to days inside
+        // the function.
+        var ret, duration;
+        interval = parseFloat(interval) / (1000 * 60 * 60 * 24);
+
+        if ((interval * 24 * 60) < 1) {
+            //less than a minute
+            ret = 'Soon';
+        } else if ((interval * 24) < 1) {
+            //less than an hour: show minutes
+            duration = Math.round(interval * 24 * 60);
+            ret = duration + ' minute';
+        } else if (interval < 1) {
+            //less than a day: show hours
+            duration = Math.round(interval * 24);
+            if (duration == 24) {
+                duration = 1;
+                ret = '1 day';
+            } else {
+                ret = duration + ' hour';
+            }
+        } else {
+            //days
+            duration = Math.round(interval);
+            ret = duration + ' day'; //TODO how to round?
+        }
+
+        //pluralize
+        if (duration > 1) { ret += 's'; }
+        return ret;
     }
 
 });
@@ -122,7 +160,8 @@ dojo.declare('reviews.Session', null, {
         //timeLimit is in minutes
         //
         // Requires these arguments:
-        //   deckId, dailyNewCardLimit, cardLimit, timeLimit, tagId, earlyReview, learnMore) {
+        //   deckId, dailyNewCardLimit, cardLimit, timeLimit, tagId, earlyReview, learnMore
+        // Also requires a `nextCardsForReviewUrl` argument.
         dojo.safeMixin(this, args);
 
         // Initialize non-primitive props
@@ -296,37 +335,36 @@ dojo.declare('reviews.Session', null, {
     },
 
     prefetchCards: function(count, sessionStart) {
-        //get next cards from server, discounting those currently enqueued/pending
-        //Returns a deferred.
+        // Get next cards from server, discounting those currently enqueued/pending.
+        // Returns a deferred.
         this._prefetchInProgress = true;
 
-        //serialize the excluded id list
+        // Serialize the excluded id list.
         var excludedIds = [];
-        dojo.forEach(this.cards,
-            function(card, index) {
+        dojo.forEach(this.cards, function(card, index) {
                 if (excludedIds.lastIndexOf(card.id) == -1) {
                     excludedIds.push(card.id);
                 }
         });
-        dojo.forEach(this.cardsReviewedPending,
-            function(cardId, index) {
+        dojo.forEach(this.cardsReviewedPending, function(cardId, index) {
                 if (excludedIds.lastIndexOf(cardId) == -1) {
                     excludedIds.push(cardId);
                 }
         });
 
-        var url = '{% url api-next_cards_for_review %}';
-        url += '?count=' + count;
-        //FIXME camelcase these, and refactor
-        if (sessionStart) { url += '&session_start=true'; }
-        if (excludedIds.length > 0) { url += '&excluded_cards=' + excludedIds.join('+'); }
-        if (this.deckId != '-1' && this.deckId !== null) { url += '&deck=' + this.deckId; }
-        if (this.tagId != '-1' && this.tagId !== null) { url += '&tag=' + this.tagId; }
-        if (this.earlyReview) { url += '&early_review=true'; }
-        if (this.learnMore) { url += '&learn_more=true'; }
+        var url = this.nextCardsForReviewUrl;
+        var query = {count: count};
+        //TODO refactor
+        if (sessionStart) { query.session_start = true; }
+        if (excludedIds.length > 0) { query.excluded_cards = excludedIds.join('+'); }
+        if (this.deckId != '-1' && this.deckId !== null) { query.deck = this.deckId; }
+        if (this.tagId != '-1' && this.tagId !== null) { query.tag = this.tagId; }
+        if (this.earlyReview) { query.early_review = true; }
+        if (this.learnMore) { query.learn_more = true; }
 
         var xhrArgs = {
             url: url,
+            content: query,
             handleAs: 'json',
             load: dojo.hitch(this, function(data) {
                 if (data.success) {
@@ -541,64 +579,64 @@ reviews._simpleXHRPost = function(url) {
 };
 
 
-reviews._simpleXHRValueFetch = function(url, valueName) {
-    // valueName is optional
-    var def = new dojo.Deferred();
+//reviews._simpleXHRValueFetch = function(url, valueName) {
+//    // valueName is optional
+//    var def = new dojo.Deferred();
 
-    var xhrArgs = {
-        url: url,
-        handleAs: 'json',
-        load: dojo.hitch(this, function(def, data) {
-            if (data.success) {
-                if (typeof valueName == 'undefined') {
-                    def.callback(data.data);
-                } else {
-                    def.callback(data.data[valueName]);
-                }
-            } else {
-                //TODO error handling (do a failure callback)
-            }
-        }, def)
-    };
-    dojo.xhrGet(xhrArgs);
+//    var xhrArgs = {
+//        url: url,
+//        handleAs: 'json',
+//        load: dojo.hitch(this, function(def, data) {
+//            if (data.success) {
+//                if (typeof valueName == 'undefined') {
+//                    def.callback(data.data);
+//                } else {
+//                    def.callback(data.data[valueName]);
+//                }
+//            } else {
+//                //TODO error handling (do a failure callback)
+//            }
+//        }, def)
+//    };
+//    dojo.xhrGet(xhrArgs);
 
-    return def;
-};
+//    return def;
+//};
 
-reviews.dueCardCount = function() {
-    return reviews._simpleXHRValueFetch('{% url api-due_card_count %}');
-};
+//reviews.dueCardCount = function() {
+//    return reviews._simpleXHRValueFetch('{% url api-due_card_count %}');
+//};
 
-reviews.newCardCount = function() {
-    return reviews._simpleXHRValueFetch('{% url api-new_card_count %}');
-};
+//reviews.newCardCount = function() {
+//    return reviews._simpleXHRValueFetch('{% url api-new_card_count %}');
+//};
 
-reviews.nextCardDueAt = function() {
-    return reviews._simpleXHRValueFetch('{% url api-next_card_due_at %}');
-};
+//reviews.nextCardDueAt = function() {
+//    return reviews._simpleXHRValueFetch('{% url api-next_card_due_at %}');
+//};
 
-reviews.timeUntilNextCardDue = function(deck, tags) {
-    // Returns a float of the hours until the next card is due.
-    var args = {};
-    args.deck = deck || null;
-    args.tags = tags || null;
-    var query = dojo.objectToQuery(args);
-    var url = '{% url api-hours_until_next_card_due %}';
-    if (query) {
-        url += '?' + query;
-    }
-    return parseInt(reviews._simpleXHRValueFetch(url), 10);
-//   return {hours: data['hoursUntilNextCardDue'], minutes: data['minutesUntilNextCardDue']};
-};
+//reviews.timeUntilNextCardDue = function(deck, tags) {
+    //// Returns a float of the hours until the next card is due.
+    //var args = {};
+    //args.deck = deck || null;
+    //args.tags = tags || null;
+    //var query = dojo.objectToQuery(args);
+    //var url = '{% url api-hours_until_next_card_due %}';
+    //if (query) {
+        //url += '?' + query;
+    //}
+    //return parseInt(reviews._simpleXHRValueFetch(url), 10);
+////   return {hours: data['hoursUntilNextCardDue'], minutes: data['minutesUntilNextCardDue']};
+//};
 
-reviews.countOfCardsDueTomorrow = function(deck) {
-    var url = '{% url api-due_tomorrow_count %}';
-    //TODO use dojo's url params api
-    if (typeof deck != 'undefined' && deck) {
-        url += '?deck='+deck;
-    }
-    return reviews._simpleXHRValueFetch(url);
-};
+//reviews.countOfCardsDueTomorrow = function(deck) {
+//    var url = '{% url api-due_tomorrow_count %}';
+//    //TODO use dojo's url params api
+//    if (typeof deck != 'undefined' && deck) {
+//        url += '?deck='+deck;
+//    }
+//    return reviews._simpleXHRValueFetch(url);
+//};
 
 
 

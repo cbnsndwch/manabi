@@ -181,8 +181,8 @@ class Deck(models.Model):
         we just return the first one.
         '''
         subscriber_decks = self.subscriber_decks.filter(owner=user, active=True)
-        if len(subscriber_decks):
-            return existing_decks[0]
+        if subscriber_decks.exists():
+            return subscriber_decks[0]
 
     @transaction.commit_on_success    
     def subscribe(self, user):
