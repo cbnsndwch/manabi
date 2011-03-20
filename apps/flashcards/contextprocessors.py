@@ -51,14 +51,12 @@ def deck_count_context(request):
     return {'deck_count': deck_count}
 
 
-def review_start_context(request, deck_id=None):
+def review_start_context(request, deck=None):
     '''
     Returns a dictionary for studying either all decks, or a single deck.
     This is for the screen before actually reviewing, which shows the buttons
     to start the review.
     '''
-    deck = Deck.objects.get(id=deck_id) if deck_id else None
-
     cards = Card.objects.common_filters(
         request.user, deck=deck)
 
@@ -80,13 +78,13 @@ def review_start_context(request, deck_id=None):
         'count_of_cards_due_tomorrow': Card.objects.count_of_cards_due_tomorrow(request.user, deck=deck),
     }
 
+
     #spaced_new_card_count = Card.objects.next_cards_count(request.user, deck=deck, new_cards_only=True)
     #'spaced_new_card_count': spaced_new_card_count,
     #'count_of_cards_due_tomorrow': Card.objects.count_of_cards_due_tomorrow(request.user, deck=deck),
     #'new_cards_left_for_today': new_cards_left_for_today,
 
     return context
-
 
 
 

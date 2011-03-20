@@ -2,11 +2,14 @@ from catnap.restresources import RestResource, RestModelResource
 from django.core.urlresolvers import reverse
 
 
+
 class UserResource(RestModelResource):
     fields = ('id', 'username', 'first_name', 'last_name', 'date_joined',)
 
-    #def get_data(self):
-        #data = super(UserResource, self).get_data()
+    def get_data(self):
+        data = super(UserResource, self).get_data()
+        data['full_name'] = self.obj.get_full_name()
+        return data
 
 
 
@@ -20,10 +23,29 @@ class DeckResource(RestModelResource):
     def get_data(self):
         data = super(DeckResource, self).get_data()
         data['owner'] = UserResource(self.obj.owner).get_data()
-        #data['request_user_is_owner'] = 
+        data['card_count'] = self.obj.card_count
+
         return data
 
 
+class CardResource(RestModelResource):
+    fields = ('id', 'fact_id', 'ease_factor', 'interval', 'due_at',
+              'last_ease_factor', 'last_interval', 'last_due_at',
+              'review_count')
 
+    #def get_url_path(self):
+    #    return reverse('rest-card', args=[self.obj.id])
+    
+    def get_data(self):
+        data = super(CardResource, self).get_data()
+        data.update({
+            'front': self.obj.render_front(),
+            'back': self.obj.render_back(),
+            'next_due_at_per_grade':
+                dict((grade, rep.due_at)
+                     for (grade, rep)
+                     in self.obj.next_repetition_per_grade().items())
+        })
+        return data
 
 

@@ -84,6 +84,8 @@ class Card(models.Model):
         Returns a dictionary version of this model, to be used with 
         the JSON API. This is a dictionary that can be trivially 
         serialized into JSON.
+
+        DEPRECATED
         '''
         return {
             'id': self.id,

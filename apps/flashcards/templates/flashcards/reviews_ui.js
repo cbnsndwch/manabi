@@ -16,42 +16,6 @@ dojo.ready(function(){
     reviews_ui.session = null;
 });
 
-reviews_ui.humanizedInterval = function(interval) {
-    // `interval` is in milliseconds, we convert it to days inside
-    // the function.
-    var ret = null;
-    var duration = null;
-    interval = parseFloat(interval) / (1000 * 60 * 60 * 24);
-
-    if ((interval * 24 * 60) < 1) {
-        //less than a minute
-        ret = 'Soon';
-    } else if ((interval * 24) < 1) {
-        //less than an hour: show minutes
-        duration = Math.round(interval * 24 * 60);
-        ret = duration + ' minute';
-    } else if (interval < 1) {
-        //less than a day: show hours
-        duration = Math.round(interval * 24);
-        if (duration == 24) {
-            duration = 1;
-            ret = '1 day';
-        } else {
-            ret = duration + ' hour';
-        }
-    } else {
-        //days
-        duration = Math.round(interval);
-        ret = duration + ' day'; //TODO how to round?
-    }
-
-    if (duration >= 2) {
-        //pluralize
-        ret += 's';
-    }
-    
-    return ret;
-};
 
 reviews_ui._showNoCardsDue = function() {
     dojo.byId('reviews_beginReview').style.display = 'none';
@@ -60,65 +24,6 @@ reviews_ui._showNoCardsDue = function() {
 };
 
 
-reviews_ui._humanizeDuration = function(hours) {
-    // Returns a humanized duration.
-    // If hours < 1/60, returns "under a minute"
-    // If hours < 1, returns "n minutes"
-    // Otherwise, "n hours"
-    var minutes = hours / 60;
-    if (minutes < 1) {
-        return 'under a minute';
-    } else if (hours < 1) {
-        return minutes + ' minutes';
-    } else {
-        return hours + ' hours';
-    }
-};
-
-reviews_ui._humanizedTimeUntil = function(timeUntil) {
-    var minutesUntil = parseInt(timeUntil.minutesUntilNextCardDue) || -1;
-    var hoursUntil = parseInt(timeUntil.hoursUntilNextCardDue, 10) || -1;
-    if (hoursUntil > 0) {
-    //if (parseInt(timeUntil['hoursUntilNextCardDue']) > 0) {
-        return hoursUntil + ' hours'; //timeUntil['hoursUntilNextCardDue'] + ' hours';
-    } else if (minutesUntil > 0) { //parseInt(timeUntil['minutesUntilNextCardDue']) > 0) {
-        return minutesUntil + ' minutes'; //timeUntil['minutesUntilNextCardDue'] + ' minutes';
-    } else {
-        return 'under a minute';
-    }
-};
-
-
-reviews_ui.showNoCardsDue = function(canLearnMore, emptyQuery) {
-    reviews_beginReviewButton.set('disabled', true);
-    if (!reviews_ui.reviewOptionsDialog.get('open')) {
-        //reviews_ui.reviewOptionsDialog.show();
-        reviews_ui.openDialog();
-    }
-
-    reviews_ui._showNoCardsDue();
-
-    if (!canLearnMore && emptyQuery) {
-        reviews_beginEarlyReviewButton.set('disabled', true);
-        dojo.byId('reviews_emptyQuery').style.display = '';
-    } else {
-        reviews.timeUntilNextCardDue(reviews_ui.lastSessionArgs.deckId, reviews_ui.lastSessionArgs.tag_id).addCallback(function(hoursUntil) {
-            if (hoursUntil > 24) {
-                reviews.nextCardDueAt().addCallback(function(next_due_at) {
-                    dojo.byId('reviews_noCardsDueNextDueAt').innerHTML = 'The next card is due at: ' + next_due_at;
-                    dojo.byId('reviews_noCardsDue').style.display = '';
-                });
-            } else {
-                dojo.byId('reviews_noCardsDueNextDueAt').innerHTML = 'The next card is due in ' + reviews_ui._humanizeDuration(hoursUntil);
-                dojo.byId('reviews_noCardsDue').style.display = '';
-            }
-        });
-        dojo.byId('reviews_learnMoreContainer').style.display = canLearnMore ? '' : 'none';
-        reviews_learnMoreButton.set('disabled', !canLearnMore);
-        reviews_beginEarlyReviewButton.set('disabled', false);
-    }
-
-};
 
 reviews_ui.showReviewOptions = function() {
     //FIXME temp fix dojo.byId('reviews_beginReview').style.display = '';
@@ -158,23 +63,6 @@ reviews_ui.openSessionOverDialog = function() {
     var sessionOverDialog = new reviews.SessionOverDialog({ session: this.session });
     sessionOverDialog.startup();
     sessionOverDialog.show();
-    // get the # due tomorrow to display
-    /*reviews.countOfCardsDueTomorrow(reviews_ui.lastSessionArgs.deckId).addCallback(dojo.hitch(this, function(count) {
-        if (count === 0) {
-            // None due by this time tomorrow, so we'll get the time when one
-            // is next due.
-            reviews.timeUntilNextCardDue(reviews_ui.lastSessionArgs.deckId, reviews_ui.lastSessionArgs.tag_id).addCallback(dojo.hitch(this, function(hoursUntil) {
-                dojo.byId('reviews_sessionOverDialogNextDue').innerHTML = 'The next card is due in ' + reviews_ui._humanizeDuration(hoursUntil);
-                dojo.byId('reviews_sessionOverDialogReviewCount').innerHTML = reviewCount;
-                sessionOverDialog.show();
-            }));
-        } else {
-            dojo.byId('reviews_sessionOverDialogNextDue').innerHTML = 'At this time tomorrow, there will be ' + count + ' cards due for review.';
-            dojo.byId('reviews_sessionOverDialogReviewCount').innerHTML = reviewCount;
-            sessionOverDialog.show();
-        }
-    });*/
-
 };
 
 
@@ -209,9 +97,9 @@ reviews_ui.displayNextIntervals = function(card) {
     //FIXME but only for young card failures - mature cards should have an interval shown
     var now = new Date();
     dojo.byId('reviews_gradeNoneInterval').innerHTML = 'Review soon';
-    dojo.byId('reviews_gradeHardInterval').innerHTML = reviews_ui.humanizedInterval(card.nextDueAt(3) - now);
-    dojo.byId('reviews_gradeGoodInterval').innerHTML = reviews_ui.humanizedInterval(card.nextDueAt(4) - now);
-    dojo.byId('reviews_gradeEasyInterval').innerHTML = reviews_ui.humanizedInterval(card.nextDueAt(5) - now);
+    dojo.byId('reviews_gradeHardInterval').innerHTML = card.humanizedNextInterval(reviews.grade.GRADE_HARD);
+    dojo.byId('reviews_gradeGoodInterval').innerHTML = card.humanizedNextInterval(reviews.grade.GRADE_GOOD);
+    dojo.byId('reviews_gradeEasyInterval').innerHTML = card.humanizedNextInterval(reviews.grade.GRADE_EASY);
 };
 
 
@@ -307,11 +195,11 @@ reviews_ui.reviewCard = function(card, grade) {
 
     var questionDuration = this.session.currentCardQuestionDuration;
     var duration = this.session.currentCardDuration;
-    console.log('durations:');
-    console.log(questionDuration);
-    console.log(duration);
-    console.log(this.session);
 
+    //console.log('durations:');
+    //console.log(questionDuration);
+    //console.log(duration);
+    //console.log(this.session);
 
     card.review(grade, duration, questionDuration).then(function(data) {
         // Enable the Undo button (maybe should do this before the def?)
@@ -344,9 +232,9 @@ reviews_ui.undo = function() {
     // disable review UI until the undo operation is finished
     reviews_ui._disableReviewScreenUI();
 
-    var undo_def = reviews_ui.session.undo();
+    var undoDef = reviews_ui.session.undo();
 
-    undo_def.addCallback(function() {
+    undoDef.addCallback(function() {
         // Show the next card, now that the cache is cleared.
         // Also show its back.
         reviews_ui.goToNextCard();
@@ -494,7 +382,8 @@ reviews_ui.startSession = function(args) { //deckId, sessionTimeLimit, sessionCa
         timeLimit: args.sessionTimeLimit||10,
         tagId: args.tag_id||null,//'-1',
         earlyReview: args.earlyReview||false, 
-        learnMore: args.learnMore||false 
+        learnMore: args.learnMore||false,
+        nextCardsForReviewUrl: '{% url api-next_cards_for_review %}';
     };
 
     reviews_ui.session = new reviews.Session(sessionArgs);
@@ -531,7 +420,8 @@ reviews_ui.startSession = function(args) { //deckId, sessionTimeLimit, sessionCa
                 // ! canLearnMore = initialCardPrefetch.new_cards_left > 0; //TODO better api for this
                 // ! emptyQuery = initialCardPrefetch.total_card_count_for_query <= 0;
                 // ! reviews_ui.showNoCardsDue(canLearnMore, emptyQuery);
-                reviews_ui.showNoCardsDue(false, false); //FIXME do we need this dialog anymore, or just show some error
+                
+                //reviews_ui.showNoCardsDue(false, false); //FIXME do we need this dialog anymore, or just show some error
             }
         }, initialCardPrefetch));
     });
