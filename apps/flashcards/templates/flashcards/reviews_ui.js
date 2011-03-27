@@ -183,34 +183,13 @@ reviews_ui.showCardBack = function(card) {
 };
 
 
-reviews_ui.reviewCard = function(card, grade) {
-    // First get the duration we recorded when the user was looking 
-    // at the front side of the card, before viewing the answer.
-    // We are going to store this value alongside the review grade, so we
-    // need it now.
-    //TODO refactor this into reviews module... _ui shouldnt need to know about currentCard etc
-    
-    // Stop the card timer
-    reviews_ui.session.stopCardTimer();
-
-    var questionDuration = this.session.currentCardQuestionDuration;
-    var duration = this.session.currentCardDuration;
-
-    //console.log('durations:');
-    //console.log(questionDuration);
-    //console.log(duration);
-    //console.log(this.session);
-
-    card.review(grade, duration, questionDuration).then(function(data) {
+reviews_ui.reviewCard = function(grade) {
+    reviews_ui.session.reviewCurrentCard(grade).then(function(data) {
         // Enable the Undo button (maybe should do this before the def?)
         reviews_undoReviewButton.set('disabled', false);
         //FIXME anything go here?
     });
     reviews_ui.goToNextCard();
-    if (grade == reviews.grades.GRADE_NONE) {
-        //failed cards will be reshown
-        reviews_ui.session.failsSincePrefetchRequest += 1;
-    }
 };
 
 
@@ -393,7 +372,7 @@ reviews_ui.startSession = function(args) { //deckId, sessionTimeLimit, sessionCa
     reviews_ui.lastSessionArgs = dojo.clone(args);
 
     //start a review session with the server
-    var session_def = reviews_ui.session.startSession(sessionArgs);
+    var session_def = reviews_ui.session.startSession();
 
     reviews_ui._subscribeToSessionEvents();
 

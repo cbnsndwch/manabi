@@ -271,7 +271,7 @@
       }
       factAddFormSubmitButton.set('disabled', false);
     }, factAddForm, null, true);
-  }
+  };
   
     //connect to Add Fact form submit
     dojo.addOnLoad(function() {

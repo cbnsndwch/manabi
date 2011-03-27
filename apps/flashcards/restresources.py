@@ -27,6 +27,12 @@ class DeckResource(RestModelResource):
 
         return data
 
+class CardReviewsResource(RestResource):
+    def __init__(self, card):
+        self.card = card
+
+    def get_url_path(self):
+        return reverse('rest-card_reviews', args=[self.card.obj.id])
 
 class CardResource(RestModelResource):
     fields = ('id', 'fact_id', 'ease_factor', 'interval', 'due_at',
@@ -44,7 +50,9 @@ class CardResource(RestModelResource):
             'next_due_at_per_grade':
                 dict((grade, rep.due_at)
                      for (grade, rep)
-                     in self.obj.next_repetition_per_grade().items())
+                     in self.obj.next_repetition_per_grade().items()),
+
+            'reviews_url': CardReviewsResource(self).get_url()
         })
         return data
 
