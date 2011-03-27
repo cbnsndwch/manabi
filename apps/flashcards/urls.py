@@ -124,6 +124,11 @@ rest_api_urlpatterns = patterns('',
 
     url(r'^next-cards-for-review/$', NextCardsForReview.as_view(),
         name='rest-next_cards_for_review'),
+    url(r'^next-cards-for-review/undo-stack/$', ReviewUndo.as_view(),
+        name='rest-review_undo_stack'),
+
+    url(r'^cards/(?P<pk>\d+)/reviews/', CardReviews.as_view(),
+        name='rest-card_reviews'),
 )
 
 

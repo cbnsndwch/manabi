@@ -7,6 +7,17 @@ dojo.provide('reviews.Session');
 //dojo.require('manabi');
 
 
+dojo.require('dojo._base.xhr');
+dojo.require('dojo.DeferredList');
+dojo.require('dojox.timing');
+
+//Ti.API.info('-----------!!!!!!!!!!!!!PW OBJ:');Ti.API.info(Mi.REST.defaultXhrArgs);
+
+var mixinDefaultXhrArgs = function(args) { //Ti.API.info('mixinDefaultXhrArgs'); //Ti.API.info(dojo.mixin(Mi.REST.defaultXhrArgs, args));
+    return dojo.mixin(Mi.REST.defaultXhrArgs, args);
+};
+
+
 reviews.grades = { GRADE_NONE: 0, GRADE_HARD: 3, GRADE_GOOD: 4, GRADE_EASY: 5 };
 
 reviews.subscriptionNames = {
@@ -21,6 +32,7 @@ reviews.subscriptionNames = {
 dojo.declare('reviews.Card', null, {
     constructor: function(jsonCard, session) {
         /* `json_card` is the JSON object representing a card from Django.*/
+
         dojo.safeMixin(this, jsonCard);
         this.session = session;
         this.lastReviewGrade = null;
@@ -34,28 +46,17 @@ dojo.declare('reviews.Card', null, {
     humanizedNextInterval: function(grade) {
         // Returns a humanized string of `nextDueAt(grade) - (new Date())`
         return this._humanizedInterval(this.nextDueAt(grade) - (new Date()));
-    }
-
-    /*stats: function() {
-        // Retrieves general stats about this card, and returns them 
-        // as a hash object.
-        xhrArgs = {
-            url: '/flashcards/api/'
-        };
-    },*/
+    },
 
     suspend: function() {
         // Suspends this and sibling cards.
-        xhrArgs = {
+        xhrArgs = mixinDefaultXhrArgs({
             url: '/flashcards/internal-api/facts/' + this.factId + '/suspend/',
             handleAs: 'json',
             load: dojo.hitch(this, function(data) {
-                if (data.success) {
-                } else {
-                    //FIXME try again on failure, or something
-                }
             })
-        };
+            //FIXME try again on failure, or something
+        });
         return dojo.xhrPost(xhrArgs);
     },
 
@@ -65,20 +66,18 @@ dojo.declare('reviews.Card', null, {
         var duration = typeof duration === 'undefined' ? null : duration;
         var questionDuration = typeof questionDuration === 'undefined' ? null : questionDuration;
 
-        xhrArgs = {
-            url: '{% url api-cards %}' + this.id + '/',
+        xhrArgs = mixinDefaultXhrArgs({
+            //url: '{% url api-cards %}' + this.id + '/',
+            url: this.reviews_url,
             content: { grade: grade, duration: duration, questionDuration: questionDuration },
             handleAs: 'json',
             load: dojo.hitch(this, function(data) {
-                if (data.success) {
-                    // The XHR req was successful for reviewing this card...
-                    // so remove the card from the pending-XHR queue.
-                    this.session.cardsReviewedPending.splice(this.session.cardsReviewedPending.lastIndexOf(this.id), 1);
-                } else {
-                    //FIXME try again on failure, or something
-                }
+                // The XHR req was successful for reviewing this card...
+                // so remove the card from the pending-XHR queue.
+                this.session.cardsReviewedPending.splice(this.session.cardsReviewedPending.lastIndexOf(this.id), 1);
             })
-        };
+            //FIXME try again on failure, or something
+        });
 
         //start sending the review in ASAP
         var def = dojo.xhrPost(xhrArgs);
@@ -131,8 +130,6 @@ dojo.declare('reviews.Card', null, {
 
 
 dojo.declare('reviews.Session', null, {
-    cards: [],
-
     //this is for cards that are reviewed, and have been submitted to the server
     //without a response yet.
     //It's a list of card IDs.
@@ -161,16 +158,21 @@ dojo.declare('reviews.Session', null, {
         //
         // Requires these arguments:
         //   deckId, dailyNewCardLimit, cardLimit, timeLimit, tagId, earlyReview, learnMore
-        // Also requires a `nextCardsForReviewUrl` argument.
+        // Also requires these arguments:
+        //     `nextCardsForReviewUrl`
+        //     `undoStackUrl`
         dojo.safeMixin(this, args);
 
+
         // Initialize non-primitive props
+        this.cards = [];
         this.currentCard = null;
         this._prevCard = null;
         this.timer = null;
         this._endTime = null;
         this._resetQuestionTimer();
         this._resetCardTimer();
+
 
         this.cardsReviewedPending = [];
         this.cardsReviewedPendingDef = []; //contains the Deferred objects for each pending review
@@ -191,18 +193,23 @@ dojo.declare('reviews.Session', null, {
         // Always call this before doing anything else.
         // Returns a deferred.
 
+        Ti.API.info('startSession()');
         // Reset the review undo stack on the server.
         var def = new dojo.Deferred();
-        reviews._simpleXHRPost('{% url api-reset_review_undo_stack %}').addCallback(dojo.hitch(this, function(def) {
-            var prefetchDef = this.prefetchCards(this.cardBufferSize * 2, true);
+        //reviews._simpleXHRPost('{% url api-reset_review_undo_stack %}').addCallback(dojo.hitch(this, function(def) {
+        dojo.xhrDelete(mixinDefaultXhrArgs({url: this.undoStackUrl})).then(dojo.hitch(this, function() { Ti.API.info('inside delete callback');
+    
+            this.prefetchCards(this.cardBufferSize * 2, true).then(dojo.hitch(this, function(prefetchItem) {
+                Ti.API.info('inside prefetchCards callback');
 
-            prefetchDef.addCallback(dojo.hitch(this, function(def, prefetch_item) {
                 //start session timer - a published event
                 this._startSessionTimer();
 
-                def.callback(prefetch_item);
-            }, def));
-        }, def));
+                Ti.API.info('calling back startSession callback');
+                //Ti.API.info(def);
+                def.callback(prefetchItem);
+            }), function(e){Ti.API.info('erroring out from card prefetch!');Ti.API.info(e);});
+        }));
 
         //TODO cleanup beforehand? precautionary..
         return def;
@@ -221,6 +228,38 @@ dojo.declare('reviews.Session', null, {
         this.cards = [];
         this.cardsReviewedPending = [];
         this.emptyPrefetchProducer = false;
+    },
+
+    reviewCurrentCard: function(grade) {
+        // First get the duration we recorded when the user was looking 
+        // at the front side of the card, before viewing the answer.
+        // We are going to store this value alongside the review grade, so we
+        // need it now.
+        //TODO refactor this into reviews module... _ui shouldnt need to know about currentCard etc
+       Ti.API.info('reviewCurrentCard 0'); 
+        var card = this.currentCard;
+       Ti.API.info('reviewCurrentCard 1'); 
+
+        // Stop the card timer
+        this.stopCardTimer();
+       Ti.API.info('reviewCurrentCard 2'); 
+
+        var questionDuration = this.currentCardQuestionDuration;
+        var duration = this.currentCardDuration;
+       Ti.API.info('reviewCurrentCard 3'); 
+
+        //console.log('durations:'); console.log(questionDuration); console.log(duration); console.log(this.session);
+
+        var ret = card.review(grade, duration, questionDuration);
+       Ti.API.info('reviewCurrentCard 4'); 
+
+        if (grade == reviews.grades.GRADE_NONE) {
+            // failed cards will be reshown
+            this.failsSincePrefetchRequest += 1;
+        }
+       Ti.API.info('reviewCurrentCard 5'); 
+
+        return ret;
     },
 
     cardsReviewedCount: function() {
@@ -334,7 +373,7 @@ dojo.declare('reviews.Session', null, {
         }
     },
 
-    prefetchCards: function(count, sessionStart) {
+    prefetchCards: function(count, sessionStart) { Ti.API.info('prefetchCards');
         // Get next cards from server, discounting those currently enqueued/pending.
         // Returns a deferred.
         this._prefetchInProgress = true;
@@ -342,14 +381,14 @@ dojo.declare('reviews.Session', null, {
         // Serialize the excluded id list.
         var excludedIds = [];
         dojo.forEach(this.cards, function(card, index) {
-                if (excludedIds.lastIndexOf(card.id) == -1) {
-                    excludedIds.push(card.id);
-                }
+            if (excludedIds.lastIndexOf(card.id) == -1) {
+                excludedIds.push(card.id);
+            }
         });
         dojo.forEach(this.cardsReviewedPending, function(cardId, index) {
-                if (excludedIds.lastIndexOf(cardId) == -1) {
-                    excludedIds.push(cardId);
-                }
+            if (excludedIds.lastIndexOf(cardId) == -1) {
+                excludedIds.push(cardId);
+            }
         });
 
         var url = this.nextCardsForReviewUrl;
@@ -361,52 +400,55 @@ dojo.declare('reviews.Session', null, {
         if (this.tagId != '-1' && this.tagId !== null) { query.tag = this.tagId; }
         if (this.earlyReview) { query.early_review = true; }
         if (this.learnMore) { query.learn_more = true; }
+        
 
-        var xhrArgs = {
+        var xhrArgs = mixinDefaultXhrArgs({
             url: url,
             content: query,
             handleAs: 'json',
             load: dojo.hitch(this, function(data) {
-                if (data.success) {
-                    //start the session timer if it hasn't already been started
-                    if (this.timer !== null) {
-                        if (!this.timer.isRunning) {
-                            this.timer.start();
-                        }
+                //start the session timer if it hasn't already been started
+                if (this.timer !== null) {
+                    if (!this.timer.isRunning) {
+                        this.timer.start();
                     }
-                    if (data.data.length > 0) {
-                        dojo.forEach(data.data, dojo.hitch(this, function(card) {
-                            //card = new reviews.Card(card);
-                            card = new reviews.Card(card, this);
-                            this.cards.push(card);
-                        }));
+                }
+                if (data.card_list.length > 0) {
+                    dojo.forEach(data.card_list, dojo.hitch(this, function(card) {
+                        //card = new reviews.Card(card);
+                        Ti.API.info('Creating card.');
+                        card = new reviews.Card(card, this);
+                        this.cards.push(card);
+                    }));
+                }
+                if (data.card_list.length < count) {
+                    //server has run out of cards for us
+                    if (this.failsSincePrefetchRequest === 0) {
+                        this.emptyPrefetchProducer = true;
                     }
-                    if (data.data.length < count) {
-                        //server has run out of cards for us
-                        if (this.failsSincePrefetchRequest === 0) {
-                            this.emptyPrefetchProducer = true;
-                        }
-                    }
-                } else {
-                    //error //FIXME it should redo the request
                 }
                 this._prefetchInProgress = false;
             })
-        };
+            //on error //TODO it should redo the request
+        });
 
         this.failsSincePrefetchRequest = 0;
 
+        Ti.API.info('finishing prefetchCards');
         return dojo.xhrGet(xhrArgs);
     },
 
     _startSessionTimer: function() {
+        Ti.API.info('_startSessionTimer');
         if (this.timer) {
             this.timer.stop();
             delete this.timer;
         }
+        Ti.API.info('_startSessionTimer');
         this._startTime = new Date();
         this.timer = new dojox.timing.Timer();
         this.timer.setInterval(this._sessionTimerInterval); //in ms
+        Ti.API.info('_startSessionTimer');
 
         this.timer.onTick = dojo.hitch(this, function() {
 
@@ -424,6 +466,7 @@ dojo.declare('reviews.Session', null, {
                 }]);
             }
         });
+        Ti.API.info('_startSessionTimer end');
     },
 
     _stopSessionTimer: function() {
@@ -443,6 +486,7 @@ dojo.declare('reviews.Session', null, {
     },
 
     _nextCard: function() {
+        Ti.API.info('_nextCard');
         //assumes we already have a non-empty card queue, and returns the next card.
         card = this.cards.shift();
         this.cardsReviewedPending.push(card.id);
@@ -452,16 +496,20 @@ dojo.declare('reviews.Session', null, {
         this._resetQuestionTimer();
         this._resetCardTimer();
 
+        Ti.API.info('_nextCard finished');
         return card;
     },
 
     nextCard: function() {
+        Ti.API.info('nextCard');
         //Returns a deferred.
 
         //TODO -?-(done?)dont prefetch more cards if a prefetch is already in progress
         var nextCardDef = new dojo.Deferred();
 
+        Ti.API.info('nextCard length: '+this.cards.length);
         if (this.cards.length > 0) {
+            Ti.API.info('nextCard calling back');
             nextCardDef.callback(this._nextCard());
 
             //prefetch more cards if the buffer runs low
@@ -472,6 +520,7 @@ dojo.declare('reviews.Session', null, {
             }
 
         } else {
+            Ti.API.info('nextCard length == 0');
             if (!this.emptyPrefetchProducer && !this._prefetchInProgress) {
                 //out of cards, need to fetch more
                 var prefetchDef = this.prefetchCards(this.cardBufferSize * 2, false);
@@ -486,33 +535,34 @@ dojo.declare('reviews.Session', null, {
                 nextCardDef.callback(null);
             }
         }
-
+        Ti.API.info('nextCard finished');
         return nextCardDef;
     },
 
     reloadCurrentCard: function() {
         //TODO refresh the card inside this.cards, instead of just setting current_cards
-        var xhrArgs = {
+        var xhrArgs = mixinDefaultXhrArgs({
             url: '{% url api-cards %}/' + this.currentCard.id + '/',
             handleAs: 'json',
             load: dojo.hitch(this, function(data) {
-                if (data.success) {
-                    this._prevCard = this.currentCard;
-                    this.currentCard = new reviews.Card(data.card, this);
-                }
+                this._prevCard = this.currentCard;
+                this.currentCard = new reviews.Card(data.card, this);
             })
-        };
+        });
         return dojo.xhrGet(xhrArgs);
     },
 
     _resetCardBuffer: function() {
         // Resets the card cache, as well as the "currentCard"
 
+        Ti.API.info('_resetCardBuffer 0');
         // Clear cache
         this.cardsReviewedPending.splice(this.cardsReviewedPending.lastIndexOf(this.currentCard.id), 1);
+        Ti.API.info('_resetCardBuffer 1');
         this.cards = [];
         this._prevCard = null;
         this.currentCard = null;
+        Ti.API.info('_resetCardBuffer 2');
 
         // Refill it
         return this.prefetchCards(this.cardBufferSize * 2, true);
@@ -525,119 +575,35 @@ dojo.declare('reviews.Session', null, {
         // Wait until the card review submission queue is clear before issuing the
         // undo, so that we don't accidentally undo earlier than intended.
         var review_defs = new dojo.DeferredList(this.cardsReviewedPendingDef);
-        var undo_def = new dojo.Deferred();
-        review_defs.addCallback(dojo.hitch(this, function(undo_def) {
+        var undoDef = new dojo.Deferred();
+        review_defs.addCallback(dojo.hitch(this, function() {
+        Ti.API.info('undo 0');
             // Send undo request
-            var actual_undo_def = reviews._simpleXHRPost('{% url api-undo_review %}');
+            //var actual_undo_def = reviews._simpleXHRPost('{% url api-undo_review %}');
+            //var actual_undo_def = reviews._simpleXHRPost('{% url api-undo_review %}');
             
-            // Clear and refill card cache
-            actual_undo_def.addCallback(dojo.hitch(this, function(undo_def) {
+            //actual_undo_def.addCallback(dojo.hitch(this, function(undoDef) {
+
+            dojo.xhrPost(mixinDefaultXhrArgs({url: this.undoStackUrl})).then(dojo.hitch(this, function() {
+        Ti.API.info('undo 1');
+                // Clear and refill card cache
                 // undo our record-keeping
-                console.log('prevcard:');
-                console.log(this._prevCard);
+                //console.log('prevcard:');
+                //console.log(this._prevCard);
                 this.reviewCount -= 1;
                 this.reviewCountPerGrade[this._prevCard.lastReviewGrade]--;
                 this.reviewedCardIds.splice(this.reviewedCardIds.indexOf(this._prevCard.id), 1);
 
-                this._resetCardBuffer().then(dojo.hitch(this, function(undo_def) {
-                    undo_def.callback();
-                }, undo_def));
-            }, undo_def));
-        }, undo_def));
-        return undo_def;
+                this._resetCardBuffer().then(dojo.hitch(this, function() {
+        Ti.API.info('undo 3 callbackin');
+                    undoDef.callback();
+                }), function(e){Ti.API.info('reset error backin!');Ti.API.info(e);});
+            }));
+        Ti.API.info('undo 2');
+        }));
+        return undoDef;
     },
 });
-
-
-
-
-
-
-
-
-
-
-
-reviews._simpleXHRPost = function(url) {
-    var def = new dojo.Deferred();
-
-    var xhrArgs = {
-        url: url,
-        handleAs: 'json',
-        load: dojo.hitch(this, function(def, data) {
-            if (data.success) {
-                def.callback();
-                //TODO return the data to the deferred
-            } else {
-                //TODO error handling (do a failure callback)
-            }
-        }, def)
-    };
-    dojo.xhrPost(xhrArgs);
-
-    return def;
-};
-
-
-//reviews._simpleXHRValueFetch = function(url, valueName) {
-//    // valueName is optional
-//    var def = new dojo.Deferred();
-
-//    var xhrArgs = {
-//        url: url,
-//        handleAs: 'json',
-//        load: dojo.hitch(this, function(def, data) {
-//            if (data.success) {
-//                if (typeof valueName == 'undefined') {
-//                    def.callback(data.data);
-//                } else {
-//                    def.callback(data.data[valueName]);
-//                }
-//            } else {
-//                //TODO error handling (do a failure callback)
-//            }
-//        }, def)
-//    };
-//    dojo.xhrGet(xhrArgs);
-
-//    return def;
-//};
-
-//reviews.dueCardCount = function() {
-//    return reviews._simpleXHRValueFetch('{% url api-due_card_count %}');
-//};
-
-//reviews.newCardCount = function() {
-//    return reviews._simpleXHRValueFetch('{% url api-new_card_count %}');
-//};
-
-//reviews.nextCardDueAt = function() {
-//    return reviews._simpleXHRValueFetch('{% url api-next_card_due_at %}');
-//};
-
-//reviews.timeUntilNextCardDue = function(deck, tags) {
-    //// Returns a float of the hours until the next card is due.
-    //var args = {};
-    //args.deck = deck || null;
-    //args.tags = tags || null;
-    //var query = dojo.objectToQuery(args);
-    //var url = '{% url api-hours_until_next_card_due %}';
-    //if (query) {
-        //url += '?' + query;
-    //}
-    //return parseInt(reviews._simpleXHRValueFetch(url), 10);
-////   return {hours: data['hoursUntilNextCardDue'], minutes: data['minutesUntilNextCardDue']};
-//};
-
-//reviews.countOfCardsDueTomorrow = function(deck) {
-//    var url = '{% url api-due_tomorrow_count %}';
-//    //TODO use dojo's url params api
-//    if (typeof deck != 'undefined' && deck) {
-//        url += '?deck='+deck;
-//    }
-//    return reviews._simpleXHRValueFetch(url);
-//};
-
 
 
 

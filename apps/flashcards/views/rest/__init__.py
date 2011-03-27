@@ -20,6 +20,7 @@ from flashcards.forms import DeckForm, FactForm, FieldContentForm, CardForm
 #from flashcards.models import FieldContent, Card
 from flashcards import models
 from flashcards.models import Card
+from flashcards.models.undo import UndoCardReview
 from flashcards.models.constants import MAX_NEW_CARD_ORDINAL
 from catnap.django_urls import absolute_reverse as reverse
 from flashcards.views.decorators import has_card_query_filters
@@ -84,7 +85,7 @@ class EntryPoint(ManabiRestView):
             'shared_deck_list_url': reverse('rest-shared_deck_list'),
             'next_cards_for_review_url': reverse(
                     'rest-next_cards_for_review'),
-            #'users': reverse('rest-users'),
+            'review_undo_stack_url': reverse('rest-review_undo_stack'),
         }
         return self.render_to_response(context)
 
@@ -240,10 +241,54 @@ class NextCardsForReview(CardQueryFiltersMixin, ManabiRestView):
         #FIXME need to account for 0 cards returned 
 
         # Assemble a list of the cards to be serialized.
-        return self.render_to_response(
-                [CardResource(card).get_data() for card in next_cards])
+        return self.render_to_response({
+            'card_list':
+                [CardResource(card).get_data() for card in next_cards]
+        })
 
 
+class CardReviews(ManabiRestView):
+    '''
+    Currently a write-only resource for review operations.
+    '''
+    content_subtype = 'CardReview'
+    
+    def post(self, request, **kwargs):
+        # `duration` is in seconds (the time taken from viewing the card 
+        # to clicking Show Answer).
+        params = clean_query(request.POST, {
+            'grade': int,
+            'duration': float,
+            'questionDuration': float
+        })
+
+        card = get_object_or_404(Card, pk=self.kwargs.get('pk')) 
+
+        if card.owner != request.user:
+            raise PermissionDenied('You do not own this flashcard.')
+
+        card.review(
+            params['grade'],
+            duration=params.get('duration'),
+            question_duration=params.get('questionDuration'))
+
+        return self.responses.no_content()
+
+
+
+
+class ReviewUndo(ManabiRestView):
+    '''
+    Undo stack for card reviews.
+    A write (POST) or delete-only resource, at the moment.
+    '''
+    def post(self, request):
+        UndoCardReview.objects.undo(request.user)
+        return self.responses.no_content()
+
+    def delete(self, request):
+        UndoCardReview.objects.reset(request.user)
+        return self.responses.no_content()
 
 
 

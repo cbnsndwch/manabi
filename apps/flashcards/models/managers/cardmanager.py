@@ -232,7 +232,7 @@ class SchedulerMixin(object):
             self._next_not_failed_due_cards,    # due, not failed
             self._next_failed_not_due_cards]    # failed, not due
 
-        if early_review and daily_new_card_limit:
+        if early_review and daily_new_card_limit != 0:
             card_funcs.extend([
                 self._next_due_soon_cards,
                 # due soon, not yet, but next in the future

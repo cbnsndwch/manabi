@@ -1,6 +1,6 @@
 
-#LIST_DELIMITER = u'+'
-LIST_DELIMITER = u' '
+LIST_DELIMITER = u'+'
+#LIST_DELIMITER = u' '
 
 
 def clean_query(query_params, structure):
