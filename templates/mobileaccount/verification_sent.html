@@ -1,0 +1,19 @@
+{% extends "mobile_base.html" %}
+
+{% load i18n %}
+
+{% block head_title %}{% trans "Verify your e-mail address" %}{% endblock %}
+
+
+{% block extra_head %}
+{% endblock %}
+
+{% block body %}
+    <h1>{% trans "Verify your e-mail address" %}</h1>
+    
+    <p>{% blocktrans %}We have sent you an e-mail to <b>{{ email }}</b> for verification. Please check your email and follow the link provided to finalize the signup process. If you do not receive it within a few minutes, contact us at <a href="mailto:{{ CONTACT_EMAIL }}">{{ CONTACT_EMAIL }}</a>.{% endblocktrans %}</p>
+    <p>After you verify your address, please re-open Manabi.</p>
+
+{% endblock %}
+
+

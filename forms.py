@@ -3,7 +3,26 @@ from timezones.forms import TimeZoneField
 from django.utils.translation import ugettext_lazy as _, ugettext
 from django import forms
 
+ios_attrs = {
+    'autocapitalize': 'off',
+    'autocorrect': 'off'
+}
+
 class SignupForm(PinaxSignupForm):
+    username = forms.CharField(
+        label = _("Username"),
+        max_length = 30,
+        widget = forms.TextInput(attrs=ios_attrs)
+    )
+    password1 = forms.CharField(
+        label = _("Password"),
+        widget = forms.PasswordInput(render_value=False, attrs=ios_attrs)
+    )
+    password2 = forms.CharField(
+        label = _("Password (again)"),
+        widget = forms.PasswordInput(render_value=False, attrs=ios_attrs)
+    )
+    email = forms.EmailField(widget=forms.TextInput(attrs=ios_attrs))
     timezone = TimeZoneField(label=_("Timezone"), required=True, initial='America/New_York')
 
 #class OpenIDSignupForm(PinaxOpenIDSignupForm):

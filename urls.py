@@ -23,9 +23,20 @@ urlpatterns = patterns('',
     # Use our customized form
     url(r'^account/signup/$', signup_view,
         name="acct_signup", kwargs={'form_class': SignupForm}), 
+
+
+    url(r'^account/confirm_email/(\w+)/$', 'mobileaccount.views.confirm_email_proxy', name='acct_confirm_email'),
+    #url(r'^account/confirm_email/(\w+)/$', 'emailconfirmation.views.confirm_email', name='acct_confirm_email'),
+
     (r'^account/', include('account.urls')),
     (r'^admin/', include(admin.site.urls)),
 
+    (r'^mobile-account/', include('mobileaccount.urls')),
+
+    url(r'^terms-of-service/$', direct_to_template,
+        {'template': 'tos.html'}, name='terms_of_service'),
+    url(r'^privacy-policy/$', direct_to_template,
+        {'template': 'privacy.html'}, name='privacy_policy'),
 
     url(r'^flashcards/api/', include(rest_api_urlpatterns)),
 
@@ -36,10 +47,6 @@ urlpatterns = patterns('',
     url(r'^$', 'views.index', name='home'),
 
     url(r'^home/$', 'views.home', name='home_inline'),
-    url(r'^terms-of-service/$', direct_to_template,
-        {'template': 'tos.html'}, name='terms_of_service'),
-    url(r'^privacy-policy/$', direct_to_template,
-        {'template': 'privacy.html'}, name='privacy_policy'),
     
     #url(r'^admin/invite_user/$', 'signup_codes.views.admin_invite_user',
         #name="admin_invite_user"),
