@@ -10,7 +10,6 @@ from django.forms.models import modelformset_factory, formset_factory
 from django.http import Http404, HttpResponseRedirect, HttpResponse
 from django.shortcuts import get_object_or_404, render_to_response
 from django.template import RequestContext, loader
-from django.template.loader import render_to_string
 from django.views.generic.create_update import (
         update_object, delete_object, create_object)
 from dojango.decorators import json_response
@@ -51,7 +50,8 @@ class ManabiRestView(JsonEmitterMixin, AutoContentTypeMixin, RestView):
 class CardQueryFiltersMixin(object):
     def get_deck(self):
         if self.request.GET.get('deck'):
-            return get_object_or_404(Deck, pk=self.request.GET['deck'])
+            return get_object_or_404(
+                    models.Deck, pk=self.request.GET['deck'])
 
     def get_tags(self):
         try:
@@ -75,6 +75,8 @@ class EntryPoint(ManabiRestView):
     Entry-point to our REST API.
     This view's URL is the only one that clients should need to know,
     and the only one that should be documented in the API!
+
+    Also includes some fields for reviewing all decks at once.
     '''
     def get(self, request):
         '''
@@ -87,6 +89,7 @@ class EntryPoint(ManabiRestView):
                     'rest-next_cards_for_review'),
             'review_undo_stack_url': reverse('rest-review_undo_stack'),
         }
+        context.update(review_start_context(self.request))
         return self.render_to_response(context)
 
 
@@ -139,9 +142,6 @@ class Deck(DeletionMixin, DetailView, ManabiRestView):
         # add the review-related data.
         if context['owned_by_current_user']:
             context.update(review_start_context(self.request, deck))
-
-            context['next_card_due_at_message'] = render_to_string(
-                    'flashcards/_next_card_due_at.txt', context).strip()
         else:
             context['subscription_url'] = reverse(
                     'rest-deck_subscription', args=[deck.id])

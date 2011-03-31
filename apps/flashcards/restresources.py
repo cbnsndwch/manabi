@@ -14,7 +14,7 @@ class UserResource(RestModelResource):
 
 
 class DeckResource(RestModelResource):
-    fields = ('name', 'description', 'owner',
+    fields = ('id', 'name', 'description', 'owner',
               'shared', 'shared_at', 'created_at', 'modified_at',)
 
     def get_url_path(self):

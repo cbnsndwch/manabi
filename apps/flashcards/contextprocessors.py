@@ -4,6 +4,7 @@ from flashcards.models import FactType, Fact, Deck, CardTemplate, \
     GRADE_NONE, GRADE_HARD, GRADE_GOOD, GRADE_EASY, \
     SchedulingOptions
 
+from django.template.loader import render_to_string
 import datetime
 
 
@@ -77,6 +78,8 @@ def review_start_context(request, deck=None):
             and card_count != new_card_count),
         'count_of_cards_due_tomorrow': Card.objects.count_of_cards_due_tomorrow(request.user, deck=deck),
     }
+    context['next_card_due_at_message'] = render_to_string(
+            'flashcards/_next_card_due_at.txt', context).strip()
 
 
     #spaced_new_card_count = Card.objects.next_cards_count(request.user, deck=deck, new_cards_only=True)
