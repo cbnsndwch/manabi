@@ -122,6 +122,9 @@ rest_api_urlpatterns = patterns('',
     url(r'^decks/(?P<pk>\d+)/$', Deck.as_view(),
         name='rest-deck'),
 
+    url(r'^decks/all/$', AllDecks.as_view(),
+        name='rest-all_decks'),
+
     url(r'^next-cards-for-review/$', NextCardsForReview.as_view(),
         name='rest-next_cards_for_review'),
     url(r'^next-cards-for-review/undo-stack/$', ReviewUndo.as_view(),

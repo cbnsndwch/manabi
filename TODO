@@ -28,6 +28,8 @@ these are nice buttons! http://cubiq.org/iscroll use their css
 ------------
 slogans, wording, etc that help explain the site
 
+something like "manabuzo!" tagline thing in some intro doc
+
 Never forget to remember.
 "Forget about forgetting" -- supermemo
 the science of flashcards - have a page about the psychological bases
@@ -67,8 +69,9 @@ colors for graph http://getcharmed.com/
 
 brand new refactor todo
 ---------
+BUG: when you first add a deck, you don't see it as your own immediately.
+
 BUG: suspended cards are showing up in reviews (fixed?)
-BUG: suspended cards arent grayed out in grid
 
 BUG: deck card count is inaccurate for synchronized deck which the (subscriber) user has added cards to
 

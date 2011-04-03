@@ -217,7 +217,7 @@ def card_stats(request, card_id):
     '''
     card = get_object_or_404(Card, pk=card_id)
 
-    if card.owner != request.user:
+    if not card.deck.shared and card.owner != request.user:
         raise PermissionDenied('You do not own this flashcard.')
 
     context = {

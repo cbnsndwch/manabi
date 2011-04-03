@@ -97,9 +97,9 @@ reviews_ui.displayNextIntervals = function(card) {
     //FIXME but only for young card failures - mature cards should have an interval shown
     var now = new Date();
     dojo.byId('reviews_gradeNoneInterval').innerHTML = 'Review soon';
-    dojo.byId('reviews_gradeHardInterval').innerHTML = card.humanizedNextInterval(reviews.grade.GRADE_HARD);
-    dojo.byId('reviews_gradeGoodInterval').innerHTML = card.humanizedNextInterval(reviews.grade.GRADE_GOOD);
-    dojo.byId('reviews_gradeEasyInterval').innerHTML = card.humanizedNextInterval(reviews.grade.GRADE_EASY);
+    dojo.byId('reviews_gradeHardInterval').innerHTML = card.humanizedNextInterval(reviews.grades.GRADE_HARD);
+    dojo.byId('reviews_gradeGoodInterval').innerHTML = card.humanizedNextInterval(reviews.grades.GRADE_GOOD);
+    dojo.byId('reviews_gradeEasyInterval').innerHTML = card.humanizedNextInterval(reviews.grades.GRADE_EASY);
 };
 
 
@@ -362,7 +362,8 @@ reviews_ui.startSession = function(args) { //deckId, sessionTimeLimit, sessionCa
         tagId: args.tag_id||null,//'-1',
         earlyReview: args.earlyReview||false, 
         learnMore: args.learnMore||false,
-        nextCardsForReviewUrl: '{% url api-next_cards_for_review %}';
+        nextCardsForReviewUrl: '{% url rest-next_cards_for_review %}',
+        undoStackUrl: '{% url rest-review_undo_stack %}'
     };
 
     reviews_ui.session = new reviews.Session(sessionArgs);
@@ -379,8 +380,7 @@ reviews_ui.startSession = function(args) { //deckId, sessionTimeLimit, sessionCa
     //wait for the first cards to be returned from the server
     session_def.addCallback(function(initialCardPrefetch) {
         //show the first card
-        var nextCardDef = reviews_ui.session.nextCard();
-        nextCardDef.addCallback(dojo.hitch(null, function(initialCardPrefetch, nextCard) {
+        reviews_ui.session.nextCard().then(dojo.hitch(null, function(initialCardPrefetch, nextCard) {
             manabi_ui.hideLoader();
 
             if (nextCard) {

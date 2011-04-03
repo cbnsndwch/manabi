@@ -66,7 +66,7 @@
             {% if due_card_count > 0 %}
                 You have <strong>{{ due_card_count }}</strong> card{{ due_card_count|pluralize }} due for review.
             {% else %}
-                You have <strong>{{ new_card_count }}</strong> card{{ new_card_count|pluralize }} due for review.
+                You have <strong>{{ new_card_count }}</strong> card{{ new_card_count|pluralize }} ready for review.
             {% endif %}
             <div class="study_button_stats">{{ due_card_count }} urgent{% if new_card_count %}, plus {{ new_card_count }} more new card{{ new_card_count|pluralize }}{% endif %}.</div>
         </div>

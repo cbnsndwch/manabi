@@ -88,10 +88,20 @@ class EntryPoint(ManabiRestView):
             'next_cards_for_review_url': reverse(
                     'rest-next_cards_for_review'),
             'review_undo_stack_url': reverse('rest-review_undo_stack'),
+            'all_decks_url': reverse('rest-all_decks'),
         }
-        context.update(review_start_context(self.request))
         return self.render_to_response(context)
 
+
+class AllDecks(ManabiRestView):
+    def get(self, request):
+        context = review_start_context(self.request)
+        context['owned_by_current_user'] = True
+        return self.render_to_response(context)
+
+    def get_url(self):
+        return reverse('rest-all_decks')
+    
 
 class DeckList(ListView, ManabiRestView):
     '''
