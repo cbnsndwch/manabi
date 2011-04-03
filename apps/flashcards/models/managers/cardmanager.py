@@ -346,9 +346,9 @@ class CommonFiltersMixin(object):
         from flashcards.models.facts import Fact
 
         #TODO this is probably really slow
-        user_cards = self.filter(suspended=False, active=True)
         facts = Fact.objects.with_synchronized(user)
-        user_cards = self.filter(fact__in=facts)
+        user_cards = self.filter(
+                fact__deck__owner=user, fact__in=facts)
         return user_cards
 
     def with_tags(self, tags):
@@ -367,7 +367,7 @@ class CommonFiltersMixin(object):
 
     def common_filters(self, user,
             deck=None, tags=None, excluded_ids=None):
-        cards = self.of_user(user).unsuspended()
+        cards = self.of_user(user).unsuspended().filter(active=True)
         if deck:
             cards = cards.of_deck(deck)
         if excluded_ids:

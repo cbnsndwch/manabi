@@ -11,7 +11,7 @@ from django.contrib.auth.decorators import login_required
 from django.db import transaction
 from django.forms import forms
 from django.http import Http404, HttpResponseRedirect, HttpResponse
-from django.shortcuts import get_object_or_404, render_to_response
+from django.shortcuts import get_object_or_404, render_to_response, redirect
 from django.template import RequestContext, loader
 from django.views.generic.create_update import update_object, delete_object, create_object
 from django.views.generic.list_detail import object_list, object_detail
@@ -38,6 +38,12 @@ def add_decks(request):
 @login_required
 def deck_detail(request, deck_id=None):
     deck = get_object_or_404(Deck, pk=deck_id)
+
+    # Redirect if the user is already subscribed to this deck.
+    subscriber = deck.get_subscriber_deck_for_user(request.user)
+    if subscriber:
+        return redirect(subscriber.get_absolute_url())
+
     fact_tags = deck.fact_tags()
 
     detail_args = {

@@ -52,13 +52,16 @@
         {% endif %}
     </p>
 
-    <div class="mini_stats_container">
-        <div class="mini_stats_title">Deck Progress Summary</div>
-        {% deck_overview_stat_counts deck %}
-        {% deck_usage_history deck %}
-    </div>
-    <br>
-    <br>
+    {% if request.user == deck.owner %}
+        <div class="mini_stats_container">
+            <div class="mini_stats_title">Deck Progress Summary</div>
+            {% deck_overview_stat_counts deck %}
+            {% deck_usage_history deck %}
+        </div>
+        <br>
+        <br>
+    {% endif %}
+
     <hr>
     <p>
         <h3>Deck Contents</h3>

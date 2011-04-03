@@ -1,6 +1,8 @@
 dojo.provide('manabi');
+dojo.provide('Mi');
 dojo.provide('manabi_ui');
 
+Mi = manabi;
 
 /*manabi.xhrGet = function(args){
     // a wrapper for dojo.xhrGet,
