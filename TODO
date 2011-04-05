@@ -124,6 +124,8 @@ is there a good way to get new cards without knowing if a user has his own card 
 
 SUPER CRITICAL BUGS:
 --------------------
+the fullscreen spinner isn't always fullscreen if the page is scrolled down
+
 logout and go here:
 http://127.0.0.1:8000/#/flashcards/decks/1/
 add it. then, there are 3 big bugs!

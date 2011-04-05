@@ -190,7 +190,7 @@ def rest_facts(request, deck=None, tags=None):
 
             user = deck.owner if deck else request.user
 
-            facts = Fact.objects.with_synchronized(
+            facts = Fact.objects.with_upstream(
                 user, deck=deck, tags=tags).filter(active=True)
 
             #is the user searching his facts?

@@ -107,7 +107,7 @@ class Deck(models.Model):
         #return usertagging.models.Tag.objects.usage_for_queryset(
             #self.facts())
         from facts import Fact
-        deck_facts = Fact.objects.with_synchronized(
+        deck_facts = Fact.objects.with_upstream(
             self.owner, deck=self)
         return usertagging.models.Tag.objects.usage_for_queryset(
             deck_facts)

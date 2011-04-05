@@ -54,7 +54,7 @@ class FactManager(models.Manager):
         Includes tags on facts made on subscribed facts.
         '''
         #user_facts = self.filter(deck__owner=user) 
-        user_facts = self.with_synchronized(user)
+        user_facts = self.with_upstream(user)
         return usertagging.models.Tag.objects.usage_for_queryset(
             user_facts)
     
@@ -108,7 +108,7 @@ class FactManager(models.Manager):
         return fact
 
 
-    def with_synchronized(self, user, deck=None, tags=None):
+    def with_upstream(self, user, deck=None, tags=None):
         '''
         Returns a queryset of all active Facts which the user owns, or which 
         the user is subscribed to (via a subscribed deck).

@@ -41,15 +41,13 @@ def deck_usage_history(deck):
 
 
 def _overview_stat_counts(user, deck=None):
-    cards = Card.objects.of_user(user)
-
-    if deck:
-        cards = cards.of_deck(deck)
+    cards = Card.objects.common_filters(user,
+            deck=deck, with_upstream=True)
     
     context = {
         'total': cards.count(),
-        'young': cards.young().count(),
-        'mature': cards.mature().count(),
+        'young': cards.young(user).count(),
+        'mature': cards.mature(user).count(),
         'new': cards.new().count(),
     }
     return context
