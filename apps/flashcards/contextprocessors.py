@@ -64,7 +64,7 @@ def review_start_context(request, deck=None):
         with_upstream=True, deck=deck)
 
     due_card_count = cards.due(user).count()
-    new_card_count = cards.new().count()
+    new_card_count = cards.new(user).count()
 
     card_count = cards.count()
 
@@ -82,14 +82,13 @@ def review_start_context(request, deck=None):
             and card_count
             and unspaced_new_card_count == 0),
             #and card_count != new_card_count),
-        'count_of_cards_due_tomorrow': Card.objects.count_of_cards_due_tomorrow(request.user, deck=deck),
+        'count_of_cards_due_tomorrow': cards.count_of_cards_due_tomorrow(user),
         'unspaced_new_card_count': unspaced_new_card_count,
     }
     context['next_card_due_at_message'] = render_to_string(
             'flashcards/_next_card_due_at.txt', context).strip()
 
 
-    #'count_of_cards_due_tomorrow': Card.objects.count_of_cards_due_tomorrow(request.user, deck=deck),
     #'new_cards_left_for_today': new_cards_left_for_today,
 
     return context

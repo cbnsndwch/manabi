@@ -391,15 +391,16 @@ class CommonFiltersMixin(object):
             cards = cards.with_tags(tags)
         return cards
 
-    def new(self):
-        return self.filter(last_reviewed_at__isnull=True)
+    def new(self, user):
+        return self.filter(
+                last_reviewed_at__isnull=True).without_upstream()
     
     def young(self, user):
         return self.filter(
-            last_reviewed_at__isnull=False,
-            interval__isnull=False,
-            interval__lt=MATURE_INTERVAL_MIN
-            ).without_upstream(user)
+                last_reviewed_at__isnull=False,
+                interval__isnull=False,
+                interval__lt=MATURE_INTERVAL_MIN
+                ).without_upstream(user)
 
     def mature(self, user):
         return self.filter(interval__gte=MATURE_INTERVAL_MIN)
@@ -426,33 +427,38 @@ class CommonFiltersMixin(object):
         return due_cards.order_by('-interval')
 
 
-    def count_of_cards_due_tomorrow(self, user, deck=None, tags=None):
+    def count_of_cards_due_tomorrow(self, user):
         '''
         Returns the number of cards due by tomorrow at the same time 
         as now. Doesn't take future spacing into account though, so it's
         a somewhat rough estimate.
+
+        No longer includes new cards in its count.
         '''
-        from flashcards.models.facts import Fact
-        cards = self.of_user(user)
-        if deck:
-            cards = cards.filter(fact__deck=deck)
-        if tags:
-            facts = usertagging.models.UserTaggedItem.objects.get_by_model(
-                    Fact, tags)
-            cards = cards.filter(fact__in=facts)
+        #from flashcards.models.facts import Fact
+        #cards = self.of_user(user)
+        #if deck:
+        #    cards = cards.filter(fact__deck=deck)
+        #if tags:
+        #    facts = usertagging.models.UserTaggedItem.objects.get_by_model(
+        #            Fact, tags)
+        #    cards = cards.filter(fact__in=facts)
+        
         this_time_tomorrow = (datetime.datetime.utcnow()
                               + datetime.timedelta(days=1))
-        cards = cards.filter(
+        cards = self.filter(
             due_at__isnull=False,
-            due_at__lt=this_time_tomorrow)
+            due_at__lt=this_time_tomorrow).without_upstream(user)
         due_count = cards.count()
 
-        new_count = self.common_filters(
-                user, deck=deck, tags=tags, with_upstream=True).new().count()
+        #new_count = self.new().count()
+        #new_count = self.common_filters(
+                #user, deck=deck, tags=tags, with_upstream=True).new().count()
         #new_count = min(
             #NEW_CARDS_PER_DAY,
             #self.new_cards_count(user, [], deck=deck, tags=tags))
-        return due_count + new_count
+        #return due_count + new_count
+        return due_count
 
     def next_card_due_at(self):
         '''

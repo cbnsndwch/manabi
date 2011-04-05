@@ -5,7 +5,7 @@
 
 {% else %}
 
-    By this time tomorrow, there will be <strong>{{ count_of_cards_due_tomorrow }}</strong> cards due for review.
+By this time tomorrow, there will be <strong>{{ count_of_cards_due_tomorrow }}</strong> card{{ count_of_cards_due_tomorrow|pluralize }} due for review.
 
 {% endif %}
 
