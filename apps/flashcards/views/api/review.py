@@ -100,12 +100,6 @@ def new_card_count(request):
 
 @api
 @has_card_query_filters
-def due_tomorrow_count(request, deck=None, tags=None):
-    return Card.objects.count_of_cards_due_tomorrow(
-        request.user, deck=deck, tags=tags)
-
-@api
-@has_card_query_filters
 def hours_until_next_card_due(request, deck=None, tags=None):
     cards = Card.objects.common_filters(request.user,
         deck=deck, tags=tags)
