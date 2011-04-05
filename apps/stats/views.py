@@ -47,7 +47,8 @@ def repetitions(request):
     Graph data for repetitions per day.
     '''
     series = []
-    user_items = CardHistory.objects.of_user(request.user).filter()
+    user = request.user
+    user_items = CardHistory.objects.of_user(user)
 
     for maturity in ['new', 'young', 'mature']:
         data = getattr(user_items, maturity)().repetitions()
@@ -69,16 +70,17 @@ def repetitions(request):
 def due_counts(request):
     '''Due per day in future.'''
     series = []
-    user_items = Card.objects.common_filters(request.user)
+    user = request.user
+    user_items = Card.objects.common_filters(user)
 
     for maturity in ['young', 'mature']:
-        items = getattr(user_items, maturity)()
+        items = getattr(user_items, maturity)(user)
 
         today_count = items.due_today_count()
 
         data = [(datetime.today(), today_count,)]
 
-        future_counts = getattr(user_items, maturity)().future_due_counts()
+        future_counts = getattr(user_items, maturity)(user).future_due_counts()
 
         # Convert the values into pairs (from hashes)
         data.extend(list((value['due_on'], value['due_count'])

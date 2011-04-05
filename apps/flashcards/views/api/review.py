@@ -95,8 +95,9 @@ def due_card_count(request):
 
 @api
 def new_card_count(request):
+    user = request.user
     return Card.objects.common_filters(
-            request.user, with_upstream=True).new().count()
+            user, with_upstream=True).new(user).count()
 
 @api
 @has_card_query_filters
