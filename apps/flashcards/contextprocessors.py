@@ -68,6 +68,9 @@ def review_start_context(request, deck=None):
 
     card_count = cards.count()
 
+    unspaced_new_card_count = Card.objects.next_cards_count(
+            user, deck=deck, new_cards_only=True)
+
     context = {
         'card_count': card_count,
         'next_card_due_at': cards.next_card_due_at(),
@@ -76,16 +79,16 @@ def review_start_context(request, deck=None):
         'can_learn_more': new_card_count > 0,
         'is_early_review': (
             due_card_count == 0
-            and card_count),
+            and card_count
+            and unspaced_new_card_count == 0),
             #and card_count != new_card_count),
         'count_of_cards_due_tomorrow': Card.objects.count_of_cards_due_tomorrow(request.user, deck=deck),
+        'unspaced_new_card_count': unspaced_new_card_count,
     }
     context['next_card_due_at_message'] = render_to_string(
             'flashcards/_next_card_due_at.txt', context).strip()
 
 
-    #spaced_new_card_count = Card.objects.next_cards_count(request.user, deck=deck, new_cards_only=True)
-    #'spaced_new_card_count': spaced_new_card_count,
     #'count_of_cards_due_tomorrow': Card.objects.count_of_cards_due_tomorrow(request.user, deck=deck),
     #'new_cards_left_for_today': new_cards_left_for_today,
 
