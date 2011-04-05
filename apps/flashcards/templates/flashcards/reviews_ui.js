@@ -135,8 +135,8 @@ reviews_ui.displayCard = function(card, showCardBack) {
 
 reviews_ui.goToNextCard = function() {
     //see if the session has already ended before moving on to the next card
-    if (reviews_ui.sessionOverAfterCurrentCard
-            || (reviews_ui.session.reviewCount >= reviews_ui.session.cardLimit && reviews_ui.session.cardLimit)) {
+    if (reviews_ui.sessionOverAfterCurrentCard || 
+            (reviews_ui.session.reviewCount >= reviews_ui.session.cardLimit && reviews_ui.session.cardLimit)) {
         reviews_ui.endSession();
     } else {
         //disable the review buttons until the back is shown again
