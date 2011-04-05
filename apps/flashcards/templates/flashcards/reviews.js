@@ -11,7 +11,6 @@ dojo.require('dojo._base.xhr');
 dojo.require('dojo.DeferredList');
 dojo.require('dojox.timing');
 
-//Ti.API.info('-----------!!!!!!!!!!!!!PW OBJ:');Ti.API.info(Mi.REST.defaultXhrArgs);
 
 var mixinDefaultXhrArgs = function(args) { //Ti.API.info('mixinDefaultXhrArgs'); //Ti.API.info(dojo.mixin(Mi.REST.defaultXhrArgs, args));
     if (typeof Titanium !== 'undefined') {
@@ -22,7 +21,7 @@ var mixinDefaultXhrArgs = function(args) { //Ti.API.info('mixinDefaultXhrArgs');
 };
 
 
-reviews.grades = { GRADE_NONE: 0, GRADE_HARD: 3, GRADE_GOOD: 4, GRADE_EASY: 5 };
+reviews.grades = {GRADE_NONE: 0, GRADE_HARD: 3, GRADE_GOOD: 4, GRADE_EASY: 5};
 
 reviews.subscriptionNames = {
     sessionTimerTick: 'manabi.reviews.session_timer_tick',
@@ -152,7 +151,6 @@ dojo.declare('reviews.Session', null, {
     failsSincePrefetchRequest: 0,
     _prefetchInProgress: false,
     //this.session_over_def = new dojo.Deferred();
-    emptyPrefetchProducer: false,
     _sessionTimerInterval: 3000, // ms
 
     constructor: function(args) {
@@ -185,11 +183,11 @@ dojo.declare('reviews.Session', null, {
         this.reviewedCardIds = [];
 
         this.reviewCountPerGrade = {};
-        this.reviewCountPerGrade[reviews.grades.GRADE_NONE] = this.reviewCountPerGrade[reviews.grades.GRADE_HARD] = this.reviewCountPerGrade[reviews.grades.GRADE_GOOD] = this.reviewCountPerGrade[reviews.grades.GRADE_EASY] = 0,
+        this.reviewCountPerGrade[reviews.grades.GRADE_NONE] = this.reviewCountPerGrade[reviews.grades.GRADE_HARD] = this.reviewCountPerGrade[reviews.grades.GRADE_GOOD] = this.reviewCountPerGrade[reviews.grades.GRADE_EASY] = 0;
 
         // Subscribe to card review events
         dojo.subscribe(reviews.subscriptionNames.cardReviewed, dojo.hitch(this, function(data) {
-            this._cardReviewCallback(data.card, data.grade, data.reviewDef)
+            this._cardReviewCallback(data.card, data.grade, data.reviewDef);
         }));
     },
 
@@ -364,8 +362,7 @@ dojo.declare('reviews.Session', null, {
         }, reviewDef));
 
         //has the user reached the card review count limit?
-        if (this.reviewCount >= this.cardLimit
-                && this.cardLimit) {
+        if (this.reviewCount >= this.cardLimit && this.cardLimit) {
             dojo.publish(reviews.subscriptionNames.sessionCardLimitReached, [{
                 reviewCount: this.reviewCount,
                 timeElapsed: this.duration()
@@ -587,7 +584,7 @@ dojo.declare('reviews.Session', null, {
             }));
         }));
         return undoDef;
-    },
+    }
 });
 
 
