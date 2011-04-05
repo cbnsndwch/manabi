@@ -120,29 +120,30 @@ class SchedulerMixin(object):
     def _next_new_cards(self, user, initial_query, count, review_time,
             excluded_ids=[], daily_new_card_limit=None, early_review=False,
             deck=None, tags=None):
-        '''Gets the next new cards for this user or deck.
+        '''
+        Gets the next new cards for this user or deck.
         '''
         from flashcards.models.facts import Fact
         if not count:
             return []
 
         new_card_query = initial_query.filter(
-            due_at__isnull=True).order_by('new_card_ordinal')
+                due_at__isnull=True).order_by('new_card_ordinal')
 
-        if daily_new_card_limit:
-            new_reviews_today = user.reviewstatistics\
-                                .get_new_reviews_today()
-            if new_reviews_today >= daily_new_card_limit:
-                return []
-            # Count the number of new cards in the `excluded_ids`,
-            # which the user already has queued up
-            new_excluded_cards_count = self.filter(
-                id__in=excluded_ids, due_at__isnull=True).count()
-            new_count_left_for_today = (daily_new_card_limit
-                                        - new_reviews_today
-                                        - new_excluded_cards_count)
-        else:
-            new_count_left_for_today = None
+        #if daily_new_card_limit:
+        #    new_reviews_today = user.reviewstatistics\
+        #                        .get_new_reviews_today()
+        #    if new_reviews_today >= daily_new_card_limit:
+        #        return []
+        #    # Count the number of new cards in the `excluded_ids`,
+        #    # which the user already has queued up
+        #    new_excluded_cards_count = self.filter(
+        #        id__in=excluded_ids, due_at__isnull=True).count()
+        #    new_count_left_for_today = (daily_new_card_limit
+        #                                - new_reviews_today
+        #                                - new_excluded_cards_count)
+        #else:
+        #    new_count_left_for_today = None
 
         def _next_new_cards2():
             new_cards = []
@@ -165,8 +166,8 @@ class SchedulerMixin(object):
                 else:
                     new_cards.append(card)
                     # Got enough cards?
-                    if len(new_cards) == count or \
-                       (new_count_left_for_today is not None and not early_review and len(new_cards) == new_count_left_for_today):
+                    if len(new_cards) == count: #or \
+                       #(new_count_left_for_today is not None and not early_review and len(new_cards) == new_count_left_for_today):
                         break
             return new_cards
 
@@ -187,7 +188,8 @@ class SchedulerMixin(object):
 
         # Return a query containing the eligible cards.
         ret = self.filter(id__in=eligible_ids).order_by('new_card_ordinal')
-        ret = ret[:min(count, new_count_left_for_today)] if daily_new_card_limit else ret[:count]
+        #ret = ret[:min(count, new_count_left_for_today)] if daily_new_card_limit else ret[:count]
+        ret = ret[:count]
         return ret
             
 
@@ -296,6 +298,7 @@ class SchedulerMixin(object):
             early_review=early_review,
             daily_new_card_limit=daily_new_card_limit)
 
+        #FIXME bug rite here...... 4/3/11
         user_cards = self.common_filters(user,
             deck=deck, excluded_ids=excluded_ids, tags=tags)
 
@@ -332,24 +335,28 @@ class CommonFiltersMixin(object):
     This is particularly useful with view URLs which take query params for 
     these things.
     '''
-    #def of_user(self, user):
-        #'''
-        #Includes remote subscribed cards.
-        #'''
-        #facts = 
-        #self.filter(
 
     def of_deck(self, deck):
         return self.filter(fact__deck=deck)
 
-    def of_user(self, user):
+    def of_user(self, user, with_upstream=False):
         from flashcards.models.facts import Fact
 
         #TODO this is probably really slow
-        facts = Fact.objects.with_synchronized(user)
-        user_cards = self.filter(
-                fact__deck__owner=user, fact__in=facts)
+        facts = Fact.objects.with_upstream(user)
+        user_cards = self.filter(fact__in=facts)
+
+        if not with_upstream:
+            user_cards = user_cards.without_upstream(user)
+
         return user_cards
+    
+    def without_upstream(self, user):
+        '''
+        Excludes cards that the subscribed user doesn't yet own,
+        but which are in a synchronized deck this user owns.
+        '''
+        return self.filter(fact__deck__owner=user)
 
     def with_tags(self, tags):
         from flashcards.models.facts import Fact
@@ -366,8 +373,10 @@ class CommonFiltersMixin(object):
         return self.filter(suspended=False)
 
     def common_filters(self, user,
+            with_upstream=False,
             deck=None, tags=None, excluded_ids=None):
-        cards = self.of_user(user).unsuspended().filter(active=True)
+        cards = self.of_user(user, with_upstream=with_upstream
+                ).unsuspended().filter(active=True)
         if deck:
             cards = cards.of_deck(deck)
         if excluded_ids:
@@ -379,24 +388,27 @@ class CommonFiltersMixin(object):
     def new(self):
         return self.filter(last_reviewed_at__isnull=True)
     
-    def young(self):
+    def young(self, user):
         return self.filter(
             last_reviewed_at__isnull=False,
             interval__isnull=False,
-            interval__lt=MATURE_INTERVAL_MIN)
+            interval__lt=MATURE_INTERVAL_MIN
+            ).without_upstream(user)
 
-    def mature(self):
+    def mature(self, user):
         return self.filter(interval__gte=MATURE_INTERVAL_MIN)
 
-    def due(self, _space_cards=True):
+    def due(self, user, _space_cards=True):
         '''
         `_space_cards` is whether to space out due cards before returning
         them (which can result in fewer being returned).
+
+        Excludes upstream cards that the user doesn't own.
         '''
         now = datetime.datetime.utcnow()
         due_cards = self.filter(
             due_at__isnull=False,
-            due_at__lte=now)
+            due_at__lte=now).without_upstream(user)
 
         if _space_cards:
             self._space_cards(due_cards, due_cards.count(), now)
@@ -407,32 +419,6 @@ class CommonFiltersMixin(object):
 
         return due_cards.order_by('-interval')
 
-
-    #FIXME distinguish from cards_new_count or merge 
-    #or make some new kind of review optioned class
-    #TODO consolidate with next_cards (see below)
-    #FIXME make it work for synced decks
-    def new_cards_count(self, user, excluded_ids, deck=None, tags=None):
-        '''
-        Returns the number of new cards for the given review parameters.
-        '''
-        from flashcards.models.facts import Fact
-        now = datetime.datetime.utcnow()
-
-        user_cards = self.of_user(user)
-
-        if deck:
-            user_cards = user_cards.filter(fact__deck=deck)
-
-        if tags:
-            facts = usertagging.models.UserTaggedItem.objects.get_by_model(Fact, tags)
-            user_cards = user_cards.filter(fact__in=facts)
-
-        if excluded_ids:
-            user_cards = user_cards.exclude(id__in=excluded_ids)
-
-        new_cards = user_cards.filter(last_reviewed_at__isnull=True) #due_at__isnull=True)
-        return new_cards.count()
 
     def count_of_cards_due_tomorrow(self, user, deck=None, tags=None):
         '''
@@ -445,7 +431,8 @@ class CommonFiltersMixin(object):
         if deck:
             cards = cards.filter(fact__deck=deck)
         if tags:
-            facts = usertagging.models.UserTaggedItem.objects.get_by_model(Fact, tags)
+            facts = usertagging.models.UserTaggedItem.objects.get_by_model(
+                    Fact, tags)
             cards = cards.filter(fact__in=facts)
         this_time_tomorrow = (datetime.datetime.utcnow()
                               + datetime.timedelta(days=1))
@@ -453,7 +440,9 @@ class CommonFiltersMixin(object):
             due_at__isnull=False,
             due_at__lt=this_time_tomorrow)
         due_count = cards.count()
-        new_count = self.new_cards_count(user, [], deck=deck, tags=tags)
+
+        new_count = self.common_filters(
+                user, deck=deck, tags=tags, with_upstream=True).new().count()
         #new_count = min(
             #NEW_CARDS_PER_DAY,
             #self.new_cards_count(user, [], deck=deck, tags=tags))

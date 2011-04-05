@@ -128,6 +128,9 @@ manabi_ui._xhrLinkLoad = function(hash) {
     var href = hash;
 
     if (href) {
+        if (href[0] == '!') {
+            href = href.substring(1);
+        }
         if (href[0] == '/') {
             href = href.substring(1);
         }
@@ -141,8 +144,16 @@ manabi_ui.xhrLink = function(href) { //, target_pane) {
     // set the URL hash for browser history
     if (typeof(href) != 'undefined') {
         var hash = href.replace(manabi_ui._baseURL, '');
-        if (hash[0] != '/') {
-            hash = '/' + hash;
+
+        if (hash.indexOf('!/') !== 0) {
+            if (hash[0] == '!') {
+                hash[0] = '/';
+                hash = '!' + hash;
+            } else if (hash[0] != '/') {
+                hash = '!/' + hash;
+            } else {
+                hash = '!' + hash;
+            }
         }
         dojo.hash(hash);
 

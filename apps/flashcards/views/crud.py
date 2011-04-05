@@ -270,7 +270,7 @@ def deck_export_to_csv(request, deck_id):
 
     fact_type = FactType.objects.get(id=1)
     field_types = FieldType.objects.filter(fact_type=fact_type).order_by('id')
-    facts = Fact.objects.with_synchronized(request.user, deck=deck)
+    facts = Fact.objects.with_upstream(request.user, deck=deck)
     card_templates = fact_type.cardtemplate_set.all().order_by('id')
 
     header = [field.display_name for field in field_types] + \

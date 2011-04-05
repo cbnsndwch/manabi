@@ -281,16 +281,16 @@ reviews_ui.setCardBackKeyboardShortcuts = function() {
         switch(e.charOrCode) {
             case '0':
             case '1':
-                reviews_ui.reviewCard(reviews_ui.session.currentCard, reviews.grades.GRADE_NONE);
+                reviews_ui.reviewCard(reviews.grades.GRADE_NONE);
                 break;
             case '2':
-                reviews_ui.reviewCard(reviews_ui.session.currentCard, reviews.grades.GRADE_HARD);
+                reviews_ui.reviewCard(reviews.grades.GRADE_HARD);
                 break;
             case '3':
-                reviews_ui.reviewCard(reviews_ui.session.currentCard, reviews.grades.GRADE_GOOD);
+                reviews_ui.reviewCard(reviews.grades.GRADE_GOOD);
                 break;
             case '4':
-                reviews_ui.reviewCard(reviews_ui.session.currentCard, reviews.grades.GRADE_EASY);
+                reviews_ui.reviewCard(reviews.grades.GRADE_EASY);
                 break;
         }
     });

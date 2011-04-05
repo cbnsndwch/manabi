@@ -90,11 +90,13 @@ def next_cards_for_review(request, deck=None, tags=None):
 
 @api
 def due_card_count(request):
-    return Card.objects.common_filters(request.user).due().count()
+    user = request.user
+    return Card.objects.common_filters(user).due(user).count()
 
 @api
 def new_card_count(request):
-    return Card.objects.common_filters(request.user).new().count()
+    return Card.objects.common_filters(
+            request.user, with_upstream=True).new().count()
 
 @api
 @has_card_query_filters

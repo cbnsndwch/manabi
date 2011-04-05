@@ -141,28 +141,29 @@ def daily_repetition_history(request, deck=None, tags=None):
 #
 ########################################
 
-@api
-@require_GET
-@has_card_query_filters
-def scheduling_summary(request, deck=None, tags=None):
-    '''
-    Provides the following data:
-        # due now
-        # due tomorrow
-        # new cards
-        next card's due date (datetime)
-    '''
-    cards = Card.objects.common_filters(
-        request.user, deck=deck, tags=tags)
+#TODO needed? so far, unused.
+#@api
+#@require_GET
+#@has_card_query_filters
+#def scheduling_summary(request, deck=None, tags=None):
+#    '''
+#    Provides the following data:
+#        # due now
+#        # due tomorrow
+#        # new cards
+#        next card's due date (datetime)
+#    '''
+#    cards = Card.objects.common_filters(
+#        request.user, deck=deck, tags=tags)
 
-    data = {
-        'due_now': cards.due().count(),
-        'due_tomorrow': Card.objects.count_of_cards_due_tomorrow(
-                request.user, deck=deck, tags=tags),
-        'new': card.new().count(),
-        'next_card_due_at': cards.next_card_due_at(),
-    }
-    return data
+#    data = {
+#        'due_now': cards.due(request.user).count(),
+#        'due_tomorrow': Card.objects.count_of_cards_due_tomorrow(
+#                request.user, deck=deck, tags=tags),
+#        'new': cards.new().count(),
+#        'next_card_due_at': cards.next_card_due_at(),
+#    }
+#    return data
 
 
 

@@ -3,11 +3,13 @@ from flashcards.models import FactType, Fact, Deck, CardTemplate, \
     GRADE_NONE, GRADE_HARD, GRADE_GOOD, GRADE_EASY, \
     SchedulingOptions
 from django.contrib.auth.decorators import login_required
+from django.core.urlresolvers import resolve
 from django.db.models import F
-from django.shortcuts import render_to_response
+from django.shortcuts import render_to_response, redirect
 from django.template import RequestContext
 from flashcards.contextprocessors import subfact_form_context
 from flashcards.contextprocessors import deck_count_context, card_existence_context
+
 
 # Entry point to the site
 def index(request):

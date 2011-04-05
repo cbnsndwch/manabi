@@ -38,7 +38,7 @@ def card_existence_context(request):
     adds 'cards_exist', 'decks_exist' (booleans)
     '''
     decks = Deck.objects.of_user(request.user)
-    cards = Card.objects.of_user(request.user)
+    cards = Card.objects.of_user(request.user, with_upstream=True)
     return {
         'decks_exist': decks.exists(),
         'cards_exist': cards.exists(),
@@ -58,10 +58,12 @@ def review_start_context(request, deck=None):
     This is for the screen before actually reviewing, which shows the buttons
     to start the review.
     '''
-    cards = Card.objects.common_filters(
-        request.user, deck=deck)
+    user = request.user
 
-    due_card_count = cards.due().count()
+    cards = Card.objects.common_filters(user,
+        with_upstream=True, deck=deck)
+
+    due_card_count = cards.due(user).count()
     new_card_count = cards.new().count()
 
     card_count = cards.count()
@@ -74,8 +76,8 @@ def review_start_context(request, deck=None):
         'can_learn_more': new_card_count > 0,
         'is_early_review': (
             due_card_count == 0
-            and card_count
-            and card_count != new_card_count),
+            and card_count),
+            #and card_count != new_card_count),
         'count_of_cards_due_tomorrow': Card.objects.count_of_cards_due_tomorrow(request.user, deck=deck),
     }
     context['next_card_due_at_message'] = render_to_string(

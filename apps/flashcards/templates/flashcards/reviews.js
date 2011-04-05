@@ -67,8 +67,8 @@ dojo.declare('reviews.Card', null, {
     review: function(grade, duration, questionDuration) {
         // `duration` is the time it took the user to show the answer.
         // It is optional.
-        var duration = typeof duration === 'undefined' ? null : duration;
-        var questionDuration = typeof questionDuration === 'undefined' ? null : questionDuration;
+        duration = typeof duration === 'undefined' ? null : duration;
+        questionDuration = typeof questionDuration === 'undefined' ? null : questionDuration;
 
         xhrArgs = mixinDefaultXhrArgs({
             //url: '{% url api-cards %}' + this.id + '/',

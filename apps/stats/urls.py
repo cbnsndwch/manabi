@@ -21,9 +21,9 @@ graph_urlpatterns = patterns('stats.views',
 urlpatterns = patterns('stats.views',
     url(r'^graphs/', include(graph_urlpatterns)),
 
-    url(r'^scheduling-summary/$',
-        'scheduling_summary',
-        name='stats_scheduling_summary'),
+    #url(r'^scheduling-summary/$',
+    #    'scheduling_summary',
+    #    name='stats_scheduling_summary'),
 
     #url(r'^cards/(?P<card_id>\d+).json$', 'card_stats_json',
         #name='api-card_stats'),
