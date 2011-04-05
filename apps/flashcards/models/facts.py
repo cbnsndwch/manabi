@@ -84,7 +84,8 @@ class FactManager(models.Manager):
         #for field_content in matches))
 
     def get_for_owner_or_subscriber(self, fact_id, user):
-        '''Returns a Fact object of the given id,
+        '''
+        Returns a Fact object of the given id,
         or if the user is a subscriber to the deck of that fact,
         returns the subscriber's copy of that fact, which it 
         creates if necessary.
@@ -97,7 +98,11 @@ class FactManager(models.Manager):
             else:
                 from decks import Deck
                 # find the subscriber deck for this user
-                subscriber_deck = Deck.objects.get(owner=user, synchronized_with=fact.deck)
+                try:
+                    subscriber_deck = Deck.objects.get(owner=user, synchronized_with=fact.deck)
+                except Deck.DoesNotExist:
+                    raise forms.ValidationError(
+                            'You do not have permission to access this flashcard deck.')
 
                 # check if the fact exists already
                 existent_fact = subscriber_deck.fact_set.filter(synchronized_with=fact)
