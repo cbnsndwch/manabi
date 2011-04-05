@@ -156,25 +156,31 @@ class SchedulerMixin(object):
                     # sibling is due or
                     # sibling was reviewed recently or
                     # sibling is failed. Either it's due, or it's not due and it's shown before new cards.
-                    if sibling in new_cards or \
-                       sibling.id in excluded_ids or \
-                       sibling.is_due(review_time) or \
-                       (sibling.last_reviewed_at and \
-                        abs(review_time - sibling.last_reviewed_at) <= min_space) or \
-                       sibling.last_review_grade == GRADE_NONE:
+                    if (sibling in new_cards
+                        or sibling.id in excluded_ids
+                        or sibling.is_due(review_time)
+                        or (sibling.last_reviewed_at and 
+                            abs(review_time - sibling.last_reviewed_at)
+                            <= min_space)
+                        or sibling.last_review_grade == GRADE_NONE):
                         break
                 else:
+                    # Only add the card if none of the 
+                    # conditions above matched for its siblings.
                     new_cards.append(card)
+
                     # Got enough cards?
                     if len(new_cards) == count: #or \
                        #(new_count_left_for_today is not None and not early_review and len(new_cards) == new_count_left_for_today):
                         break
+
             return new_cards
 
         new_cards = _next_new_cards2()
 
         if len(new_cards) < count:
-            # see if we can get new cards from synchronized decks
+            # Still have fewer cards than requested.
+            # See if we can get new cards from synchronized decks.
             facts_added = Fact.objects.add_new_facts_from_synchronized_decks(user, count - len(new_cards), deck=deck, tags=tags)
             if len(facts_added):
                 # got new facts from a synchronized deck. get cards from them by re-getting new cards

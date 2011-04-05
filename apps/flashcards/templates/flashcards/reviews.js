@@ -407,7 +407,7 @@ dojo.declare('reviews.Session', null, {
             content: query,
             handleAs: 'json',
             load: dojo.hitch(this, function(data) {
-                console.log('inside prefetch load callback');
+                //console.log('inside prefetch load callback');
                 //start the session timer if it hasn't already been started
                 if (this.timer !== null) {
                     if (!this.timer.isRunning) {
@@ -417,9 +417,9 @@ dojo.declare('reviews.Session', null, {
                 if (data.card_list.length > 0) {
                     dojo.forEach(data.card_list, dojo.hitch(this, function(card) {
                         //card = new reviews.Card(card);
-                        console.log('creating card');
+                        //console.log('creating card');
                         card = new reviews.Card(card, this);
-                        console.log('done creating card');
+                        //console.log('done creating card');
                         this.cards.push(card);
                     }));
                 }
@@ -430,11 +430,11 @@ dojo.declare('reviews.Session', null, {
                     }
                 }
                 this._prefetchInProgress = false;
-                console.log('at end of prefetch load callback');
+                //console.log('at end of prefetch load callback');
             })
             //on error //TODO it should redo the request
         });
-    console.log('args:');console.log(xhrArgs);
+    //console.log('args:');console.log(xhrArgs);
 
         this.failsSincePrefetchRequest = 0;
 

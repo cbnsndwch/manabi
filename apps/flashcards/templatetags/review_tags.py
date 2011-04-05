@@ -9,7 +9,8 @@ register = template.Library()
 def _show_review_start_buttons(context, deck=None):
     context = copy(context)
     context['deck'] = deck
-    return context.update(review_start_context(context['request'], deck=deck))
+    context.update(review_start_context(context['request'], deck=deck))
+    return context
 
 @register.inclusion_tag(
     'flashcards/_review_start_buttons.html', takes_context=True)

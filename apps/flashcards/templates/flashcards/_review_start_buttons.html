@@ -65,10 +65,11 @@
         <div class="study_button_meaning" style="position:relative; top:-.7em">
             {% if due_card_count > 0 %}
                 You have <strong>{{ due_card_count }}</strong> card{{ due_card_count|pluralize }} due for review.
+                <div class="study_button_stats">{{ due_card_count }} urgent{% if unspaced_new_card_count %}, plus {{ unspaced_new_card_count }} more new card{{ new_card_count|pluralize }}{% endif %}.</div>
             {% else %}
-                You have <strong>{{ new_card_count }}</strong> card{{ new_card_count|pluralize }} ready for review.
+                You have <strong>{{ unspaced_new_card_count }}</strong> card{{ unspaced_new_card_count|pluralize }} ready for review.
+                <div class="study_button_stats">{{ due_card_count }} urgent{% if unspaced_new_card_count %}, and {{ unspaced_new_card_count }} new card{{ new_card_count|pluralize }}{% endif %}.</div>
             {% endif %}
-            <div class="study_button_stats">{{ due_card_count }} urgent{% if new_card_count %}, plus {{ new_card_count }} more new card{{ new_card_count|pluralize }}{% endif %}.</div>
         </div>
 
     {% endif %}
