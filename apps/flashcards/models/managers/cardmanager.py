@@ -393,7 +393,7 @@ class CommonFiltersMixin(object):
 
     def new(self, user):
         return self.filter(
-                last_reviewed_at__isnull=True).without_upstream()
+                last_reviewed_at__isnull=True).without_upstream(user)
     
     def young(self, user):
         return self.filter(
