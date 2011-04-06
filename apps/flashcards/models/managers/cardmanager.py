@@ -69,7 +69,7 @@ class SchedulerMixin(object):
         return cards
 
     def _next_failed_due_cards(self, user, initial_query, count,
-            review_time, excluded_ids=[], daily_new_card_limit=None,
+            review_time, excluded_ids=[],
             early_review=False, deck=None, tags=None):
         if not count:
             return []
@@ -81,7 +81,7 @@ class SchedulerMixin(object):
         return cards[:count] 
 
     def _next_not_failed_due_cards(self, user, initial_query, count,
-            review_time, excluded_ids=[], daily_new_card_limit=None,
+            review_time, excluded_ids=[],
             early_review=False, deck=None, tags=None):
         '''
         Returns the first [count] cards from initial_query which are due,
@@ -103,7 +103,7 @@ class SchedulerMixin(object):
         return self._space_cards(due_cards, count, review_time)
 
     def _next_failed_not_due_cards(self, user, initial_query, count,
-            review_time, excluded_ids=[], daily_new_card_limit=None,
+            review_time, excluded_ids=[], 
             early_review=False, deck=None, tags=None):
         if not count:
             return []
@@ -118,7 +118,7 @@ class SchedulerMixin(object):
         return card_query[:count]
 
     def _next_new_cards(self, user, initial_query, count, review_time,
-            excluded_ids=[], daily_new_card_limit=None, early_review=False,
+            excluded_ids=[], early_review=False,
             deck=None, tags=None):
         '''
         Gets the next new cards for this user or deck.
@@ -129,21 +129,6 @@ class SchedulerMixin(object):
 
         new_card_query = initial_query.filter(
                 due_at__isnull=True).order_by('new_card_ordinal')
-
-        #if daily_new_card_limit:
-        #    new_reviews_today = user.reviewstatistics\
-        #                        .get_new_reviews_today()
-        #    if new_reviews_today >= daily_new_card_limit:
-        #        return []
-        #    # Count the number of new cards in the `excluded_ids`,
-        #    # which the user already has queued up
-        #    new_excluded_cards_count = self.filter(
-        #        id__in=excluded_ids, due_at__isnull=True).count()
-        #    new_count_left_for_today = (daily_new_card_limit
-        #                                - new_reviews_today
-        #                                - new_excluded_cards_count)
-        #else:
-        #    new_count_left_for_today = None
 
         def _next_new_cards2():
             new_cards = []
@@ -194,14 +179,13 @@ class SchedulerMixin(object):
 
         # Return a query containing the eligible cards.
         ret = self.filter(id__in=eligible_ids).order_by('new_card_ordinal')
-        #ret = ret[:min(count, new_count_left_for_today)] if daily_new_card_limit else ret[:count]
         ret = ret[:count]
         return ret
             
 
 
     def _next_due_soon_cards(self, user, initial_query, count,
-            review_time, excluded_ids=[], daily_new_card_limit=None,
+            review_time, excluded_ids=[], 
             early_review=False, deck=None, tags=None):
         '''
         Used for early review.
@@ -220,7 +204,7 @@ class SchedulerMixin(object):
 
 
     def _next_due_soon_cards2(self, user, initial_query, count,
-            review_time, excluded_ids=[], daily_new_card_limit=None,
+            review_time, excluded_ids=[], 
             early_review=False, deck=None, tags=None):
         if not count:
             return []
@@ -234,13 +218,13 @@ class SchedulerMixin(object):
         return self._space_cards(
             fresher_cards, count, review_time, early_review=True)
 
-    def _next_cards(self, early_review=False, daily_new_card_limit=None):
+    def _next_cards(self, early_review=False):
         card_funcs = [
             self._next_failed_due_cards,        # due, failed
             self._next_not_failed_due_cards,    # due, not failed
             self._next_failed_not_due_cards]    # failed, not due
 
-        if early_review and daily_new_card_limit != 0:
+        if early_review:
             card_funcs.extend([
                 self._next_due_soon_cards,
                 # due soon, not yet, but next in the future
@@ -253,22 +237,24 @@ class SchedulerMixin(object):
     # place and can probably be merged with something else.
     def next_cards_count(self, user, excluded_ids=[], session_start=False,
             deck=None, tags=None, early_review=False,
-            daily_new_card_limit=None, new_cards_only=False):
+            new_cards_only=False):
         now = datetime.datetime.utcnow()
+
         if new_cards_only:
             card_funcs = [self._next_new_cards]
         else:
             card_funcs = self._next_cards(
-                early_review=early_review,
-                daily_new_card_limit=daily_new_card_limit)
+                early_review=early_review)
+
         user_cards = self.common_filters(user,
+            with_upstream=True,
             deck=deck, excluded_ids=excluded_ids, tags=tags)
+
         count = 0
         cards_left = 99999 #TODO find a more elegant approach
         for card_func in card_funcs:
             cards = card_func(
                 user, user_cards, cards_left, now, excluded_ids,
-                daily_new_card_limit,
                 early_review=early_review,
                 deck=deck,
                 tags=tags)
@@ -276,8 +262,7 @@ class SchedulerMixin(object):
         return count
 
     def next_cards(self, user, count, excluded_ids=[],
-            session_start=False, deck=None, tags=None, early_review=False,
-            daily_new_card_limit=None):
+            session_start=False, deck=None, tags=None, early_review=False):
         '''
         Returns `count` cards to be reviewed, in order.
         count should not be any more than a short session of cards
@@ -301,8 +286,7 @@ class SchedulerMixin(object):
         #TODO use args instead, like *kwargs etc for these funcs
         now = datetime.datetime.utcnow()
         card_funcs = self._next_cards(
-            early_review=early_review,
-            daily_new_card_limit=daily_new_card_limit)
+            early_review=early_review)
 
         #FIXME bug rite here...... 4/3/11
         user_cards = self.common_filters(user,
@@ -317,7 +301,6 @@ class SchedulerMixin(object):
 
             cards = card_func(
                 user, user_cards, cards_left, now, excluded_ids,
-                daily_new_card_limit,
                 early_review=early_review,
                 deck=deck,
                 tags=tags)
@@ -342,8 +325,11 @@ class CommonFiltersMixin(object):
     these things.
     '''
 
-    def of_deck(self, deck):
-        return self.filter(fact__deck=deck)
+    def of_deck(self, deck, with_upstream=False):
+        cards = self.filter(fact__deck=deck)
+        if with_upstream and deck.synchronized_with:
+            return cards | self.filter(fact__deck=deck.synchronized_with)
+        return cards
 
     def of_user(self, user, with_upstream=False):
         from flashcards.models.facts import Fact
@@ -363,6 +349,13 @@ class CommonFiltersMixin(object):
         but which are in a synchronized deck this user owns.
         '''
         return self.filter(fact__deck__owner=user)
+
+    def of_upstream(self, user):
+        '''
+        Filters to include only upstream cards (which the
+        user hasn't copied yet).
+        '''
+        return self.exclude(fact__deck__owner=user)
 
     def with_tags(self, tags):
         from flashcards.models.facts import Fact
@@ -384,7 +377,7 @@ class CommonFiltersMixin(object):
         cards = self.of_user(user, with_upstream=with_upstream
                 ).unsuspended().filter(active=True)
         if deck:
-            cards = cards.of_deck(deck)
+            cards = cards.of_deck(deck, with_upstream=with_upstream)
         if excluded_ids:
             cards = cards.exclude_ids(excluded_ids)
         if tags:
@@ -395,6 +388,15 @@ class CommonFiltersMixin(object):
         return self.filter(
                 last_reviewed_at__isnull=True).without_upstream(user)
     
+    def new_count(self, user):
+        '''
+        Use this rather than `new(user).count()`, since this will
+        count upstream cards properly.
+
+        Any uncopied upstream cards are to be considered "new".
+        '''
+        return self.new(user).count() + self.of_upstream(user).count()
+    
     def young(self, user):
         return self.filter(
                 last_reviewed_at__isnull=False,
@@ -403,7 +405,9 @@ class CommonFiltersMixin(object):
                 ).without_upstream(user)
 
     def mature(self, user):
-        return self.filter(interval__gte=MATURE_INTERVAL_MIN)
+        return self.filter(
+                interval__gte=MATURE_INTERVAL_MIN
+                ).without_upstream(user)
 
     def due(self, user, _space_cards=True):
         '''
@@ -525,7 +529,6 @@ CardManager = lambda: manager_from(
 
 
         
-    #def _next_cards_initial_query(self, user, count, excluded_ids, session_start, deck=None, tags=None, early_review=False, daily_new_card_limit=None):
 
 
 
