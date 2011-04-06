@@ -737,13 +737,13 @@ ul.fact_form_tags {
     /*background-color: #fffccb;*/
 }
 #lazy_user_landing_box .column.login_link {
-    border-left: solid 5px lightgray;
+    border-left: solid 8px lightgray;
 }
 #lazy_user_landing_box .column, #lazy_user_landing_box {
     height: 9.5em;
 }
 #lazy_user_landing_box .column {
-    border-left: solid 5px #d21f00;
+    border-left: solid 8px #d21f00;
     padding-left: 1em;
     /*margin-left: .3em;*/
     margin-right: 3em;

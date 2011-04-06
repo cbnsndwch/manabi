@@ -118,12 +118,13 @@ class SchedulerMixin(object):
         return card_query[:count]
 
     def _next_new_cards(self, user, initial_query, count, review_time,
-            excluded_ids=[], early_review=False,
-            deck=None, tags=None):
+            excluded_ids=[], early_review=False, deck=None, tags=None,
+            add_upstream_facts_as_needed=True):
         '''
         Gets the next new cards for this user or deck.
         '''
         from flashcards.models.facts import Fact
+
         if not count:
             return []
 
@@ -163,19 +164,23 @@ class SchedulerMixin(object):
 
         new_cards = _next_new_cards2()
 
-        if len(new_cards) < count:
+        if add_upstream_facts_as_needed and len(new_cards) < count:
             # Still have fewer cards than requested.
             # See if we can get new cards from synchronized decks.
-            facts_added = Fact.objects.add_new_facts_from_synchronized_decks(user, count - len(new_cards), deck=deck, tags=tags)
+            facts_added = Fact.objects.add_new_facts_from_synchronized_decks(
+                    user, count - len(new_cards), deck=deck, tags=tags)
             if len(facts_added):
-                # got new facts from a synchronized deck. get cards from them by re-getting new cards
+                # Got new facts from a synchronized deck.
+                # Get cards from them by re-getting new cards
                 new_cards = _next_new_cards2()
 
         eligible_ids = [card.id for card in new_cards]
 
         if early_review and len(eligible_ids) < count:
-            # queue up spaced cards if needed for early review
-            eligible_ids.extend([card.id for card in new_card_query.exclude(id__in=eligible_ids).select_related()[:count - len(eligible_ids)]])
+            # Queue up spaced cards if needed for early review.
+            eligible_ids.extend([card.id for card in new_card_query.exclude(
+                                    id__in=eligible_ids).select_related()
+                                    [:count - len(eligible_ids)]])
 
         # Return a query containing the eligible cards.
         ret = self.filter(id__in=eligible_ids).order_by('new_card_ordinal')
@@ -235,31 +240,31 @@ class SchedulerMixin(object):
 
     #TODO not sure what this is necessary for, actually - it's used in one 
     # place and can probably be merged with something else.
-    def next_cards_count(self, user, excluded_ids=[], session_start=False,
-            deck=None, tags=None, early_review=False,
-            new_cards_only=False):
-        now = datetime.datetime.utcnow()
+    #def next_cards_count(self, user, excluded_ids=[], session_start=False,
+    #        deck=None, tags=None, early_review=False,
+    #        new_cards_only=False):
+    #    now = datetime.datetime.utcnow()
 
-        if new_cards_only:
-            card_funcs = [self._next_new_cards]
-        else:
-            card_funcs = self._next_cards(
-                early_review=early_review)
+    #    if new_cards_only:
+    #        card_funcs = [self._next_new_cards]
+    #    else:
+    #        card_funcs = self._next_cards(
+    #            early_review=early_review)
 
-        user_cards = self.common_filters(user,
-            with_upstream=True,
-            deck=deck, excluded_ids=excluded_ids, tags=tags)
+    #    user_cards = self.common_filters(user,
+    #        with_upstream=True,
+    #        deck=deck, excluded_ids=excluded_ids, tags=tags)
 
-        count = 0
-        cards_left = 99999 #TODO find a more elegant approach
-        for card_func in card_funcs:
-            cards = card_func(
-                user, user_cards, cards_left, now, excluded_ids,
-                early_review=early_review,
-                deck=deck,
-                tags=tags)
-            count += cards.count()
-        return count
+    #    count = 0
+    #    cards_left = 99999 #TODO find a more elegant approach
+    #    for card_func in card_funcs:
+    #        cards = card_func(
+    #            user, user_cards, cards_left, now, excluded_ids,
+    #            early_review=early_review,
+    #            deck=deck,
+    #            tags=tags)
+    #        count += cards.count()
+    #    return count
 
     def next_cards(self, user, count, excluded_ids=[],
             session_start=False, deck=None, tags=None, early_review=False):
@@ -396,6 +401,26 @@ class CommonFiltersMixin(object):
         Any uncopied upstream cards are to be considered "new".
         '''
         return self.new(user).count() + self.of_upstream(user).count()
+
+    def unspaced_new_count(self, user):
+        '''
+        Same as `new_count`, except it subtracts new cards that 
+        will be delayed due to sibling spacing.
+
+        Works properly with upstream cards.
+        '''
+        local_query = self.new(user)
+        desired_count = 999999 #TODO use more elegant solution.
+        now = datetime.datetime.utcnow()
+        local = self._next_new_cards(user, local_query, desired_count, now,
+                add_upstream_facts_as_needed=False).count()
+
+        # Count the number of upstream cards -- they are all "new".
+        # But only count one card per distinct fact, to simulate
+        # the effect of sibling spacing.
+        upstream = self.of_upstream(user).values('fact_id').distinct().count()
+
+        return local + upstream
     
     def young(self, user):
         return self.filter(

@@ -67,17 +67,23 @@ class Card(models.Model):
         app_label = 'flashcards'
 
     def __unicode__(self):
-        from django.utils.html import strip_tags
+        from BeautifulSoup import BeautifulSoup
 
         fields = dict((field.field_type.name, field)
                       for field in self.fact.field_contents)
         card_context = {'fields': fields}
-        front = render_to_string(
-            self.template.front_template_name, card_context)
-        back = render_to_string(
-            self.template.back_template_name, card_context)
+        def format_(content):
+            page = BeautifulSoup(content)
+            for tag in page.findAll('script'):
+                tag.extract() # Remove the tag.
+            return u''.join(page.findAll(text=True)).replace('\n', '').strip()
 
-        return strip_tags(u'{0} | {1}'.format(front, back))
+        front = format_(render_to_string(
+            self.template.front_template_name, card_context))
+        back = format_(render_to_string(
+            self.template.back_template_name, card_context))
+        return u'{0} | {1}'.format(front, back)
+        
 
     def to_api_dict(self):
         '''

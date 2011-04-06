@@ -102,6 +102,8 @@ per-day scheduling
 
 ~new stuff~
 -----------
+upgrade errorlog app
+
 option to hide furigana on cards
 
 include maturity/newness status in 'next_cards_for_review' -- use to display tally in summary screen
@@ -141,8 +143,6 @@ reading generation for sentences is broken (see firebug, js error)
 'x due this time tomorrow' is screwed up - it shouldnt include new cards probably
 
 early review cut short
-
--NY isnt default timezone
 
 ensure the next card up is the one that was undone
 

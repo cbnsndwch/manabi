@@ -130,6 +130,7 @@ class FactManager(models.Manager):
         if tags:
             tagged_facts = usertagging.models.UserTaggedItem.objects.get_by_model(Fact, tags)
             user_facts = user_facts.filter(id__in=tagged_facts)
+
         subscriber_decks = decks.filter(synchronized_with__isnull=False)
         subscribed_decks = [deck.synchronized_with for deck in subscriber_decks if deck.synchronized_with is not None]
         #shared_facts = self.filter(deck_id__in=shared_deck_ids)
@@ -145,16 +146,20 @@ class FactManager(models.Manager):
         '''
         from cards import Card
         from decks import Deck
+
         if deck:
             if not deck.synchronized_with:
                 return self.none()
-            decks = Deck.objects.filter(id=deck.id)
+            decks = Deck.objects.filter(id=deck.synchronized_with_id)
         else:
             decks = Deck.objects.synchronized_decks(user)
+
         user_facts = self.filter(deck__owner=user, deck__in=decks, active=True, parent_fact__isnull=True)
+
         if tags:
             tagged_facts = usertagging.models.UserTaggedItem.objects.get_by_model(Fact, tags)
             user_facts = user_facts.filter(fact__in=tagged_facts)
+
         #shared_deck_ids = [deck.synchronized_with_id for deck in decks if deck.synchronized_with_id]
         new_shared_facts = self.filter(active=True, deck__in=decks.filter(synchronized_with__isnull=False)).exclude(id__in=user_facts)
         new_shared_facts = new_shared_facts.order_by('new_fact_ordinal')
@@ -394,7 +399,7 @@ class Fact(models.Model):
         copy = Fact(deck=deck, fact_type=self.fact_type, active=self.active, notes=self.notes, new_fact_ordinal=self.new_fact_ordinal)
         if synchronize:
             if self.synchronized_with:
-                raise TypeError('Cannot synchronize with a fact that is already a synschronized fact.')
+                raise TypeError('Cannot synchronize with a fact that is already a synchronized fact.')
             elif not self.deck.shared_at:
                 raise TypeError('This is not a shared fact - cannot synchronize with it.')
             #TODO enforce deck synchronicity too
@@ -436,6 +441,7 @@ class Fact(models.Model):
 
 
     def __unicode__(self):
+        return unicode(self.id)
         field_content_contents = []
         for field_content in self.fieldcontent_set.all():
             field_content_contents.append(field_content.content)
