@@ -34,7 +34,7 @@ from flashcards.restresources import (
         UserResource, DeckResource, CardResource)
 from catnap.exceptions import (HttpForbiddenException,
         HttpTemporaryRedirectException)
-from catnap.auth import BasicAuthentication
+from catnap.auth import BasicAuthentication, DjangoContribAuthentication
 from flashcards.contextprocessors import review_start_context
 
 
@@ -44,7 +44,8 @@ class ManabiRestView(JsonEmitterMixin, AutoContentTypeMixin, RestView):
     '''
     content_type_template_string = 'application/vnd.org.manabi.{0}+json'
 
-    authenticator = BasicAuthentication(realm='manabi')
+    authenticators = (DjangoContribAuthentication(),
+                      BasicAuthentication(realm='manabi'))
 
 
 class CardQueryFiltersMixin(object):

@@ -64,12 +64,11 @@ def review_start_context(request, deck=None):
         with_upstream=True, deck=deck)
 
     due_card_count = cards.due(user).count()
-    new_card_count = cards.new(user).count()
+    new_card_count = cards.new_count(user)
 
     card_count = cards.count()
 
-    unspaced_new_card_count = Card.objects.next_cards_count(
-            user, deck=deck, new_cards_only=True)
+    unspaced_new_card_count = cards.unspaced_new_count(user)
 
     context = {
         'card_count': card_count,

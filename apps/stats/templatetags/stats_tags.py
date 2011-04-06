@@ -48,7 +48,7 @@ def _overview_stat_counts(user, deck=None):
         'total': cards.count(),
         'young': cards.young(user).count(),
         'mature': cards.mature(user).count(),
-        'new': cards.new(user).count(),
+        'new': cards.new_count(user),
     }
     return context
 

@@ -94,12 +94,6 @@ def due_card_count(request):
     return Card.objects.common_filters(user).due(user).count()
 
 @api
-def new_card_count(request):
-    user = request.user
-    return Card.objects.common_filters(
-            user, with_upstream=True).new(user).count()
-
-@api
 @has_card_query_filters
 def hours_until_next_card_due(request, deck=None, tags=None):
     cards = Card.objects.common_filters(request.user,
