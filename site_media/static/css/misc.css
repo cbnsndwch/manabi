@@ -615,7 +615,7 @@ div.reviews_correctGradeButtons {
     top: -.3em;
 }
 
-div.column {
+div.column, p.column {
     float: left;
     display: block;
 }

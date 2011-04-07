@@ -128,19 +128,12 @@ SUPER CRITICAL BUGS:
 --------------------
 the fullscreen spinner isn't always fullscreen if the page is scrolled down
 
-logout and go here:
-http://127.0.0.1:8000/#/flashcards/decks/1/
-add it. then, there are 3 big bugs!
-deck progress is all wrong, an empty graph is shown, and the deck grid errors out.
-
 mini graph for today includes stuff from yesterday night -- the 'so far today' time isn't show since it's at 0. 
 so they calculate day endings differently or something.
 NO! Actually it is just that if there is none today, the mini graph needs to have an empty value for today,
 instead of truncating too early.
 
 reading generation for sentences is broken (see firebug, js error)
-
-'x due this time tomorrow' is screwed up - it shouldnt include new cards probably
 
 early review cut short
 
@@ -160,7 +153,6 @@ TODO:
 ---------------------
 stat counts shoudl take into account active or suspended cards/facts too
 
-allow adding unsorted/orphan cards/items
 
 change the page title when the hash changes, somehow
 
@@ -265,8 +257,6 @@ have the extra front field for some  card types be a "hint" that must be clicked
 
 search for suspended cards
 
-normalize 'parts of speech', per language
-
 take into account multiple siblings being sent in one GET request, in the case of early review. should AVOID this and just
 make the client request more more often. or pre-empt the scheduling somehow. have a 2ary internal excluded id list for this, to pass
 among the card funcs.
@@ -285,8 +275,6 @@ allow filtering reviews by multiple tags, not just one
 
 furiganaize regex is still a little sketchy
 
-freeze my pip reqs
-
 don't create blank fieldcontent objects. but add the missing ones to update forms, 
 and create them upon update (upon submission of the fact update form).
 
@@ -300,8 +288,6 @@ form validation error reporting for tags
 
 delete globally unused tags once removed from an object
 
-use named URLs
-
 review only certain tags
 
 select last-used deck in fact add dialog (and last used model, cards etc) - (per session or not?)
@@ -314,8 +300,6 @@ increase font size for fact add fields, especially japanese ones
 resend grade xhrposts upon error. warn user when offline too - yet keep a queue
 
 ajax error handling
-
--disable controls after each review
 
 show a tooltip for fact field input when creating a new fact. inside, list any matching facts from one's own 
 account, or from any shared decks (or from anyone else's account? with permissions..). upon clicking one, 
@@ -404,6 +388,8 @@ stats/graphs
 ----------------------
 IDEAS:
 ----------------------
+allow adding unsorted/orphan cards/items?
+
 catch-up recovery mode: have wording like this: "You have a lot of cards due (/in fact, 2097 cards/) but if you study 60 per day for a week, you'll be all caught up!" so that we hide (deemphasize) the demotivating count.
 
 
@@ -424,8 +410,6 @@ have preset suggested tags like grammar etc for encouraging sharing
 SOMEDAY TODO:
 ---------------------
 only show the loader spinner on the inside of a dialog, not including its titlepane
-
-mincho vs gothic fonts for kanji, maybe on mouse hover or something (useful for learning)
 
 inflection (like in Genki)
 
