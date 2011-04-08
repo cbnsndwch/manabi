@@ -13,7 +13,7 @@
 
 <script type="text/javascript">
     // Broadcast the nav tab that should be activated by this page loading
-    var active_tab = '{% active_tab request %}';
+    var active_tab = '{% block active_tab_name %}{% active_tab request %}{% endblock %}';
 
     if (active_tab != '') {
         dojo.publish('manabi.tab_activated', [active_tab]);

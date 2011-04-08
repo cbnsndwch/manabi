@@ -33,6 +33,8 @@
     {% else %}
         <h1>{{ deck.name }}</h1>
         <p>{{ deck.description }}</p>
+
+        {% block active_tab_name %}add{% endblock %}
     {% endif %}
 
 
