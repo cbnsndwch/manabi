@@ -622,23 +622,33 @@ div.column, p.column {
 
 
 
-.add_decks .column:first-of-type {
+/*.add_decks .column:first-of-type {
     border-left: none;
-}
+}*/
 .add_decks .column {
-    border-left: solid 3px lightgray;
+    /*border-left: solid 3px lightgray;*/
     width: 29%;
     text-align: center;
     padding: 1em 1em;
     min-height: 30em;
 }
 .add_decks .column ul {
-    margin-left: 1em;
-    margin-right: 1em;
+    /*border: 1px solid #ddd;*/
+    /*margin-left: 1em;*/
+    /*margin-right: 1em;*/
+    margin: 0;
     margin-top: 1.5em;
+    padding: 0;
 }
 .add_decks .column ul li {
     list-style: none;
+    padding: 0;
+}
+.column.shared_decks {
+    border-right: solid 3px lightgray;
+}
+.column.create_cards {
+    border-left: solid 3px lightgray;
 }
 .add_decks .icon {
     display: block;
@@ -650,24 +660,28 @@ div.column, p.column {
 .add_decks .create_deck:hover, .add_decks li:hover {
     background-color: #f3f3f3;
 }
-.shared_decks {
+ul.shared_decks {
     text-align: left;
 }
 .shared_decks .deck_name {
     display: block;
-    font-size: 1.15em;
+    font-size: 1.1em;
     font-weight: bold;
     /*line-height: .9em;*/
+    position: relative;
+    top: .25em;
 }
-.shared_decks li {
-    margin-bottom: .5em;
+.add_decks li .inner_container {
+    /*margin-bottom: 0em;*/
+    /*padding: 1em;*/
+    padding: 0 1em;
 }
 .shared_decks .mini_stats {
     color: gray;
-    font-size: .9em;
-    position: relative;
-    top: -.3em;
+    font-size: .8em;
     /*line-height: .9em;*/
+    position: relative;
+    top: -.25em;
 }
 
 .fact_form_container {
