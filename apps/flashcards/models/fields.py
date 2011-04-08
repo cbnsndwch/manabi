@@ -1,6 +1,7 @@
 from apps.utils.templatetags.japanese import strip_ruby_bottom, strip_ruby_text
 from constants import ISO_639_2_LANGUAGES
 from django.db import models, transaction
+import pickle
 
 
 OPTIONAL_CHARACTER_RESTRICTIONS = (
