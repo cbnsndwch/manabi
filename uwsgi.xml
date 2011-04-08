@@ -1,0 +1,15 @@
+<uwsgi>
+    <home>/home/alex/virtualenvs/manabi/</home>
+    <pythonpath>/home/alex/virtualenvs/manabi/</pythonpath>
+    <pythonpath>/home/alex/virtualenvs/manabi/lib/python2.6/</pythonpath>
+    <pythonpath>/home/alex/virtualenvs/manabi/lib/python2.6/site-packages/</pythonpath>
+    <pythonpath>/home/alex/manabi/releases/current/</pythonpath>
+    <pythonpath>/home/alex/manabi/releases/current/manabi</pythonpath>
+    <env>DJANGO_SETTINGS_MODULE=manabi.settings</env>
+    <module>django.core.handlers.wsgi:WSGIHandler()</module>
+    <master/>
+    <processes>5</processes>
+    <socket>/tmp/cherokee-source-uwsgi-manabi.sock</socket>
+    <pidfile>/tmp/cherokee-uwsgi-manabi.pid</pidfile>
+</uwsgi>
+
