@@ -6,22 +6,15 @@ from utils.urldecorators import decorated_patterns
 from lazysignup.decorators import allow_lazy_user
 from utils.authforms import PinaxLazyConvertForm
 
-
 from django.contrib import admin
 admin.autodiscover()
 
 from flashcards.urls import rest_api_urlpatterns
 
 
-if settings.ACCOUNT_OPEN_SIGNUP:
-    signup_view = "account.views.signup"
-else:
-    signup_view = "signup_codes.views.signup"
-
-
 urlpatterns = patterns('',
     # Use our customized form
-    url(r'^account/signup/$', signup_view,
+    url(r'^account/signup/$', 'account.views.signup',
         name="acct_signup", kwargs={'form_class': SignupForm}), 
 
 

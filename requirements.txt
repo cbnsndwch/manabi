@@ -73,6 +73,7 @@ python-twitter==0.5
 python-yadis==1.1.0
 pytz==2010h
 rfc3339==5
+lxml==2.3
 simplejson==2.0.9
 smartypants==1.6.0.3
 sorl-thumbnail==3.2.5
