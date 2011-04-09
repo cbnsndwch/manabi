@@ -4,6 +4,8 @@
 {% load stats_tags %}
 {% load i18n lazysignup_tags %}
 
+{% block active_tab_name %}{% if request.user == deck.owner %}{{ block.super }}{% else %}add{% endif %}{% endblock %}
+
 {% block content %}
 
 
@@ -34,7 +36,6 @@
         <h1>{{ deck.name }}</h1>
         <p>{{ deck.description }}</p>
 
-        {% block active_tab_name %}add{% endblock %}
     {% endif %}
 
 

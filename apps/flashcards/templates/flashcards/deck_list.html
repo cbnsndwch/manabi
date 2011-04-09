@@ -4,10 +4,14 @@
 {% block content %}
 <h1>Manage My Decks</h1>
 
-{% for deck in deck_list %}
-    <span style="font-size:120%"><a href="{{ deck.get_absolute_url }}" class="xhr_link">{{ deck.name }}</a></span>
-    <span style="color:gray;font-size:90%;">({% if deck.card_count %}{{ deck.card_count }} cards{% else %}empty{% endif %}{% if deck.shared %}, shared{% endif %})</span><br>
-{% endfor %}
+{% if deck_list %}
+    {% for deck in deck_list %}
+        <span style="font-size:120%"><a href="{{ deck.get_absolute_url }}" class="xhr_link">{{ deck.name }}</a></span>
+        <span style="color:gray;font-size:90%;">({% if deck.card_count %}{{ deck.card_count }} cards{% else %}empty{% endif %}{% if deck.shared %}, shared{% endif %})</span><br>
+    {% endfor %}
+{% else %}
+<p class="weak">You have no decks in your library. Please <a href="{% url add_decks %}" class="xhr_link">add</a> some first.</p>
+{% endif %}
     {% comment %}
         <td><span><a href="/flashcards/decks/{{ deck.id }}/update" class="xhr_link">rename</a> 
         <a href="/flashcards/decks/{{ deck.id }}/share" class="xhr_link">share</a> 
