@@ -21,9 +21,9 @@ manabi.plural = function(value, singular, plural) {
 
     var prefix = value.toString() + ' ';
 
-    var plural = typeof plural === 'undefined' ? singular + 's' : plural;
+    plural = typeof plural === 'undefined' ? singular + 's' : plural;
 
-    if (value == 0 || value > 1) {
+    if (value === 0 || value > 1) {
         return prefix + plural;
     } else {
         return prefix + singular;
@@ -178,7 +178,7 @@ manabi_ui._xhrPostArgs = function(url, postRedirectUrl) {
         'url': url,
         handleAs: 'json',
         load: dojo.hitch(null, function(url, data) {
-            if ('postRedirect' in data) {
+            if (data && 'postRedirect' in data) {
                 manabi_ui.xhrLink(data.postRedirect);
             } else {
                 manabi_ui.xhrLink(postRedirectUrl ? postRedirectUrl : dojo.hash());
