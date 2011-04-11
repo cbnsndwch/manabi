@@ -56,10 +56,10 @@ hr {
     border: none;
     background-color: lightgray;
     height: 3px;
-}
-#body_contents hr {
     margin: 1em 0;
 }
+/*#body_contents hr {*/
+/*}*/
 #body_contents a.definition {
     text-decoration: none;
     color: #333;
