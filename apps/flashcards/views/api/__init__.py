@@ -46,10 +46,10 @@ def rest_deck_subscribe(request, deck_id):
     if request.method == 'POST':
         warnings.warn('rest_deck_subscribe 0')
         deck = get_deck_or_404(request.user, deck_id)
-        warnings.warn(deck.id)
+        warnings.warn(unicode(deck.id))
         new_deck = deck.subscribe(request.user)
-        warnings.warn(new_deck.id)
-        warnings.warn(new_deck.get_absolute_url())
+        warnings.warn(unicode(new_deck.id))
+        warnings.warn(unicode(new_deck.get_absolute_url()))
 
         return {'deckId': new_deck.id,
                 'postRedirect': new_deck.get_absolute_url()}
