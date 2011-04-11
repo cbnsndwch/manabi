@@ -82,7 +82,7 @@
 {% endif %}
 
 <table dojoType="dojox.grid.DataGrid" store="cards_factStore" query="{ }"
-    clientSort="true" style="width: 100%;" autoHeight="11" id="cards_factsGrid" jsId="cards_factsGrid"
+    clientSort="true" style="width: 98%;" autoHeight="11" id="cards_factsGrid" jsId="cards_factsGrid"
     selectionMode="single" rowSelector="false" formatterScope="factsStoreFormatter" 
     rowsPerPage="40" keepRows="200" noDataMessage="No flashcards in this deck. Create some by selecting the 'Create Flashcards' button.">
     <script type="dojo/connect" event="onStyleRow" args="evt">
@@ -110,11 +110,11 @@
         <tr>
             {% for field_type in field_types %}
                 {% if not field_type.hidden_in_grid %}
-                    <th width="{% if field_type.grid_column_width %}{{ field_type.grid_column_width }}{% else %}auto{% endif %}" field="id{{ field_type.id}}">{{ field_type.name }}</th>
+                    <th width="{% if field_type.grid_column_width %}{{ field_type.grid_column_width }}{% else %}auto{% endif %}" field="id{{ field_type.id}}">{{ field_type.display_name }}</th>
                 {% endif %}
             {% endfor %}
             {% if request.user == deck.owner %}
-                <th width="36px" field="fact-id" formatter="cards_formatCardActions">&nbsp;</th>
+                <th width="3.5em" field="fact-id" formatter="cards_formatCardActions">&nbsp;</th>
             {% endif %}
         </tr>
     </thead>

@@ -1,10 +1,10 @@
 <style type="text/css">
-    @import url({{DOJANGO.DOJOX_URL}}/form/resources/CheckedMultiSelect.css);
+    @import url({{ DOJANGO.DOJOX_URL }}/form/resources/CheckedMultiSelect.css);
     /* apparently not needed in dojo 1.4 @import url({{DOJANGO.DOJOX_URL}}/widget/Standby/Standby.css);*/
     /*@import url(/site_media/static/css/Grid.css);*/
     {% comment %}@import url({{DOJANGO.DOJOX_URL}}/grid/resources/tundraGrid.css);{% endcomment %}
     @import url({{ STATIC_URL }}flashcards/css/tundraGridMod.css);
-    @import url({{DOJANGO.DOJOX_URL}}/widget/Dialog/Dialog.css);
+    @import url({{ DOJANGO.DOJOX_URL }}/widget/Dialog/Dialog.css);
     .dojoxGrid table {
         margin: 0;
     }
@@ -33,9 +33,9 @@
 
     dojo.require('stats.UsageSparkline');
 
-    //defaultCell: { width: 8, editable: false, type: dojox.grid.cells._Widget },
 
     // Fact editor grid
+    //defaultCell: { width: 8, editable: false, type: dojox.grid.cells._Widget },
     var cards_editRow = function(row_index) {
         var selected_fact_id = cards_factsGrid.getItem(row_index)['fact-id'];
         var success_callback = dojo.hitch(null, function(selected_fact_row_index, data, card_counter) {
@@ -87,8 +87,6 @@
 
         cards_formatCardActions: function(item, row_index) {
             return '<span class="fakeLink" onclick="cards_editRow('+row_index+')">Edit</span>';
-            //return "<button>edit</button>";
-            //return "<u><font color="blue">edit</font></u>";
     }});
 
     fact_ui.current_search_url_parameter = '';
