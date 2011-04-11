@@ -41,14 +41,15 @@ from flashcards.views.shortcuts import get_deck_or_404
 
 @api
 def rest_deck_subscribe(request, deck_id):
-    print 'rest_deck_subscribe'
+    import warnings
+    warnings.warn('rest_deck_subscribe')
     if request.method == 'POST':
-        print 'rest_deck_subscribe 0'
+        warnings.warn('rest_deck_subscribe 0')
         deck = get_deck_or_404(request.user, deck_id)
-        print deck.id
+        warnings.warn(deck.id)
         new_deck = deck.subscribe(request.user)
-        print new_deck.id
-        print new_deck.get_absolute_url()
+        warnings.warn(new_deck.id)
+        warnings.warn(new_deck.get_absolute_url())
 
         return {'deckId': new_deck.id,
                 'postRedirect': new_deck.get_absolute_url()}
