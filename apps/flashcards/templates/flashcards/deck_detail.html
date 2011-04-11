@@ -49,7 +49,7 @@
 	            Add Deck
 	            <script type="dojo/connect" event="onClick" args="evt">
                     var url = '{% url api-subscribe_to_deck deck.id %}';
-                    manabi_ui.xhrPostData(url);//.addCallback(function() { manabi_ui.refreshDeckInput(); });
+                    manabi_ui.xhrPostData(url);
 	            </script>
             </button> Add this deck to your personal deck collection, so that you can start studying it.
         {% endif %}

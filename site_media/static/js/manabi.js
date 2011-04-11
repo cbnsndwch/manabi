@@ -188,14 +188,14 @@ manabi_ui._xhrPostArgs = function(url, postRedirectUrl) {
             alert('Error: ' + error);
             manabi_ui.xhrLink(postRedirectUrl ? postRedirectUrl : dojo.hash());
         }
-    }
+    };
     return xhrArgs;
 };
 
 manabi_ui._xhrPost = function(url, form, data, postRedirectUrl) {
-    if (typeof form == 'undefined') { form = null; }
-    if (typeof data == 'undefined') { data = null; }
-    if (typeof postRedirectUrl == 'undefined') { postRedirectUrl = null; }
+    if (typeof form === 'undefined') { form = null; }
+    if (typeof data === 'undefined') { data = null; }
+    if (typeof postRedirectUrl === 'undefined') { postRedirectUrl = null; }
 
     manabi_standby.show();
 
@@ -203,11 +203,9 @@ manabi_ui._xhrPost = function(url, form, data, postRedirectUrl) {
     xhrArgs.form = form;
     xhrArgs.content = data;
 
-    var def = dojo.xhrPost(xhrArgs);
-    def.addCallback(function() {
+    return dojo.xhrPost(xhrArgs).then(function() {
         manabi_standby.hide();
     });
-    return def;
 };
 
 // Posts a form
@@ -257,7 +255,7 @@ manabi_ui._getOptionsFromStore = function(store) {
         }, store),
         onComplete: dojo.hitch(this, function(def, options) {
             def.callback(options);
-        }, def, options),
+        }, def, options)
     });
     return def;
 }
