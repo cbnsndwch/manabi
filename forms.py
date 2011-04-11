@@ -1,4 +1,4 @@
-from pinax.apps.account.forms import SignupForm as PinaxSignupForm, OpenIDSignupForm as PinaxOpenIDSignupForm
+from account.forms import SignupForm as PinaxSignupForm, OpenIDSignupForm as PinaxOpenIDSignupForm
 from timezones.forms import TimeZoneField
 from django.utils.translation import ugettext_lazy as _, ugettext
 from django import forms

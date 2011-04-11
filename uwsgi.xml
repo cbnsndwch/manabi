@@ -3,8 +3,10 @@
     <pythonpath>/home/alex/virtualenvs/manabi/</pythonpath>
     <pythonpath>/home/alex/virtualenvs/manabi/lib/python2.6/</pythonpath>
     <pythonpath>/home/alex/virtualenvs/manabi/lib/python2.6/site-packages/</pythonpath>
+    <pythonpath>/home/alex/virtualenvs/manabi/lib/python2.6/site-packages/pinax/apps/</pythonpath>
     <pythonpath>/home/alex/manabi/releases/current/</pythonpath>
-    <pythonpath>/home/alex/manabi/releases/current/manabi</pythonpath>
+    <pythonpath>/home/alex/manabi/releases/current/manabi/</pythonpath>
+    <pythonpath>/home/alex/manabi/releases/current/manabi/apps/</pythonpath>
     <env>DJANGO_SETTINGS_MODULE=manabi.settings</env>
     <module>django.core.handlers.wsgi:WSGIHandler()</module>
     <master/>
