@@ -10,6 +10,15 @@ import usertagging
 from django.conf import settings
 import datetime
 
+################################ 
+################################
+#
+# This module is DEPRECATED,
+# in favor if the new REST API.
+#
+################################
+
+
 #decorator_with_arguments = lambda decorator: lambda *args, **kwargs: lambda func: decorator(func, *args, **kwargs)
 
 
@@ -152,8 +161,21 @@ def flashcard_api(view_func):#vendor_subtype=None):
 
 
 def flashcard_api_with_dojo_data(view_func):
-    return json_response(
-           login_required(
-           all_http_methods(view_func)))
+    @wraps(view_func)
+    def wrapper(request, *args, **kwargs):
+        try:
+            return json_response(
+                   login_required(
+                   all_http_methods(view_func)))(request, *args, **kwargs)
+        except ApiException as e:
+            # Wrap our ApiException message in our container format
+            ret = {'success':  False}
+            error = e.args
+            if len(error) == 1:
+                error = error[0]
+            ret['error'] = error
+            json_ret = json_encode(ret)
+            return HttpResponse(json_ret)
+    return wrapper
 
 
