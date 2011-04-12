@@ -15,6 +15,7 @@ from pinax.apps.account.views import group_and_bridge, group_context
 from django.db import models
 from models import MobileSignupRecord
 from emailconfirmation.models import EmailConfirmation
+from EmailConfirmation.views import confirm_email
 from django.shortcuts import redirect
 from django.core.exceptions import ObjectDoesNotExist
 
@@ -33,8 +34,7 @@ def confirm_email_proxy(request, confirmation_key):
         }, context_instance=RequestContext(request))
 
     except ObjectDoesNotExist:
-        return redirect(
-                'acct_confirm_email', confirmation_key=confirmation_key)
+        return confirm_email(request, confirmation_key)
 
 
 def signup(request, **kwargs):
