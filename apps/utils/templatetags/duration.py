@@ -13,6 +13,9 @@ def days_to_duration(value, arg=''):
     '''
     Same as `seconds_to_duration` except for inputting floating-point days.
     '''
+    if value is None:
+        return ''
+
     secs = float(value) * 24 * 60 * 60
     return seconds_to_duration(secs, arg=arg)
 
@@ -35,7 +38,9 @@ def seconds_to_duration(value, arg=''):
           if you are unsure as to how the template tag is
           implemented in your project.
     """
-        
+    if value is None:
+        return ''
+
     # Place seconds in to integer
     secs = int(float(value))
     
