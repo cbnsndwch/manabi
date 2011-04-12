@@ -15,7 +15,7 @@ from pinax.apps.account.views import group_and_bridge, group_context
 from django.db import models
 from models import MobileSignupRecord
 from emailconfirmation.models import EmailConfirmation
-from EmailConfirmation.views import confirm_email
+from emailconfirmation.views import confirm_email
 from django.shortcuts import redirect
 from django.core.exceptions import ObjectDoesNotExist
 
