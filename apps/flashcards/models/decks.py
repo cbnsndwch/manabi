@@ -377,7 +377,7 @@ class Deck(models.Model):
         from flashcards.models import FactType, Fact, FieldType
         fact_type = FactType.objects.get(id=1)
         field_types = FieldType.objects.filter(fact_type=fact_type).order_by('id')
-        facts = Fact.objects.with_upstream(request.user, deck=self)
+        facts = Fact.objects.with_upstream(self.owner, deck=self)
         card_templates = fact_type.cardtemplate_set.all().order_by('id')
 
         header = [field.display_name for field in field_types] + \
