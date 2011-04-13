@@ -198,7 +198,7 @@ def deck_export_to_csv(request, deck_id):
     '''
     deck = get_object_or_404(Deck, pk=deck_id)
 
-    if deck.owner_id != request.user.id and not deck.shared: #and not request.User.is_staff():
+    if deck.owner_id != request.user.id: #and not request.User.is_staff():
         raise forms.ValidationError('You do not have permission to access this flashcard deck.')
 
 
