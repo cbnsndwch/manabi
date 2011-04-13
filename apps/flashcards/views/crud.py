@@ -248,16 +248,16 @@ def deck_export_to_csv(request, deck_id):
             self.stream.write(data)
             # empty queue
             self.queue.truncate(0)
-                
         
         def writerows(self, rows):
             for row in rows:
                 self.writerow(row)
-        
 
 
     # make a valid filename for the deck based on its alphanumeric characters
-    filename = filter(unicode.isalnum, deck.name)
+    import string
+    filename = filter(
+            lambda c: c in (string.ascii_letters + '0123456789'), deck.name)
     if not filename:
         filename = 'manabi_deck'
     filename += '.csv'
