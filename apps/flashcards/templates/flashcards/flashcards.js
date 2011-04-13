@@ -63,7 +63,7 @@ function factFormSubmit(submitSuccessCallback, submitErrorCallback, _factAddForm
     
     var tempCardCounter = 0;
     for (var key in factAddFormValue) {
-        if (key.indexOf('card_template') == 0 && factAddFormValue[key].length) {
+        if (key.indexOf('card_template') === 0 && factAddFormValue[key].length) {
             tempCardCounter++;
         }
     }
@@ -98,7 +98,7 @@ function factFormSubmit(submitSuccessCallback, submitErrorCallback, _factAddForm
         error: function(error){
             submitErrorCallback(data, tempCardCounter); //TODO other callback
         }
-    }
+    };
     //dojo.byId("response2").innerHTML = "Message being sent..."
     //Call the asynchronous xhrPost
     dojo.xhrPost(xhrArgs); //var deferred = 
@@ -162,9 +162,9 @@ function createFieldInputsForUpdate(domNode, factTypeId, factFieldValues, cardTe
         cardUpdateTemplatesStore.fetch({
             onItem: function(item){
                 if (cardUpdateTemplatesStore.getValue(item, 'activated_for_fact')) {
-                    cardUpdateTemplatesInput.addOption({value: cardUpdateTemplatesStore.getValue(item, 'card_template')['id']+"", label: cardUpdateTemplatesStore.getValue(item, 'card_template')['name'], selected: 'selected'});
+                    cardUpdateTemplatesInput.addOption({value: cardUpdateTemplatesStore.getValue(item, 'card_template').id+"", label: cardUpdateTemplatesStore.getValue(item, 'card_template').name, selected: 'selected'});
                 } else {
-                    cardUpdateTemplatesInput.addOption({value: cardUpdateTemplatesStore.getValue(item, 'card_template')['id']+"", label: cardUpdateTemplatesStore.getValue(item, 'card_template')['name']});
+                    cardUpdateTemplatesInput.addOption({value: cardUpdateTemplatesStore.getValue(item, 'card_template').id+"", label: cardUpdateTemplatesStore.getValue(item, 'card_template').name});
                 }
             },
             onComplete: function(items) {
@@ -419,7 +419,7 @@ fact_ui.clearFactSearch = function() {
 
 fact_ui.clearTagFilters = function() {
     var cards_factFilterByTagInput = dijit.byId('cards_factFilterByTagInput');
-    fact_ui.current_tag_filter_list = new Array();
+    fact_ui.current_tag_filter_list = [];
     cards_factFilterByTagInput.reset();
     cards_clearTagFiltersButton.domNode.style.visibility = 'hidden';
     fact_ui.clearFilter('tags');
