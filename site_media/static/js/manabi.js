@@ -4,15 +4,6 @@ dojo.provide('manabi_ui');
 
 Mi = manabi;
 
-/*manabi.xhrGet = function(args){
-    // a wrapper for dojo.xhrGet,
-    // which handles some conventions for us.
-    var oldLoad = args.load;
-    args.load = function() {
-        
-    };
-};*/
-
 
 manabi.plural = function(value, singular, plural) {
     // plural(1, "foot", "feet") ==> "1 foot"
