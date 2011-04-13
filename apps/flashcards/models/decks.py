@@ -361,7 +361,7 @@ class Deck(models.Model):
         # make a valid filename for the deck based on its alphanumeric characters
         import string
         filename = filter(
-                lambda c: c in (string.ascii_letters + '0123456789'), deck.name)
+                lambda c: c in (string.ascii_letters + '0123456789'), self.name)
         if not filename:
             filename = 'manabi_deck'
         filename += '.csv'
@@ -374,7 +374,7 @@ class Deck(models.Model):
 
         fact_type = FactType.objects.get(id=1)
         field_types = FieldType.objects.filter(fact_type=fact_type).order_by('id')
-        facts = Fact.objects.with_upstream(request.user, deck=deck)
+        facts = Fact.objects.with_upstream(request.user, deck=self)
         card_templates = fact_type.cardtemplate_set.all().order_by('id')
 
         header = [field.display_name for field in field_types] + \
