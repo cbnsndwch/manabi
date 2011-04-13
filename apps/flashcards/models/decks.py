@@ -374,6 +374,7 @@ class Deck(models.Model):
 
         writer = UnicodeWriter(response)
 
+        from flashcards.models import FactType, Fact, FieldType
         fact_type = FactType.objects.get(id=1)
         field_types = FieldType.objects.filter(fact_type=fact_type).order_by('id')
         facts = Fact.objects.with_upstream(request.user, deck=self)
