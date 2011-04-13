@@ -299,12 +299,12 @@ class Fact(models.Model):
         return field_contents
 
     def suspend(self):
-        for card in fact.card_set.all():
+        for card in self.card_set.all():
             card.suspended = True
             card.save()
         
     def unsuspend(self):
-        for card in fact.card_set.all():
+        for card in self.card_set.all():
             card.suspended = False
             card.save()
 
