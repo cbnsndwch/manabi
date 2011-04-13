@@ -306,7 +306,9 @@ class Deck(models.Model):
         Returns an HttpRespone object containing the binary CSV data.
         Decoupling this from HttpResponse is more trouble than it's worth.
         '''
+        from django.http import HttpResponse
         import csv, StringIO
+
         class UnicodeWriter(object):
             '''
             http://djangosnippets.org/snippets/993/
