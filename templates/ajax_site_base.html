@@ -7,6 +7,7 @@
 
 
 {% block extra_head_base %}
+
     <link rel="stylesheet" href="{{ MEDIA_URL }}static/tag-it/css/jquery-ui/jquery.ui.autocomplete.custom.css"></link>
     <link rel="stylesheet" href="{{ MEDIA_URL }}static/js/jdic/jPlayer/skins/manabi/jplayer.css"></link>
 
@@ -68,7 +69,6 @@
 
     <script type="text/javascript" src="{{ MEDIA_URL }}static/js/jdic/jPlayer/jquery.jplayer.min.js"></script>
 
-    {{ block.super }}
 
     {% block extra_head %}{% endblock %}
 

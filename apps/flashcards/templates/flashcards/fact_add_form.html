@@ -3,6 +3,10 @@
 
 <div id="factAddFormWrapper"  class="fact_form_container">
     <div dojoType="dijit.form.Form" jsId="factAddForm" encType="multipart/form-data" action="" method="">
+        <script type="dojo/method" event="onSubmit" args="evt">
+            evt.preventDefault();
+            fact_add_ui.factAddFormSubmit();
+        </script>
         <div class="dijitDialogPaneContentArea">
             <span id="deckInputContainer" style="display:none">
                 <input name="fact-deck" jsId="deckInput" dojoType="dijit.form.Select" tabIndex="49">

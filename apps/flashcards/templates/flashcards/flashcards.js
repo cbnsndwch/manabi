@@ -25,27 +25,30 @@ var manabi_utils = {};
 //object to hold things for the Fact Add dialog.
 var fact_add_ui = {};
 
-fact_add_ui.keyboard_shortcut_connection = null;
+fact_add_ui.keyboardShortcutConnection = null;
 
 fact_add_ui.setKeyboardShortcuts = function() {
-    fact_add_ui.keyboard_shortcut_connection = dojo.connect(factAddDialog, 'onKeyPress', function(e) {
-        var k = dojo.keys;
+    if (fact_add_ui.keyboardShortcutConnection === null) {
+        fact_add_ui.keyboardShortcutConnection = dojo.connect(factAddDialog, 'onKeyPress', function(e) {
+            var k = dojo.keys;
 
-        // isCopyKey doesn't work here since cmd isn't seen as a modifier key
-        if (e.ctrlKey) {
-            switch(e.charOrCode) {
-                case k.ENTER:
-                    //submit form
-                    dojo.stopEvent(e);
-                    fact_add_ui.factAddFormSubmit();
-                    break;
+            // isCopyKey doesn't work here since cmd isn't seen as a modifier key
+            if (e.ctrlKey) {
+                switch(e.charOrCode) {
+                    case k.ENTER:
+                        //submit form
+                        dojo.stopEvent(e);
+                        fact_add_ui.factAddFormSubmit();
+                        break;
+                }
             }
-        }
-    });
+        });
+    }
 };
 
 fact_add_ui.unsetKeyboardShortcuts = function() {
-    dojo.disconnect(fact_add_ui.keyboard_shortcut_connection);
+    dojo.disconnect(fact_add_ui.keyboardShortcutConnection);
+    fact_add_ui.keyboardShortcutConnection = null;
 };
 
 
@@ -274,14 +277,6 @@ fact_add_ui.factAddFormSubmit = function() {
         factAddFormSubmitButton.set('disabled', false);
     }, factAddForm, null, true);
 };
-
-//connect to Add Fact form submit
-dojo.addOnLoad(function() {
-    dojo.connect(factAddForm, 'onSubmit', function(e) {
-        e.preventDefault();
-        fact_add_ui.factAddFormSubmit();
-    });
-});
 
 
 
