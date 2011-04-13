@@ -143,7 +143,8 @@ function resetFactAddForm() {
     dojo.query('.field_content_error', dojo.byId('factAddFormWrapper')).empty();
 
     //focus the first text field
-    dojo.query('.dijitTextBox:not([type=hidden]), .dijitTextarea:not([type=hidden])', factAddDialog.domNode)[0].focus(); //FIXME for textboxes
+    //dojo.query('.dijitTextBox:not([type=hidden]):first-of-type, .dijitTextarea:not([type=hidden]):first-of-type', factAddDialog.domNode).query('input')[0].focus(); //FIXME for textboxes
+    dojo.query('.dijitTextBox:not([type=hidden]) input, .dijitTextArea:not([type=hidden])', factAddDialog.domNode)[0].focus(); //FIXME for textboxes
 }
 
 function createFieldInputsForUpdate(domNode, factTypeId, factFieldValues, cardTemplatesOnCompleteCallback, factFieldsOnCompleteCallback) { //todo:refactor into 2 meths
