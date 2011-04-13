@@ -20,6 +20,17 @@
     }
 </script>
 
+{% if not debug %}
+
+    <script type="text/javascript">
+
+    var _gaq = _gaq || [];
+    _gaq.push(['_trackPageview', '{{ request.path }}']);
+
+    </script>
+
+{% endif %}
+
 {% comment %}
 <script type="text/javascript">
     dojo.addOnLoad(function() {
