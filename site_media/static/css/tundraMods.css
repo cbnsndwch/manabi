@@ -88,6 +88,14 @@
 .tundra .dijitTextArea {
 	padding: 6px;
 }
+.tundra .dijitTextBox {
+    padding: 1px;
+    margin-top: .5em;
+    margin-bottom: .5em;
+}
+.tundra .dijitInputContainer input, .tundra .dijitTextBox {
+    margin: 0;
+}
 
 .tundra .dijitComboBox .dijitButtonNode {
     padding: 0.2em 0.2em;

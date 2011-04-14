@@ -5,11 +5,13 @@
 	{# if the context processor did not pass the DOJANGO context, we set it here #}
 	{% set_dojango_context %}
 {% endif %}
+{% comment %}
 <style type="text/css">
     /*@import "/site_media/static/css/dojo.css";*/
     /*@import "http://ajax.googleapis.com/ajax/libs/dojo/1.5/dojo/resources/dojo.css";*/
-    @import "{{ DOJANGO.THEME_CSS_URL }}";
 </style>
+{% endcomment %}
+<link rel="stylesheet" href="{{ DOJANGO.THEME_CSS_URL }}" />
 <script type="text/javascript">
     {# baseUrl setting is needed, if you want to combine a local with a remote build! #}
 	var djConfig = {

@@ -62,7 +62,7 @@
                             {% else %}
 
                                 <div id="id_field_content-{{ forloop.counter0 }}-content-errors" class="field_content_error"{% if field_type.is_transliteration_field_type %} style="display:inline"{% endif %}></div>
-                                <div style="overflow:hidden;">
+                                <div style="">
                                     {% if field_type.multi_line %}
                                         <textarea dojoType="dijit.form.Textarea" 
                                     {% else %}

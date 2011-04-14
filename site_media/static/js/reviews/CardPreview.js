@@ -112,7 +112,7 @@ dojo.declare('reviews.CardPreview._base', [dijit._Widget, dijit._Templated], {
     _renderReadingAndExpression: function() {
         // Hides the expression if the reading sans ruby text matches it
         var ret = format('<span class="reading">{reading:furiganaize}</span>', this.fields, formatters);
-        if (formatters.stripRubyText(this.fields.reading) != this.fields.expression) {
+        if (dojo.trim(formatters.stripRubyText(this.fields.reading)) != dojo.trim(this.fields.expression)) {
             ret = format('<span class="expression">{expression}</span>', this.fields) + ret;
         }
         return ret;

@@ -700,11 +700,6 @@ ul.shared_decks {
 .fact_form_container label {
     font-weight: bold;
 }
-.fact_form_container .dijitTextBox {
-    margin-top: .3em;
-    margin-bottom: .5em;
-    width: 99%;
-}
 .fact_form_container .required {
     font-size: .8em;
     color: gray;
@@ -715,8 +710,16 @@ ul.shared_decks {
 .fact_form_container .field {
     margin: .5em 0;
 }
+.fact_form_container .field_content_error {
+    display: inline;
+    font-size: 1em;
+}
 .fact_form_container .field .dijitTextBox {
-    font-size: 1.3em;
+    font-size: 1.6em;
+    margin-top: .2em;
+    margin-bottom: .2em;
+    padding: .2em;
+    width: 98%;
 }
 .fact_form_container .field .refresh {
     position: relative;
