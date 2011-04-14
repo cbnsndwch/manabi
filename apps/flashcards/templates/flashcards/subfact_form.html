@@ -3,7 +3,7 @@
     {% for field_type in subfact_form.field_types %}
         {% with subfact_form.field_content_for_field_types|key:field_type as field_content %}
             <span style="float:left;clear:left;display:block;width:7em;">
-                <strong><label>{{ field_type.name }}:</label></strong>
+                <strong><label>{{ field_type.display_name }}:</label></strong>
                 {% if field_type.is_transliteration_field_type %}
                     {% spaceless %}
                         <span class="fakeLink" onclick="fact_ui.generateReading(dijit.byId('id_field_content-{% if subfact_form.is_js_template %}${% templatetag openbrace %}{{ forloop.counter0|add:-1 }}{% templatetag closebrace %}{% else %}{{ forloop.counter0|add:subfact_form.field_content_offset|add:-1 }}{% endif %}-content').get('value'),'id_field_content-{% if subfact_form.is_js_template %}${% templatetag openbrace %}{{ forloop.counter0 }}{% templatetag closebrace %}{% else %}{{ forloop.counter0|add:subfact_form.field_content_offset }}{% endif %}-content')">
