@@ -4,8 +4,6 @@ manabi notes
 
 post-launch todo:
 notice for no js, no cookies (see SO)
--rename mature to pr.
--favicon
 kb shortcuts: replay audio
 
 
@@ -162,14 +160,9 @@ TODO:
 ---------------------
 stat counts shoudl take into account active or suspended cards/facts too
 
-
 change the page title when the hash changes, somehow
 
-user feedback link thing
-
 use 'term' instead of 'expression'
-
-don't allow viewing a deck which you don't own
 
 confirmed account page should have link to login
 
@@ -232,6 +225,8 @@ consolidate fact_add_form and fact_form
 ---------------------
 TODO (low priority):
 ---------------------
+allow furigana in meaning fields
+
 make card template widget demand at least 1 checkmark at all times (really?)
 
 natural sorting for deck names (less 2 vs. lesson 10)
@@ -255,8 +250,6 @@ or perhaps add a 'monolingual?' kind of bool field
 allow unicode full-width (japanese) [] for transliterations, as well as < > because theyre easier to type in the japanese IME
 
 allow a 'new card order' for cards within a fact (like recall before other ones since recall is more important)
-
-decorators for view funcs (GET, POST, DELETE etc)
 
 sort POS
 
@@ -424,6 +417,12 @@ inflection (like in Genki)
 
 truancy expectation (http://foolsworkshop.com/reviews/terms#truancy and its uses there)
 
+
+------------------
+Content sources
+------------------
+http://thejapanesepage.com/w/index.php?title=Grammatical_terms
+
 samurai words deck: http://www.tofugu.com/2008/02/09/how-to-talk-like-a-samurai/
 
 
@@ -543,10 +542,6 @@ what to do about singular kanji without vocab? how to select vocab, what to show
 
 
 
------------------------
-clarifying thoughts:
-meaning fields shouldn't need transliteration fields, since meaning should make sense to you.
-but still allow furigana in meaning fields
 
 
 

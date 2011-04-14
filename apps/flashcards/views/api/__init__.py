@@ -11,6 +11,7 @@ from django.http import Http404, HttpResponseRedirect, HttpResponse
 from django.shortcuts import get_object_or_404, render_to_response
 from django.template import RequestContext, loader
 from django.utils import simplejson
+from django.views.decorators.cache import cache_page
 from django.views.decorators.http import require_GET
 from django.views.generic.create_update \
     import update_object, delete_object, create_object
@@ -48,6 +49,7 @@ def rest_deck_subscribe(request, deck_id):
         return {'deckId': new_deck.id,
                 'postRedirect': new_deck.get_absolute_url()}
 
+@cache_page(60 * 60 * 24 * 1) # 1 day
 @api
 def rest_generate_reading(request):
     if request.method == 'POST':
