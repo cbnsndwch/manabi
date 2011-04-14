@@ -38,6 +38,11 @@ MATURITY_COLORS = {
     'mature':   '#E4C670',
 }
     
+MATURITY_NAMES = {
+    'new': 'New',
+    'young': 'Started',
+    'mature': 'Proficient',
+}
 
 
 @api
@@ -58,7 +63,7 @@ def repetitions(request):
                       for value in data)
 
         series.append({
-            'name': maturity,
+            'name': MATURITY_NAMES.get(maturity, maturity),
             'data': data,
             'color': MATURITY_COLORS[maturity],
         })
@@ -87,7 +92,7 @@ def due_counts(request):
                       for value in future_counts))
 
         series.append({
-            'name': maturity,
+            'name': MATURITY_NAMES.get(maturity, maturity),
             'data': data,
             'color': MATURITY_COLORS[maturity],
         })
