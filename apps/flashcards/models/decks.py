@@ -399,6 +399,8 @@ class Deck(models.Model):
 
             writer.writerow(fields + templates)
 
+        response['Content-Length'] = len(response.content)
+
         return response
 
 usertagging.register(Deck)
