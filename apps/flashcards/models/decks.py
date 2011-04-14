@@ -255,14 +255,7 @@ class Deck(models.Model):
 
             # copy the cards
             for shared_card in shared_fact.card_set.filter(active=True):
-                card = cards.Card(
-                    fact=fact,
-                    template_id=shared_card.template_id,
-                    priority=shared_card.priority,
-                    leech=False, #shared_card.leech,
-                    active=True,# shared_card.active,
-                    suspended=shared_card.suspended,
-                    new_card_ordinal=shared_card.new_card_ordinal)
+                card = shared_card.copy(fact)
                 card.save()
         #done!
         return deck

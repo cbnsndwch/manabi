@@ -83,7 +83,20 @@ class Card(models.Model):
         back = format_(render_to_string(
             self.template.back_template_name, card_context))
         return u'{0} | {1}'.format(front, back)
-        
+
+    def copy(self, target_fact):
+        '''
+        Returns a new Card object.
+        '''
+        return cards.Card(
+                fact=target_fact,
+                template_id=self.template_id,
+                priority=self.priority,
+                leech=False,
+                active=True,
+                suspended=True,
+                new_card_ordinal=self.new_card_ordinal)
+
 
     def to_api_dict(self):
         '''

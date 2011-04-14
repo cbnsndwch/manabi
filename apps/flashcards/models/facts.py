@@ -415,14 +415,7 @@ class Fact(models.Model):
         # copy the cards
         from cards import Card
         for shared_card in self.card_set.filter(active=True):
-            card = Card(
-                    fact=copy,
-                    template_id=shared_card.template_id,
-                    priority=shared_card.priority,
-                    leech=False,
-                    active=True,
-                    suspended=shared_card.suspended,
-                    new_card_ordinal=shared_card.new_card_ordinal)
+            card = shared_card.copy(copy)
             card.save()
 
         # copy the tags too
