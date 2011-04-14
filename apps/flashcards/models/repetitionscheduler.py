@@ -348,7 +348,7 @@ class YoungCardAlgo(RepetitionAlgo):
 
 class MatureCardAlgo(RepetitionAlgo):
     def _next_interval(self, failure_interval=0):
-        return super(YoungCardAlgo, self)._next_interval(
+        return super(MatureCardAlgo, self)._next_interval(
             failure_interval=self.MATURE_FAILURE_INTERVAL)
 
 
