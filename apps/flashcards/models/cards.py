@@ -88,7 +88,7 @@ class Card(models.Model):
         '''
         Returns a new Card object.
         '''
-        return cards.Card(
+        return Card(
                 fact=target_fact,
                 template_id=self.template_id,
                 priority=self.priority,
