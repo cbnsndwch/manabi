@@ -12,10 +12,12 @@ class FactAdmin(admin.ModelAdmin):
     raw_id_fields = ('synchronized_with', 'parent_fact',)
     list_display = ('__unicode__', 'owner',)
     list_filter = ('deck',)
+    readonly_fields = ('created_at', 'modified_at',)
 
 class DeckAdmin(admin.ModelAdmin):
     list_display = ('__unicode__', 'owner',)
     list_filter = ('owner',)
+    readonly_fields = ('created_at', 'modified_at',)
 
 class FactTypeAdmin(admin.ModelAdmin):
     pass
