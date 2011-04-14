@@ -2,7 +2,7 @@
 <div class="subfact">
     {% for field_type in subfact_form.field_types %}
         {% with subfact_form.field_content_for_field_types|key:field_type as field_content %}
-            <span style="float:left;clear:left;display:block;line-height:33px;">
+            <span style="float:left;clear:left;display:block;width:7em;">
                 <strong><label>{{ field_type.name }}:</label></strong>
                 {% if field_type.is_transliteration_field_type %}
                     {% spaceless %}
