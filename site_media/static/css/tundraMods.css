@@ -115,3 +115,45 @@
     color: lightgray;
     font-size: .5em;
 }*/
+
+
+
+/* my new icons */
+
+
+.tundra .manabi_icon {
+	width: 16px;
+	height: 16px;
+	text-align: center;
+}
+.tundra .manabi_icon_magnifier {
+	background-image: url(/site_media/static/icons/silk/magnifier.png);
+}
+.tundra .manabi_icon_add {
+	background-image: url(/site_media/static/icons/silk/add.png);
+}
+.tundra .manabi_icon_undo {
+	background-image: url(/site_media/static/icons/silk/arrow_undo.png);
+}
+.tundra .manabi_icon_control_pause {
+	background-image: url(/site_media/static/icons/silk/control_pause_blue.png);
+}
+.tundra .manabi_icon_control_play {
+	background-image: url(/site_media/static/icons/silk/control_play_blue.png);
+}
+.tundra .manabi_icon_clock_play {
+	background-image: url(/site_media/static/icons/silk/clock_play.png);
+}
+.tundra .manabi_icon_clock_stop {
+	background-image: url(/site_media/static/icons/silk/clock_stop.png);
+}
+.tundra .manabi_icon_application_form_edit {
+	background-image: url(/site_media/static/icons/silk/application_form_edit.png);
+}
+.tundra .manabi_icon_information {
+	background-image: url(/site_media/static/icons/silk/information.png);
+}
+.tundra .manabi_icon_disk {
+	background-image: url(/site_media/static/icons/silk/disk.png);
+}
+
