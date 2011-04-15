@@ -31,6 +31,8 @@ urlpatterns = patterns('',
         {'template': 'tos.html'}, name='terms_of_service'),
     url(r'^privacy-policy/$', direct_to_template,
         {'template': 'privacy.html'}, name='privacy_policy'),
+    url(r'^credits/$', direct_to_template,
+        {'template': 'credits.html'}, name='credits'),
 
     url(r'^flashcards/api/', include(rest_api_urlpatterns)),
 
