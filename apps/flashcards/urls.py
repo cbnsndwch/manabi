@@ -90,8 +90,6 @@ internal_api_urlpatterns += patterns('flashcards.views.api.review',
         name='api-next_card_due_at'),
     url(r'^cards_for_review/hours_until_next_due/$', 'hours_until_next_card_due',
         name='api-hours_until_next_card_due'),
-    url(r'^next_cards_for_review/$', 'next_cards_for_review',
-        name='api-next_cards_for_review'),
 
     #card review undo
     url(r'^cards_for_review/undo/$', 'undo_review',
@@ -115,6 +113,8 @@ rest_api_urlpatterns = patterns('',
         name='rest-shared_deck_list'),
     url(r'^decks/(?P<pk>\d+)/subscriptions/$', DeckSubscription.as_view(),
         name='rest-deck_subscription'),
+    url(r'^decks/(?P<pk>\d+)/status/$', DeckStatus.as_view(),
+        name='rest-deck_status'),
     url(r'^decks/(?P<pk>\d+)/$', Deck.as_view(),
         name='rest-deck'),
 
@@ -126,8 +126,10 @@ rest_api_urlpatterns = patterns('',
     url(r'^next-cards-for-review/undo-stack/$', ReviewUndo.as_view(),
         name='rest-review_undo_stack'),
 
-    url(r'^cards/(?P<pk>\d+)/reviews/', CardReviews.as_view(),
+    url(r'^cards/(?P<pk>\d+)/reviews/$', CardReviews.as_view(),
         name='rest-card_reviews'),
+    url(r'^cards/(?P<pk>\d+)/$', Card.as_view(),
+        name='rest-card'),
 )
 
 

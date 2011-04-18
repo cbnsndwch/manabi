@@ -1,4 +1,13 @@
 
+/* Custom classes */
+.tundra .mini.dijit .dijitButtonText {
+    font-size: .8em;
+    position: relative;
+    top: -.15em;
+    padding: 0 .6em;
+}
+
+
 /* Buttons */
 .tundra .dijitButtonNode {
 	/*background:#d1d1d1 url(images/button-bg.png) repeat-x 0 0;*/
@@ -105,16 +114,22 @@
 /* inline editing */
 .dijitInlineEditBoxDisplayModeHover {
     /*background-color: #eee;*/
+    background-color: #F2F8FF;
     border: none;
 }
 .dijitInlineEditBoxDisplayMode {
     border: none;
+    cursor: pointer;
 }
-/*.dijitInlineEditBoxDisplayModeHover:after {
+.dijitInlineEditBoxDisplayModeHover:after {
     content: 'click to edit';
     color: lightgray;
-    font-size: .5em;
-}*/
+    font-size: .55em;
+    font-weight: normal;
+    font-style: italic;
+    margin-left: .5em;
+    line-height: .4em;
+}
 
 
 
@@ -139,7 +154,7 @@
 	background-image: url(/site_media/static/icons/silk/control_pause_blue.png);
 }
 .tundra .manabi_icon_control_play {
-	background-image: url(/site_media/static/icons/silk/control_play_blue.png);
+	background-image: url(/site_media/static/icons/silk/control_play.png);
 }
 .tundra .manabi_icon_clock_play {
 	background-image: url(/site_media/static/icons/silk/clock_play.png);
@@ -156,4 +171,5 @@
 .tundra .manabi_icon_disk {
 	background-image: url(/site_media/static/icons/silk/disk.png);
 }
+
 

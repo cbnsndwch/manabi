@@ -77,7 +77,10 @@ class Deck(models.Model):
     shared_at = models.DateTimeField(null=True, blank=True)
     # or if not, whether it's synchronized with a shared deck
     synchronized_with = models.ForeignKey('self', null=True, blank=True, related_name='subscriber_decks')
-    active = models.BooleanField(default=True, blank=True)
+
+    # "active" is just a soft deletion flag. "suspended" is temporarily disabled.
+    suspended = models.BooleanField(default=False, db_index=True) 
+    active = models.BooleanField(default=True, blank=True, db_index=True)
 
 
     def __unicode__(self):

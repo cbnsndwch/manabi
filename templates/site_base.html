@@ -79,7 +79,9 @@
             <div id="body_contents">
                 {% block body %}
                     {% block body_contents %}
-                        {% block content %}{% endblock %}
+                        <div class="inner_body_contents">
+                            {% block content %}{% endblock %}
+                        </div>
                     {% endblock %}
                 {% endblock %}
             </div>
@@ -94,16 +96,6 @@
     {% trans "&copy; Alex Ehlke 2011" %}.
     Feedback or support: <a href="mailto:support@manabi.org">support@manabi.org</a> | <a href="{% url terms_of_service %}" class="xhr_link">Terms of Service</a> | <a href="{% url privacy_policy %}" class="xhr_link">Privacy Policy</a>
     | <a href="{% url credits %}" class="xhr_link">Credits</a>
-
-
-    {% comment %}
-    <div class="sub_legal">
-        Icons by <a href="http://dryicons.com">DryIcons</a>
-    </div>
-    {% endcomment %}
-{% comment %}    - <a href="{% url about %}">{% trans "About" %}</a>
-    - <a href="{% url terms %}">{% trans "Terms of Service" %}</a>
-    - <a href="{% url privacy %}">{% trans "Privacy Policy" %}</a> {% endcomment %}
 </div>
 {% endblock %}
 

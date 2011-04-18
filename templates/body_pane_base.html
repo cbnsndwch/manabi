@@ -2,11 +2,12 @@
 {% load i18n lazysignup_tags %}
 {% load lazy_warning %}
 
-{% if user|is_lazy_user %}
-    {% show_lazy_user_warning user %}
-{% endif %}
 
-<div class="{% block content_class %}{% endblock %}">
+<div class="{% block content_class %}{% endblock %} inner_body_contents">
+    {% if user|is_lazy_user %}
+        {% show_lazy_user_warning user %}
+    {% endif %}
+
     {% block content %}
     {% endblock %}
 </div>
@@ -24,23 +25,9 @@
 {% if not debug %}
 
     <script type="text/javascript">
-
-    var _gaq = _gaq || [];
-    _gaq.push(['_trackPageview', '{{ request.path }}']);
-
+        var _gaq = _gaq || [];
+        _gaq.push(['_trackPageview', '{{ request.path }}']);
     </script>
 
 {% endif %}
 
-{% comment %}
-<script type="text/javascript">
-    dojo.addOnLoad(function() {
-        manabi_ui.convertLinksToXhr(body_pane.domNode);
-    });
-</script>
-
-<script type="text/javascript">
-    dojo.ready(function() {
-    });
-</script>
-{% endcomment %}

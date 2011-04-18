@@ -37,9 +37,8 @@ class Card(models.Model):
     
     # False when the card is removed from the Fact. This way, we can keep 
     # card statistics if enabled later.
-    active = models.BooleanField(default=True, db_index=True) 
+    active = models.BooleanField(default=True, db_index=True)
 
-    # Not used right now. 'active' is more like a deletion, this is lighter.
     suspended = models.BooleanField(default=False, db_index=True) 
 
     new_card_ordinal = models.PositiveIntegerField(null=True, blank=True)
@@ -94,28 +93,8 @@ class Card(models.Model):
                 priority=self.priority,
                 leech=False,
                 active=True,
-                suspended=True,
+                suspended=False,
                 new_card_ordinal=self.new_card_ordinal)
-
-
-    def to_api_dict(self):
-        '''
-        Returns a dictionary version of this model, to be used with 
-        the JSON API. This is a dictionary that can be trivially 
-        serialized into JSON.
-
-        DEPRECATED
-        '''
-        return {
-            'id': self.id,
-            'factId': self.fact_id,
-            'front': self.render_front(),
-            'back': self.render_back(),
-            'nextDueAtPerGrade':
-                dict((grade, rep.due_at)
-                        for (grade, rep)
-                        in self.next_repetition_per_grade().items())
-        }
 
     @property
     def owner(self):

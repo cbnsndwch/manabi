@@ -157,7 +157,6 @@ class Deck(DeletionMixin, DetailView, ManabiRestView):
             context['subscription_url'] = reverse(
                     'rest-deck_subscription', args=[deck.id])
 
-
         return context
         
 
@@ -170,6 +169,23 @@ class Deck(DeletionMixin, DetailView, ManabiRestView):
             methods.remove('delete')
         return methods
             
+
+class DeckStatus(ManabiRestView):
+    '''
+    Shows and can update the status of a deck.
+
+    For now, this only handles suspending decks.
+    '''
+    def get(self, request, **kwargs):
+        deck = get_deck_or_404(request.user, kwargs.get('pk'))
+        return self.render_to_response({'suspended': deck.suspended})
+
+    def post(self, request, **kwargs):
+        deck = get_deck_or_404(request.user, kwargs.get('pk'), must_own=True)
+        params = clean_query(request.POST, {'suspended': bool})
+        deck.suspended = params.get('suspended', deck.suspended)
+        deck.save()
+        return self.render_to_response({'suspended': deck.suspended})
 
 
 
@@ -240,7 +256,7 @@ class NextCardsForReview(CardQueryFiltersMixin, ManabiRestView):
 
         count = params.get('count', 5)
 
-        next_cards = Card.objects.next_cards(
+        next_cards = models.Card.objects.next_cards(
             request.user,
             count,
             excluded_ids=params.get('excluded_cards', []),
@@ -258,6 +274,20 @@ class NextCardsForReview(CardQueryFiltersMixin, ManabiRestView):
         })
 
 
+class Card(DetailView, ManabiRestView):
+    '''
+    Detail view of a single card. Currently only used for retrieving a specific 
+    card during a review session.
+    '''
+    resource_class = CardResource
+
+    def get_object(self):
+        card = get_object_or_404(models.Card, pk=self.kwargs.get('pk'))
+        if card.owner != self.request.user:
+            raise PermissionDenied('You do not own this flashcard.')
+        return card
+
+
 class CardReviews(ManabiRestView):
     '''
     Currently a write-only resource for review operations.
@@ -273,7 +303,7 @@ class CardReviews(ManabiRestView):
             'questionDuration': float
         })
 
-        card = get_object_or_404(Card, pk=self.kwargs.get('pk')) 
+        card = get_object_or_404(models.Card, pk=self.kwargs.get('pk')) 
 
         if card.owner != request.user:
             raise PermissionDenied('You do not own this flashcard.')

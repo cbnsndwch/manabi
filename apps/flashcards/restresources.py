@@ -12,7 +12,6 @@ class UserResource(RestModelResource):
         return data
 
 
-
 class DeckResource(RestModelResource):
     fields = ('id', 'name', 'description', 'owner',
               'shared', 'shared_at', 'created_at', 'modified_at',)
@@ -22,10 +21,13 @@ class DeckResource(RestModelResource):
 
     def get_data(self):
         data = super(DeckResource, self).get_data()
-        data['owner'] = UserResource(self.obj.owner).get_data()
-        data['card_count'] = self.obj.card_count
-
+        data.update({
+            'owner': UserResource(self.obj.owner).get_data(),
+            'card_count': self.obj.card_count,
+            'status_url': reverse('rest-deck_status', args=[self.obj.id]),
+        })
         return data
+
 
 class CardReviewsResource(RestResource):
     def __init__(self, card):
@@ -39,8 +41,8 @@ class CardResource(RestModelResource):
               'last_ease_factor', 'last_interval', 'last_due_at',
               'review_count')
 
-    #def get_url_path(self):
-    #    return reverse('rest-card', args=[self.obj.id])
+    def get_url_path(self):
+        return reverse('rest-card', args=[self.obj.id])
     
     def get_data(self):
         data = super(CardResource, self).get_data()

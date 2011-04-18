@@ -186,8 +186,6 @@ class SchedulerMixin(object):
         ret = self.filter(id__in=eligible_ids).order_by('new_card_ordinal')
         ret = ret[:count]
         return ret
-            
-
 
     def _next_due_soon_cards(self, user, initial_query, count,
             review_time, excluded_ids=[], 
@@ -206,7 +204,6 @@ class SchedulerMixin(object):
             last_reviewed_at__gt=priority_cutoff).order_by('due_at')
         return self._space_cards(
             staler_cards, count, review_time, early_review=True)
-
 
     def _next_due_soon_cards2(self, user, initial_query, count,
             review_time, excluded_ids=[], 
@@ -383,6 +380,9 @@ class CommonFiltersMixin(object):
                 ).unsuspended().filter(active=True)
         if deck:
             cards = cards.of_deck(deck, with_upstream=with_upstream)
+        else:
+            cards = cards.exclude(fact__deck__suspended=True)
+
         if excluded_ids:
             cards = cards.exclude_ids(excluded_ids)
         if tags:
