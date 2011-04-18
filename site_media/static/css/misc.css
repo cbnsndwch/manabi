@@ -593,7 +593,6 @@ ul.deck_list {
 }
 .deck_list .deck_name {
     display: block;
-    margin-right: 10em;
     font-size: 1.1em;
     font-weight: bold;
     position: relative;
@@ -636,6 +635,9 @@ ul.deck_list {
     color: gray;
 }
 
+.manage_decks .deck_list .deck_name {
+    margin-right: 10em;
+}
 
 .fact_form_container {
     width: 39em;
