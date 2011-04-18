@@ -34,7 +34,7 @@
                         reviews_ui.setKeyboardShortcuts();
                     };
                     
-                    fact_ui.showFactEditForm(reviews_ui.session.currentCard.factId, successCallback);
+                    fact_ui.showFactEditForm(reviews_ui.session.currentCard.fact_id, successCallback);
                 </script>
             </div>
             <div dojoType="dijit.form.Button" type="button" id="reviews_suspendCurrentCardButton" iconClass="manabi_icon manabi_icon_control_pause">
@@ -198,90 +198,6 @@
 
 
 
-<div dojoType="dijit.Dialog" jsId="reviews_reviewDialog" id="reviews_reviewDialog" title="Flashcards">
-	<script type="dojo/connect" event="onCancel" args="evt">
-        reviews_ui.session.endSession();
-	</script>
-	<script type="dojo/connect" event="onLoad" args="evt">
-        //FIXME this isn't working - do it programmatically
-        //reviews_reviewDialog.refocus = true;
-	</script>
-	<script type="dojo/connect" event="onKeyPress" args="evt">
-        //submit the dialog if user presses Enter
-        var k = dojo.keys;
-        switch(evt.charOrCode) {
-            case k.ENTER:
-                //FIXME shouldnt be active for early review dialog //reviews_ui.submitReviewOptionsDialog();
-                break;
-        }
-	</script>
-
-    <div id="reviews_emptyQuery" style="display: none">
-        <strong style="font-size:120%">No cards to review.</strong><br>
-        Your selection contains no cards to review.<br>
-        <br>
-        Try creating flashcards first, or download a shared deck.<br>
-        <br>
-        <span class="fakeLink" onclick="reviews_ui.showReviewOptions()">Back to study options</span>
-    </div>
-    <div id="reviews_noCardsDue" style="display: none">
-        <strong style="font-size:120%">No cards are due right now.</strong><br>
-        You should wait until later to review more.<br>
-        But if you like, you may continue.<br>
-        <br>
-        <span id="reviews_noCardsDueNextDueAt"></span><br>
-        <br>
-        <div style="text-align:center">
-            <span id="reviews_reviewEarlyContainer">
-                <button dojoType="dijit.form.Button" type="button" jsId="reviews_beginEarlyReviewButton">
-                    Review Early
-                    <script type="dojo/connect" event="onClick" args="evt">
-                        //reviews_ui.submitReviewOptionsDialog(true);
-                        var args = dojo.clone(reviews_ui.lastSessionArgs);
-                        args.earlyReview = true;
-                        args.learnMore = false;
-                        reviews_ui.startSession(args);
-                    </script>
-                </button><br>
-            </span>
-            <span style="color:gray">Review cards before they're due.</span><br>
-            <span id="reviews_learnMoreContainer">
-                <br>
-                <button dojoType="dijit.form.Button" type="button" jsId="reviews_learnMoreButton">
-                    Learn More
-                    <script type="dojo/connect" event="onClick" args="evt">
-                        //reviews_ui.submitReviewOptionsDialog(true, true); // learn more, and learn new cards early if necessary
-                        var args = dojo.clone(reviews_ui.lastSessionArgs);
-                        args.earlyReview = true;
-                        args.learnMore = true;
-                        reviews_ui.startSession(args);
-                    </script>
-                </button><br>
-                <span style="color:gray">Learn new cards.</span><br>
-            </span>
-        </div>
-        <br>
-        <div dojoType="dijit.form.Button">
-            Done
-            <script type="dojo/connect" event="onClick" args="evt">
-                reviews_reviewDialog.hide();
-            </script>
-        </div>
-        {% comment %}
-        <br>
-        <span class="fakeLink" onclick="reviews_ui.showReviewOptions()">Back to study options</span>
-        {% endcomment %}
-    </div>
-    <div id="reviews_beginReview">
-        <button dojoType="dijit.form.Button" type="button" iconClass="manabi_icon manabi_icon_clock_play" jsId="reviews_beginReviewButton">
-            Begin Review
-            <script type="dojo/connect" event="onClick" args="evt">
-                reviews_ui.submitReviewOptionsDialog();
-            </script>
-        </button>
-    </div>
-
-</div>
 
 
 <div dojoType="dijit.Dialog" jsId="reviews_sessionOverDialog" id="reviews_sessionOverDialog" title="Flashcard Review">
@@ -317,8 +233,7 @@
             var args = dojo.clone(reviews_ui.lastSessionArgs);
             args.earlyReview = false;
             args.learnMore = false;
-            reviews_ui.startSession(args); //reuse whatever args were used last to start a study session //{{ deck.id }});
-            //reviews_ui.openDialog();
+            reviews_ui.startSession(args); //reuse whatever args were used last to start a study session
         </script>
     </button>
     {% endcomment %}

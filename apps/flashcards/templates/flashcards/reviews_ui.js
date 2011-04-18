@@ -9,7 +9,6 @@ dojo.require('reviews.SessionOverDialog');
 
 
 dojo.ready(function(){
-    reviews_ui.reviewOptionsDialog = dijit.byId('reviews_reviewDialog');
     reviews_ui.reviewDialog = dijit.byId('reviews_fullscreenContainer');
     reviews_ui.sessionStarted = false;
 
@@ -33,29 +32,6 @@ reviews_ui.showReviewOptions = function() {
     dojo.byId('reviews_reviewEndScreen').style.display = 'none';
     reviews_beginReviewButton.set('disabled', false);
     reviews_beginEarlyReviewButton.set('disabled', true);
-};
-
-
-reviews_ui.openDialog = function() {
-    //TODO first check if there are any cards due (using default review options? or special request to server)
-
-    //show the options screen
-    reviews_ui.showReviewOptions();
-    reviews_ui.reviewOptionsDialog.tabStart = reviews_beginReviewButton;
-
-    reviews_ui.reviewOptionsDialog.show();
-
-    reviews_decksGrid.store.close();
-    reviews_decksGrid.store.fetch({
-        onComplete: function() {
-            reviews_decksGrid.sort();
-            reviews_decksGrid.resize();
-            
-            //reset the deck selection
-            reviews_decksGrid.selection.setSelected(reviews_decksGrid.selection.selectedIndex, false);
-            reviews_decksGrid.selection.setSelected(0, true);
-        }
-    });
 };
 
 
@@ -355,13 +331,13 @@ reviews_ui.startSession = function(args) { //deckId, sessionTimeLimit, sessionCa
 
     var sessionArgs = {
         //FIXME use the user-defined session limits
-        deckId: args.deckId||null,//'-1', 
+        deckId: args.deckId || null,
         dailyNewCardLimit: 20, 
-        cardLimit: args.sessionCardLimit||0, 
-        timeLimit: args.sessionTimeLimit||10,
-        tagId: args.tag_id||null,//'-1',
-        earlyReview: args.earlyReview||false, 
-        learnMore: args.learnMore||false,
+        cardLimit: args.sessionCardLimit || 0,
+        timeLimit: args.sessionTimeLimit || 10,
+        tagId: args.tag_id||null,
+        earlyReview: args.earlyReview || false, 
+        learnMore: args.learnMore || false,
         nextCardsForReviewUrl: '{% url rest-next_cards_for_review %}',
         undoStackUrl: '{% url rest-review_undo_stack %}'
     };
@@ -384,23 +360,13 @@ reviews_ui.startSession = function(args) { //deckId, sessionTimeLimit, sessionCa
             manabi_ui.hideLoader();
 
             if (nextCard) {
-                //hide this dialog and show the review screen
-                reviews_reviewDialog.refocus = false;
-                reviews_reviewDialog.hide();
                 reviews_ui.showReviewScreen();
 
                 //show the card
                 reviews_ui.displayCard(nextCard);
             } else {
                 //no cards are due
-                //are there new cards left to learn today? (decide whether to
-                //show learn more button).
-                //canLearnMore = initialCardPrefetch.new_cards_left_for_today == '0' && initialCardPrefetch.new_cards_left != '0'; //TODO better api for this
-                // ! canLearnMore = initialCardPrefetch.new_cards_left > 0; //TODO better api for this
-                // ! emptyQuery = initialCardPrefetch.total_card_count_for_query <= 0;
-                // ! reviews_ui.showNoCardsDue(canLearnMore, emptyQuery);
-                
-                //reviews_ui.showNoCardsDue(false, false); //FIXME do we need this dialog anymore, or just show some error
+                //TODO show an error here, since this should not ever happen now in the new site design.
             }
         }, initialCardPrefetch));
     });
