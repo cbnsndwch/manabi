@@ -206,10 +206,7 @@ def rest_facts(request, deck=None, tags=None):
             for fact in facts.iterator():
                 row = {
                     'fact-id': fact.id, 
-                    'suspended':
-                        (len(fact.card_set.filter(active=True)) and
-                            all([card.suspended for card
-                                in fact.card_set.filter(active=True)])),
+                    'suspended': fact.suspended(),
                 }
 
                 ident, name = '', ''

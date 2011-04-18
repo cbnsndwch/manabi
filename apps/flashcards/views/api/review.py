@@ -44,51 +44,6 @@ def subfacts(request, parent_fact_id):
 
 
 @api
-@has_card_query_filters
-def next_cards_for_review(request, deck=None, tags=None):
-    query_structure = {
-        'count': int,
-        'early_review': bool,
-        'learn_more': bool,
-        'session_start': bool, # Beginning of review session?
-        'excluded_cards': querycleaner.int_list,
-    }
-
-    if request.method == 'GET':
-        params = clean_query(request.GET, query_structure)
-
-        count = params.get('count', 5)
-
-        # New cards per day limit.
-        #TODO implement this to be user-configurable instead of hard-coded
-        #daily_new_card_limit = NEW_CARDS_PER_DAY
-
-        # Learn More new cards. Usually this will be 
-        # combined with early_review.
-        #if params.get('learn_more'):
-            # Overrides the daily new card limit
-            #daily_new_card_limit = None
-
-        next_cards = Card.objects.next_cards(
-            request.user,
-            count,
-            excluded_ids=params.get('excluded_cards', []),
-            session_start=params.get('session_start'),
-            deck=deck,
-            tags=tags,
-            early_review=params.get('early_review'))
-            #daily_new_card_limit=daily_new_card_limit)
-
-        #FIXME need to account for 0 cards returned 
-
-        # Format into JSON object.
-        formatted_cards = []
-        for card in next_cards:
-            formatted_cards.append(card.to_api_dict())
-
-        return formatted_cards
-
-@api
 def due_card_count(request):
     user = request.user
     return Card.objects.common_filters(user).due(user).count()

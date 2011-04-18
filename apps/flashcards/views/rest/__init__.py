@@ -263,7 +263,9 @@ class NextCardsForReview(CardQueryFiltersMixin, ManabiRestView):
             session_start=params.get('session_start'),
             deck=self.get_deck(),
             tags=self.get_tags(),
-            early_review=params.get('early_review'))
+            early_review=params.get('early_review'),
+            learn_more=params.get('learn_more'),
+        )
 
         #FIXME need to account for 0 cards returned 
 

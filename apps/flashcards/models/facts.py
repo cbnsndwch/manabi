@@ -298,6 +298,11 @@ class Fact(models.Model):
         #return dict((field_content.field_type_id, field_content) for field_content in field_contents)
         return field_contents
 
+    def suspended(self):
+        '''Returns whether this fact's cards are all suspended.'''
+        cards = self.card_set.filter(active=True)
+        return cards.exists() and not cards.filter(suspended=False).exists()
+
     def suspend(self):
         for card in self.card_set.all():
             card.suspended = True

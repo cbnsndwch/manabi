@@ -12,7 +12,10 @@ from flashcards.models.constants import \
 
 class SchedulerMixin(object):
     '''
+    Contains the functions for retrieving the next cards that are 
+    ready to be reviewed.
     '''
+
     def _space_cards(self, card_query, count, review_time,
             excluded_ids=[], early_review=False):
         '''
@@ -70,7 +73,7 @@ class SchedulerMixin(object):
 
     def _next_failed_due_cards(self, user, initial_query, count,
             review_time, excluded_ids=[],
-            early_review=False, deck=None, tags=None):
+            early_review=False, deck=None, tags=None, **kwargs):
         if not count:
             return []
         cards = initial_query.filter(
@@ -82,7 +85,7 @@ class SchedulerMixin(object):
 
     def _next_not_failed_due_cards(self, user, initial_query, count,
             review_time, excluded_ids=[],
-            early_review=False, deck=None, tags=None):
+            early_review=False, deck=None, tags=None, **kwargs):
         '''
         Returns the first [count] cards from initial_query which are due,
         weren't failed the last review, and  taking spacing of cards from
@@ -104,7 +107,7 @@ class SchedulerMixin(object):
 
     def _next_failed_not_due_cards(self, user, initial_query, count,
             review_time, excluded_ids=[], 
-            early_review=False, deck=None, tags=None):
+            early_review=False, deck=None, tags=None, **kwargs):
         if not count:
             return []
         #TODO prioritize certain failed cards, not just by due date
@@ -118,8 +121,9 @@ class SchedulerMixin(object):
         return card_query[:count]
 
     def _next_new_cards(self, user, initial_query, count, review_time,
-            excluded_ids=[], early_review=False, deck=None, tags=None,
-            add_upstream_facts_as_needed=True):
+            excluded_ids=[], early_review=False, learn_more=False,
+            deck=None, tags=None,
+            add_upstream_facts_as_needed=True, **kwargs):
         '''
         Gets the next new cards for this user or deck.
         '''
@@ -176,7 +180,7 @@ class SchedulerMixin(object):
 
         eligible_ids = [card.id for card in new_cards]
 
-        if early_review and len(eligible_ids) < count:
+        if (early_review or learn_more) and len(eligible_ids) < count:
             # Queue up spaced cards if needed for early review.
             eligible_ids.extend([card.id for card in new_card_query.exclude(
                                     id__in=eligible_ids).select_related()
@@ -189,7 +193,7 @@ class SchedulerMixin(object):
 
     def _next_due_soon_cards(self, user, initial_query, count,
             review_time, excluded_ids=[], 
-            early_review=False, deck=None, tags=None):
+            early_review=False, deck=None, tags=None, **kwargs):
         '''
         Used for early review.
         Ordered by due date.
@@ -207,7 +211,7 @@ class SchedulerMixin(object):
 
     def _next_due_soon_cards2(self, user, initial_query, count,
             review_time, excluded_ids=[], 
-            early_review=False, deck=None, tags=None):
+            early_review=False, deck=None, tags=None, **kwargs):
         if not count:
             return []
         priority_cutoff = review_time - datetime.timedelta(minutes=60)
@@ -220,67 +224,44 @@ class SchedulerMixin(object):
         return self._space_cards(
             fresher_cards, count, review_time, early_review=True)
 
-    def _next_cards(self, early_review=False):
+    def _next_cards(self, early_review=False, learn_more=False):
         card_funcs = [
             self._next_failed_due_cards,        # due, failed
             self._next_not_failed_due_cards,    # due, not failed
             self._next_failed_not_due_cards]    # failed, not due
+
+        if early_review and learn_more:
+            raise Exception(
+                    'Cannot set both early_review and learn_more together.')
 
         if early_review:
             card_funcs.extend([
                 self._next_due_soon_cards,
                 # due soon, not yet, but next in the future
                 self._next_due_soon_cards2]) 
+        elif learn_more:
+            # Only new cards, and ignore spacing.
+            card_funcs = [self._next_new_cards]
         else:
             card_funcs.extend([self._next_new_cards]) # new cards at end
         return card_funcs
 
-    #TODO not sure what this is necessary for, actually - it's used in one 
-    # place and can probably be merged with something else.
-    #def next_cards_count(self, user, excluded_ids=[], session_start=False,
-    #        deck=None, tags=None, early_review=False,
-    #        new_cards_only=False):
-    #    now = datetime.datetime.utcnow()
-
-    #    if new_cards_only:
-    #        card_funcs = [self._next_new_cards]
-    #    else:
-    #        card_funcs = self._next_cards(
-    #            early_review=early_review)
-
-    #    user_cards = self.common_filters(user,
-    #        with_upstream=True,
-    #        deck=deck, excluded_ids=excluded_ids, tags=tags)
-
-    #    count = 0
-    #    cards_left = 99999 #TODO find a more elegant approach
-    #    for card_func in card_funcs:
-    #        cards = card_func(
-    #            user, user_cards, cards_left, now, excluded_ids,
-    #            early_review=early_review,
-    #            deck=deck,
-    #            tags=tags)
-    #        count += cards.count()
-    #    return count
-
     def next_cards(self, user, count, excluded_ids=[],
-            session_start=False, deck=None, tags=None, early_review=False):
+            session_start=False, deck=None, tags=None,
+            early_review=False, learn_more=False):
         '''
         Returns `count` cards to be reviewed, in order.
         count should not be any more than a short session of cards
         set `early_review` to True for reviewing cards early 
         (following any due cards)
 
-        If both early_review is True and daily_new_card_limit is None,
-        new cards will be chosen even if they were spaced due to 
-        sibling reviews.
+        If learn_more is True, only new cards will be chosen,
+        even if they were spaced due to sibling reviews.
 
         "Due soon" cards won't be chosen in this case,
         contrary to early_review's normal behavior.
 
         (#TODO consider changing this to have a separate option)
-
-        The return format is (TODO)
         '''
 
         #TODO somehow spread some new cards into the early review 
@@ -288,9 +269,8 @@ class SchedulerMixin(object):
         #TODO use args instead, like *kwargs etc for these funcs
         now = datetime.datetime.utcnow()
         card_funcs = self._next_cards(
-            early_review=early_review)
+            early_review=early_review, learn_more=learn_more)
 
-        #FIXME bug rite here...... 4/3/11
         user_cards = self.common_filters(user,
             deck=deck, excluded_ids=excluded_ids, tags=tags)
 
@@ -304,6 +284,7 @@ class SchedulerMixin(object):
             cards = card_func(
                 user, user_cards, cards_left, now, excluded_ids,
                 early_review=early_review,
+                learn_more=learn_more,
                 deck=deck,
                 tags=tags)
 
@@ -321,7 +302,7 @@ class SchedulerMixin(object):
 
 class CommonFiltersMixin(object):
     '''
-    Provides filters for decks, tags.
+    Provides filters for decks, tags, maturity level, etc.
 
     This is particularly useful with view URLs which take query params for 
     these things.
@@ -496,15 +477,6 @@ class CommonFiltersMixin(object):
         '''
         return self.aggregate(Min('due_at'))['due_at__min']
 
-    #def count(self, user, deck=None, tags=None):
-        #cards = self.of_user(user)
-        #if deck:
-            #cards = cards.filter(fact__deck=deck)
-        #if tags:
-            #facts = usertagging.models.UserTaggedItem.objects.get_by_model(Fact, tags)
-            #cards = cards.filter(fact__in=facts)
-        #return cards.count()
-
     #def spaced_cards_new_count(self, user, deck=None):
         #threshold_at = datetime.datetime.utcnow() - datetime.timedelta(minutes=30)
         #recently_reviewed = self.filter(fact__deck__owner=user, fact__deck=deck, last_reviewed_at__lte=threshold_at)
@@ -543,15 +515,6 @@ class CardStatsMixin(object):
 CardManager = lambda: manager_from(
     CommonFiltersMixin, SchedulerMixin, CardStatsMixin)
     
-
-#class CardManager(models.Manager):
-    
-    ##set the base query set to only include cards of this user
-    #def get_query_set(self):
-    #    return super(UserCardManager, self).get_query_set().filter(
-
-
-
 
         
 

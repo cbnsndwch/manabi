@@ -25,7 +25,7 @@
 	                    <script type="dojo/connect" event="onClick" args="evt">
                             var args = {};
                             {% if deck %}args.deckId = {{ deck.id }}{% endif %}
-                            args.earlyReview = true;
+                            args.earlyReview = false;
                             args.learnMore = true;
                             reviews_ui.startSession(args);
 	                    </script>
