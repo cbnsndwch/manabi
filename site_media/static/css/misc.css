@@ -555,7 +555,8 @@ div.column, p.column {
     /*border-left: solid 3px lightgray;*/
     width: 29%;
     text-align: center;
-    padding: 1em 1em;
+    padding: 1em 1em 9999em 1em;
+    margin-bottom: -9999em;
     min-height: 30em;
 }
 .add_decks .column p {
