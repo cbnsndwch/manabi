@@ -166,11 +166,11 @@ make field uniqueness per-deck
 ---------------------
 TODO:
 ---------------------
+add toasters or info boxes for event successes and things like that. e.g. after resuming a suspended deck from its detail page.
+
 stat counts shoudl take into account active or suspended cards/facts too
 
 change the page title when the hash changes, somehow
-
-use 'term' instead of 'expression'
 
 confirmed account page should have link to login
 
@@ -207,11 +207,6 @@ help text for keyboard shortcuts
 make the 'per-card actions' section of buttons in the facts editor clearer
 
 more detailed card review history stats
-
-wait until deck stats are downloaded before opening the review dialog,
-so we can make sure the user selects a deck with due cards, etc.
-
-put the card grade buttons on the bottom of the screen
 
 make fact form requirements dependent on cards selected
 

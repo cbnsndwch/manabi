@@ -45,26 +45,17 @@
             <div>
                 <button class="suspend_deck" dojoType="dijit.form.Button" iconClass="manabi_icon manabi_icon_control_play">
                     Resume Deck
-                    <script type="dojo/connect" event="onChange" args="evt">
-                        var label = evt ? 'Resume' : 'Suspend';
-                        var icon = evt ? 'play' : 'pause';
-                        this.set('label', label);
-                        this.set('iconClass', 'manabi_icon manabi_icon_control_' + icon);
-
-                        var container = dojo.query(this.domNode).closest('li');
-                        if (evt) { container.addClass('suspended'); } else { container.removeClass('suspended'); }
-                    </script>
                     <script type="dojo/connect" event="onClick" args="evt">
-                        var suspend = this.get('checked');
-                        var url = "{% url rest-deck_status deck.id %}";
-
                         var xhr_args = {
-                            url: url,
-                            content: {'suspended': suspend},
+                            url: "{% url rest-deck_status deck.id %}",
+                            content: {'suspended': false},
                             handleAs: 'json',
                             load: dojo.hitch(this, function(data) {
                                 this.set('checked', data.suspended);
                                 this.set('disabled', false);
+
+                                // Reload this page.
+                                manabi_ui.xhrReload();
                             }),
                             error: function(err) {
                             }
