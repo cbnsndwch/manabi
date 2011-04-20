@@ -71,7 +71,7 @@
 
     <p>
         {% if request.user == deck.owner %}
-            {% if deck.card_count %}
+            {% if not deck.suspended and deck.card_count %}
                 {% show_deck_review_start_buttons deck %}
             {% endif %}
         {% else %}
