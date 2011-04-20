@@ -30,6 +30,9 @@ class Textbook(models.Model):
 
     slug = models.SlugField(blank=True) # Defaults to max_length=50
     isbn = models.CharField(max_length=13)
+    custom_title = models.CharField(max_length=200, blank=True,
+            help_text='Set this to override the Amazon product name.')
+
     #TODO student level field
 
     class Meta:
@@ -84,7 +87,7 @@ class Textbook(models.Model):
         attribs = root.Items.Item.ItemAttributes
         return {
             'author': attribs.Author.pyval,
-            'title': attribs.Title.pyval,
+            'title': self.custom_title or attribs.Title.pyval,
         }
 
 
