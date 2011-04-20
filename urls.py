@@ -51,7 +51,7 @@ urlpatterns = patterns('',
         name='lazysignup_convert',
         kwargs={
             'form_class': PinaxLazyConvertForm,
-            'default_redirect_to': 'home_inline',
+            'default_redirect_to': 'home',
         }),
     #url(r'^convert/convert/done/$', direct_to_template, {
         #'template': 'lazysignup/done.html',

@@ -1,4 +1,6 @@
 from account.forms import SignupForm as PinaxSignupForm
+from timezones.forms import TimeZoneField
+from django.utils.translation import ugettext_lazy as _, ugettext
 
 class PinaxLazyConvertForm(PinaxSignupForm):
     '''
@@ -7,6 +9,7 @@ class PinaxLazyConvertForm(PinaxSignupForm):
     So it will pass `instance` to __init__, which we will save to use 
     later when we create the user when the form is saved.
     '''
+    timezone = TimeZoneField(label=_("Timezone"), required=True, initial='America/New_York')
     def __init__(self, *args, **kwargs):
         self.instance = None
         if 'instance' in kwargs:
