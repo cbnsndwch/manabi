@@ -7,13 +7,19 @@ post-launch todo:
 notice for no js, no cookies (see SO)
 kb shortcuts: replay audio
 
-learn more is broken.
+bug: login after signup brings you to /home
+
+wrong tab when you load http://localhost:8000/#!/textbooks/
 
 fix kanji writing for multiple kanji
 
 think about how to show 0 card facts in the grid. they used to look suspended.
 
 solve the google / issue
+
+check out subfacts
+
+add form validation error handling to manabi_ui.xhrPost
 
 
 ---------------
@@ -86,10 +92,6 @@ brand new refactor todo
 ---------
 BUG: when you first add a deck, you don't see it as your own immediately.
 
-BUG: suspended cards are showing up in reviews (fixed?)
-
-BUG: deck card count is inaccurate for synchronized deck which the (subscriber) user has added cards to
-
 bugs with the form
 
 use keydown for space bar shortcut in reviews -- feels more responsive
@@ -99,8 +101,6 @@ magic numbers
 add basic auditing to some more models
 
 use conditional views
-
-views.py: refactor GET/POST methods
 
 models:
     fuzzing
@@ -117,8 +117,6 @@ per-day scheduling
 
 ~new stuff~
 -----------
-upgrade errorlog app
-
 option to hide furigana on cards
 
 include maturity/newness status in 'next_cards_for_review' -- use to display tally in summary screen
@@ -276,8 +274,6 @@ try to guess with improperly formed furigana notation (gohanwoTA[ta]beru without
 
 "this card was due in x hours" in review screen
 
-allow filtering reviews by multiple tags, not just one
-
 furiganaize regex is still a little sketchy
 
 don't create blank fieldcontent objects. but add the missing ones to update forms, 
@@ -294,9 +290,6 @@ form validation error reporting for tags
 delete globally unused tags once removed from an object
 
 review only certain tags
-
-select last-used deck in fact add dialog (and last used model, cards etc) - (per session or not?)
-store and remember last deck when creating cards, between sessions
 
 don't allow word wrapping in fact editor grid
 
@@ -317,12 +310,8 @@ sort facts with case insensitivity
 ---------------------
 BUGS:
 ---------------------
-suspended cards arent gray in the fact editor
-
 'learn more' intervals are messed up!!!!!!!!!!!!!
 i think it's the fuzz. look at a 'learn more' delayed sibling card, and rate it, undo, repeat - sometimes it goes descending
-
-unmatched div in home page
 
 dotted outline isnt aligned inside selected buttons
 
@@ -359,12 +348,6 @@ http://121.1.196.96/2h/review.png what was that about... (I think it said no car
 if user has no cards, give the user a message if he tries to start reviewing cards about how to create cards
 
 cmd-enter might break when the cards dropdown is open
-
-for some reason the fact editor is showing 2 identical fact types, sometimes
-
-restart fcgi gracefully!
-
-new card count should be cleared each time the review dialog is opened - it has the old value for a second
 
 -delete facts associated with deck when deleting deck
 

@@ -1,3 +1,6 @@
+dojo/
+site-packages
+site_media/
 env/
 apps/dojango/media/dojo
 *.prc
