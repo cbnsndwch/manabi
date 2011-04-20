@@ -38,7 +38,7 @@ class Textbook(models.Model):
     def __unicode__(self):
         return self.get_basic_info()['title'] + u' [{0}]'.format(self.isbn)
 
-    def save(self, *args, **kwarsg):
+    def save(self, *args, **kwargs):
         title = self.get_basic_info()['title']
         self.slug = slugify(title)
         super(Textbook, self).save(*args, **kwargs)
