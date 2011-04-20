@@ -5,13 +5,11 @@ from django.conf import settings
 from flashcards.models import Deck, FactType, Card
 from django.views.generic.simple import direct_to_template
 from django.views.generic.list_detail import object_list, object_detail
-
+from django.views.decorators.cache import cache_page
 
 
 
 urlpatterns = patterns('flashcards.views.crud',
-    #url(r'^$', 'views.index'),
-    #urlurl(r'^$', direct_to_template, {"template": "flashcards/base.html"}, name="flashcards"),
     url(r'^add/$', 'add_decks',
         name='add_decks'),
 
@@ -27,6 +25,7 @@ urlpatterns = patterns('flashcards.views.crud',
     url(r'^decks/(\w+)/delete/$', 'deck_delete',
         name='delete_deck'),
 
+
     url(r'^decks/(\w+)/exported-csv/$', 'deck_export_to_csv',
         name='exported_deck_csv'),
 
@@ -34,6 +33,11 @@ urlpatterns = patterns('flashcards.views.crud',
         name='facts'),
     url(r'^facts/(\w+)/update/$', 'fact_update',
         name='update_fact'),
+)
+
+urlpatterns += patterns('books.views',
+    url(r'^decks/(?P<deck_id>\d+)/textbook-source/$', 'deck_textbook_source',
+        name='deck_textbook_source'),
 )
 
 
@@ -138,26 +142,22 @@ urlpatterns += patterns('',
 )
 
 
-# Dynamic ...static files
+# Dynamic ...static files o_O ...(because of {% url %} convenience)
+# Thus somewhat aggressively cached.
+_STATIC_CACHE_TIME = 24 * 60 * 60 # 24h
 urlpatterns += patterns('',
-    url(r'^flashcards.js$', direct_to_template,
+    url(r'^flashcards.js$', cache_page(direct_to_template, _STATIC_CACHE_TIME),
         { 'template': 'flashcards/flashcards.js',
           'mimetype': 'text/javascript', },
         name='flashcards-js'),
-    url(r'^reviews.js$', direct_to_template,
+    url(r'^reviews.js$', cache_page(direct_to_template, _STATIC_CACHE_TIME),
         { 'template': 'flashcards/reviews.js',
           'mimetype': 'text/javascript', },
         name='reviews-js'),
-    url(r'^reviews_ui.js$', direct_to_template,
+    url(r'^reviews_ui.js$', cache_page(direct_to_template, _STATIC_CACHE_TIME),
         { 'template': 'flashcards/reviews_ui.js',
           'mimetype': 'text/javascript', },
         name='reviews-ui-js'),
 )
 
 
-#if settings.DEBUG:
-   ## serving the media files for dojango / dojo (js/css/...)
-   #urlpatterns += patterns('',
-       #url(r'^media/(?P<path>.*)$', 'django.views.static.serve',
-           #{'document_root': os.path.abspath(os.path.join(os.path.dirname(__file__), 'media'))}),
-   #)

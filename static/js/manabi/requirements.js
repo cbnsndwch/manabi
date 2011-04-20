@@ -18,7 +18,7 @@ dojo.require('dojox.layout.ContentPane');
 //dojo.require('dojox.form.BusyButton');
 dojo.require('dojox.widget.Standby');
 dojo.require('dojox.grid.DataGrid');
-//dojo.require('dijit.layout.TabContainer');
+dojo.require('dijit.layout.TabContainer');
 dojo.require('dijit.Declaration');
 dojo.require('dojo.data.ItemFileWriteStore');
 dojo.require('dijit.form.NumberSpinner');

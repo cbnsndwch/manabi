@@ -44,6 +44,14 @@ class DeckForm(forms.ModelForm):
         #exclude = ('owner', 'description', 'priority', 'textbook_source', 'picture',)
         
 
+class TextbookSourceForm(forms.ModelForm):
+    '''
+    Used for setting the textbook source of a deck.
+    '''
+    class Meta:
+        model = Deck
+        fields = ('textbook_source',)
+
 
 class SubfactForm(forms.ModelForm):
 

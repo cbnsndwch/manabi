@@ -9,10 +9,12 @@ from django.shortcuts import render_to_response, redirect
 from django.template import RequestContext
 from flashcards.contextprocessors import subfact_form_context
 from flashcards.contextprocessors import deck_count_context, card_existence_context
+from django.views.decorators.cache import cache_page
 
 
-# Entry point to the site
+
 def index(request):
+    '''Entry point to the site.'''
     context = {
         'extended_template_name': ('ajax_site_base.html' if request.user.is_authenticated() else 'site_base.html'),
     }

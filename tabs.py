@@ -9,6 +9,8 @@ TAB_URLS = {
     'add': [
         'add_decks',
         'create_deck',
+        'book_list',
+        'book_detail',
     ],
     'manage': [
         'decks',

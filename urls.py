@@ -68,6 +68,7 @@ urlpatterns = patterns('',
     #(r'^reports/', include('reports.urls')),
     (r'^dojango/', include('dojango.urls')),
     (r'^flashcards/', include('flashcards.urls')),
+    (r'^textbooks/', include('books.urls')),
     (r'^jdic/', include('jdic.urls')),
     (r'^kanjivg/', include('kanjivg.urls')),
     (r'^stats/', include('stats.urls')),
@@ -75,12 +76,15 @@ urlpatterns = patterns('',
 
 if settings.SERVE_MEDIA:
     urlpatterns += patterns('',
-        (r'^favicon\.ico$', 'django.views.generic.simple.redirect_to', {'url': '/site_media/static/icons/favicon.ico'}),
+        (r'^favicon\.ico$', 'django.views.generic.simple.redirect_to', {'url': '/site_media/static/favicon.ico'}),
     )
 
-    urlpatterns += patterns('', 
-        #(r'^site_media/', include('staticfiles.urls')),
-        url(r'', include('staticfiles.urls')),
-    )
+    #from django.contrib.staticfiles.urls import staticfiles_urlpatterns
+    #urlpatterns += staticfiles_urlpatterns()
+
+    #urlpatterns += patterns('', 
+    #    #(r'^site_media/', include('staticfiles.urls')),
+    #    url(r'', include('staticfiles.urls')),
+    #)
 
 

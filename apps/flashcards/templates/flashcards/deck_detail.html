@@ -3,6 +3,7 @@
 {% load review_tags %}
 {% load stats_tags %}
 {% load i18n lazysignup_tags %}
+{% load cache %}
 
 {% block active_tab_name %}{% if request.user == deck.owner %}{{ block.super }}{% else %}add{% endif %}{% endblock %}
 
@@ -121,12 +122,14 @@
     </p> 
 
     {% if request.user == deck.owner %}
+        <hr>
         {% if not user|is_lazy_user and not deck.synchronized_with %}
-            <hr>
             {% if deck.shared %}
+                {% cache 600 deck_subscriber_count deck.id %}
                 <p>
                     This deck has {{ deck.subscriber_decks.count }} subscriber{{ deck.subscriber_decks.count|pluralize }}.
                 </p>
+                {% endcache %}
             {% endif %}
             <p>
                 <button dojoType="dijit.form.ToggleButton" id="flashcards_shareDeckInput" iconClass="" checked="{{ deck.shared }}">
@@ -152,6 +155,31 @@
                     If you share this deck, then other users can subscribe to it and receive your updates to it.
                 </span>
             </p>
+        {% endif %}
+        {% if not user|is_lazy_user %}
+            <div>
+                {% if deck.textbook_source %}
+                    This deck comes from <a href="{{ deck.textbook_source.get_absolute_url }}" class="xhr_link">{{ deck.textbook_source.get_basic_info.title }}</a>. (
+                {% endif %}
+                <span class="fakeLink" onClick="dojo.query(this).siblings('.form').toggleClass('hidden');">{% if deck.textbook_source %}change{% else %}Add textbook source{% endif %}</span>
+                {% if deck.textbook_source %}){% endif %}
+                <div dojoType="dijit.form.Form" class="hidden form" jsId="deckTextbookSourceForm">
+	                <script type="dojo/connect" event="onSubmit" args="evt">
+		                evt.preventDefault();
+                        manabi_ui.xhrPost('{% url deck_textbook_source deck.id %}', deckTextbookSourceForm.domNode);
+	                </script>
+                    <div>Select the textbook used to make this deck: {{ textbook_source_form.textbook_source }},</div>
+                    <div>or enter its ISBN: {{ textbook_form.isbn }}.</div>
+	                <button dojoType="dijit.form.Button" type="submit">Submit</button>
+	                <button dojoType="dijit.form.Button" jsId="deckDeleteCancelButton">
+		                Cancel
+		                <script type="dojo/connect" event="onClick" args="evt">
+                            dojo.query(deckTextbookSourceForm.domNode).toggleClass('hidden');
+		                </script>
+	                </button>
+                </div>
+
+            </div>
         {% endif %}
         <hr style="margin-top:4em">
         <p>

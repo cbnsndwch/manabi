@@ -2,13 +2,14 @@
 
 {% load xhrlinks %}
 {% load i18n lazysignup_tags %}
+{% load cache %}
 
 {% block content_class %}add_decks wide{% endblock %}
 
 {% block content %}
 
 {% if user|is_lazy_user %}
-    <p class="new_user_info_box wide">
+    <p class="aux_info_box wide">
         <strong>Welcome to Manabi!</strong> First choose a deck below of flashcards that you want to study (or create your own).
     </p>
 {% endif %}
@@ -17,11 +18,18 @@
     <img src="{{ STATIC_URL }}icons/isloo/search.png" class="icon">
     <h2>Find a Deck</h2>
     <p>View decks created by other users<br>and add them to your own study library.</p>
+
+    <div class="find_textbook_link weak">
+        <img src="{{ STATIC_URL }}icons/book_front.png">
+        <a href="{% url book_list %}" class="xhr_link" style="font-weight:bold;">Learning from a textbook?</a>
+    </div>
     <ul class="shared_decks deck_list">
+        {% cache 300 shared_deck_list %} 
         {% include "flashcards/_shareddeck_list.html" %}
+        {% endcache %}
     </ul>
 </div>
-<div class="column create_deck">
+<div class="column create_deck clickable_contents">
     <img src="{{ STATIC_URL }}icons/isloo/inbox_empty.png" class="icon">
     <h2><a href="{% url create_deck %}" class="xhr_link">Create a Deck</a></h2>
     <p>Create a new deck of your own.</p>
@@ -33,7 +41,7 @@
     {% if deck_list %}
         <ul class="deck_list">
             {% for deck in deck_list %}
-                <li><a href="{{ deck.get_absolute_url }}" class="xhr_link" data-deck="{{ deck.id }}">{{ deck.name }}</a></li>
+                <li class="clickable_contents"><a href="{{ deck.get_absolute_url }}" class="xhr_link" data-deck="{{ deck.id }}">{{ deck.name }}</a></li>
             {% endfor %}
         </ul>
     {% else %}
@@ -60,7 +68,6 @@
             manabi_ui.xhrLink('{% url create_deck %}');
         });
     });
-
 </script>
 
 {% endblock %}

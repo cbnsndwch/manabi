@@ -90,25 +90,14 @@ colors for graph http://getcharmed.com/
 
 brand new refactor todo
 ---------
-BUG: when you first add a deck, you don't see it as your own immediately.
-
-bugs with the form
-
 use keydown for space bar shortcut in reviews -- feels more responsive
 
 magic numbers
-
-add basic auditing to some more models
 
 use conditional views
 
 models:
     fuzzing
-
------------
-braaaaaand new features
-
-per-day scheduling
 
 
 ==========
@@ -117,6 +106,8 @@ per-day scheduling
 
 ~new stuff~
 -----------
+add slugs to URLs
+
 option to hide furigana on cards
 
 include maturity/newness status in 'next_cards_for_review' -- use to display tally in summary screen
@@ -329,15 +320,11 @@ mecab probably doesn't handle numbers well - just ignore them for furigana
 
 grid sort arrows are invisible
 
-Account link has a bugs
-
 update tag list after updating fact in fact editor
 
 split half-width characters out and don't send them to mecab, or keep track of them somehow - spaces between them collapse
 
 grid styling - sort a column, arrow doesnt appear
-
-require , for tag deliminator - prevents bug of having 1 tag called "section 1" becoming 2 tags
 
 disable cancel button when submit is clicked
 
@@ -397,6 +384,8 @@ have preset suggested tags like grammar etc for encouraging sharing
 ---------------------
 SOMEDAY TODO:
 ---------------------
+per-day scheduling
+
 only show the loader spinner on the inside of a dialog, not including its titlepane
 
 inflection (like in Genki)

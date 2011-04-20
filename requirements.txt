@@ -1,5 +1,7 @@
 --extra-index-url=http://dist.pinaxproject.com/dev/
 
+johnny-cache==0.3.1
+python-amazon-product-api==0.2.5a1
 BeautifulSoup==3.2.0
 Django==1.3
 Fabric==1.0.1

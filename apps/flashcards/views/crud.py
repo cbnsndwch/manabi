@@ -22,6 +22,8 @@ from flashcards.forms import DeckForm, FactForm, FieldContentForm
 from flashcards.models import FactType, Fact, Deck, CardTemplate, FieldType
 from flashcards.models import FieldContent, Card
 from flashcards.models import SchedulingOptions
+from flashcards.forms import TextbookSourceForm
+from books.forms import TextbookForm
 import usertagging
 
 
@@ -52,8 +54,12 @@ def deck_detail(request, deck_id=None):
         'extra_context': {
             'field_types': FactType.objects.get(id=1).fieldtype_set.all().order_by('ordinal'),
             'fact_tags': fact_tags,
+
+            'textbook_source_form': TextbookSourceForm(),
+            'textbook_form': TextbookForm(),
         },
         'object_id': deck_id,
+
     }
     #detail_args['extra_context'].update(study_options_context(request, deck_id=deck_id))
     return object_detail(request, **detail_args)

@@ -4,6 +4,7 @@
 {% load account_tags %}
 {% load ifsetting_tag %}
 {% load activetab_tags %}
+{% load cache %}
 
 
 {% block extra_head_base %}
@@ -11,7 +12,9 @@
     <link rel="stylesheet" href="{{ MEDIA_URL }}static/tag-it/css/jquery-ui/jquery.ui.autocomplete.custom.css"></link>
     <link rel="stylesheet" href="{{ MEDIA_URL }}static/js/jdic/jPlayer/skins/manabi/jplayer.css"></link>
 
+    {% cache 1200 dojango_include_html %}
     {% include "dojango/include.html" %}
+    {% endcache %}
 
     {% block dojango_post_dj_config %}
     {% endblock %}
@@ -120,7 +123,11 @@
 
 {% block above_body_contents %}
     {% if user.is_authenticated %}
-        {% include "flashcards/base.html" %}
+        {% with user|is_lazy_user as  user_is_lazy %}
+            {% cache 1200 flashcards_base_html user_is_lazy %}
+            {% include "flashcards/base.html" %}
+            {% endcache %}
+        {% endwith %}
     {% endif %}
     <div jsId="manabi_standby" target="body_contents" dojoType="dojox.widget.Standby"></div>
 {% endblock %}

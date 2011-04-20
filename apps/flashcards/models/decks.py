@@ -6,6 +6,8 @@ from dbtemplates.models import Template
 from django.db.models import Avg
 from constants import GRADE_NONE, GRADE_HARD, GRADE_GOOD, GRADE_EASY
 from django.core.urlresolvers import reverse
+from model_utils.managers import manager_from
+from books.models import Textbook
 
 import datetime
 import random
@@ -18,11 +20,10 @@ import cards
 import usertagging
 
 
-class DeckManager(models.Manager):
+class _DeckManager(object):
     #@property
     #def card_count(self):
     #    return cards.Card.objects.of_user(self.owner).count()
-
 
     def of_user(self, user):
         return self.filter(owner=user, active=True)
@@ -33,26 +34,7 @@ class DeckManager(models.Manager):
     def synchronized_decks(self, user):
         return self.filter(owner=user, synchronized_with__isnull=False)
 
-
-
-
-
-#TODO use this
-#TODO rename to Book or something instead?
-class Textbook(models.Model):
-    name = models.CharField(max_length=100)
-    edition = models.CharField(max_length=50, blank=True)
-    description = models.TextField(max_length=2000, blank=True)
-    purchase_url = models.URLField(blank=True) #TODO amazon referrals
-    isbn = models.CharField(max_length=20, blank=True)
-    cover_picture = models.FileField(upload_to='/textbook_media/', null=True, blank=True)
-    #TODO student level field
-
-    class Meta:
-        app_label = 'flashcards'
-
-    def __unicode__(self):
-        return self.name
+DeckManager = lambda: manager_from(_DeckManager)
 
 
 class Deck(models.Model):
@@ -219,6 +201,7 @@ class Deck(models.Model):
             description=self.description,
             #TODO implement textbook=shared_deck.textbook, #picture too...
             priority=self.priority,
+            textbook_source=self.textbook_source,
             owner_id=user.id)
         deck.save()
 

@@ -25,7 +25,6 @@ reviews_ui._showNoCardsDue = function() {
 
 
 reviews_ui.showReviewOptions = function() {
-    //FIXME temp fix dojo.byId('reviews_beginReview').style.display = '';
     dojo.byId('reviews_beginReview').style.display = 'none';
     dojo.byId('reviews_noCardsDue').style.display = 'none';
     dojo.byId('reviews_emptyQuery').style.display = 'none';

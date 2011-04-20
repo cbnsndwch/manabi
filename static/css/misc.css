@@ -1,4 +1,4 @@
-@font-face {
+@font-face p
 	font-family: 'HiraginoKakuGothicStdW8';
 	src: url('/site_media/static/fonts/HiraginoKakuGothicStdW8.otf');
 	font-weight: normal;
@@ -23,13 +23,19 @@
     color: #999;
 }
 .weak a, a.weak {
-    color: #4662E5;
+    color: #555E8D;
+}
+.weak a:hover, a.weak:hover {
+    color: #13c;
 }
 a.weak.subtext, .weak.subtext a {
     color: #999;
 }
 .subtext {
     font-size: .8em;
+}
+.hidden {
+    display: none;
 }
 .info_box {
     background-color: #FDF7EB;
@@ -575,17 +581,27 @@ div.column, p.column {
     display: block;
     margin: 0em auto 1em auto;
 }
+.add_decks .create_deck.column {
+    padding: 1em;
+    margin-bottom: 0;
+}
 .add_decks .create_deck:hover {
     cursor: pointer;
 }
-.add_decks .create_deck:hover, .deck_list li:hover {
-    /*background-color: #f3f3f3;*/
-    background-color: #F2F8FF;
+.add_decks .find_textbook_link {
+    margin-top: 1.5em;
+    font-size: .85em;
+}
+.add_decks .find_textbook_link img {
+    vertical-align: bottom;
 }
 ul.shared_decks {
     text-align: left;
 }
 
+.clickable_contents:hover {
+    background-color: #F2F8FF;
+}
 
 ul.deck_list {
     margin: 0;
@@ -617,7 +633,7 @@ ul.deck_list {
 .deck_list li.even {
     /*background-color: #f0f0f0;*/
 }
-.deck_list.divided li {
+ul.divided li, div.divided {
     border-bottom: 1px solid #ddd;
 }
 .deck_list .suspend_deck {
@@ -715,9 +731,76 @@ ul.fact_form_tags {
     width: 30em;
 }
 
+ul.book_list {
+    margin: 3em 0;
+}
+ul.book_list li {
+    list-style: none;
+}
+.book_container {
+    position: relative;
+    padding-bottom: 1em;
+    z-index: 1;
+}
+.book_info {
+    position: absolute;
+    bottom: 1em;
+    margin-right: 1em;
+    margin-left: 11.5em;
+    float: left;
+}
+.book_title {
+    font-size: 1.15em;
+}
+.book_author {
+    font-size: .9em;
+}
+.book_list .book_deck_count {
+    margin-top: 1em;
+}
+.book_image_container {
+    position: relative;
+    margin: .5em 0 0 1.5em;
+    float: left;
+}
+.book_image_container img + .vignette {
+    -webkit-box-shadow:0 1px 3px rgba(0, 0, 0, 0.3), 0 0 7px rgba(0, 0, 0, 0.1) inset;
+    -moz-box-shadow:0 1px 3px rgba(0, 0, 0, 0.3), 0 0 7px rgba(0, 0, 0, 0.1) inset;
+    box-shadow:0 1px 3px rgba(0, 0, 0, 0.3), 0 0 7px rgba(0, 0, 0, 0.1) inset;
+    position: absolute;
+    top: 0; bottom: 0; left: 0; right: 0;
+}
+.book_image_container:before {
+    top: 50%;
+    bottom: 1px;
+    left: 10px;
+    right: 10px;
+    -moz-border-radius: 100px / 10px;
+    border-radius: 100px / 10px;
+    -webkit-box-shadow: 0 0 15px rgba(0, 0, 0, 0.6);
+    -moz-box-shadow: 0 0 15px rgba(0, 0, 0, 0.6);
+    box-shadow: 0 0 15px rgba(0, 0, 0, 0.6);
+}
+.book_image_container:before, .book_list .book_image_container:after {
+    content: '';
+    position: absolute;
+    z-index: -2;
+}
+.book_image_container img {
+    display: block;
+    position: relative;
+}
+.book_list .book_deck_count {
+    font-size: 1.1em;
+    font-weight: bold;
+}
+.book_container + .deck_list {
+    margin-top: 2em;
+}
+
 
 /* home.html and lazy signup notice-related stuff */
-.new_user_info_box {
+.aux_info_box {
     background-color: #fafafa;
     -moz-border-radius: 10px;
     -webkit-border-radius: 10px;
@@ -872,6 +955,7 @@ html>/* */body .ezRuby:hover{
 html>/* */body .ezRuby:hover:before{
   background-color: #FFEDCD;
 }
+
 
 
 

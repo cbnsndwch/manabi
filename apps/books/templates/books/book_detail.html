@@ -1,0 +1,37 @@
+{% extends "body_pane_base.html" %}
+
+{% load xhrlinks %}
+{% load i18n lazysignup_tags %}
+{% load cache %}
+
+{% block content_class %}book_detail{% endblock %}
+
+{% block content %}
+<h1>Textbook Flashcards</h1>
+<div class="book_container divided">
+    {% cache 14400 "book_detail" book.id "book_title" %}
+    {% with book.get_basic_info as book_info %}
+    <div class="book_info">
+        <div class="book_title">{{ book_info.title }}</div>
+        <div class="book_author">{{ book_info.author }}</div>
+    </div>
+    {% endwith %}
+    {% endcache %}
+    {% cache 14400 "book_image" book.id %}
+    <div class="book_image_container"><img src="{{ book.get_image_urls.medium }}"><div class="vignette"></div></div>
+    {% endcache %}
+
+    <div style="clear:both"></div>
+</div>
+
+<ul class="shared_decks deck_list">
+    {% with book.shared_decks as shared_deck_list %}
+        {% include "flashcards/_shareddeck_list.html" %}
+    {% endwith %}
+</ul>
+
+
+
+{% endblock %}
+
+
