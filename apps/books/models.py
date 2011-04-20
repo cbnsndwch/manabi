@@ -54,12 +54,12 @@ class Textbook(models.Model):
     @models.permalink
     def get_absolute_url(self):
         if self.slug:
-            return ('book_detail', (), {
+            return ('book_detail_with_slug', (), {
                 'object_id': self.id,
                 'slug': self.slug,
             })
         else:
-            return ('slugless_book_detail', (), {
+            return ('book_detail_without_slug', (), {
                 'object_id': self.id,
             })
 

@@ -19,7 +19,7 @@
                     <div class="book_author">{{ book_info.author }}</div>
                 {% endwith %}
                 {% endcache %}
-                {% cache 1200 book_deck_count book.id %}
+                {% cache 400 book_deck_count book.id book.slug %}
                 <div class="book_deck_count">
                     <a href="{{ book.get_absolute_url }}" class="xhr_link">{{ book.shared_decks.count }} deck{{ book.shared_decks.count|pluralize}} available.</a>
                 </div>
