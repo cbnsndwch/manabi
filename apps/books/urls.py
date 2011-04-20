@@ -5,11 +5,12 @@ from django.views.generic.list_detail import object_list, object_detail
 
 
 
-
 urlpatterns = patterns('books.views',
     url(r'^$', 'book_list',
         name='book_list'),
     
+    url(r'^(?P<object_id>\d+)/$', 'book_detail',
+        name='slugless_book_detail'),
     url(r'^(?P<object_id>\d+)/(?P<slug>[-\w]+)/$', 'book_detail',
         name='book_detail'),
 )

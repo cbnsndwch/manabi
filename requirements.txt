@@ -1,5 +1,6 @@
 --extra-index-url=http://dist.pinaxproject.com/dev/
 
+unidecode==0.04.7
 johnny-cache==0.3.1
 python-amazon-product-api==0.2.5a1
 BeautifulSoup==3.2.0

@@ -3,7 +3,7 @@ from model_utils.managers import manager_from
 from amazonproduct import API as AmazonAPI
 from functools import wraps
 import settings
-from django.template.defaultfilters import slugify
+from apps.utils.slugs import slugify
 
 
 amazon_api = AmazonAPI(settings.AWS_KEY, settings.AWS_SECRET_KEY, 'us')
@@ -28,7 +28,7 @@ class Textbook(models.Model):
     objects = models.Manager()
     decked_objects = DeckedTextbookManager()
 
-    slug = models.SlugField()
+    slug = models.SlugField(blank=True) # Defaults to max_length=50
     isbn = models.CharField(max_length=13)
     #TODO student level field
 
@@ -50,10 +50,15 @@ class Textbook(models.Model):
 
     @models.permalink
     def get_absolute_url(self):
-        return ('book_detail', (), {
-            'object_id': self.id,
-            'slug': self.slug,
-        })
+        if self.slug:
+            return ('book_detail', (), {
+                'object_id': self.id,
+                'slug': self.slug,
+            })
+        else:
+            return ('slugless_book_detail', (), {
+                'object_id': self.id,
+            })
 
     @uses_amazon_api
     def get_image_urls(self):
