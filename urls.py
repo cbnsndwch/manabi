@@ -1,10 +1,10 @@
-from django.conf import settings
 from django.conf.urls.defaults import *
 from django.views.generic.simple import direct_to_template
 from forms import SignupForm
 from utils.urldecorators import decorated_patterns
 from lazysignup.decorators import allow_lazy_user
 from utils.authforms import PinaxLazyConvertForm
+import settings
 
 from django.contrib import admin
 admin.autodiscover()
@@ -18,8 +18,17 @@ urlpatterns = patterns('',
         name="acct_signup", kwargs={'form_class': SignupForm}), 
 
 
-    url(r'^account/confirm_email/(\w+)/$', 'mobileaccount.views.confirm_email_proxy', name='acct_confirm_email'),
-    #url(r'^account/confirm_email/(\w+)/$', 'emailconfirmation.views.confirm_email', name='acct_confirm_email'),
+    url(r'^account/confirm_email/(\w+)/$',
+        'mobileaccount.views.confirm_email_proxy', name='acct_confirm_email'),
+
+    url(r'^convert/convert/$', 'lazysignup.views.convert',
+        name='lazysignup_convert',
+        kwargs={
+            'form_class': PinaxLazyConvertForm,
+            'email_verification': settings.ACCOUNT_EMAIL_VERIFICATION,
+            'verification_sent_template_name': 'account/verification_sent.html',
+            'success_url': ''
+        }),
 
     (r'^account/', include('account.urls')),
     (r'^admin/', include(admin.site.urls)),
@@ -47,15 +56,6 @@ urlpatterns = patterns('',
     #url(r'^admin/invite_user/$', 'signup_codes.views.admin_invite_user',
         #name="admin_invite_user"),
 
-    url(r'^convert/convert/$', 'views.convert',
-        name='lazysignup_convert',
-        kwargs={
-            'form_class': PinaxLazyConvertForm,
-            'default_redirect_to': 'home',
-        }),
-    #url(r'^convert/convert/done/$', direct_to_template, {
-        #'template': 'lazysignup/done.html',
-        #}, name='lazysignup_convert_done'),
 
     #(r'^profiles/', include('basic_profiles.urls')),
     #url(r'^profiles/', include('idios.urls')),
