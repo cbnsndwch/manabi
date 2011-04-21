@@ -10,7 +10,8 @@ TAB_URLS = {
         'add_decks',
         'create_deck',
         'book_list',
-        'book_detail',
+        'book_detail_with_slug',
+        'book_detail_without_slug',
     ],
     'manage': [
         'decks',
