@@ -9,8 +9,6 @@ kb shortcuts: replay audio
 
 bug: login after signup brings you to /home
 
-wrong tab when you load http://localhost:8000/#!/textbooks/
-
 fix kanji writing for multiple kanji
 
 think about how to show 0 card facts in the grid. they used to look suspended.
