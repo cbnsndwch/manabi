@@ -33,17 +33,10 @@ def all_http_methods(view_func):
     @wraps(view_func)
     def wrapper(request, *args, **kwargs):
         #modified_request = request #shallow copy is enough
-        logger.debug('all_http_methods')
-        logger.debug(request.method)
         if request.method == 'POST':
-            logger.debug(10)
             if '_method' in request.POST and request.POST['_method'] in ['PUT', 'DELETE', 'GET', 'POST']:
-                logger.debug(20)
                 method = request.POST['_method']
-                logger.debug(30)
                 request.method = method
-                logger.debug(40)
-        logger.debug(50)
         return view_func(request, *args, **kwargs)
     return wrapper
 
@@ -107,16 +100,12 @@ def api_data_response(view_func):
     Ex.:
         {'success': True, 'data': 'foobar'}
     '''
-    logger.debug('api-data-response')
     @wraps(view_func)
     def wrapper(request, *args, **kwargs):
         ret = {'success': True}
-        logger.debug(1)
 
         try:
-            logger.debug(2)
             ret['data'] = view_func(request, *args, **kwargs)
-            logger.debug(3)
         except ApiException as e:
             # Wrap our ApiException message in our container format
             ret['success'] = False
@@ -124,7 +113,6 @@ def api_data_response(view_func):
             if len(error) == 1:
                 error = error[0]
             ret['error'] = error
-            logger.debug(4)
 
         try:
             # Sometimes the serialization fails, i.e. when there are 
@@ -143,10 +131,8 @@ def api_data_response(view_func):
             http_ret['Cache-Control'] = 'must-revalidate'
             http_ret['If-Modified-Since'] = str(datetime.datetime.utcnow())
 
-            logger.debug(5)
             return http_ret
         except Exception, e:
-            logger.debug(6)
             return HttpResponseServerError(content=unicode(e))
     return wrapper
 
