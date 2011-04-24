@@ -141,7 +141,7 @@ def api_data_response(view_func):
             # The following are for IE especially
             http_ret['Pragma'] = 'no-cache'
             http_ret['Cache-Control'] = 'must-revalidate'
-            http_ret['If-Modified-Since'] = str(datetime.datetime.now())
+            http_ret['If-Modified-Since'] = str(datetime.datetime.utcnow())
 
             logger.debug(5)
             return http_ret
