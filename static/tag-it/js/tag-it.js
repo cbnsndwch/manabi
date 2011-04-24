@@ -15,7 +15,7 @@
             // callback: called when a tag is removed
             'onTagRemoved'      : null,
             // callback: called when a tag is clicked
-    	    'onTagClicked'      : null,
+            'onTagClicked'      : null,
             'tagSource'         : null,
             'removeConfirmation': false,
             'caseSensitive': true,
@@ -26,10 +26,10 @@
                                   // It will delimit tags in the field with singleFieldDelimiter.
             'singleFieldDelimiter': ',',
             'singleFieldNode': null, // Set this to an input DOM node to use an existing form field.
-                                    // Any text in it will be erased on init. But it will be populated with 
-                                    // the text of tags as they are created, delimited by singleFieldDelimiter.
-                                    // If this is not set, we create an input node for it, with the name 
-                                    // given in settings.fieldName, ignoring settings.itemName.
+                                     // Any text in it will be erased on init. But it will be populated with 
+                                     // the text of tags as they are created, delimited by singleFieldDelimiter.
+                                     // If this is not set, we create an input node for it, with the name 
+                                     // given in settings.fieldName, ignoring settings.itemName.
 
             'tabIndex': null // Optionally set a tabindex attribute on the input that gets created for tag-it.
         },
@@ -40,7 +40,7 @@
             var self = this;
 
             this.tagList = this.element;
-            this._tagInput  = $('<input class="tagit-input" type="text" ' + (this.options.tabIndex ? 'tabindex="' + this.options.tabIndex + '"' : '') + '/>');
+            this._tagInput  = $('<input class="tagit-input" type="text" ' + (this.options.tabIndex ? 'tabindex="' + this.options.tabIndex + '"' : '') + '>');
 
             var BACKSPACE = 8,
                 ENTER     = 13,
@@ -49,9 +49,11 @@
                 TAB       = 9;
 
             this.options.tagSource = this.options.tagSource || function(search, showChoices) {
-                var filter = new RegExp(search.term, 'i');
+                var filter = search.term.toLowerCase();
                 var choices = self.options.availableTags.filter(function(element) {
-                    return (element.search(filter) != -1);
+                    // Only match autocomplete options that begin with the search term.
+                    // (Case insensitive.)
+                    return (element.toLowerCase().indexOf(filter) === 0);
                 });
                 showChoices(self._subtractArray(choices, self.assignedTags()));
             };
@@ -94,7 +96,7 @@
                     });
                 } else {
                     // Create our single field input after our list.
-                    this.options.singleFieldNode = tagList.after('<input type="hidden" style="display:none;" value="" name="' + this.options.fieldName + '" />');
+                    this.options.singleFieldNode = tagList.after('<input type="hidden" style="display:none;" value="" name="' + this.options.fieldName + '">');
                 }
             }
 
@@ -102,7 +104,7 @@
                 .keydown(function(event) {
                     var keyCode = event.keyCode || event.which;
                     // Backspace is not detected within a keypress, so using a keydown
-                    if (keyCode == BACKSPACE && self._tagInput.val() == '') {
+                    if (keyCode == BACKSPACE && self._tagInput.val() === '') {
                         var tag = self.tagList.children('.tagit-choice:last');
                         if (!self.options.removeConfirmation || tag.hasClass('remove')) {
                             // When backspace is pressed, the last tag is deleted.
@@ -120,16 +122,16 @@
                         keyCode == ENTER ||
                         keyCode == TAB ||
                         (
-             	            keyCode == SPACE && 
-             	            self.options.allowSpaces != true &&
-				            (
-					            ($.trim(self._tagInput.val()).replace( /^s*/, '' ).charAt(0) != '"') ||
-					            (
-					                $.trim(self._tagInput.val()).charAt(0) == '"' &&
-					                $.trim(self._tagInput.val()).charAt($.trim(self._tagInput.val()).length - 1) == '"' &&
-					                $.trim(self._tagInput.val()).length - 1 != 0
-					            )
-				            )
+                            keyCode == SPACE && 
+                            self.options.allowSpaces !== true &&
+                            (
+                                ($.trim(self._tagInput.val()).replace( /^s*/, '' ).charAt(0) != '"') ||
+                                (
+                                    $.trim(self._tagInput.val()).charAt(0) == '"' &&
+                                    $.trim(self._tagInput.val()).charAt($.trim(self._tagInput.val()).length - 1) == '"' &&
+                                    $.trim(self._tagInput.val()).length - 1 !== 0
+                                )
+                            )
                         )
                     ) {
 
@@ -140,9 +142,9 @@
                         self.tagList.children('.tagit-choice:last').removeClass('remove');
                     }
                 }).blur(function(e){
-                    // create a tag when the element loses focus (nothing will happen if it's empty though)
+                    // Create a tag when the element loses focus (unless it's empty).
                     self.createTag(self._cleanedInput());
-		        });
+                });
                 
 
             if (this.options.availableTags || this.options.tagSource) {
@@ -155,7 +157,7 @@
                         // The only artifact of this is that while the user holds down the mouse button
                         // on the selected autocomplete item, a tag is shown with the pre-autocompleted text,
                         // and is changed to the autocompleted text upon mouseup.
-                        if (self._tagInput.val() == '') {
+                        if (self._tagInput.val() === '') {
                             self.removeTag(self.tagList.children('.tagit-choice:last'));
                         }
                         self.createTag(ui.item.value);
@@ -177,7 +179,7 @@
             var tags = [];
             if (this.options.singleField) {
                 tags = $(this.options.singleFieldNode).val().split(this.options.singleFieldDelimiter);
-                if (tags[0] == '') {
+                if (tags[0] === '') {
                     tags = [];
                 }
             } else {
@@ -194,7 +196,7 @@
         },
 
         _subtractArray: function(a1, a2) {
-            var result = new Array();
+            var result = [];
             for (var i = 0; i < a1.length; i++) {
                 if (a2.indexOf(a1[i]) == -1) {
                     result.push(a1[i]);
@@ -224,12 +226,12 @@
             return isNew;
         },
 
-	    _formatStr: function(str) {
-		    if(this.options.caseSensitive) {
-			    return str;
+        _formatStr: function(str) {
+            if(this.options.caseSensitive) {
+                return str;
             }
-		    return $.trim(str.toLowerCase());
-	    },
+            return $.trim(str.toLowerCase());
+        },
 
         createTag: function(value, additionalClass) {
             // Automatically trims the value of leading and trailing whitespace.
@@ -238,14 +240,14 @@
             // Cleaning the input.
             this._tagInput.val('');
 
-            if (!this._isNew(value) || value == '') {
+            if (!this._isNew(value) || value === '') {
                 return false;
             }
 
             var label = $(this.options.onTagClicked ? '<a class="tagit-label"></a>' : '<span class="tagit-label"></span>').text(value);
 
             // create tag
-            var tag = $('<li />')
+            var tag = $('<li></li>')
                 .addClass('tagit-choice')
                 .addClass(additionalClass)
                 .append(label)

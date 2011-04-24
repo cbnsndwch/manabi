@@ -612,6 +612,7 @@ ul.deck_list {
     display: block;
     font-size: 1.1em;
     font-weight: bold;
+    line-height: 1.2em;
     position: relative;
     top: .25em;
 }
@@ -625,7 +626,7 @@ ul.deck_list {
     color: gray;
     font-size: .8em;
     position: relative;
-    top: -.25em;
+    /*top: -.25em;*/
 }
 .deck_list li {
     list-style: none;
@@ -955,6 +956,7 @@ html>/* */body .ezRuby:hover{
 html>/* */body .ezRuby:hover:before{
   background-color: #FFEDCD;
 }
+
 
 
 
