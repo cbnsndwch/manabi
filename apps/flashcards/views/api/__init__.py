@@ -331,7 +331,7 @@ def rest_fact_unsuspend(request, fact_id):
 
 @api
 def rest_fact(request, fact_id): #todo:refactor into facts
-    if request.method == 'PUT':
+    if request.method == 'POST':
         # Update fact
         #FIXME make sure the logged-in user owns this FACT
 

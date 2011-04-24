@@ -155,8 +155,8 @@ function createFieldInputsForUpdate(domNode, factTypeId, factFieldValues, cardTe
         var cardUpdateTemplatesInput = dijit.byId('cardUpdateTemplatesInput'+factTypeId);
         
         //hidden form elements, for fact id
-        var hiddenFactField = new dijit.form.TextBox({value:'PUT', name:'_method', type:'hidden'});//dojo.place('<input type=\"hidden\" name=\"fact\" value=\"'+factTypeId+'\">', domNode, 'last');
-        hiddenFactField.placeAt(domNode, 'last');
+        //var hiddenFactField = new dijit.form.TextBox({value:'PUT', name:'_method', type:'hidden'});//dojo.place('<input type=\"hidden\" name=\"fact\" value=\"'+factTypeId+'\">', domNode, 'last');
+        //hiddenFactField.placeAt(domNode, 'last');
         hiddenFactField = new dijit.form.TextBox({value:factTypeId, name:'fact-id', type:'hidden'});//dojo.place('<input type=\"hidden\" name=\"fact\" value=\"'+factTypeId+'\">', domNode, 'last');
         hiddenFactField.placeAt(domNode, 'last');
         cardUpdateTemplatesButton.placeAt(domNode, 'last');
