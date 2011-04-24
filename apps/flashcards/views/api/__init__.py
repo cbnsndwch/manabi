@@ -33,6 +33,10 @@ import random
 #import jcconv
 from flashcards.views.shortcuts import get_deck_or_404
 
+#import logging
+#logger = logging.getLogger(__name__)
+
+
 
 #FIXME add permissions validation for every method
 
@@ -326,11 +330,9 @@ def rest_fact_unsuspend(request, fact_id):
             fact_id, request.user).unsuspend()
 
 @api
-@transaction.commit_on_success
 def rest_fact(request, fact_id): #todo:refactor into facts
     if request.method == 'PUT':
         # Update fact
-        ret = {}
         #FIXME make sure the logged-in user owns this FACT
 
         #override the submitted deck ID with the ID from the URL, since this is a RESTful interface
@@ -490,7 +492,6 @@ def rest_fact(request, fact_id): #todo:refactor into facts
                 'fact': fact_formset.errors,
                 'field_content': field_content_formset.errors,
             })
-        return ret
     elif request.method == 'DELETE':
         fact = Fact.objects.get_for_owner_or_subscriber(fact_id, request.user)
         if fact.synchronized_with:

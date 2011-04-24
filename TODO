@@ -19,6 +19,8 @@ check out subfacts
 
 add form validation error handling to manabi_ui.xhrPost
 
+goog analytics for other ajax requests (POST etc)
+
 
 ---------------
 design influences
