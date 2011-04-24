@@ -233,11 +233,10 @@ def rest_facts(request, deck=None, tags=None):
             return ret
     elif request.method == 'POST':
         # Create fact in deck, including its fields and cards. POST method.
-        #TODO unicode support
         #TODO refactor into other module probably
         ret = {}
-        #TODO just get this from the form
-    
+
+        #TODO just get this from the form object.
         deck = get_deck_or_404(request.user, request.POST['fact-deck'])
 
         # Override the submitted deck ID with the ID from the URL, 

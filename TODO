@@ -104,6 +104,8 @@ models:
 
 ~new stuff~
 -----------
+try to speed up fact form submission. it's terribly slow.
+
 add slugs to URLs
 
 option to hide furigana on cards
@@ -299,6 +301,8 @@ sort facts with case insensitivity
 ---------------------
 BUGS:
 ---------------------
+pluralize "1 cards added" in fact form
+
 'learn more' intervals are messed up!!!!!!!!!!!!!
 i think it's the fuzz. look at a 'learn more' delayed sibling card, and rate it, undo, repeat - sometimes it goes descending
 

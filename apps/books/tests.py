@@ -18,4 +18,10 @@ class SimpleTest(TestCase):
                         'Expected Banno in author, got ' + info['author'])
         self.assertTrue('Genki' in info['title'])
 
+    def test_isbn_13(self):
+        for isbn in ['9784770030412', '978-4770030412']:
+            book = Textbook(isbn=isbn) # Exploring Japanese Literature
+            info = book.get_basic_info()
+            self.assertTrue('Japanese' in info['title'])
+
 

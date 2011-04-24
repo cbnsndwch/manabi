@@ -63,6 +63,14 @@ class Textbook(models.Model):
                 'object_id': self.id,
             })
 
+    @property
+    def cleaned_isbn(self):
+        return self.isbn.strip().replace('-', '')
+
+    def _item_lookup(self, **kwargs):
+        return amazon_api.item_lookup(
+                self.cleaned_isbn, IdType='ISBN', SearchIndex='Books', **kwargs)
+
     @uses_amazon_api
     def get_image_urls(self):
         '''
@@ -70,7 +78,7 @@ class Textbook(models.Model):
             {'size': 'url'}
         '''
         urls = {}
-        root = amazon_api.item_lookup(self.isbn, ResponseGroup='Images')
+        root = self._item_lookup(ResponseGroup='Images')
         for size in ('Small', 'Medium', 'Large'):
             urls[size.lower()] = getattr(root.Items.Item, size + 'Image').URL.pyval
         return urls
@@ -83,7 +91,7 @@ class Textbook(models.Model):
             title
             purchase_url
         '''
-        root = amazon_api.item_lookup(self.isbn, ResponeGroup='Small')
+        root = self._item_lookup(ResponseGroup='Small')
         attribs = root.Items.Item.ItemAttributes
         return {
             'author': attribs.Author.pyval,
