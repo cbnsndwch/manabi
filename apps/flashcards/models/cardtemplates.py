@@ -47,4 +47,5 @@ class CardTemplate(models.Model):
     class Meta:
         app_label = 'flashcards'
         unique_together = (('name', 'fact_type'), ('ordinal', 'fact_type'), )
+        ordering = ['ordinal']
 
