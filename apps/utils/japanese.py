@@ -54,7 +54,7 @@ def _furiganaize_complex_compound_word(word, reading, is_at_beginning_of_transli
     postfix_kanji_reading = reading[-len(postfix_kanji):] + kanji_readings[1]
 
     space_char = u'\u3000' 
-    return u'{prefix_kanji}[{prefix_kanji_reading}]{middle}{space_char}{postfix_kanji}[{postfix_kanji_reading}]'.format( \
+    return u'{prefix_kanji}[{prefix_kanji_reading}]{middle}{space_char}{postfix_kanji}[{postfix_kanji_reading}]'.format(
             prefix_kanji=prefix_kanji,
             prefix_kanji_reading=prefix_kanji_reading,
             middle=middle_kana,
@@ -100,7 +100,8 @@ def _furiganaize(word, reading, is_at_beginning_of_transliteration=False):
     if not middle_ret:
         middle_ret = u'{kanji}[{reading}]'.format(kanji=expression_middle, reading=kanji_reading)
 
-    space_char = u'\u3000' if not is_at_beginning_of_transliteration or prefix_kana else u'' # \u3000 is a full-width space - necessary if this isn't the start of the transliteration
+    # \u3000 is a full-width space - necessary if this isn't the start of the transliteration
+    space_char = u'\u3000' if not is_at_beginning_of_transliteration or prefix_kana else u'' 
 
     return u'{prefix}{space_char}{middle}{postfix}'.format( \
             prefix=prefix_kana, space_char=space_char, middle=middle_ret, postfix=postfix_kana)
@@ -130,12 +131,12 @@ def generate_reading(expression):
         if len(fields) == 9:
             reading = fields[7]
 
-            #has kanji and a reading?
+            # Has kanji and a reading?
             if jcconv.kata2hira(reading) != word and \
                     reading != word and \
                     any(_code_page(char) != 'hiragana' and _code_page(char) != 'katakana' for char in word):
 
-                #the reading comes in as katakana, we want hiragana
+                # The reading comes in as katakana, we want hiragana.
                 reading = jcconv.kata2hira(reading)
 
                 ret += _furiganaize(word, reading, not ret)
@@ -146,6 +147,7 @@ def generate_reading(expression):
     return ret
 
 
-if __name__ == "__main__":
+if __name__ == '__main__':
     expression = u'\u8cb8\u3057\u51fa\u3057\u3066'
     print generate_reading(expression)
+

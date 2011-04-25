@@ -137,6 +137,7 @@ is there a good way to get new cards without knowing if a user has his own card 
 SUPER CRITICAL BUGS:
 --------------------
 mecab screws up nigirikobushi, at least my reading generator does. it becomes shikobu.
+also: kinodokusuru
 
 the fullscreen spinner isn't always fullscreen if the page is scrolled down
 
