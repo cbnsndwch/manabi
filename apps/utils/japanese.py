@@ -19,7 +19,8 @@ def _code_page(utf8_char):
     return 'unknown'
 
 
-def _furiganaize_complex_compound_word(word, reading, is_at_beginning_of_transliteration=False):
+def _furiganaize_complex_compound_word(word, reading,
+                                       is_at_beginning_of_transliteration=False):
     '''
     for words of format kanji-kana-kanji-kana like hikkosu, kasidasu, etc.
     Don't include leading or trailing kana in the word or reading.
@@ -51,7 +52,7 @@ def _furiganaize_complex_compound_word(word, reading, is_at_beginning_of_transli
     if len(kanji_readings) != 2:
         return None
     prefix_kanji_reading = reading[:len(prefix_kanji)] + kanji_readings[0]
-    postfix_kanji_reading = reading[-len(postfix_kanji):] + kanji_readings[1]
+    postfix_kanji_reading = kanji_readings[1] + reading[-len(postfix_kanji):]
 
     space_char = u'\u3000' 
     return u'{prefix_kanji}[{prefix_kanji_reading}]{middle}{space_char}{postfix_kanji}[{postfix_kanji_reading}]'.format(
@@ -132,9 +133,11 @@ def generate_reading(expression):
             reading = fields[7]
 
             # Has kanji and a reading?
-            if jcconv.kata2hira(reading) != word and \
-                    reading != word and \
-                    any(_code_page(char) != 'hiragana' and _code_page(char) != 'katakana' for char in word):
+            if (jcconv.kata2hira(reading) != word
+                    and reading != word
+                    and any(_code_page(char) != 'hiragana'
+                            and _code_page(char) != 'katakana'
+                            for char in word)):
 
                 # The reading comes in as katakana, we want hiragana.
                 reading = jcconv.kata2hira(reading)
