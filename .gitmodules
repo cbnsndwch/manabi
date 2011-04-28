@@ -1,0 +1,3 @@
+[submodule "static/tag-it"]
+	path = static/tag-it
+	url = git://github.com/aehlke/tag-it.git
