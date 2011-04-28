@@ -53,7 +53,7 @@ dojo.declare('reviews.Card', null, {
 
     suspend: function() {
         // Suspends this and sibling cards.
-        xhrArgs = mixinDefaultXhrArgs({
+        var xhrArgs = mixinDefaultXhrArgs({
             url: '/flashcards/internal-api/facts/' + this.fact_id + '/suspend/',
             handleAs: 'json',
             load: dojo.hitch(this, function(data) {
@@ -69,7 +69,7 @@ dojo.declare('reviews.Card', null, {
         duration = typeof duration === 'undefined' ? null : duration;
         questionDuration = typeof questionDuration === 'undefined' ? null : questionDuration;
 
-        xhrArgs = mixinDefaultXhrArgs({
+        var xhrArgs = mixinDefaultXhrArgs({
             //url: '{% url api-cards %}' + this.id + '/',
             url: this.reviews_url,
             content: { grade: grade, duration: duration, questionDuration: questionDuration },
