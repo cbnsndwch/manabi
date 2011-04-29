@@ -266,9 +266,9 @@ table {
     /* make it look like a tab */
     position: relative;
     top:    31px;
-    background-color: gray;
-    opacity: .7;
-    background-image: -webkit-gradient(
+    /*background-color: gray;*/
+    opacity: .73;
+    /*background-image: -webkit-gradient(
         linear,
         left bottom,
         left top,
@@ -279,12 +279,17 @@ table {
         center bottom,
         rgb(128,128,128) 10%,
         rgb(255,255,255) 55%
-    );
-    -moz-border-radius-topright: 10px;
-    -webkit-border-top-right-radius: 10px;
-    -moz-border-radius-topleft: 10px;
-    -webkit-border-top-left-radius: 10px;
+    );*/
+    background: #f6f8f9; /* old browsers */
+    background: -moz-linear-gradient(top, #f6f8f9 0%, #E8E9EA 46%, #D2D6D8 70%, #AAA 100%); /* firefox */
+    background: -webkit-gradient(linear, left top, left bottom, color-stop(0%,#f6f8f9), color-stop(46%,#E8E9EA), color-stop(70%,#D2D6D8), color-stop(100%,#AAA)); /* webkit */
+    filter: progid:DXImageTransform.Microsoft.gradient( startColorstr='#f6f8f9', endColorstr='#AAA',GradientType=0 ); /* ie */
+    background: -o-linear-gradient(top, #f6f8f9 0%,#E8E9EA 46%,#D2D6D8 70%,#AAA 100%); /* opera */
 
+    -webkit-border-top-left-radius: 7px;
+    -webkit-border-top-right-radius: 7px;
+    -moz-border-radius-topleft: 7px;
+    -moz-border-radius-topright: 7px;
 
     display: inline;
     float: left;

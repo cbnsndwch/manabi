@@ -23,8 +23,6 @@ goog analytics for other ajax requests (POST etc)
 
 focus after fact submit doesn't work after closing and reopening dialog
 
-increase max url slug length
-
 -?-due counts on main page vs deck pages are different.
 
 
@@ -425,6 +423,8 @@ field for word type - verb, na-adj, etc
 ---------------------
 Scheduling ideas:
 ---------------------
+after a card is failed N times in one day, delay it until the next day.
+
 start showing failed cards that arent due yet if we accumulate N failed cards (like, 20)
 
 consider 'due very soon' cards due now when in a review session
