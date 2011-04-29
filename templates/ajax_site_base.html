@@ -8,6 +8,8 @@
 
 
 {% block extra_head_base %}
+    {# tells googlebot to crawl /?_escaped_fragment_= #}
+    <meta name="fragment" content="!">
 
     <link rel="stylesheet" href="{{ MEDIA_URL }}static/tag-it/css/jquery-ui/jquery.ui.autocomplete.custom.css"></link>
     <link rel="stylesheet" href="{{ MEDIA_URL }}static/js/jdic/jPlayer/skins/manabi/jplayer.css"></link>
