@@ -13,7 +13,7 @@ def start_and_end_of_day(user, date=None):
     Takes the user's preferred start of day (usually a default of 4am) into account.
     '''
     account = Account.objects.get(user=user)
-    timezone = pytz.timezone(account.timezone)
+    timezone = pytz.timezone(unicode(account.timezone))
 
     if date is None:
         # Today
