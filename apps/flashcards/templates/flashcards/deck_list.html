@@ -9,9 +9,9 @@
 <h1>Manage My Decks</h1>
 
 {% if deck_list %}
-    <ul class="deck_list divided clickable_contents">
+    <ul class="deck_list divided">
         {% for deck in deck_list %}
-            <li class="{% cycle "odd" "even" %} {{ deck.suspended|yesno:"suspended," }}">
+            <li class="{% cycle "odd" "even" %} {{ deck.suspended|yesno:"suspended," }} clickable_contents">
                 <button class="suspend_deck mini" dojoType="dijit.form.ToggleButton" iconClass="manabi_icon manabi_icon_control_{{ deck.suspended|yesno:"play,pause"}}" checked="{{ deck.suspended|yesno:"true,false" }}">
                     {{ deck.suspended|yesno:"Resume,Suspend" }}
                     <script type="dojo/connect" event="onChange" args="evt">
