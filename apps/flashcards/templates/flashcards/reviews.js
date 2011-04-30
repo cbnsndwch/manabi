@@ -12,7 +12,7 @@ dojo.require('dojo.DeferredList');
 dojo.require('dojox.timing');
 
 
-var mixinDefaultXhrArgs = function(args) { //Ti.API.info('mixinDefaultXhrArgs'); //Ti.API.info(dojo.mixin(Mi.REST.defaultXhrArgs, args));
+var mixinDefaultXhrArgs = function(args) {
     if (typeof Titanium !== 'undefined') {
         return dojo.mixin(Mi.REST.mgetDefaultXhrArgs(), args);
     } else {
@@ -70,7 +70,6 @@ dojo.declare('reviews.Card', null, {
         questionDuration = typeof questionDuration === 'undefined' ? null : questionDuration;
 
         var xhrArgs = mixinDefaultXhrArgs({
-            //url: '{% url api-cards %}' + this.id + '/',
             url: this.reviews_url,
             content: { grade: grade, duration: duration, questionDuration: questionDuration },
             handleAs: 'json',
@@ -198,14 +197,9 @@ dojo.declare('reviews.Session', null, {
         //Ti.API.info('startSession()');
         // Reset the review undo stack on the server.
         var def = new dojo.Deferred();
-        //reviews._simpleXHRPost('{% url api-reset_review_undo_stack %}').addCallback(dojo.hitch(this, function(def) {
-        console.log('outside delete callback');
         dojo.xhrDelete(mixinDefaultXhrArgs({url: this.undoStackUrl})).then(dojo.hitch(this, function() { 
     
-            console.log('outside prefetchCards callback');
             this.prefetchCards(this.cardBufferSize * 2, true).then(dojo.hitch(this, function(prefetchItem) {
-                console.log('inside prefetchCards callback');
-
                 //start session timer - a published event
                 this._startSessionTimer();
 
@@ -283,7 +277,6 @@ dojo.declare('reviews.Session', null, {
     startCardTimer: function() {
         // Same as startQuestionTimer, but for the entire duration that 
         // the current card is viewed, including its front and back.
-        console.log('startCardTimer()');
         this.currentCardDuration = null;
         this._cardStartTime = new Date();
     },
@@ -308,7 +301,6 @@ dojo.declare('reviews.Session', null, {
         // Starts a timer for the current card
         // This is used for measuring how long the user takes to think of 
         // the answer to a card, before viewing the card's back.
-        console.log('startQuestionTimer()');
         this.currentCardQuestionDuration = null;
         this._questionStartTime = new Date();
     },
@@ -404,7 +396,6 @@ dojo.declare('reviews.Session', null, {
             content: query,
             handleAs: 'json',
             load: dojo.hitch(this, function(data) {
-                //console.log('inside prefetch load callback');
                 //start the session timer if it hasn't already been started
                 if (this.timer !== null) {
                     if (!this.timer.isRunning) {
@@ -413,10 +404,7 @@ dojo.declare('reviews.Session', null, {
                 }
                 if (data.card_list.length > 0) {
                     dojo.forEach(data.card_list, dojo.hitch(this, function(card) {
-                        //card = new reviews.Card(card);
-                        //console.log('creating card');
                         card = new reviews.Card(card, this);
-                        //console.log('done creating card');
                         this.cards.push(card);
                     }));
                 }
@@ -427,11 +415,9 @@ dojo.declare('reviews.Session', null, {
                     }
                 }
                 this._prefetchInProgress = false;
-                //console.log('at end of prefetch load callback');
             })
             //on error //TODO it should redo the request
         });
-    //console.log('args:');console.log(xhrArgs);
 
         this.failsSincePrefetchRequest = 0;
 
@@ -531,7 +517,7 @@ dojo.declare('reviews.Session', null, {
     reloadCurrentCard: function() {
         //TODO refresh the card inside this.cards, instead of just setting current_cards
         var xhrArgs = mixinDefaultXhrArgs({
-            url: '{% url api-cards %}/' + this.currentCard.id + '/',
+            url: this.currentCard.url,
             handleAs: 'json',
             load: dojo.hitch(this, function(data) {
                 this._prevCard = this.currentCard;
@@ -564,16 +550,10 @@ dojo.declare('reviews.Session', null, {
         var undoDef = new dojo.Deferred();
         review_defs.addCallback(dojo.hitch(this, function() {
             // Send undo request
-            //var actual_undo_def = reviews._simpleXHRPost('{% url api-undo_review %}');
-            //var actual_undo_def = reviews._simpleXHRPost('{% url api-undo_review %}');
-            
-            //actual_undo_def.addCallback(dojo.hitch(this, function(undoDef) {
 
             dojo.xhrPost(mixinDefaultXhrArgs({url: this.undoStackUrl})).then(dojo.hitch(this, function() {
                 // Clear and refill card cache
                 // undo our record-keeping
-                //console.log('prevcard:');
-                //console.log(this._prevCard);
                 this.reviewCount -= 1;
                 this.reviewCountPerGrade[this._prevCard.lastReviewGrade]--;
                 this.reviewedCardIds.splice(this.reviewedCardIds.indexOf(this._prevCard.id), 1);
