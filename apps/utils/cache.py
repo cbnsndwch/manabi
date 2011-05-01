@@ -44,8 +44,6 @@ def cached_function(func, _decorates_method=False):
     '''
     Adds a kwarg to the function, `invalidate_cache`.
     '''
-    #def make_key(*args, **kwargs
-
     @wraps(func)
     def cached_func(*args, **kwargs):
         # Add a bunch of hopefully uniquely identifying parameters to the key.
@@ -63,7 +61,6 @@ def cached_function(func, _decorates_method=False):
             keys.extend(args)
 
         keys.extend(kwargs.values())
-
         key = make_key(*keys)
 
         def invalidate():
