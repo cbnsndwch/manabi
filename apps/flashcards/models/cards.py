@@ -11,7 +11,7 @@ from managers.cardmanager import CardManager
 from repetitionscheduler import repetition_algo_dispatcher
 from undo import UndoCardReview
 from django.db.models import Count, Min, Max, Sum, Avg
-
+from django.core.cache import cache
 
 
 class Card(models.Model):
@@ -78,13 +78,8 @@ class Card(models.Model):
         '''
         Returns a new Card object.
         '''
-        return Card(
-                fact=target_fact,
-                template_id=self.template_id,
-                priority=self.priority,
-                leech=False,
-                active=True,
-                suspended=False,
+        return Card(fact=target_fact, template_id=self.template_id,
+                priority=self.priority, leech=False, active=True, suspended=False,
                 new_card_ordinal=self.new_card_ordinal)
 
     @property
@@ -92,18 +87,23 @@ class Card(models.Model):
         return self.fact.deck.owner
 
     @property
+    def deck(self):
+        return self.fact.deck
+
+    @property
     def siblings(self):
         '''Returns the other cards from this card's fact.'''
         return self.fact.card_set.exclude(id=self.id)
 
     @property
-    def deck(self):
-        return self.fact.deck
-
-    @property
     def first_reviewed_at(self):
-        return self.cardhistory_set.aggregate(
-            Min('reviewed_at'))['reviewed_at__min']
+        key = '.'.join(['Card', self.id, 'first_reviewed_at'])
+        val = cache.get(key)
+        if val is None:
+            val = self.cardhistory_set.aggregate(
+                    Min('reviewed_at'))['reviewed_at__min']
+            cache.set(key, val)
+        return val
 
     @property
     def last_review_grade_name(self):
@@ -252,12 +252,8 @@ class Card(models.Model):
         was_new = self.is_new()
 
         card_history_item = CardHistory(
-            card=self,
-            response=grade,
-            reviewed_at=reviewed_at,
-            was_new=was_new,
-            duration=duration,
-            question_duration=question_duration)
+            card=self, response=grade, reviewed_at=reviewed_at, was_new=was_new,
+            duration=duration, question_duration=question_duration)
         card_history_item.save()
 
         self.review_count += 1
