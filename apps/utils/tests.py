@@ -2,7 +2,7 @@
 
 from django.test import TestCase
 from japanese import generate_reading, _furiganaize, _furiganaize_complex_compound_word
-from cache import make_key, cached_function, cached_method
+from cache import (make_key, cached_function, _format_key_arg)
 
 
 class CacheHelperTest(TestCase):
@@ -16,7 +16,8 @@ class CacheHelperTest(TestCase):
         args = range(2000)
         key = make_key(*args)
         self.assertTrue(len(key) <= 250)
-        self.assertTrue('1.2.3.4.5.6.7.8.9.10.11.12' not in key, 'key is not hashed')
+        self.assertTrue(
+                '1.2.3.4.5.6.7.8.9.10.11.12' not in key, 'key is not hashed')
 
     def test_function_decorator(self):
         foo = 10
@@ -36,7 +37,7 @@ class CacheHelperTest(TestCase):
         foo = 10
         
         class Bar(object):
-            @cached_method
+            @cached_function
             def my_func(self, invalidate_cache=None):
                 return foo
 
@@ -47,6 +48,14 @@ class CacheHelperTest(TestCase):
         foo = 20
         ret = bar.my_func()
         self.assertNotEqual(ret, foo)
+
+    def test_key_arg_formatter(self):
+        s = _format_key_arg({1:2})
+        self.assertTrue('1' in s)
+        self.assertTrue('2' in s)
+        self.assertNotEqual(s, '{1: 2}')
+        s = _format_key_arg('foo bar\t')
+        self.assertEqual(s, 'foobar')
 
         
 

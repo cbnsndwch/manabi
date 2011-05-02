@@ -184,7 +184,6 @@ def rest_facts_tags(request):
 
 @api_dojo_data
 @has_card_query_filters
-@transaction.commit_on_success
 #TODO refactor into facts (no???)
 def rest_facts(request, deck=None, tags=None): 
     if request.method == 'GET':
