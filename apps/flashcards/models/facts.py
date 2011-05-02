@@ -22,13 +22,13 @@ class FactType(models.Model):
 
     #e.g. for Example Sentences for Japanese facts
     parent_fact_type = models.ForeignKey('self',
-        blank=True, null=True, related_name='child_fact_types')
+            blank=True, null=True, related_name='child_fact_types')
     many_children_per_fact = models.NullBooleanField(blank=True, null=True)
 
     # separate the cards of this fact initially
     # not used for child fact types (?)
     min_card_space = models.FloatField(default=seconds_to_days(600),
-        help_text="Duration expressed in (partial) days.")
+            help_text='Duration expressed in (partial) days.')
 
     # minimal interval multiplier between two cards of the same fact
     space_factor = models.FloatField(default=.1) 
@@ -42,21 +42,18 @@ class FactType(models.Model):
         return self.name
     
     class Meta:
-        #unique_together = (('owner', 'name'), )
         app_label = 'flashcards'
 
 
 
 class FactManager(models.Manager):
-    #TODO move to User
     def all_tags_per_user(self, user):
         '''
         Includes tags on facts made on subscribed facts.
         '''
-        #user_facts = self.filter(deck__owner=user) 
         user_facts = self.with_upstream(user)
         return usertagging.models.Tag.objects.usage_for_queryset(
-            user_facts)
+                user_facts)
     
     def search(self, fact_type, query, query_set=None):
         '''Returns facts which have FieldContents containing the query.
@@ -65,7 +62,7 @@ class FactManager(models.Manager):
         #TODO or is in_bulk() faster?
         query = query.strip()
         if not query_set:
-            query_set = self.filter(parent_fact__isnull=True) #all()
+            query_set = self.filter(parent_fact__isnull=True)
 
         subscriber_facts = Fact.objects.filter(synchronized_with__in=query_set)
 
@@ -103,10 +100,11 @@ class FactManager(models.Manager):
                             owner=user, synchronized_with=fact.deck)
                 except Deck.DoesNotExist:
                     raise forms.ValidationError(
-                            'You do not have permission to access this flashcard deck.')
+                            'You do not have permission to access this deck.')
 
                 # check if the fact exists already
-                existent_fact = subscriber_deck.fact_set.filter(synchronized_with=fact)
+                existent_fact = subscriber_deck.fact_set.filter(
+                        synchronized_with=fact)
                 if existent_fact:
                     fact = existent_fact[0]
                 else:
@@ -162,7 +160,8 @@ class FactManager(models.Manager):
             user_facts = user_facts.filter(fact__in=tagged_facts)
 
         #shared_deck_ids = [deck.synchronized_with_id for deck in decks if deck.synchronized_with_id]
-        new_shared_facts = self.filter(active=True, deck__in=decks.filter(synchronized_with__isnull=False)).exclude(id__in=user_facts)
+        new_shared_facts = self.filter(active=True, deck__in=decks.filter(
+                synchronized_with__isnull=False)).exclude(id__in=user_facts)
         new_shared_facts = new_shared_facts.order_by('new_fact_ordinal')
         new_shared_facts = new_shared_facts[:count]
         #FIXME handle 0 ret
