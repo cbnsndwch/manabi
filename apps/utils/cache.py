@@ -40,9 +40,12 @@ def make_key(*args):
 
 
 
-def cached_function(func, _decorates_method=False):
+def cached_function(func):
     '''
-    Adds a kwarg to the function, `invalidate_cache`.
+    Adds a kwarg to the function, `invalidate_cache`. This allows the function to 
+    setup signal listeners for invalidating the cache.
+
+    Also works on class methods.
     '''
     @wraps(func)
     def cached_func(*args, **kwargs):
@@ -50,14 +53,16 @@ def cached_function(func, _decorates_method=False):
         keys = ['cached_func']
         keys.append(func.__name__)
                 
-        # For DRY - this works on both functions and methods.
-        if _decorates_method:
+        # This works on both functions and methods.
+        if hasattr(func, '__self__'):
+            # Method.
             self = args[0]
             keys.append(self.__class__.__name__)
             if hasattr(self, 'pk'):
                 keys.append(self.pk)
             keys.extend(args[1:])
         else:
+            # Function.
             keys.extend(args)
 
         keys.extend(kwargs.values())
@@ -72,8 +77,5 @@ def cached_function(func, _decorates_method=False):
             cache.set(key, ret)
         return ret
     return cached_func
-
-def cached_method(*args, **kwargs):
-    return cached_function(*args, _decorates_method=True, **kwargs)
 
 

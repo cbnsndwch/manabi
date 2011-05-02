@@ -26,6 +26,10 @@ focus after fact submit doesn't work after closing and reopening dialog
 
 -?-due counts on main page vs deck pages are different.
 
+-------------
+optimizations
+-------------
+Fact.objects.with_upstream could use better ORM joins
 
 ---------------
 design influences

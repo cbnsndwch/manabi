@@ -99,7 +99,8 @@ class FactManager(models.Manager):
                 from decks import Deck
                 # find the subscriber deck for this user
                 try:
-                    subscriber_deck = Deck.objects.get(owner=user, synchronized_with=fact.deck)
+                    subscriber_deck = Deck.objects.get(
+                            owner=user, synchronized_with=fact.deck)
                 except Deck.DoesNotExist:
                     raise forms.ValidationError(
                             'You do not have permission to access this flashcard deck.')
