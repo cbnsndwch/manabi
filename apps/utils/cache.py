@@ -15,8 +15,7 @@ def _format_key_arg(arg):
     Selectively formats args passed to `make_key`. Defaults to serializing
     in UTF-8.
     '''
-    def to_string(x):
-        return unicode(x).encode('utf8')
+    to_string = lambda x: unicode(x).encode('utf8')
 
     if isinstance(arg, dict):
         # `str` is wasteful for dicts, for our case here.
@@ -70,7 +69,6 @@ def _assemble_keys(func, *args, **kwargs):
 
     # This works on both functions and class methods.
     signature_args = inspect.getargspec(func).args
-    #import pdb;pdb.set_trace()
     if (hasattr(func, '__self__') or
         (signature_args and signature_args[0] == 'self')):
         # Method, probably.
