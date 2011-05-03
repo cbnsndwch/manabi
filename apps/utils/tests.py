@@ -2,7 +2,8 @@
 
 from django.test import TestCase
 from japanese import generate_reading, _furiganaize, _furiganaize_complex_compound_word
-from cache import (make_key, cached_function, _format_key_arg)
+from cache import (make_key, cached_function, _format_key_arg,
+                   _assemble_keys)
 
 
 class CacheHelperTest(TestCase):
@@ -21,9 +22,11 @@ class CacheHelperTest(TestCase):
 
     def test_function_decorator(self):
         foo = 10
+        c = {}
         
         @cached_function
         def my_func(invalidate_cache=None):
+            c['callback'] = invalidate_cache
             return foo
 
         ret = my_func()
@@ -33,15 +36,19 @@ class CacheHelperTest(TestCase):
         ret = my_func()
         self.assertNotEqual(ret, foo)
 
+        c['callback']()
+        ret = my_func()
+        self.assertEqual(ret, foo)
+
     def test_method_decorator(self):
         foo = 10
         
-        class Bar(object):
+        class Baz(object):
             @cached_function
             def my_func(self, invalidate_cache=None):
                 return foo
 
-        bar = Bar()
+        bar = Baz()
         ret = bar.my_func()
         self.assertEqual(ret, foo)
 
@@ -56,6 +63,25 @@ class CacheHelperTest(TestCase):
         self.assertNotEqual(s, '{1: 2}')
         s = _format_key_arg('foo bar\t')
         self.assertEqual(s, 'foobar')
+
+    def test_distinct_key_generation(self):
+        foo = 50
+
+        @cached_function
+        def my_func(invalidate_cache=None):
+            return foo
+
+        a = my_func()
+        foo = 60
+
+        class Bar2(object):
+            @cached_function
+            def my_func(self, invalidate_cache=None):
+                return foo
+
+        b = Bar2().my_func()
+        self.assertNotEqual(a, b)
+
 
         
 
