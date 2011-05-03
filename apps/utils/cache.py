@@ -87,20 +87,18 @@ def _assemble_keys(func, *args, **kwargs):
         keys.extend(args)
     keys.extend(kwargs.values())
 
-    # To be extra safe! (unreadable, so at end.)
+    # To be extra safe! (unreadable, so at end of key.)
     # If this results in any collisions, it actually won't make a difference.
     # It's fine to memoize functions that collide on this as if
-    # they are one, since they're identical.
+    # they are one, since they're identical if their codeblock hash is the same.
     keys.append(hex(func.__code__.__hash__()))
 
     return keys
 
 
-def _cached_function(keys, func, args_tuple):
-    args, kwargs = args_tuple
+def _cached_function(keys, func, args_and_kwargs):
+    args, kwargs = args_and_kwargs
     key = make_key(*(keys or _assemble_keys(func, *args, **kwargs)))
-    #key = make_key(keys)
-    #key = 'whatever'
 
     def invalidate():
         cache.delete(key)
@@ -149,7 +147,6 @@ def cached_view(keys=None):
                 keys2.extend(request.GET)
             
             return _cached_function(keys2, func, ((request,) + args, kwargs,))
-            #return cached_function(keys=keys2)(func)(request, *args, **kwargs)
         return wrapped
     return decorator
 

@@ -64,14 +64,15 @@ class FactManager(models.Manager):
         if not query_set:
             query_set = self.filter(parent_fact__isnull=True)
 
-        subscriber_facts = Fact.objects.filter(synchronized_with__in=query_set)
+        subscriber_facts = Fact.objects.filter(
+                synchronized_with__in=query_set)
 
         matches = FieldContent.objects.filter(
-                Q(content__icontains=query)
-                | Q(cached_transliteration_without_markup__icontains=query)
-                & (Q(fact__in=query_set)
-                   | Q(fact__synchronized_with__in=subscriber_facts)))
-                #& Q(fact__fact_type=fact_type)).all()
+            Q(content__icontains=query)
+            | Q(cached_transliteration_without_markup__icontains=query)
+            & (Q(fact__in=query_set)
+               | Q(fact__synchronized_with__in=subscriber_facts)))
+            #& Q(fact__fact_type=fact_type)).all()
 
         #TODO use values_list to be faster
         match_ids = matches.values_list('fact', flat=True)
