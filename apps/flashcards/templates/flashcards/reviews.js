@@ -521,7 +521,7 @@ dojo.declare('reviews.Session', null, {
             handleAs: 'json',
             load: dojo.hitch(this, function(data) {
                 this._prevCard = this.currentCard;
-                this.currentCard = new reviews.Card(data.card, this);
+                this.currentCard = new reviews.Card(data, this);
             })
         });
         return dojo.xhrGet(xhrArgs);
