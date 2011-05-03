@@ -1,3 +1,19 @@
+# ##################################
+# ##################################
+# ##################################
+# ###
+# ### Notice
+# ###
+#
+# This module is mostly deprecated,
+# and is being gradually phased out,
+# in favor of the new REST API,
+# which is in flashcards.views.rest
+#
+# ##################################
+
+
+
 # Some views which should be considered part of the REST API are contained 
 # in the reviews.py module. This module contains the rest of them.
 
@@ -39,8 +55,7 @@ from apps.utils.cache import cached_view
 
 
 
-#FIXME add permissions validation for every method
-
+#FIXME add permissions validation for every method (The important ones have it)
         
         
 
@@ -54,7 +69,7 @@ def rest_deck_subscribe(request, deck_id):
         return {'deckId': new_deck.id,
                 'postRedirect': new_deck.get_absolute_url()}
 
-@cache_page(60 * 60 * 24 * 1) # 1 day
+@cache_page(60 * 60 * 24 * 7) # 7 days
 @api
 def rest_generate_reading(request):
     if request.method == 'POST':
@@ -183,7 +198,7 @@ def rest_facts_tags(request):
     #return to_dojo_data(tags)
 
 
-#@cached_view()
+@cached_view()
 @api_dojo_data
 @has_card_query_filters
 def rest_facts(request, deck=None, tags=None, invalidate_cache=None): 
@@ -334,9 +349,9 @@ def rest_fact_unsuspend(request, fact_id):
 def rest_fact(request, fact_id): #todo:refactor into facts
     if request.method == 'POST':
         # Update fact
-        #FIXME make sure the logged-in user owns this FACT
-
-        #override the submitted deck ID with the ID from the URL, since this is a RESTful interface
+        
+        # Override the submitted deck ID with the ID from the URL, since this 
+        # is a RESTful interface.
         post_data = request.POST.copy()
 
         #todo: refactor this into model code
@@ -345,23 +360,26 @@ def rest_fact(request, fact_id): #todo:refactor into facts
         fact = Fact.objects.get_for_owner_or_subscriber(fact_id, request.user)
 
         #fact_form = FactForm(post_data, prefix='fact', instance=fact)
-        FactFormset = modelformset_factory(Fact, fields=('id', 'fact_type',), can_delete=True)
-        fact_formset = FactFormset(post_data, prefix='fact', queryset=Fact.objects.filter(id=fact.id)|fact.subfacts)
+        FactFormset = modelformset_factory(
+                Fact, fields=('id', 'fact_type',), can_delete=True)
+        fact_formset = FactFormset(
+                post_data, prefix='fact',
+                queryset=Fact.objects.filter(id=fact.id)|fact.subfacts)
         
         #TODO make from CardForm
         CardFormset = modelformset_factory(
-            Card, exclude=('fact', 'ease_factor', )) 
+                Card, exclude=('fact', 'ease_factor', )) 
         card_formset = CardFormset(
-            post_data, prefix='card',
-            queryset=fact.card_set.get_query_set())
+                post_data, prefix='card',
+                queryset=fact.card_set.get_query_set())
         
         FieldContentFormset = modelformset_factory(
-            FieldContent, form=FieldContentForm)
+                FieldContent, form=FieldContentForm)
         field_content_queryset = (fact.fieldcontent_set.get_query_set() 
                                   or None)
         field_content_formset = FieldContentFormset(
-            post_data, prefix='field_content') 
-        #, queryset=field_content_queryset)
+                post_data, prefix='field_content') 
+                #, queryset=field_content_queryset)
 
         #fact_form = FactForm(post_data, prefix='fact', instance=fact)
         # ^^^^^^^ this isn't updated
