@@ -32,6 +32,7 @@ import apps.utils.querycleaner
 import random
 #import jcconv
 from flashcards.views.shortcuts import get_deck_or_404
+from apps.utils.cache import cached_view
 
 #import logging
 #logger = logging.getLogger(__name__)
@@ -182,10 +183,11 @@ def rest_facts_tags(request):
     #return to_dojo_data(tags)
 
 
+#@cached_view()
 @api_dojo_data
 @has_card_query_filters
-#TODO refactor into facts (no???)
-def rest_facts(request, deck=None, tags=None): 
+def rest_facts(request, deck=None, tags=None, invalidate_cache=None): 
+    #TODO refactor into facts (no???)
     if request.method == 'GET':
         ret = []
         if request.GET['fact_type']:

@@ -91,55 +91,67 @@ def _assemble_keys(func, *args, **kwargs):
     # If this results in any collisions, it actually won't make a difference.
     # It's fine to memoize functions that collide on this as if
     # they are one, since they're identical.
-    keys.append(func.__code__.__hash__()) 
+    keys.append(hex(func.__code__.__hash__()))
 
     return keys
 
 
+def _cached_function(keys, func, args_tuple):
+    args, kwargs = args_tuple
+    key = make_key(*(keys or _assemble_keys(func, *args, **kwargs)))
+    #key = make_key(keys)
+    #key = 'whatever'
 
-def cached_function(func, keys=None):
+    def invalidate():
+        cache.delete(key)
+
+    ret = cache.get(key)
+    if ret is None:
+        ret = func(*args, invalidate_cache=invalidate, **kwargs)
+        cache.set(key, ret)
+    return ret
+
+
+def cached_function(keys=None):
     '''
     Adds a kwarg to the function, `invalidate_cache`. This allows the function
     to setup signal listeners for invalidating the cache.
 
     Works on both functions and class methods.
     '''
-    @wraps(func)
-    def cached_func(*args, **kwargs):
-        key = make_key(*(keys or _assemble_keys(func, *args, **kwargs)))
-
-        def invalidate():
-           cache.delete(key)
-
-        ret = cache.get(key)
-        if ret is None:
-            ret = func(*args, invalidate_cache=invalidate, **kwargs)
-            cache.set(key, ret)
-        return ret
-    return cached_func
+    def decorator(func):
+        @wraps(func)
+        def wrapped(*args, **kwargs):
+            return _cached_function(keys, func, (args, kwargs))
+        return wrapped
+    return decorator
 
 
-def cached_view(func, keys=None):
+def cached_view(keys=None):
     '''
     Handles HttpRequest object args intelligently when auto-generating the 
     cache key.
 
     Only caches GET requests.
     '''
-    @wraps(func)
-    def wrapped(request, *args, **kwargs):
-        # Don't cache non-GET requests.
-        if request.method != 'GET':
-            return func(request, *args, **kwargs)
+    def decorator(func):
+        @wraps(func)
+        def wrapped(request, *args, **kwargs):
+            # Don't cache non-GET requests.
+            if request.method not in ['GET', 'HEAD']:
+                return func(request, *args, **kwargs)
 
-        if not keys:
-            # Don't naively add the `request` arg to the cache key.
-            keys = _assemble_keys(func, *args, **kwargs)
+            if not keys:
+                # Don't naively add the `request` arg to the cache key.
+                keys2 = _assemble_keys(func, *args, **kwargs)
+                
+                # Only add specific parts of the `request` object to the key.
+                keys2.extend(request.GET)
             
-            # Only add specific parts of the `request` object to the key.
-            keys.extend(request.GET)
-
-        return cached_function(func, keys=keys)(request, *args, **kwargs)
+            return _cached_function(keys2, func, ((request,) + args, kwargs,))
+            #return cached_function(keys=keys2)(func)(request, *args, **kwargs)
+        return wrapped
+    return decorator
 
 
 

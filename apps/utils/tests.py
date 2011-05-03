@@ -13,6 +13,11 @@ class CacheHelperTest(TestCase):
         for arg in args:
             self.assertTrue(arg.replace(' ', '') in key)
 
+    def test_no_brackets_in_list_key(self):
+        key = make_key(1,2,3,4)
+        self.assertTrue('[' not in key)
+
+
     def test_long_key(self):
         args = range(2000)
         key = make_key(*args)
@@ -24,7 +29,7 @@ class CacheHelperTest(TestCase):
         foo = 10
         c = {}
         
-        @cached_function
+        @cached_function()
         def my_func(invalidate_cache=None):
             c['callback'] = invalidate_cache
             return foo
@@ -44,7 +49,7 @@ class CacheHelperTest(TestCase):
         foo = 10
         
         class Baz(object):
-            @cached_function
+            @cached_function()
             def my_func(self, invalidate_cache=None):
                 return foo
 
@@ -67,7 +72,7 @@ class CacheHelperTest(TestCase):
     def test_distinct_key_generation(self):
         foo = 50
 
-        @cached_function
+        @cached_function()
         def my_func(invalidate_cache=None):
             return foo
 
@@ -75,7 +80,7 @@ class CacheHelperTest(TestCase):
         foo = 60
 
         class Bar2(object):
-            @cached_function
+            @cached_function()
             def my_func(self, invalidate_cache=None):
                 return foo
 
