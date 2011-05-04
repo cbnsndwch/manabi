@@ -18,11 +18,13 @@ fact_grid_updated = django.dispatch.Signal(providing_args=['decks'])
 @receiver(post_delete,
           sender=FieldContent, dispatch_uid='fact_grid_updated_fc_pd')
 def field_content_updated(sender, instance, created, **kwargs):
-    fact_grid_updated.send(sender=sender, decks=instance.fact.all_owner_decks)
+    fact_grid_updated.send(sender=sender,
+            decks=instance.fact.all_owner_decks.filter(active=True))
 
 @receiver(fact_suspended, dispatch_uid='fact_grid_updated_f_s')
 @receiver(fact_unsuspended, dispatch_uid='fact_grid_updated_f_us')
 def fact_status_updated(sender, **kwargs):
-    fact_grid_updated.send(sender=sender, decks=sender.all_owner_decks)
+    fact_grid_updated.send(sender=sender,
+            decks=sender.all_owner_decks.filter(active=True))
 
 
