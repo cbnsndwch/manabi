@@ -4,16 +4,19 @@ from functools import wraps
 import hashlib
 import re
 import inspect
+from itertools import chain
 
 # A memcached limit.
 MAX_KEY_LENGTH = 250
 
+# Regex to match any control characters, plus space.
+# (All of which are illegal in memcached keys.)
 _CONTROL_KEY_RE = re.compile(r'[ ' + ''.join(chr(i) for i in xrange(31)) + ']')
 
 def _format_key_arg(arg):
     '''
     Selectively formats args passed to `make_key`. Defaults to serializing
-    in UTF-8.
+    into a string and then encoding in UTF-8.
     '''
     to_string = lambda x: unicode(x).encode('utf8')
 
@@ -29,19 +32,20 @@ def _format_key_arg(arg):
 
 def make_key(*args):
     '''
-    This does several things to cleanly make a key out of the given arguments:
+    This does a couple things to cleanly make a key out of the given arguments:
         1. Removes any spaces (which are illegal in memcached) and control
            characters.
-        2. If the resulting length is > 250 bytes, generates a hash out of the 
-           key instead, disregarding any unhashable arguments.
+        2. After serializing all arguments and joining them into one string, if
+           the resulting length is > 250 bytes, generates a hash out of the
+           key instead.
     
     It's possible the resulting key would be empty. In that case, supply your 
-    own key, or don't cache that value. Choose args that won't result in an 
-    empty key.
+    own key, or don't cache that value. Better yet, choose args that won't
+    result in an empty key!
 
-    TODO a further refinemine of this would be to hash only the smallest part
+    TODO a further refinement of this would be to hash only the smallest part
     necessary to get it under the limit. Don't hash an entire key just for 
-    being 1 char too long.
+    being 1 char too long. This would improve readability.
     '''
     key = '.'.join(map(_format_key_arg, args))
 
@@ -50,8 +54,8 @@ def make_key(*args):
     if len(cache.make_key(key)) > MAX_KEY_LENGTH:
         prefix = cache.make_key('')
         
-        # Just to be safe...
-        if len(prefix) > MAX_KEY_LENGTH:
+        # Just to be safe... we should be able to have a key >= 1 char long :)
+        if len(prefix) >= MAX_KEY_LENGTH:
             raise Exception('Your cache key prefixes are too long.')
 
         key = hashlib.sha512(key).hexdigest()[:MAX_KEY_LENGTH - len(prefix)]
@@ -79,7 +83,7 @@ def _assemble_keys(func, *args, **kwargs):
         # doing unsightly things like naming the "self" arg something else.
         self = args[0]
         keys.append(self.__class__.__name__)
-        if hasattr(self, 'pk'): # django model?
+        if hasattr(self, 'pk'): # django model? `pk` is a great differentiator!
             keys.append(self.pk)
         keys.extend(args[1:])
     else:
@@ -99,6 +103,7 @@ def _assemble_keys(func, *args, **kwargs):
 def _cached_function(keys, func, args_and_kwargs):
     args, kwargs = args_and_kwargs
     key = make_key(*(keys or _assemble_keys(func, *args, **kwargs)))
+    print key
 
     def invalidate():
         cache.delete(key)
@@ -110,7 +115,7 @@ def _cached_function(keys, func, args_and_kwargs):
     return ret
 
 
-def cached_function(keys=None):
+def cached_function(timeout=0, keys=None):
     '''
     Adds a kwarg to the function, `invalidate_cache`. This allows the function
     to setup signal listeners for invalidating the cache.
@@ -125,17 +130,17 @@ def cached_function(keys=None):
     return decorator
 
 
-def cached_view(keys=None):
+def cached_view(timeout=0, keys=None):
     '''
     Handles HttpRequest object args intelligently when auto-generating the 
     cache key.
 
-    Only caches GET requests.
+    Only caches GET and HEAD requests.
     '''
     def decorator(func):
         @wraps(func)
         def wrapped(request, *args, **kwargs):
-            # Don't cache non-GET requests.
+            # Don't cache non-GET/HEAD requests.
             if request.method not in ['GET', 'HEAD']:
                 return func(request, *args, **kwargs)
 
@@ -144,8 +149,8 @@ def cached_view(keys=None):
                 keys2 = _assemble_keys(func, *args, **kwargs)
                 
                 # Only add specific parts of the `request` object to the key.
-                keys2.extend(request.GET)
-            
+                # Add the URL query parameters.
+                keys2.extend(list(chain.from_iterable(request.GET.items())))
             return _cached_function(keys2, func, ((request,) + args, kwargs,))
         return wrapped
     return decorator
