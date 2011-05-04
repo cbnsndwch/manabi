@@ -817,7 +817,7 @@ ul.book_list li {
 }
 #lazy_user_landing_box .column.new_user {
     border-left: solid 8px #d21f00;
-    margin-right: 3em;
+    margin-right: 2em;
 }
 #lazy_user_landing_box .column.login_link {
     border-left: solid 8px lightgray;
@@ -826,7 +826,7 @@ ul.book_list li {
     height: 9.5em;
 }
 #lazy_user_landing_box .column {
-    padding-left: 1em;
+    padding-left: 1.5em;
 }
 #lazy_user_landing_box h3 {
     margin-bottom: .5em;

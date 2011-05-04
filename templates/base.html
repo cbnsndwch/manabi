@@ -145,7 +145,7 @@
 
 
 
-        <script type="text/javascript">
+        {% comment %}
         var uservoiceOptions = {
         /* required */
         key: 'manabi',
@@ -159,16 +159,21 @@
         hover_color: 'red',
         lang: 'en'
         };
+        {% endcomment %}
 
-        function _loadUserVoice() {
-        var s = document.createElement('script');
-        s.setAttribute('type', 'text/javascript');
-        s.setAttribute('src', ("https:" == document.location.protocol ? "https://" : "http://") + "cdn.uservoice.com/javascripts/widgets/tab.js");
-        document.getElementsByTagName('head')[0].appendChild(s);
-        }
-        _loadSuper = window.onload;
-        window.onload = (typeof window.onload != 'function') ? _loadUserVoice : function() { _loadSuper(); _loadUserVoice(); };
+        <script type="text/javascript">
+        (function() {
+            var uv = document.createElement('script'); uv.type = 'text/javascript'; uv.async = true;
+            uv.src = ('https:' == document.location.protocol ? 'https://' : 'http://') + 'widget.uservoice.com/p8WByNRIr6FmCQ56sz7fQ.js';
+            var s = document.getElementsByTagName('script')[0];
+            var showTab = function(uv, s) {
+                s.parentNode.insertBefore(uv, s);
+            };
+            // Wait a little longer before showing the tab, since we have a loading screen overlay.
+            window.setTimeout(dojo.hitch(null, showTab, uv, s), 1000);
+        })();
         </script>
+
 
     </body>
 </html>
