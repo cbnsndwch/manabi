@@ -349,6 +349,7 @@ div.fullscreen_content { }
     display: table-cell;
     vertical-align: middle;
     text-align: center;
+    padding: 0 4em;
 }
 .flashcard_content_container .ezRuby:before {
     font-size: 0.44em;
