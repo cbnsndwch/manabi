@@ -106,6 +106,8 @@ def _cached_function(keys, func, args_and_kwargs):
     print key
 
     def invalidate():
+        print 'cache deleting: ',
+        print key
         cache.delete(key)
 
     ret = cache.get(key)

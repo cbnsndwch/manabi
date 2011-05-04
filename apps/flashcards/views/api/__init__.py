@@ -197,7 +197,9 @@ def rest_facts(request, deck=None, tags=None, invalidate_cache=None):
         # First connect to signals for invalidating the cache for this.
         @receiver(fact_grid_updated)
         def check_fact_grid_update(sender, decks=[], **kwargs):
+            print 'check_fact_grid_update'
             if deck in decks:
+                print 'deck in decks!'
                 invalidate_cache()
                 fact_grid_updated.disconnect(check_fact_grid_update)
 
