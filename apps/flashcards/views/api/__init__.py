@@ -17,38 +17,35 @@
 # Some views which should be considered part of the REST API are contained 
 # in the reviews.py module. This module contains the rest of them.
 
+        
 from apps.utils import japanese
+from apps.utils.cache import cached_view
 from apps.utils.querycleaner import clean_query
 from django.contrib.auth.decorators import login_required
-from django.db import transaction
+from django.dispatch import receiver
 from django.forms import forms
-from django.forms.models import modelformset_factory, formset_factory
-from django.http import Http404, HttpResponseRedirect, HttpResponse
-from django.shortcuts import get_object_or_404, render_to_response
+from django.forms.models import modelformset_factory
+from django.http import HttpResponse
+from django.shortcuts import get_object_or_404
 from django.template import RequestContext, loader
 from django.utils import simplejson
 from django.views.decorators.cache import cache_page
 from django.views.decorators.http import require_GET
-from django.views.generic.create_update \
-    import update_object, delete_object, create_object
+from django.views.generic.create_update import (
+    update_object, delete_object, create_object)
 from dojango.decorators import json_response
 from dojango.util import to_dojo_data, json_decode, json_encode
 from flashcards.forms import DeckForm, FactForm, FieldContentForm, CardForm
-from flashcards.models import FactType, Fact, Deck, CardTemplate, FieldType
-from flashcards.models import FieldContent, Card
+from flashcards.models import (FactType, Fact, Deck, CardTemplate, FieldType,
+                               FieldContent, Card)
 from flashcards.models.constants import MAX_NEW_CARD_ORDINAL
-from flashcards.views.decorators import all_http_methods
-from flashcards.views.decorators import flashcard_api as api
-from flashcards.views.decorators import \
-    flashcard_api_with_dojo_data as api_dojo_data, \
-    ApiException
-        
 from flashcards.views.decorators import has_card_query_filters
-import apps.utils.querycleaner
-import random
-#import jcconv
+from flashcards.views.decorators import flashcard_api as api
+from flashcards.views.decorators import (ApiException,
+    flashcard_api_with_dojo_data as api_dojo_data)
 from flashcards.views.shortcuts import get_deck_or_404
-from apps.utils.cache import cached_view
+import random
+from flashcards.signals import fact_grid_updated
 
 #import logging
 #logger = logging.getLogger(__name__)
@@ -75,13 +72,6 @@ def rest_generate_reading(request):
     if request.method == 'POST':
         return japanese.generate_reading(request.POST['expression'])
 
-#@api_dojo_data
-#def rest_decks(request):
-#    #if request.method == 'GET':
-#    ret = Deck.objects.filter(
-#        owner=request.user,
-#        active=True).values('id', 'name', 'description')
-#    return to_dojo_data(ret, label='name')
 
 @api
 def rest_deck(request, deck_id):
@@ -198,12 +188,20 @@ def rest_facts_tags(request):
     #return to_dojo_data(tags)
 
 
-@cached_view()
+@cached_view(timeout=(3600 * 48)) # 2 day timeout
 @api_dojo_data
 @has_card_query_filters
 def rest_facts(request, deck=None, tags=None, invalidate_cache=None): 
     #TODO refactor into facts (no???)
     if request.method == 'GET':
+        # First connect to signals for invalidating the cache for this.
+        @receiver(fact_grid_updated)
+        def check_fact_grid_update(sender, decks=[], **kwargs):
+            if deck in decks:
+                invalidate_cache()
+                fact_grid_updated.disconnect(check_fact_grid_update)
+
+
         ret = []
         if request.GET['fact_type']:
             #TODO allow omitting this option
@@ -332,14 +330,12 @@ def rest_facts(request, deck=None, tags=None, invalidate_cache=None):
         return ret
 
 @api
-@transaction.commit_on_success
 def rest_fact_suspend(request, fact_id):
     if request.method == 'POST':
         Fact.objects.get_for_owner_or_subscriber(
             fact_id, request.user).suspend()
 
 @api
-@transaction.commit_on_success
 def rest_fact_unsuspend(request, fact_id):
     if request.method == 'POST':
         Fact.objects.get_for_owner_or_subscriber(
@@ -350,8 +346,7 @@ def rest_fact(request, fact_id): #todo:refactor into facts
     if request.method == 'POST':
         # Update fact
         
-        # Override the submitted deck ID with the ID from the URL, since this 
-        # is a RESTful interface.
+        # Override the submitted deck ID with the ID from the URL.
         post_data = request.POST.copy()
 
         #todo: refactor this into model code

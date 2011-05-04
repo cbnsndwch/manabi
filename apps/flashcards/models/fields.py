@@ -170,7 +170,15 @@ class FieldContent(models.Model):
         elif self.field_type.is_transliteration_field_type:
             return self.strip_ruby_bottom()
         return self.content
-            
+
+    def belongs_to_deck(self, deck):
+        '''
+        Returns whether this belongs to the given deck,
+        which may be a subscriber deck.
+        '''
+        my_deck = self.fact.deck
+        return my_deck == deck or my_deck == deck.synchronized_with
+    
     def strip_ruby_text(self):
         '''
         Returns this field's content with any ruby text removed.

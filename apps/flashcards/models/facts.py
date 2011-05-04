@@ -5,11 +5,12 @@ from django.db import models, transaction
 from django.db.models import Q
 from django.forms import ModelForm
 from django.forms.util import ErrorList
+from fields import FieldContent
+from flashcards.signals import fact_suspended, fact_unsuspended
 import flashcards.partsofspeech
 import pickle
 import random
 import usertagging
-from fields import FieldContent
 
 
 def seconds_to_days(s):
@@ -308,11 +309,20 @@ class Fact(models.Model):
         for card in self.card_set.all():
             card.suspended = True
             card.save()
+            fact_suspended.send(sender=self, instance=self)
         
     def unsuspend(self):
         for card in self.card_set.all():
             card.suspended = False
             card.save()
+            fact_unsuspended.send(sender=self, instance=self)
+
+    def all_owner_decks(self):
+        '''
+        Returns a list of all the deck this object belongs to,
+        including subscriber decks.
+        '''
+        return [self.deck] + [d for d in self.deck.subscriber_decks]
 
     def has_updated_content(self):
         '''Only call this for subscriber facts.
