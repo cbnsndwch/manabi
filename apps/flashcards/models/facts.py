@@ -322,7 +322,8 @@ class Fact(models.Model):
         Returns a list of all the deck this object belongs to,
         including subscriber decks.
         '''
-        return [self.deck] + [d for d in self.deck.subscriber_decks]
+        return ([self.deck]
+                + [d for d in self.deck.subscriber_decks.filter(active=True)])
 
     def has_updated_content(self):
         '''Only call this for subscriber facts.
