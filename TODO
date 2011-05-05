@@ -6,6 +6,8 @@ post-launch todo:
 -----------------
 err msg 
 
+move reviews.js etc to static files now
+
 
 notice for no js, no cookies (see SO)
 kb shortcuts: replay audio
@@ -141,6 +143,8 @@ is there a good way to get new cards without knowing if a user has his own card 
 
 SUPER CRITICAL BUGS:
 --------------------
+the 'get a new browser' links go to http://manabi.org/http://mozilla.org/firefox and so on.
+
 the fullscreen spinner isn't always fullscreen if the page is scrolled down
 
 mini graph for today includes stuff from yesterday night -- the 'so far today' time isn't show since it's at 0. 
