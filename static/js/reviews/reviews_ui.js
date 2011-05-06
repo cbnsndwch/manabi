@@ -307,20 +307,13 @@ reviews_ui._subscribeToSessionEvents = function() {
 }
 
 reviews_ui._unsubscribeFromSessionEvents = function() {
-    //dojo.unsubscribe(reviews.subscriptionNames.sessionTimerOver);
     reviews_ui._eventSubscriptions.forEach(function(handle) {
         dojo.unsubscribe(handle);
     });
 };
 
-reviews_ui.startSession = function(args) { //deckId, sessionTimeLimit, sessionCardLimit, tag_id, earlyReview, learnMore) { //, dailyNewCardLimt) {
-    //args//if (.earlyReview == undefined) { var earlyReview = false; }
-    //if (learnMore == undefined) { var learnMore = false; }
-    //if (sessionTimeLimit == undefined) { var sessionTimeLimit = 10; }
-    //if (sessionCardLimit == undefined) { var sessionCardLimit = 0; }
-    //if (tag_id == undefined) { var tag_id = '-1'; }
-
-    // raise error (FIXME we just ignore it for now) if the session is already
+reviews_ui.startSession = function(args) { 
+    // raise error (TODO we just ignore it for now) if the session is already
     // in progress
     if (reviews_ui.sessionStarted) {
         return;
@@ -329,7 +322,6 @@ reviews_ui.startSession = function(args) { //deckId, sessionTimeLimit, sessionCa
     manabi_ui.showLoader();
 
     var sessionArgs = {
-        //FIXME use the user-defined session limits
         deckId: args.deckId || null,
         dailyNewCardLimit: 20, 
         cardLimit: args.sessionCardLimit || 0,
@@ -337,8 +329,8 @@ reviews_ui.startSession = function(args) { //deckId, sessionTimeLimit, sessionCa
         tagId: args.tag_id||null,
         earlyReview: args.earlyReview || false, 
         learnMore: args.learnMore || false,
-        nextCardsForReviewUrl: '{% url rest-next_cards_for_review %}',
-        undoStackUrl: '{% url rest-review_undo_stack %}'
+        nextCardsForReviewUrl: '/flashcards/api/next-cards-for-review/',// rest-next_cards_for_review
+        undoStackUrl: '/flashcards/api/next-cards-for-review/undo-stack/' // rest-review_undo_stack
     };
 
     reviews_ui.session = new reviews.Session(sessionArgs);

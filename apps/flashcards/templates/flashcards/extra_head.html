@@ -13,8 +13,8 @@
 <link rel="stylesheet" href="{{ STATIC_URL }}css/CardPreview.css"></link>
 
 <script type="text/javascript" src="{% url flashcards-js %}"></script>
-<script type="text/javascript" src="{% url reviews-js %}"></script>
-<script type="text/javascript" src="{% url reviews-ui-js %}"></script>
+<script type="text/javascript" src="{{ STATIC_URL }}js/reviews/reviews.js"></script>
+<script type="text/javascript" src="{{ STATIC_URL }}js/reviews/reviews_ui.js"></script>
 
 
 
@@ -22,15 +22,10 @@
 
     dojo.require('reviews');
     dojo.require('reviews_ui');
-
     dojo.require('jdic.audio');
-
     dojo.require('kanjivg.frames');
-
     dojo.require('reviews.CardStatsButton');
-
     dojo.require('reviews.CardPreview');
-
     dojo.require('stats.UsageSparkline');
 
 

@@ -1,23 +1,20 @@
 
 /********************
+ ********************
+ *
  * Disclaimer to those reading this code!
+ *
  *
  * I wrote this module as I was really still learning Javascript and Dojo (and
  * Django), several years ago. I didn't get how to properly 
  * organize OO JS via prototypes, and so on. So please forgive the mess 
- * that this is :) It will be rewritten eventually, though it works somehow.
+ * that this is :) I think my later output is much cleaner. It will be 
+ * rewritten eventually, though it works somehow.
  * It's beyond the point of reasonable incremental refactoring.
+ * I'll try to fix this stuff up soon though before it bites me back.
  *********************/
 
 
-
-// If you're reading this code, please be warned that this section is quite messy.
-// I wrote it while I was still learning JS and Dojo. I think my later output is much
-// cleaner. I'll try to fix this stuff up soon though before it bites me back.
-
-//general utility methods
-//TODO move this to its own file
-var manabi_utils = {};
 
 
 //TODO all this code and globals really need to be encapsulated

@@ -11,7 +11,8 @@ from django.template.loader import render_to_string
 from dojango.decorators import json_response
 from dojango.util import to_dojo_data, json_decode, json_encode
 from flashcards.models import Card
-from flashcards.models.constants import GRADE_NONE, GRADE_HARD, GRADE_GOOD, GRADE_EASY
+from flashcards.models.constants import (
+    GRADE_NONE, GRADE_HARD, GRADE_GOOD, GRADE_EASY)
 from flashcards.models.undo import UndoCardReview
 from flashcards.views.decorators import flashcard_api as api
 from flashcards.views.decorators import has_card_query_filters
