@@ -19,10 +19,8 @@
 
         
 from apps.utils import japanese
-from apps.utils.cache import cached_view
 from apps.utils.querycleaner import clean_query
 from django.contrib.auth.decorators import login_required
-from django.dispatch import receiver
 from django.forms import forms
 from django.forms.models import modelformset_factory
 from django.http import HttpResponse
@@ -39,13 +37,14 @@ from flashcards.forms import DeckForm, FactForm, FieldContentForm, CardForm
 from flashcards.models import (FactType, Fact, Deck, CardTemplate, FieldType,
                                FieldContent, Card)
 from flashcards.models.constants import MAX_NEW_CARD_ORDINAL
-from flashcards.views.decorators import has_card_query_filters
 from flashcards.views.decorators import flashcard_api as api
-from flashcards.views.decorators import (ApiException,
+from flashcards.views.decorators import (ApiException, has_card_query_filters,
     flashcard_api_with_dojo_data as api_dojo_data)
 from flashcards.views.shortcuts import get_deck_or_404
 import random
 from flashcards.signals import fact_grid_updated
+from flashcards.cache import fact_grid_namespace
+from cachecow.cache import cached_view
 
 #import logging
 #logger = logging.getLogger(__name__)
@@ -187,23 +186,18 @@ def rest_facts_tags(request):
     #tags = [{'name': tag.name, 'id': tag.id} for tag in tags]
     #return to_dojo_data(tags)
 
+#FIXME issue is w/ reloading the server but not memcached.
+# the things below get lost (the conns)
+# to fix - just use versioning on the keys? somehow increment every time
+# the process is started.
 
-@cached_view(timeout=(3600 * 48)) # 2 day timeout
+
+@cached_view(namespace=fact_grid_namespace, timeout=(3600 * 48)) # 2 day timeout
 @api_dojo_data
 @has_card_query_filters
-def rest_facts(request, deck=None, tags=None, invalidate_cache=None): 
+def rest_facts(request, deck=None, tags=None): 
     #TODO refactor into facts (no???)
     if request.method == 'GET':
-        # First connect to signals for invalidating the cache for this.
-        @receiver(fact_grid_updated)
-        def check_fact_grid_update(sender, decks=[], **kwargs):
-            print 'check_fact_grid_update'
-            if deck in decks:
-                print 'deck in decks!'
-                invalidate_cache()
-                fact_grid_updated.disconnect(check_fact_grid_update)
-
-
         ret = []
         if request.GET['fact_type']:
             #TODO allow omitting this option
