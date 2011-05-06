@@ -74,11 +74,11 @@ function factFormSubmit(submitSuccessCallback, submitErrorCallback, _factAddForm
 
     factAddFormValue['fact-fact_type'] = 1; //FIXME temp hack - assume Japanese
     factAddFormValue['field_content-TOTAL_FORMS'] = field_content_count.toString(); //fieldContentInputCount.toString();
-    factAddFormValue['field_content-INITIAL_FORMS'] = factId ? field_content_count.toString() : '0'; //fieldContentInputCount; //todo:if i allow adding card templates in this dialog, must update this
+    factAddFormValue['field_content-INITIAL_FORMS'] = factId ? field_content_count.toString() : '0'; //fieldContentInputCount; 
     //alert('submitted w/args:\n' + dojo.toJson(factAddFormValue));
     
     var xhrArgs = {
-        url: factId ? '{% url api-facts %}' + factId + '/' : '{% url api-facts %}',//url: '/flashcards/rest/decks/'+factAddFormValue['fact-deck']+'/facts', 
+        url: factId ? '/flashcards/internal-api/facts/' + factId + '/' : '/flashcards/internal-api/facts/',
         content: factAddFormValue,
         handleAs: 'json',
         load: dojo.hitch(null, function(tempCardCounter, data){

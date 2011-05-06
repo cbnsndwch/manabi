@@ -142,22 +142,3 @@ urlpatterns += patterns('',
 )
 
 
-# Dynamic ...static files o_O ...(because of {% url %} convenience)
-# Thus somewhat aggressively cached.
-_STATIC_CACHE_TIME = 24 * 60 * 60 # 24h
-urlpatterns += patterns('',
-    url(r'^flashcards.js$', cache_page(direct_to_template, _STATIC_CACHE_TIME),
-        { 'template': 'flashcards/flashcards.js',
-          'mimetype': 'text/javascript', },
-        name='flashcards-js'),
-    url(r'^reviews.js$', cache_page(direct_to_template, _STATIC_CACHE_TIME),
-        { 'template': 'flashcards/reviews.js',
-          'mimetype': 'text/javascript', },
-        name='reviews-js'),
-    url(r'^reviews_ui.js$', cache_page(direct_to_template, _STATIC_CACHE_TIME),
-        { 'template': 'flashcards/reviews_ui.js',
-          'mimetype': 'text/javascript', },
-        name='reviews-ui-js'),
-)
-
-
