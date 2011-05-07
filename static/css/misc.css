@@ -701,6 +701,12 @@ ul.divided li, div.divided {
     top: 1px;
     margin-left: 4px;
 }
+.fact_form_container .subfact .field {
+    margin: .1em 0;
+}
+.fact_form_container .subfact .field .dijitTextBox {
+    font-size: 1em;
+}
 .fact_form_container .cards_form_container {
     margin-top: 1em;
     display: block;
@@ -813,9 +819,6 @@ ul.book_list li {
     padding: .8em;
     margin-bottom: 2em;
 }
-#lazy_user_landing_box {
-    /*background-color: #fffccb;*/
-}
 #lazy_user_landing_box .column.new_user {
     border-left: solid 8px #d21f00;
     margin-right: 2em;
@@ -879,8 +882,11 @@ ul.book_list li {
 /* looks like a link, but isn't */
 .fakeLink {
     text-decoration: underline;
-    color: blue;
+    color: #13c;
     cursor: pointer;
+}
+.weak .fakeLink, .weak.fakeLink {
+    color: #555E8D;
 }
 
 .field_content_error {
