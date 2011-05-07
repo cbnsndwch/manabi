@@ -17,7 +17,7 @@ fact_grid_updated = django.dispatch.Signal(providing_args=['decks'])
           sender=FieldContent, dispatch_uid='fact_grid_updated_fc_ps')
 @receiver(post_delete,
           sender=FieldContent, dispatch_uid='fact_grid_updated_fc_pd')
-def field_content_updated(sender, instance, created, **kwargs):
+def field_content_updated(sender, instance, created=False, **kwargs):
     print 'field_content_updated listened'
     fact_grid_updated.send(sender=sender,
                            decks=instance.fact.all_owner_decks())
