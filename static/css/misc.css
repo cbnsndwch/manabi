@@ -286,6 +286,8 @@ div.fullscreen {
     z-index: 10;
     /*background-color: #BEB9B3;*/
     background-color: #f2f2f2;
+    /*background-color:red;*/
+    background-image: url(/site_media/static/images/f8f8f8_noise.png);
     /*background: -webkit-gradient(radial, 50% 50%, 0, 50% 50%, 800, from(#FDFCFA), color-stop(0.8, #E6E1DB), to(#BEB9B3));*/
 
 }
