@@ -87,7 +87,7 @@ reviews_ui.displayCard = function(card, showCardBack) {
     reviews_cardBack.domNode.style.display = 'none';
     reviews_subfactPane.set('content', '');
     reviews_subfactPane.domNode.style.display = 'none';
-    dojo.byId('reviews_gradeButtonsContainer').style.visibility = 'hidden';
+    dojo.byId('reviews_gradeButtonsContainer').style.display = 'none';
 
     if (showCardBack) {
         // Happens when showing an undone card (and maybe other cases 
@@ -152,7 +152,7 @@ reviews_ui.showCardBack = function(card) {
     reviews_cardBack.set('content', card.back);
     reviews_cardBack.domNode.style.display = '';
     reviews_ui.displayNextIntervals(card);
-    dojo.byId('reviews_gradeButtonsContainer').style.visibility = '';
+    dojo.byId('reviews_gradeButtonsContainer').style.display = '';
     reviews_ui.reviewDialog.domNode.focus();
     reviews_ui.setCardBackKeyboardShortcuts();
 };
