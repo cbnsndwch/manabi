@@ -18,7 +18,6 @@ import usertagging
 
 
 
-
 class _DeckManager(object):
     def of_user(self, user):
         return self.filter(owner=user, active=True)
@@ -116,13 +115,18 @@ class Deck(models.Model):
         if self.synchronized_with:
             updated_fields = FieldContent.objects.filter(fact__deck=self, fact__active=True, fact__synchronized_with__isnull=False) #fact__in=self.subscriber_facts.all())
             # 'other' here means non-updated, subscribed
-            other_facts = Fact.objects.filter(parent_fact__isnull=True, id__in=updated_fields.values_list('fact', flat=True))
-            other_fields = FieldContent.objects.filter(fact__deck=self.synchronized_with).exclude(fact__active=True, fact__in=other_facts.values_list('synchronized_with', flat=True))
-            #active_subscribers = active_subscribers | other_fields
+            other_facts = Fact.objects.filter(
+                    parent_fact__isnull=True,
+                    id__in=updated_fields.values_list('fact', flat=True))
+            other_fields = FieldContent.objects.filter(
+                    fact__deck=self.synchronized_with
+                    ).exclude(fact__active=True,
+                              fact__in=other_facts.values_list(
+                                    'synchronized_with', flat=True))
             return updated_fields | other_fields
         else:
-            return FieldContent.objects.filter(fact__deck=self, fact__active=True)
-
+            return FieldContent.objects.filter(
+                    fact__deck=self, fact__active=True)
 
     @property
     def has_subscribers(self):
@@ -130,7 +134,6 @@ class Deck(models.Model):
         it is shared, or it had been shared before.
         '''
         return self.subscriber_decks.filter(active=True).exists()
-
 
     @transaction.commit_on_success    
     def share(self):
@@ -141,7 +144,6 @@ class Deck(models.Model):
         self.shared = True
         self.shared_at = datetime.datetime.utcnow()
         self.save()
-
 
     @transaction.commit_on_success
     def unshare(self):
