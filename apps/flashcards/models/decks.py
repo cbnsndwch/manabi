@@ -264,7 +264,7 @@ class Deck(models.Model):
 
     def average_ease_factor(self):
         deck_cards = cards.Card.objects.filter(fact__deck=self, active=True, suspended=False, ease_factor__isnull=False)
-        if deck_cards.count():
+        if deck_cards.exists():
             average_ef = deck_cards.aggregate(average_ease_factor=Avg('ease_factor'))['average_ease_factor']
             if average_ef:
                 return average_ef
