@@ -1,30 +1,25 @@
-from django.db import models
+from books.models import Textbook
+from constants import GRADE_NONE, GRADE_HARD, GRADE_GOOD, GRADE_EASY
+from constants import DEFAULT_EASE_FACTOR
+from dbtemplates.models import Template
 from django.contrib.auth.models import User
+from django.core.urlresolvers import reverse
+from django.db import models
+from django.db import transaction
+from django.db.models import Avg
 from django.forms import ModelForm
 from django.forms.util import ErrorList
-from dbtemplates.models import Template
-from django.db.models import Avg
-from constants import GRADE_NONE, GRADE_HARD, GRADE_GOOD, GRADE_EASY
-from django.core.urlresolvers import reverse
+from itertools import chain
 from model_utils.managers import manager_from
-from books.models import Textbook
-
+import cards
 import datetime
 import random
-from django.db import transaction
-
-from itertools import chain
-
-import cards
-
 import usertagging
 
 
-class _DeckManager(object):
-    #@property
-    #def card_count(self):
-    #    return cards.Card.objects.of_user(self.owner).count()
 
+
+class _DeckManager(object):
     def of_user(self, user):
         return self.filter(owner=user, active=True)
 
@@ -268,7 +263,7 @@ class Deck(models.Model):
             average_ef = deck_cards.aggregate(average_ease_factor=Avg('ease_factor'))['average_ease_factor']
             if average_ef:
                 return average_ef
-        return 2.5
+        return DEFAULT_EASE_FACTOR
     
     @transaction.commit_on_success    
     def delete_cascading(self):
