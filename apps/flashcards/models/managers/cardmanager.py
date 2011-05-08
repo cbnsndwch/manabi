@@ -357,12 +357,14 @@ class CommonFiltersMixin(object):
     def common_filters(self, user,
             with_upstream=False,
             deck=None, tags=None, excluded_ids=None):
-        cards = self.of_user(user, with_upstream=with_upstream
-                ).unsuspended().filter(active=True)
+        cards = self.of_user(user,
+                with_upstream=with_upstream).unsuspended().filter(active=True)
+
         if deck:
             cards = cards.of_deck(deck, with_upstream=with_upstream)
         else:
-            cards = cards.exclude(fact__deck__suspended=True)
+            cards = cards.exclude(fact__deck__owner=user,
+                                  fact__deck__suspended=True)
 
         if excluded_ids:
             cards = cards.exclude_ids(excluded_ids)

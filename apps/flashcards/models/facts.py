@@ -11,6 +11,7 @@ import flashcards.partsofspeech
 import pickle
 import random
 import usertagging
+from usertagging.models import UserTaggedItem
 
 
 def seconds_to_days(s):
@@ -129,14 +130,21 @@ class FactManager(models.Manager):
         else:
             decks = Deck.objects.filter(owner=user, active=True)
         if tags:
-            tagged_facts = usertagging.models.UserTaggedItem.objects.get_by_model(Fact, tags)
+            tagged_facts = UserTaggedItem.objects.get_by_model(Fact, tags)
             user_facts = user_facts.filter(id__in=tagged_facts)
 
         subscriber_decks = decks.filter(synchronized_with__isnull=False)
-        subscribed_decks = [deck.synchronized_with for deck in subscriber_decks if deck.synchronized_with is not None]
+        subscribed_decks = [deck.synchronized_with \
+                            for deck in subscriber_decks \
+                            if deck.synchronized_with is not None]
         #shared_facts = self.filter(deck_id__in=shared_deck_ids)
-        copied_subscribed_fact_ids = [fact.synchronized_with_id for fact in user_facts if fact.synchronized_with_id is not None]
-        subscribed_facts = self.filter(deck__in=subscribed_decks).exclude(id__in=copied_subscribed_fact_ids) # should not be necessary.exclude(id__in=user_facts)
+        copied_subscribed_fact_ids = [fact.synchronized_with_id \
+                                      for fact in user_facts \
+                                      if fact.synchronized_with_id is not None]
+        subscribed_facts = self.filter(
+                deck__in=subscribed_decks
+                ).exclude(id__in=copied_subscribed_fact_ids) 
+        # should not be necessary: .exclude(id__in=user_facts)
         return user_facts | subscribed_facts
 
     @transaction.commit_on_success
@@ -158,7 +166,7 @@ class FactManager(models.Manager):
         user_facts = self.filter(deck__owner=user, deck__in=decks, active=True, parent_fact__isnull=True)
 
         if tags:
-            tagged_facts = usertagging.models.UserTaggedItem.objects.get_by_model(Fact, tags)
+            tagged_facts = UserTaggedItem.objects.get_by_model(Fact, tags)
             user_facts = user_facts.filter(fact__in=tagged_facts)
 
         #shared_deck_ids = [deck.synchronized_with_id for deck in decks if deck.synchronized_with_id]

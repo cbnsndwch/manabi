@@ -416,8 +416,10 @@ def rest_fact(request, fact_id): #todo:refactor into facts
                         else:
                             original = field_content_form.cleaned_data['id']
                             if field_content_form['content'] != original.content:
-                                # user updated subscribed subfact content - so create his own subscriber subfact to hold it
-                                new_subfact = original.fact.copy_to_parent_fact(fact, copy_field_contents=True)
+                                # user updated subscribed subfact content - so create
+                                # his own subscriber subfact to hold it
+                                new_subfact = original.fact.copy_to_parent_fact(
+                                        fact, copy_field_contents=True)
                                 new_field_content = new_subfact.fieldcontent_set.get(field_type=field_content_form.cleaned_data['field_type'])
                                 new_field_content.content = field_content_form.cleaned_data['content']
                                 new_field_content.save()
@@ -427,8 +429,10 @@ def rest_fact(request, fact_id): #todo:refactor into facts
                     else:
                         # new field content
                         # this means new subfact.
-                        # otherwise, this doesn't make sense unless the subfact model changed - which isn't supported yet.
-                        # or subscriber fields are optimized to not copy over until modified
+                        # otherwise, this doesn't make sense unless the subfact model 
+                        # changed - which isn't supported yet.
+                        # or subscriber fields are optimized to not copy over 
+                        # until modified
                         group = field_content_form.cleaned_data['subfact_group']
                         if group not in group_to_subfact.keys():
                             # create the new subfact
@@ -455,20 +459,24 @@ def rest_fact(request, fact_id): #todo:refactor into facts
                             subfact.save()
                         else:
                             # the user doesn't have his own copy of this subfact yet
-                            new_subfact = subfact.copy_to_parent_fact(fact, copy_field_contents=False)
+                            new_subfact = subfact.copy_to_parent_fact(
+                                    fact, copy_field_contents=False)
                             new_subfact.active = False
                             new_subfact.save()
                     else:
                         subfact.delete()
 
 
-            # disable any existing cards that weren't selected in the update, or enable if selected and create if needed
+            # disable any existing cards that weren't selected in the update,
+            # or enable if selected and create if needed
             # do all this for subscribers too, if this is in a shared deck
             facts = Fact.objects.filter(id=fact.id)
             if fact.subscriber_facts.all():
                 facts = facts | fact.subscriber_facts.all()
             for fact2 in facts.iterator():
-                card_form_template_ids = dict((card_form.cleaned_data['template'].id, card_form) for card_form in card_formset.forms)
+                card_form_template_ids = dict(
+                        (card_form.cleaned_data['template'].id, card_form)
+                        for card_form in card_formset.forms)
                 for card_template in fact.fact_type.cardtemplate_set.all():
                     if card_template.id in card_form_template_ids.keys():
                         try:
@@ -481,7 +489,8 @@ def rest_fact(request, fact_id): #todo:refactor into facts
                             new_card = Card(template=card_template)
                             new_card.fact = fact2
                             new_card.active = True
-                            new_card.new_card_ordinal = random.randrange(0, MAX_NEW_CARD_ORDINAL)
+                            new_card.new_card_ordinal = random.randrange(
+                                    0, MAX_NEW_CARD_ORDINAL)
                             new_card.save()
                     else:
                         #card was not selected in update, so disable it if it exists

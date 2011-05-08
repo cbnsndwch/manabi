@@ -42,7 +42,8 @@ class Deck(models.Model):
 
     textbook_source = models.ForeignKey(Textbook, null=True, blank=True)
 
-    picture = models.FileField(upload_to='/deck_media/', null=True, blank=True) #TODO upload to user directory, using .storage
+    picture = models.FileField(upload_to='/deck_media/', null=True, blank=True) 
+    #TODO upload to user directory, using .storage
 
     priority = models.IntegerField(default=0, blank=True)
 
@@ -53,9 +54,11 @@ class Deck(models.Model):
     shared = models.BooleanField(default=False, blank=True)
     shared_at = models.DateTimeField(null=True, blank=True)
     # or if not, whether it's synchronized with a shared deck
-    synchronized_with = models.ForeignKey('self', null=True, blank=True, related_name='subscriber_decks')
+    synchronized_with = models.ForeignKey('self',
+            null=True, blank=True, related_name='subscriber_decks')
 
-    # "active" is just a soft deletion flag. "suspended" is temporarily disabled.
+    # "active" is just a soft deletion flag. "suspended" is temporarily 
+    # disabled.
     suspended = models.BooleanField(default=False, db_index=True) 
     active = models.BooleanField(default=True, blank=True, db_index=True)
 
@@ -74,10 +77,6 @@ class Deck(models.Model):
         # You shouldn't delete a shared deck - just set active=False
         self.subscriber_decks.clear()
         super(Deck, self).delete(*args, **kwargs)
-
-    #def card_count(self):
-    #    return cards.Card.objects.filter(fact__deck=self, active=True, suspended=False).count()
-    #    #return self.fact_set.filter(active=True, suspended=False).count()
 
     def fact_tags(self):
         '''
