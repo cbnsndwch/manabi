@@ -46,7 +46,7 @@
                                 {% if field_type.is_transliteration_field_type %}
                                     <span><label>{{ field_type.display_name }}:</label>{% if not field_type.blank %} <span style="font-size:80%; color:gray">(required)</span>{% endif %}
                                         {% spaceless %}
-                                            <span class="fakeLink" onclick="fact_ui.generateReading(dijit.getEnclosingWidget(dojo.query('.cards_fieldContent')[0]).get('value'), dijit.getEnclosingWidget(dojo.query('.cards_fieldContent')[1]))">
+                                            <span class="fakeLink" onclick="fact_ui.generateReading(dijit.getEnclosingWidget(dojo.query(this).closest('.field').prev('.field').query('.cards_fieldContent')[0]).get('value'), dijit.getEnclosingWidget(dojo.query(this).closest('.field').query('.cards_fieldContent')[0]));">
                                                 <img src="{{ MEDIA_URL }}static/css/dojo_themes/tundra/images/icons/arrow_refresh.png" alt="Refresh transliteration field">
                                             </span>
                                         {% endspaceless %}
