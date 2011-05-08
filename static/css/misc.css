@@ -296,8 +296,8 @@ div.fullscreen {
     margin-left: 0px;
     margin-right: 0px;
     padding: 3px;
-    -moz-box-shadow: -10px -21px 10px 20px ;
-    -webkit-box-shadow: -10px -21px 10px 20px black;
+    -moz-box-shadow: -10px -21px 7px 20px;
+    -webkit-box-shadow: -10px -21px 7px 20px black;
     opacity: .6;
     -webkit-transition: opacity 300ms ease-in; 
     -moz-transition: opacity 300ms ease-in;
