@@ -869,12 +869,15 @@ ul.book_list li {
     color: white;
     padding: .4em 1em;
 }
-.lazy_user_warning {
-    color: gray;
-    background-color: #fffbb1;
+.user_message_box {
     border: 1px dashed #ccc;
     margin-bottom: 1.5em;
     padding: 0 .3em;
+    color: gray;
+    background-color: 
+}
+.lazy_user_warning {
+    background-color: #fffbb1;
 }
 
 /*.reviews_session_over_dialog .chart {
