@@ -42,7 +42,7 @@ from flashcards.views.decorators import (ApiException, has_card_query_filters,
     flashcard_api_with_dojo_data as api_dojo_data)
 from flashcards.views.shortcuts import get_deck_or_404
 import random
-from flashcards.signals import fact_grid_updated
+from flashcards.signals import fact_deleted
 from flashcards.cache import fact_grid_namespace
 from cachecow.cache import cached_view
 
@@ -200,7 +200,6 @@ def rest_facts(request, deck=None, tags=None):
     if request.method == 'GET':
         ret = []
         if request.GET['fact_type']:
-            #TODO allow omitting this option
             fact_type_id = request.GET['fact_type'] 
             fact_type = get_object_or_404(FactType, pk=fact_type_id)
 
@@ -233,9 +232,8 @@ def rest_facts(request, deck=None, tags=None):
                     elif not name:
                         name = key
 
-                    row[key] = field_content.human_readable_content
-                    row['{0}_field-content-id'.format(key)] = \
-                        field_content.id
+                    row[key] = field_content.human_readable_content()
+                    row['{0}_field-content-id'.format(key)] = field_content.id
 
                 if not name:
                     name = ident
@@ -458,7 +456,8 @@ def rest_fact(request, fact_id): #todo:refactor into facts
                             subfact.active = False
                             subfact.save()
                         else:
-                            # the user doesn't have his own copy of this subfact yet
+                            # the user doesn't have his own copy of this 
+                            # subfact yet
                             new_subfact = subfact.copy_to_parent_fact(
                                     fact, copy_field_contents=False)
                             new_subfact.active = False
@@ -484,7 +483,8 @@ def rest_fact(request, fact_id): #todo:refactor into facts
                             card.active = True
                             card.save()
                         except Card.DoesNotExist:
-                            #card_form = card_form_template_ids[card_template.id]
+                            #card_form = card_form_template_ids
+                            #[card_template.id]
                             #new_card = card_form.save(commit=False)
                             new_card = Card(template=card_template)
                             new_card.fact = fact2
@@ -493,13 +493,15 @@ def rest_fact(request, fact_id): #todo:refactor into facts
                                     0, MAX_NEW_CARD_ORDINAL)
                             new_card.save()
                     else:
-                        #card was not selected in update, so disable it if it exists
+                        #card was not selected in update, so disable it 
+                        # if it exists
                         try:
                             card = fact2.card_set.get(template=card_template)
                             if not card.active:
                                 continue
                             elif fact2.synchronized_with and card.review_count:
-                                # don't disable subscriber cards which have already been reviewed
+                                # don't disable subscriber cards which have 
+                                # already been reviewed
                                 continue
                             card.active = False
                             card.save()
@@ -513,10 +515,7 @@ def rest_fact(request, fact_id): #todo:refactor into facts
             })
     elif request.method == 'DELETE':
         fact = Fact.objects.get_for_owner_or_subscriber(fact_id, request.user)
-        if fact.synchronized_with:
-            fact.active = False
-            fact.save()
-        else:
-            fact.delete()
+        deleted_fact = fact.delete_for_user(request.user)
+        fact_deleted.send(deleted_fact)
 
 

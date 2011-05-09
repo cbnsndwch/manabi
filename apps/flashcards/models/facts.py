@@ -114,7 +114,6 @@ class FactManager(models.Manager):
                     fact = fact.copy_to_deck(subscriber_deck, synchronize=True)
         return fact
 
-
     def with_upstream(self, user, deck=None, tags=None):
         '''
         Returns a queryset of all active Facts which the user owns, or which 
@@ -212,7 +211,6 @@ class Fact(models.Model):
     parent_fact = models.ForeignKey('self',
         blank=True, null=True, related_name='child_facts')
 
-
     def save(self, *args, **kwargs):
         '''
         Set a random sorting index for new cards.
@@ -222,30 +220,67 @@ class Fact(models.Model):
                 0, MAX_NEW_CARD_ORDINAL)
         super(Fact, self).save(*args, **kwargs)
 
-    
-    @transaction.commit_on_success
+    def delete_for_user(self, user):
+        '''
+        If this is an upstream fact that the user hasn't copied over yet, create
+        a dummy fact with inactive status.
+
+        If it's upstream and a downstream one exists, deactivate the downstream 
+        one.
+
+        Otherwise, the user actually owns *this* fact, so call `delete` on it.
+
+        Returns the fact that was actually deleted.
+        '''
+        import pdb;pdb.set_trace()
+        if self.owner == user:
+            self.delete()
+            return self
+
+        # This is an upstream fact.
+        # See if downstream copy exists.
+        try:
+            downstream_fact = Fact.objects.get(synchronized_with=self)
+        except Fact.DoesNotExist:
+            # Make a dummy copy.
+            # Which user deck is synchronized with this upstream fact's deck?
+            deck = Deck.objects.get(synchronized_with=self.deck)
+            downstream_fact = self.copy_to_deck(deck, synchronize=True)
+        downstream_fact.inactive = True
+        downstream_fact.save()
+        return downstream_fact
+
     def delete(self, *args, **kwargs):
         deck = self.parent_fact.deck if self.parent_fact else self.deck
         # don't necessarily delete for any subscribers of this fact
         if self.subscriber_facts.all():
-            # don't bother with users who don't have this fact yet - we can safely (according to guidelines) delete at this point.
-            # if subscriber facts have reviewed or edited anything within this fact,
-            # don't delete it for those subscribers.
+            # don't bother with users who don't have this fact yet - we can 
+            # safely (according to guidelines) delete at this point.
+            # if subscriber facts have reviewed or edited anything within this 
+            # fact, don't delete it for those subscribers.
             from cards import Card
 
             # get active subscriber facts
-            active_cards = Card.objects.filter(fact__in=self.subscriber_facts.all(), active=True, suspended=False, last_reviewed_at__isnull=False)
+            active_cards = Card.objects.filter(
+                    fact__in=self.subscriber_facts.all(),
+                    active=True, suspended=False, last_reviewed_at__isnull=False)
 
-            updated_fields = FieldContent.objects.filter(fact__in=self.subscriber_facts.all())# | \
-            #FieldContent.objects.filter(fact__parent_fact__in=self.subscriber_facts.all())
+            updated_fields = FieldContent.objects.filter(
+                    fact__in=self.subscriber_facts.all())# | \
+            #FieldContent.objects.filter(
+            #        fact__parent_fact__in=self.subscriber_facts.all())
 
             updated_subfacts = Fact.objects.filter(
                     id__in=FieldContent.objects.filter(
-                        fact__parent_fact__in=self.subscriber_facts.all()).values_list('fact_id', flat=True))
+                            fact__parent_fact__in=
+                                    self.subscriber_facts.all()
+                            ).values_list('fact_id', flat=True))
 
             active_subscribers = self.subscriber_facts.filter(
-                    #Q(id__in=updated_fields.values_list('parent_fact_id', flat=True)) |
-                    Q(id__in=updated_subfacts.values_list('parent_fact_id', flat=True)) |
+                    #Q(id__in=updated_fields.values_list(
+                    #       'parent_fact_id', flat=True)) |
+                    Q(id__in=updated_subfacts.values_list(
+                            'parent_fact_id', flat=True)) |
                     Q(id__in=active_cards.values_list('fact_id', flat=True)) |
                     Q(id__in=updated_fields.values_list('fact_id', flat=True)))
 
@@ -260,7 +295,8 @@ class Fact(models.Model):
                     subfact.save()
                 fact.save()
 
-            other_subscriber_facts = self.subscriber_facts.exclude(id__in=active_subscribers)
+            other_subscriber_facts = self.subscriber_facts.exclude(
+                    id__in=active_subscribers)
             other_subscriber_facts.delete()
         super(Fact, self).delete(*args, **kwargs)
 
@@ -365,7 +401,6 @@ class Fact(models.Model):
                 # copy (if it doesn't already exist - but that's handled by the copy method)
                 subfact.copy_to_parent_fact(self, copy_field_contents=True)
 
-
     def fieldcontent_set_plus_blank_fields(self):
         '''
         Returns self.fieldcontent_set, but adds mock 
@@ -378,7 +413,6 @@ class Fact(models.Model):
         pass
         #field_contents = self.fieldcontent_set.all()
         #TODO add this
-
 
     @transaction.commit_on_success
     def copy_to_parent_fact(self, parent_fact, copy_field_contents=False):
@@ -411,17 +445,27 @@ class Fact(models.Model):
                 field_content.copy_to_fact(subfact_copy)
         return subfact_copy
 
-
     @transaction.commit_on_success
-    def copy_to_deck(self, deck, copy_field_contents=False, copy_subfacts=False, synchronize=False):
-        '''Creates a copy of this fact and its cards and (optionally, if `synchronize` is False) field contents.
+    def copy_to_deck(self, deck, copy_field_contents=False, copy_subfacts=False,
+                     synchronize=False):
+        '''
+        Creates a copy of this fact and its cards and (optionally, if
+        `synchronize` is False) field contents.
+
         If `synchronize` is True, the new fact will be subscribed to this one.
         Also copies its tags.
+
         Returns the newly copied fact.
         '''
         if self.parent_fact:
             raise TypeError('Cannot call this on a subfact.')
-        copy = Fact(deck=deck, fact_type=self.fact_type, active=self.active, notes=self.notes, new_fact_ordinal=self.new_fact_ordinal)
+
+        copy = Fact(deck=deck,
+                    fact_type=self.fact_type,
+                    active=self.active,
+                    notes=self.notes,
+                    new_fact_ordinal=self.new_fact_ordinal)
+
         if synchronize:
             if self.synchronized_with:
                 raise TypeError('Cannot synchronize with a fact that is already a synchronized fact.')
@@ -430,6 +474,7 @@ class Fact(models.Model):
             #TODO enforce deck synchronicity too
             else:
                 copy.synchronized_with = self
+
         copy.save()
 
         # copy the field contents
@@ -452,11 +497,9 @@ class Fact(models.Model):
                 subfact.copy_to_parent_fact(copy, copy_field_contents=True)
         return copy
 
-
     class Meta:
         app_label = 'flashcards'
         unique_together = (('deck', 'synchronized_with'),)
-
 
     def __unicode__(self):
         return unicode(self.id)
