@@ -152,16 +152,14 @@ hr {
     text-decoration: none;
     top: 1px;
 }
-#site_title .hover {
-    position: relative;
-    top: .2em;
-}
 #site_title .no_hover {
     position: absolute;
     top: .17em;
     left: 1.4em;
 }
 #site_title .hover {
+    position: relative;
+    top: .2em;
     opacity: 0;
     letter-spacing: .42em;
     font-size: .9em;
@@ -169,6 +167,9 @@ hr {
     position: absolute;
     top: .24em;
     left: 1.5em;
+}
+.ie8 #site_title .hover {
+    display: none;
 }
 #site_title .hover, #site_title .no_hover {
     -webkit-transition: opacity 120ms ease-in; 
