@@ -21,6 +21,11 @@
     {% block dojango_post_dj_config %}
     {% endblock %}
 
+
+    <script type="text/javascript" src="{{ MEDIA_URL }}static/js/highcharts/highcharts.js"></script>
+    <script type="text/javascript" src="{{ MEDIA_URL }}static/js/jquery-sparkline/jquery.sparkline.js" charset="utf-8"></script>
+    <script type="text/javascript" src="{{ MEDIA_URL }}static/tag-it/js/tag-it.js" charset="utf-8"></script>
+
     <script type="text/javascript">
         dojo.require('dojango.dojango');
 
@@ -63,17 +68,8 @@
     {# manabi.requirements #}
     {# <script type="text/javascript" src="{{ MEDIA_URL }}static/js/manabi/requirements.js"></script> #}
     <script type="text/javascript" src="{{ MEDIA_URL }}static/js/manabi/manabiRelease.js"></script>    
-
     <script type="text/javascript" src="{{ MEDIA_URL }}static/js/manabi.js"></script>    
-
-    <script type="text/javascript" src="{{ MEDIA_URL }}static/js/highcharts/highcharts.js"></script>
-    <script type="text/javascript" src="{{ MEDIA_URL }}static/js/jquery-sparkline/jquery.sparkline.js" charset="utf-8"></script>
-
-    <script type="text/javascript" src="{{ MEDIA_URL }}static/tag-it/js/ie-compat.js" charset="utf-8"></script>
-    <script type="text/javascript" src="{{ MEDIA_URL }}static/tag-it/js/tag-it.js" charset="utf-8"></script>
-
     <script type="text/javascript" src="{{ MEDIA_URL }}static/js/jdic/jPlayer/jquery.jplayer.min.js"></script>
-
 
     {% block extra_head %}{% endblock %}
 
