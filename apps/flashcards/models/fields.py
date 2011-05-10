@@ -176,7 +176,7 @@ class FieldContent(models.Model):
         Returns whether this belongs to the given deck,
         which may be a subscriber deck.
         '''
-        my_deck = self.fact.deck
+        my_deck = self.fact.owner_deck
         return my_deck == deck or my_deck == deck.synchronized_with
     
     def strip_ruby_text(self):

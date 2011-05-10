@@ -232,7 +232,6 @@ class Fact(models.Model):
 
         Returns the fact that was actually deleted.
         '''
-        import pdb;pdb.set_trace()
         if self.owner == user:
             self.delete()
             return self
@@ -251,7 +250,6 @@ class Fact(models.Model):
         return downstream_fact
 
     def delete(self, *args, **kwargs):
-        deck = self.parent_fact.deck if self.parent_fact else self.deck
         # don't necessarily delete for any subscribers of this fact
         if self.subscriber_facts.all():
             # don't bother with users who don't have this fact yet - we can 
@@ -302,9 +300,7 @@ class Fact(models.Model):
 
     @property
     def owner(self):
-        if self.parent_fact:
-            return self.parent_fact.deck.owner
-        return self.deck.owner
+        return self.owner_deck.owner
 
     @property
     def subfacts(self):
@@ -318,7 +314,10 @@ class Fact(models.Model):
         subfacts = self.child_facts.all()
         if self.synchronized_with:
             synchronized_subfacts = self.synchronized_with.child_facts
-            subfacts = subfacts | synchronized_subfacts.exclude(id__in=subfacts.exclude(synchronized_with__isnull=True).values_list('synchronized_with_id', flat=True))
+            subfacts = subfacts | synchronized_subfacts.exclude(
+                    id__in=subfacts.exclude(
+                            synchronized_with__isnull=True).values_list(
+                                    'synchronized_with_id', flat=True))
         return subfacts.filter(active=True)
 
 
@@ -361,13 +360,23 @@ class Fact(models.Model):
             card.save()
             fact_unsuspended.send(sender=self, instance=self)
 
+    @property
+    def owner_deck(self):
+        '''
+        Gets the deck which owns this fact or subfact. Subfacts have no deck
+        field, so this is a way to get the containing deck for either type.
+        '''
+        if self.parent_fact:
+            return self.parent_fact.deck
+        return self.deck
+
     def all_owner_decks(self):
         '''
         Returns a list of all the deck this object belongs to,
         including subscriber decks.
         '''
-        return ([self.deck]
-                + [d for d in self.deck.subscriber_decks.filter(active=True)])
+        return ([self.owner_deck]
+                + [d for d in self.owner_deck.subscriber_decks.filter(active=True)])
 
     def has_updated_content(self):
         '''Only call this for subscriber facts.
@@ -414,7 +423,6 @@ class Fact(models.Model):
         #field_contents = self.fieldcontent_set.all()
         #TODO add this
 
-    @transaction.commit_on_success
     def copy_to_parent_fact(self, parent_fact, copy_field_contents=False):
         '''
         Copies a subfact to a parent fact.
@@ -445,7 +453,6 @@ class Fact(models.Model):
                 field_content.copy_to_fact(subfact_copy)
         return subfact_copy
 
-    @transaction.commit_on_success
     def copy_to_deck(self, deck, copy_field_contents=False, copy_subfacts=False,
                      synchronize=False):
         '''
@@ -514,14 +521,14 @@ usertagging.register(Fact)
 
 
 
-class SubFact(Fact):
-    '''
-    Proxy model for subfacts (like example sentences).
-    '''
-    #TODO use this!
+#class SubFact(Fact):
+#    '''
+#    Proxy model for subfacts (like example sentences).
+#    '''
+#    #TODO use this!
 
-    class Meta:
-        app_label = 'flashcards'
-        proxy = True
+#    class Meta:
+#        app_label = 'flashcards'
+#        proxy = True
 
 

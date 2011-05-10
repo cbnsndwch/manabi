@@ -84,11 +84,11 @@ class Card(models.Model):
 
     @property
     def owner(self):
-        return self.fact.deck.owner
+        return self.fact.owner
 
     @property
     def deck(self):
-        return self.fact.deck
+        return self.fact.owner_deck
 
     @property
     def siblings(self):
