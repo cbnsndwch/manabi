@@ -283,7 +283,7 @@ table {
     background: #f6f8f9; /* old browsers */
     background: -moz-linear-gradient(top, #f6f8f9 0%, #E8E9EA 46%, #D2D6D8 70%, #AAA 100%); /* firefox */
     background: -webkit-gradient(linear, left top, left bottom, color-stop(0%,#f6f8f9), color-stop(46%,#E8E9EA), color-stop(70%,#D2D6D8), color-stop(100%,#AAA)); /* webkit */
-    filter: progid:DXImageTransform.Microsoft.gradient( startColorstr='#f6f8f9', endColorstr='#AAA',GradientType=0 ); /* ie */
+    /*filter: progid:DXImageTransform.Microsoft.gradient( startColorstr='#f6f8f9', endColorstr='#AAA',GradientType=0 ); [> ie <]*/
     background: -o-linear-gradient(top, #f6f8f9 0%,#E8E9EA 46%,#D2D6D8 70%,#AAA 100%); /* opera */
 
     -webkit-border-top-left-radius: 5px;
