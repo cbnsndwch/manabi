@@ -1,4 +1,5 @@
 from apps.utils.templatetags.japanese import strip_ruby_bottom, strip_ruby_text
+from cachecow.cache import cached_function
 from constants import ISO_639_2_LANGUAGES
 from django.db import models, transaction
 import pickle
@@ -127,7 +128,6 @@ class FieldContent(models.Model):
     cached_transliteration_without_markup = models.CharField(
         max_length=1000, blank=True)
 
-
     @property
     def transliteration_field_content(self):
         '''
@@ -154,7 +154,7 @@ class FieldContent(models.Model):
         except self.DoesNotExist:
             return None
 
-    @property
+    @cached_function(keys=['human_readable_content', lambda self: self.pk])
     def human_readable_content(self):
         '''
         Returns content, but if this is a multi-choice field, 

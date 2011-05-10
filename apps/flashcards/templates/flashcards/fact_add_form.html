@@ -107,7 +107,6 @@
 
             </div>
             <div>
-                {% comment %}{% include "flashcards/example_sentence_form.html" %}{% endcomment %}
                 <div id="cardSubfactFormsContainer" class="subfact_container_pane" style="height:9.5em;display:none;overflow:auto;"></div>
                 <span class="fakeLink" onClick="fact_ui.addSubfactFormLink(dojo.byId('cardSubfactFormsContainer'), factAddForm.domNode, '{% filter escapejs %}{% include "flashcards/subfact_form.html" %}{% endfilter %}', {{ subfact_form.field_types|length }});factAddDialog._position();">Add {{ subfact_form.fact_type.name }}</span>
             </div>
