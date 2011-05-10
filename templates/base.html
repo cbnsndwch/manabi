@@ -77,6 +77,8 @@
     </head>
     
     <body class="{% block body_class %}{% endblock %}" style="overflow-x:hidden">
+        {% csrf_token %}
+
         {% block body_top %}{% endblock %}
         {% if site_wide_announcements %}
             <div id="site_wide_announcements">
