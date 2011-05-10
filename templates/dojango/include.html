@@ -17,6 +17,7 @@
 	var djConfig = {
 		'isDebug':{{ DOJANGO.DEBUG|json }},
 		'parseOnLoad':true,
+        'locale':'en-us',
 		'baseUrl':"{{ DOJANGO.DOJO_BASE_PATH }}"
 		{% if not DOJANGO.IS_LOCAL %}
 			,'dojoBlankHtmlUrl':"{{ DOJANGO.BASE_MEDIA_URL }}/resources/blank.html"
