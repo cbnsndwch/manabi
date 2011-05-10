@@ -33,17 +33,18 @@ def fact_status_updated(sender, **kwargs):
 
 ########################################################################
 
-#total_count_changed = django.dispatch.Signal(providing_args=['decks'])
+total_count_changed = django.dispatch.Signal(providing_args=['decks'])
 
 
-#########################################################################
+########################################################################
 
-#new_count_changed = django.dispatch.Signal(providing_args=['instance'])
+new_count_changed = django.dispatch.Signal(providing_args=['instance'])
 
-#@receiver(post_save, sender=Card, dispatch_uid='new_count_changed_cs')
-#def card_created(sender, instance, created, **kwargs):
-#    if created and instance.active and not instance.suspended:
-#        new_count_changed.send(sender=sender, instance=instance)
+@receiver(post_save, sender=Card, dispatch_uid='new_count_changed_cs')
+def card_created(sender, instance, created, **kwargs):
+    if created and instance.active and not instance.suspended:
+        new_count_changed.send(sender=sender, instance=instance)
+
 
 
 
