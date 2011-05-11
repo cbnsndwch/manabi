@@ -387,7 +387,6 @@ class Fact(models.Model):
             raise TypeError('This is not a subscriber fact.')
         return self.fieldcontent_set.all().counter() > 0 #.exists()
 
-    @transaction.commit_on_success
     def copy_subscribed_field_contents_and_subfacts(self):
         '''
         Only call this for subscriber facts.
