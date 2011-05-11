@@ -192,7 +192,7 @@ def rest_facts_tags(request):
 # the process is started.
 
 
-@cached_view(namespace=fact_grid_namespace, timeout=(3600 * 48)) # 2 day timeout
+@cached_view(namespace=fact_grid_namespace, timeout=(3600 * 24 * 6)) # 6 day timeout
 @api_dojo_data
 @has_card_query_filters
 def rest_facts(request, deck=None, tags=None): 
@@ -408,14 +408,19 @@ def rest_fact(request, fact_id): #todo:refactor into facts
                              in fact_formset.deleted_forms]:
                             continue
 
-                        if field_content_form.cleaned_data['id'].fact.owner == request.user:
-                            field_content.fact = field_content_form.cleaned_data['id'].fact #TODO is this necessary?
+                        if (field_content_form.cleaned_data['id'].fact.owner
+                                == request.user):
+                            #TODO is this necessary? vvv
+                            field_content.fact = \
+                                    field_content_form.cleaned_data['id'].fact
                             field_content.save()
                         else:
                             original = field_content_form.cleaned_data['id']
-                            if field_content_form['content'] != original.content:
-                                # user updated subscribed subfact content - so create
-                                # his own subscriber subfact to hold it
+                            if (field_content_form['content']
+                                    != original.content):
+                                # user updated subscribed subfact content 
+                                # - so create his own subscriber subfact to
+                                # hold it.
                                 new_subfact = original.fact.copy_to_parent_fact(
                                         fact, copy_field_contents=True)
                                 new_field_content = new_subfact.fieldcontent_set.get(field_type=field_content_form.cleaned_data['field_type'])
@@ -427,17 +432,17 @@ def rest_fact(request, fact_id): #todo:refactor into facts
                     else:
                         # new field content
                         # this means new subfact.
-                        # otherwise, this doesn't make sense unless the subfact model 
-                        # changed - which isn't supported yet.
+                        # otherwise, this doesn't make sense unless the subfact 
+                        # model changed - which isn't supported yet.
                         # or subscriber fields are optimized to not copy over 
                         # until modified
                         group = field_content_form.cleaned_data['subfact_group']
                         if group not in group_to_subfact.keys():
                             # create the new subfact
                             new_subfact = Fact(
-                                    fact_type=field_content.field_type.fact_type,
-                                    active=True,
-                                    parent_fact=fact
+                                fact_type=field_content.field_type.fact_type,
+                                active=True,
+                                parent_fact=fact
                             )
                             new_subfact.save()
                             group_to_subfact[group] = new_subfact
@@ -480,8 +485,7 @@ def rest_fact(request, fact_id): #todo:refactor into facts
                     if card_template.id in card_form_template_ids.keys():
                         try:
                             card = fact2.card_set.get(template=card_template)
-                            card.active = True
-                            card.save()
+                            card.activate()
                         except Card.DoesNotExist:
                             #card_form = card_form_template_ids
                             #[card_template.id]
@@ -503,8 +507,7 @@ def rest_fact(request, fact_id): #todo:refactor into facts
                                 # don't disable subscriber cards which have 
                                 # already been reviewed
                                 continue
-                            card.active = False
-                            card.save()
+                            card.deactivate()
                         except Card.DoesNotExist:
                             pass
         else:

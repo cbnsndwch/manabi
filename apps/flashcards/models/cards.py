@@ -110,6 +110,18 @@ class Card(models.Model):
         '''Returns a string version of the last review grade.'''
         return GRADE_NAMES.get(self.last_review_grade)
 
+    def activate(self):
+        from flashcards.cache import card_active_field_changed
+        self.active = True
+        self.save()
+        card_active_field_changed.send(self, instance=self)
+
+    def deactivate(self):
+        from flashcards.cache import card_active_field_changed
+        self.active = False
+        self.save()
+        card_active_field_changed.send(self, instance=self)
+
     def is_new(self):
         '''Returns whether this card has been reviewed before.'''
         return self.last_reviewed_at is None
@@ -288,6 +300,7 @@ class Card(models.Model):
         `duration` is the same, but for each entire duration of viewing 
         this card (so, the time taken for the front and back of the card.)
         '''
+        from flashcards.cache import card_reviewed
         reviewed_at = datetime.utcnow()
         was_new = self.is_new()
 
@@ -325,6 +338,7 @@ class Card(models.Model):
 
         review_stats.save()
         self.save()
+        card_reviewed.send(self, instance=self)
 
 
 #TODO implement (remember to update UndoReview too)

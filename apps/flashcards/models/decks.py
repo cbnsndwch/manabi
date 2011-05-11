@@ -1,6 +1,7 @@
 from books.models import Textbook
-from constants import GRADE_NONE, GRADE_HARD, GRADE_GOOD, GRADE_EASY
+from cachecow.cache import cached_function
 from constants import DEFAULT_EASE_FACTOR
+from constants import GRADE_NONE, GRADE_HARD, GRADE_GOOD, GRADE_EASY
 from dbtemplates.models import Template
 from django.contrib.auth.models import User
 from django.core.urlresolvers import reverse
@@ -9,6 +10,7 @@ from django.db import transaction
 from django.db.models import Avg
 from django.forms import ModelForm
 from django.forms.util import ErrorList
+from flashcards.cache import deck_review_stats_namespace
 from itertools import chain
 from model_utils.managers import manager_from
 import cards
@@ -107,13 +109,17 @@ class Deck(models.Model):
 
 
     def field_contents(self):
-        '''Returns all FieldContents for facts in this deck,
+        '''
+        Returns all FieldContents for facts in this deck,
         preferring updated subscriber fields to subscribed ones,
         when the deck is synchronized.
         '''
         from fields import FieldContent
         if self.synchronized_with:
-            updated_fields = FieldContent.objects.filter(fact__deck=self, fact__active=True, fact__synchronized_with__isnull=False) #fact__in=self.subscriber_facts.all())
+            updated_fields = FieldContent.objects.filter(
+                    fact__deck=self, fact__active=True,
+                    fact__synchronized_with__isnull=False) 
+            #fact__in=self.subscriber_facts.all())
             # 'other' here means non-updated, subscribed
             other_facts = Fact.objects.filter(
                     parent_fact__isnull=True,
@@ -130,14 +136,16 @@ class Deck(models.Model):
 
     @property
     def has_subscribers(self):
-        '''Returns whether there are subscribers to this deck, because
+        '''
+        Returns whether there are subscribers to this deck, because
         it is shared, or it had been shared before.
         '''
         return self.subscriber_decks.filter(active=True).exists()
 
     @transaction.commit_on_success    
     def share(self):
-        '''Shares this deck publicly.
+        '''
+        Shares this deck publicly.
         '''
         if self.synchronized_with:
             raise TypeError('Cannot share synchronized decks (decks which are already synchronized with shared decks).')
@@ -147,7 +155,8 @@ class Deck(models.Model):
 
     @transaction.commit_on_success
     def unshare(self):
-        '''Unshares this deck.
+        '''
+        Unshares this deck.
         '''
         if not self.shared:
             raise TypeError('This is not a shared deck, so it cannot be unshared.')
@@ -167,7 +176,8 @@ class Deck(models.Model):
 
     @transaction.commit_on_success    
     def subscribe(self, user):
-        '''Subscribes to this shared deck for the given user.
+        '''
+        Subscribes to this shared deck for the given user.
         They will study this deck as their own, but will 
         still receive updates to content.
 
@@ -233,7 +243,8 @@ class Deck(models.Model):
             fact.save()
             shared_fact_to_fact[shared_fact] = fact
 
-            # don't copy the field contents for this fact - we'll get them from the shared fact later
+            # don't copy the field contents for this fact - we'll get them from 
+            # the shared fact later
 
             # copy the cards
             for shared_card in shared_fact.card_set.filter(active=True):
@@ -245,23 +256,38 @@ class Deck(models.Model):
 
     @property
     def card_count(self):
-        #FIXME this is inaccurate for synchronized deck which the (subscriber) user has added cards to
+        #FIXME this is inaccurate for synchronized deck which the (subscriber) 
+        # user has added cards to
         deck = self.synchronized_with if self.synchronized_with else self
-        return cards.Card.objects.filter(fact__deck=deck, active=True, suspended=False).count()
+        return cards.Card.objects.filter(
+                fact__deck=deck, active=True, suspended=False).count()
 
     @property
     def new_card_count(self):
         #FIXME do for sync'd decks
-        return cards.Card.objects.cards_new_count(self.owner, deck=self, active=True, suspended=False)
+        return cards.Card.objects.cards_new_count(
+                self.owner, deck=self, active=True, suspended=False)
 
     @property
     def due_card_count(self):
-        return cards.Card.objects.cards_due_count(self.owner, deck=self, active=True, suspended=False)
+        return cards.Card.objects.cards_due_count(
+                self.owner, deck=self, active=True, suspended=False)
 
+    @cached_function(namespace=deck_review_stats_namespace)
     def average_ease_factor(self):
-        deck_cards = cards.Card.objects.filter(fact__deck=self, active=True, suspended=False, ease_factor__isnull=False)
+        '''
+        Includes suspended cards in the calcuation. Doesn't include inactive 
+        cards.
+        '''
+        print 'average_ease_factor'
+        deck_cards = cards.Card.objects.filter(
+                fact__deck=self,
+                active=True,
+                ease_factor__isnull=False)
         if deck_cards.exists():
-            average_ef = deck_cards.aggregate(average_ease_factor=Avg('ease_factor'))['average_ease_factor']
+            average_ef = deck_cards.aggregate(
+                    average_ease_factor=Avg('ease_factor')
+                    )['average_ease_factor']
             if average_ef:
                 return average_ef
         return DEFAULT_EASE_FACTOR

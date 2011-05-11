@@ -1,8 +1,9 @@
 import django.dispatch
 from django.dispatch import receiver
-from django.db.models.signals import post_save, m2m_changed, post_delete
+from django.db.models.signals import (post_save, m2m_changed, post_delete,
+                                      pre_delete,)
 from models.fields import FieldContent
-from models.cards import Card
+from flashcards.models import Card
 
 fact_suspended = django.dispatch.Signal()
 fact_unsuspended = django.dispatch.Signal()
@@ -18,7 +19,7 @@ fact_grid_updated = django.dispatch.Signal(providing_args=['decks'])
 # Below are the listeners which will send `fact_grid_updated`.
 @receiver(post_save,
           sender=FieldContent, dispatch_uid='fact_grid_updated_fc_ps')
-@receiver(post_delete,
+@receiver(pre_delete,
           sender=FieldContent, dispatch_uid='fact_grid_updated_fc_pd')
 def field_content_updated(sender, instance, **kwargs):
     fact_grid_updated.send(sender=sender,
@@ -45,6 +46,11 @@ def card_created(sender, instance, created, **kwargs):
     if created and instance.active and not instance.suspended:
         new_count_changed.send(sender=sender, instance=instance)
 
+########################################################################
+# Card signals
 
+card_reviewed = django.dispatch.Signal(providing_args=['instance'])
 
+# When a card's `active` field changes.
+card_active_field_changed = django.dispatch.Signal(providing_args=['instance'])
 
