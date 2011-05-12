@@ -43,7 +43,7 @@ from flashcards.views.decorators import (ApiException, has_card_query_filters,
 from flashcards.views.shortcuts import get_deck_or_404
 import random
 from flashcards.signals import fact_deleted
-from flashcards.cache import fact_grid_namespace
+from flashcards.cachenamespaces import fact_grid_namespace
 from cachecow.cache import cached_view
 
 #import logging

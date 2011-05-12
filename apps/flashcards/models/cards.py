@@ -1,17 +1,19 @@
-from cardtemplates import CardTemplate
 from constants import GRADE_NONE, GRADE_HARD, GRADE_GOOD, GRADE_EASY, \
     MAX_NEW_CARD_ORDINAL, EASE_FACTOR_MODIFIERS, \
     YOUNG_FAILURE_INTERVAL, MATURE_FAILURE_INTERVAL, MATURE_INTERVAL_MIN, \
     GRADE_EASY_BONUS_FACTOR, DEFAULT_EASE_FACTOR, INTERVAL_FUZZ_MAX, \
     ALL_GRADES, GRADE_NAMES
+from cachecow.cache import cached_function
+from cardtemplates import CardTemplate
 from datetime import timedelta, datetime
+from django.core.cache import cache
 from django.db import models
+from django.db.models import Count, Min, Max, Sum, Avg
 from django.template.loader import render_to_string
+from flashcards.cachenamespaces import deck_review_stats_namespace
 from managers.cardmanager import CardManager
 from repetitionscheduler import repetition_algo_dispatcher
 from undo import UndoCardReview
-from django.db.models import Count, Min, Max, Sum, Avg
-from django.core.cache import cache
 
 
 class Card(models.Model):
@@ -111,13 +113,13 @@ class Card(models.Model):
         return GRADE_NAMES.get(self.last_review_grade)
 
     def activate(self):
-        from flashcards.cache import card_active_field_changed
+        from flashcards.signals import card_active_field_changed
         self.active = True
         self.save()
         card_active_field_changed.send(self, instance=self)
 
     def deactivate(self):
-        from flashcards.cache import card_active_field_changed
+        from flashcards.signals import card_active_field_changed
         self.active = False
         self.save()
         card_active_field_changed.send(self, instance=self)
@@ -138,35 +140,39 @@ class Card(models.Model):
             return False
         return self.due_at < time
 
+    @cached_function(namespace=deck_review_stats_namespace)
     def average_duration(self):
         '''
         The average duration spent on the card each time it is shown
         (seconds, floating-point).
         '''
         return self.cardhistory_set.aggregate(
-            Avg('duration'))['duration__avg']
+                Avg('duration'))['duration__avg']
 
+    @cached_function(namespace=deck_review_stats_namespace)
     def total_duration(self):
         '''
         Total duration spent on the card each time it is shown.
         '''
         return self.cardhistory_set.aggregate(
-            Sum('duration'))['duration__sum']
+                Sum('duration'))['duration__sum']
 
+    @cached_function(namespace=deck_review_stats_namespace)
     def average_question_duration(self):
         '''
         Returns the average duration spent looking at the question side of 
         this card before viewing the answer (in seconds, floating point).
         '''
         return self.cardhistory_set.aggregate(
-            Avg('question_duration'))['question_duration__avg']
+                Avg('question_duration'))['question_duration__avg']
 
+    @cached_function(namespace=deck_review_stats_namespace)
     def total_question_duration(self):
         '''
         The total time spent thinking of the answer.
         '''
         return self.cardhistory_set.aggregate(
-            Sum('question_duration'))['question_duration__sum']
+                Sum('question_duration'))['question_duration__sum']
 
 
     def _render(self, template_name):
@@ -300,7 +306,7 @@ class Card(models.Model):
         `duration` is the same, but for each entire duration of viewing 
         this card (so, the time taken for the front and back of the card.)
         '''
-        from flashcards.cache import card_reviewed
+        from flashcards.signals import card_reviewed
         reviewed_at = datetime.utcnow()
         was_new = self.is_new()
 

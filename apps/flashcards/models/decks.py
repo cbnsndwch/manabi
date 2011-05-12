@@ -10,7 +10,7 @@ from django.db import transaction
 from django.db.models import Avg
 from django.forms import ModelForm
 from django.forms.util import ErrorList
-from flashcards.cache import deck_review_stats_namespace
+from flashcards.cachenamespaces import deck_review_stats_namespace
 from itertools import chain
 from model_utils.managers import manager_from
 import cards
