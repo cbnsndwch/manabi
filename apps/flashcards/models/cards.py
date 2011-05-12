@@ -10,7 +10,8 @@ from django.core.cache import cache
 from django.db import models
 from django.db.models import Count, Min, Max, Sum, Avg
 from django.template.loader import render_to_string
-from flashcards.cachenamespaces import deck_review_stats_namespace
+from flashcards.cachenamespaces import (deck_review_stats_namespace,
+                                        fact_grid_namespace,)
 from managers.cardmanager import CardManager
 from repetitionscheduler import repetition_algo_dispatcher
 from undo import UndoCardReview
@@ -175,6 +176,8 @@ class Card(models.Model):
                 Sum('question_duration'))['question_duration__sum']
 
 
+    @cached_function(namespace=lambda c, *args, **kwargs:
+                               fact_grid_namespace(deck=c.deck))
     def _render(self, template_name):
         # map fieldtype-id to fieldcontents
         fields = dict((field.field_type.name, field)
