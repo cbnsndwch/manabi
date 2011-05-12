@@ -279,7 +279,6 @@ class Deck(models.Model):
         Includes suspended cards in the calcuation. Doesn't include inactive 
         cards.
         '''
-        print 'average_ease_factor'
         deck_cards = cards.Card.objects.filter(
                 fact__deck=self,
                 active=True,
