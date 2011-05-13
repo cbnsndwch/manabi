@@ -357,6 +357,7 @@ div.fullscreen_content { }
 .flashcard_content_container .ezRuby:before {
     font-size: 0.44em;
     line-height: 1.2;
+    color: gray;
 }
 .flashcard_container .half_floater {
 }
