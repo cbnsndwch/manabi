@@ -5,7 +5,7 @@ from django.dispatch import receiver
 from cachenamespaces import deck_review_stats_namespace, fact_grid_namespace
 from flashcards.models import Card
 from flashcards.signals import (fact_grid_updated,
-                                card_reviewed, card_active_field_changed,)
+                                post_card_reviewed, card_active_field_changed,)
 from models.fields import FieldContent
 
 
@@ -23,7 +23,7 @@ def nuke_human_readable_field(sender, instance, created, **kwargs):
 
 ###############################################################################
 
-@receiver(card_reviewed, dispatch_uid='deck_review_stats_cr')
+@receiver(post_card_reviewed, dispatch_uid='deck_review_stats_cr')
 @receiver(card_active_field_changed, dispatch_uid='deck_review_stats_cafc')
 @receiver(pre_delete, sender=Card, dispatch_uid='deck_review_stats_cpd')
 def nuke_deck_review_stats_namespace(sender, instance, **kwargs):

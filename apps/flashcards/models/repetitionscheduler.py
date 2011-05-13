@@ -4,6 +4,8 @@ from constants import GRADE_NONE, GRADE_HARD, GRADE_GOOD, GRADE_EASY, \
 from datetime import timedelta, datetime
 from utils import timedelta_to_float
 from math import cos, pi
+from cachecow.cache import cached_function
+from flashcards.cachenamespaces import deck_review_stats_namespace
 
 
 
@@ -91,6 +93,13 @@ class RepetitionAlgo(object):
         self.grade = grade
         self.reviewed_at = reviewed_at or datetime.utcnow()
 
+    # Very short cache on this function, because it's something that gets 
+    # called potentially a bunch of times in one request, but even if the 
+    # user does nothing, this value may change depending on the time. So 
+    # allow a resolution of 2 seconds (at worst.)
+    @cached_function(timeout=2,
+                     namespace=lambda a, *args, **kwargs:
+                            deck_review_stats_namespace(deck=a.card.deck))
     def next_repetition(self):
         '''
         Returns an instance of `NextRepetition` containing the updated 

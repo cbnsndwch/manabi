@@ -82,8 +82,9 @@ class Card(models.Model):
         Returns a new Card object.
         '''
         return Card(fact=target_fact, template_id=self.template_id,
-                priority=self.priority, leech=False, active=True, suspended=False,
-                new_card_ordinal=self.new_card_ordinal)
+                    priority=self.priority,
+                    leech=False, active=True, suspended=False,
+                    new_card_ordinal=self.new_card_ordinal)
 
     @property
     def owner(self):
@@ -309,7 +310,9 @@ class Card(models.Model):
         `duration` is the same, but for each entire duration of viewing 
         this card (so, the time taken for the front and back of the card.)
         '''
-        from flashcards.signals import card_reviewed
+        from flashcards.signals import pre_card_reviewed, post_card_reviewed
+        pre_card_reviewed.send(self, instance=self)
+
         reviewed_at = datetime.utcnow()
         was_new = self.is_new()
 
@@ -328,9 +331,10 @@ class Card(models.Model):
         # Create Undo stack item
         UndoCardReview.objects.add_undo(card_history_item)
 
-        # Compute and apply updated card repetition values
+        # Compute and apply updated card repetition values.
         repetition_algo = repetition_algo_dispatcher(
             self, grade, reviewed_at=reviewed_at)
+        repetition_algo.next_repetition.delete_cache(repetition_algo)
         next_repetition = repetition_algo.next_repetition()
         self._apply_updated_schedule(next_repetition)
 
@@ -347,7 +351,7 @@ class Card(models.Model):
 
         review_stats.save()
         self.save()
-        card_reviewed.send(self, instance=self)
+        post_card_reviewed.send(self, instance=self)
 
 
 #TODO implement (remember to update UndoReview too)

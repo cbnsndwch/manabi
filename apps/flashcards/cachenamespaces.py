@@ -5,6 +5,9 @@ def fact_grid_namespace(deck=None, *args, **kwargs):
     '''
     return ['fact_grid', deck]
 
+
+
+
 ###############################################################################
 # Per-deck, review-related stat caches
 
@@ -18,4 +21,6 @@ def deck_review_stats_namespace(deck, *args, **kwargs):
     a different caching strategy than what this namespace provides.
     '''
     return ['deck_review_stats', deck.pk]
+
+
 
