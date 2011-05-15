@@ -154,7 +154,7 @@ class FieldContent(models.Model):
         except self.DoesNotExist:
             return None
 
-    @cached_function(keys=['human_readable_content', lambda self: self.pk])
+    @cached_function(key=['human_readable_content', lambda self: self.pk])
     def human_readable_content(self):
         '''
         Returns content, but if this is a multi-choice field, 

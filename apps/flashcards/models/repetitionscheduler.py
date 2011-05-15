@@ -96,8 +96,12 @@ class RepetitionAlgo(object):
     # Very short cache on this function, because it's something that gets 
     # called potentially a bunch of times in one request, but even if the 
     # user does nothing, this value may change depending on the time. So 
-    # allow a resolution of 2 seconds (at worst.)
-    @cached_function(timeout=2,
+    # allow a resolution of 3 seconds (at worst.)
+    @cached_function(timeout=3,
+                     key=['RepetitionAlgo', 'next_repetition',
+                          lambda self: (self.card.pk,
+                                        self.grade,
+                                        self.reviewed_at,)],
                      namespace=lambda a, *args, **kwargs:
                             deck_review_stats_namespace(deck=a.card.deck))
     def next_repetition(self):
