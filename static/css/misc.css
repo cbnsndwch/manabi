@@ -498,7 +498,7 @@ div.column, p.column {
     margin-bottom: -9999em;
     min-height: 30em;
 }
-.add_decks .column p {
+.add_decks .column .column_description {
     height: 3em;
 }
 .add_decks ul.deck_list {
@@ -509,6 +509,9 @@ div.column, p.column {
 }
 .column.create_cards {
     border-left: solid 3px lightgray;
+}
+.column.shared_decks ul.deck_list {
+    margin-top: 1em;
 }
 .add_decks .icon {
     display: block;
@@ -522,8 +525,9 @@ div.column, p.column {
     cursor: pointer;
 }
 .add_decks .find_textbook_link {
-    margin-top: 1.5em;
-    font-size: .85em;
+    margin-top: 1em;
+    font-size: .9em;
+    padding: .5em;
 }
 .add_decks .find_textbook_link img {
     vertical-align: bottom;
