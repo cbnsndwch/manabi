@@ -183,6 +183,15 @@ hr {
 #footer a:hover {
     color: #555;
 }
+#footer img {
+    border-width: 0;
+    opacity: .2;
+    position: relative;
+    top: .25em;
+}
+#footer a img:hover {
+    opacity: .6;
+}
 
 #body_contents h1:first-of-type, #body_contents h2:first-of-type, #body_contents h3:first-of-type, .dijitDialog h1:first-of-type, .dijitDialog h2:first-of-type {
     margin-top: 0px;
