@@ -116,93 +116,6 @@ hr {
 	background-repeat: no-repeat;
 }
 
-#tabhead {
-    background-color: #f0f0f0;
-}
-
-#site_title, #site_title_left, #site_title_right {
-    background-color: #003344;
-}
-#site_logo {
-    text-decoration: none;
-    color: #b60900;
-    position: relative;
-    top: .1em;
-    /*text-shadow: -1px -1px 0px #101010, 1px 1px 0px #666;*/
-}
-#site_title {
-    line-height: 1;
-    font-size: 56px;
-    font-family: 'Fontin';
-    font-weight: bold;
-    text-decoration: none;
-    float: left;
-    position: relative;
-    z-index: 20;
-    padding-left: 55px;
-    margin-bottom: 8px;
-    overflow: hidden;
-}
-#site_title a {
-    margin: auto 0;
-    width: 300px;
-    display: block;
-    position: relative;
-    color: #ffffff;
-    text-decoration: none;
-    top: 1px;
-}
-#site_title .no_hover {
-    position: absolute;
-    top: .17em;
-    left: 1.4em;
-}
-#site_title .hover {
-    position: relative;
-    top: .2em;
-    opacity: 0;
-    letter-spacing: .42em;
-    font-size: .9em;
-    display: inline-block;
-    position: absolute;
-    top: .24em;
-    left: 1.5em;
-}
-.ie8 #site_title .hover {
-    display: none;
-}
-#site_title .hover, #site_title .no_hover {
-    -webkit-transition: opacity 120ms ease-in; 
-    -moz-transition: opacity 120ms ease-in;
-    transition: opacity 120ms ease-in;
-}
-#site_title a:hover .no_hover {
-    opacity: 0;
-}
-#site_title a:hover .hover {
-    opacity: 1;
-}
-#site_title, #site_title_left, #site_title_right {
-    height: 70px;
-}
-#site_title_left, #site_title_right {
-    float: left;
-    width: 35px;
-    position: relative;
-    z-index: 10;
-}
-#site_title_left {
-    display:none;
-}
-#site_title_right {
-    -moz-border-radius-bottomright: 10px;
-    -webkit-border-bottom-right-radius: 10px;
-    -moz-transform: skewX(-25deg);
-    -webkit-transform: skewX(-25deg);
-    left: -20px;
-    margin-right: 30px;
-    width: 50px;
-}
 
 #column_wrap {
     background-color: #f0f0f0;
@@ -467,13 +380,13 @@ div.reviews_correctGradeButtons {
 
 
 /* Zoom out the review screen a little for smaller displays. */
-@media only screen and (min-height: 80px) {
+@media only screen and (max-height: 730px) {
     .flashcard_content {
         /*zoom: .6;*/
         font-size: .9em;
     }
     .reviews_front_prompt, .reviews_back_prompt {
-        font-size: 1em;
+        font-size: 1.1em;
     }
 }
 

@@ -210,15 +210,15 @@ table {
 
 /* HEADER */
 
-#tabhead {
-/*    background: #003344 #035 url('../images/heading.png') left top
- *    repeat-x;*/
-    /*background-color: #003344;*/
-    /*background-color: #36606D;*/
-    /*border-bottom: 1px solid #000;*/ /* tab border */
-    /*position: relative;*/
-    /*padding: 4px 0px;*/
-}
+/*#tabhead {
+    background: #003344 #035 url('../images/heading.png') left top
+    repeat-x;
+    background-color: #003344;
+    background-color: #36606D;
+    border-bottom: 1px solid #000;
+    position: relative;
+    padding: 4px 0px;
+}*/
 #tabhead .logo {
     /*height: 80px;*/
     /*padding-left: 5px;*/
@@ -241,6 +241,93 @@ table {
     color: #FFF; /* login bar link hover colour */
 }
 
+#tabhead {
+    background-color: #f0f0f0;
+}
+#site_title, #site_title_left, #site_title_right {
+    background-color: #003344;
+}
+#site_logo {
+    text-decoration: none;
+    color: #b60900;
+    position: relative;
+    top: .1em;
+    /*text-shadow: -1px -1px 0px #101010, 1px 1px 0px #666;*/
+}
+#site_title {
+    line-height: 1;
+    font-size: 56px;
+    font-family: 'Fontin';
+    font-weight: bold;
+    text-decoration: none;
+    float: left;
+    position: relative;
+    z-index: 20;
+    padding-left: 55px;
+    margin-bottom: 8px;
+    overflow: hidden;
+}
+#site_title a {
+    margin: auto 0;
+    width: 300px;
+    display: block;
+    position: relative;
+    color: #ffffff;
+    text-decoration: none;
+    top: 1px;
+}
+#site_title .no_hover {
+    position: absolute;
+    top: .17em;
+    left: 1.4em;
+}
+#site_title .hover {
+    position: relative;
+    top: .2em;
+    opacity: 0;
+    letter-spacing: .42em;
+    font-size: .9em;
+    display: inline-block;
+    position: absolute;
+    top: .24em;
+    left: 1.5em;
+}
+.ie8 #site_title .hover {
+    display: none;
+}
+#site_title .hover, #site_title .no_hover {
+    -webkit-transition: opacity 120ms ease-in; 
+    -moz-transition: opacity 120ms ease-in;
+    transition: opacity 120ms ease-in;
+}
+#site_title a:hover .no_hover {
+    opacity: 0;
+}
+#site_title a:hover .hover {
+    opacity: 1;
+}
+#site_title, #site_title_left, #site_title_right {
+    height: 70px;
+}
+#site_title_left, #site_title_right {
+    float: left;
+    width: 35px;
+    position: relative;
+    z-index: 10;
+}
+#site_title_left {
+    display:none;
+}
+#site_title_right {
+    -moz-border-radius-bottomright: 10px;
+    -webkit-border-bottom-right-radius: 10px;
+    -moz-transform: skewX(-25deg);
+    -webkit-transform: skewX(-25deg);
+    left: -20px;
+    margin-right: 30px;
+    width: 50px;
+}
+
 #locale_switcher {
     display: inline;
 }
@@ -252,34 +339,16 @@ table {
     padding: 0;
     background-color: #36606D;
     border-bottom: solid 4px #f0f0f0;
-    /*height: 50px;*/
-    /*background-color: #36606d; [>#DEF; /* tab colour */
-    /*border-bottom: 0px solid #003344;*/
-    /*height: 88px;*/
 }
 #nav ul {
     margin: 0;
     padding: 0;
-    /*padding-top: 1em;*/
 }
 #nav li {
     /* make it look like a tab */
     position: relative;
     top:    31px;
-    /*background-color: gray;*/
     opacity: .73;
-    /*background-image: -webkit-gradient(
-        linear,
-        left bottom,
-        left top,
-        color-stop(0.1, #aaa),
-        color-stop(0.55, rgb(255,255,255))
-    );
-    background-image: -moz-linear-gradient(
-        center bottom,
-        rgb(128,128,128) 10%,
-        rgb(255,255,255) 55%
-    );*/
     background: #f6f8f9; /* old browsers */
     background: -moz-linear-gradient(top, #f6f8f9 0%, #E8E9EA 46%, #D2D6D8 70%, #AAA 100%); /* firefox */
     background: -webkit-gradient(linear, left top, left bottom, color-stop(0%,#f6f8f9), color-stop(46%,#E8E9EA), color-stop(70%,#D2D6D8), color-stop(100%,#AAA)); /* webkit */
@@ -348,6 +417,40 @@ table {
     -moz-border-radius: 8px;
     border-radius: 8px;
 }
+
+/* Make the tabs smaller to prevent wrapping on smaller screens. */
+@media only screen and (max-width: 865px) {
+    #site_title {
+        font-size: 48px;
+    }
+    #site_title a {
+        width: 250px;
+        top: 3px;
+    }
+    #site_logo img {
+        zoom: .8;
+    }
+    #site_title, #site_title_left, #site_title_right {
+        height: 65px;
+    }
+    #nav li {
+        margin-right: 5px;
+        font-size: 1.25em;
+    }
+    #nav li a:link, #nav li a:visited {
+        padding-left: 8px;
+        padding-right: 8px;
+        height: 33px;
+    }
+    #nav li.active a:link, #nav li.active a:visited {
+        padding-left: 4px;
+        padding-right: 4px;
+    }
+    #site_title_right {
+        margin-right: 10px;
+    }
+}
+
 #nav ul a:hover {
     /*color: #FFF;*/
     /*background: #9BC;*/
