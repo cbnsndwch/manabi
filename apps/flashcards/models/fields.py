@@ -210,8 +210,8 @@ class FieldContent(models.Model):
         Returns a list of each individual kanji in this field (if any).
         '''
         from apps.utils.unicodeblocks import block, KANJI_BLOCKS
-        return [char for char in self.content \
-                if block(char) in KANJI_BLOCKS]
+        return list(set(char for char in self.content
+                        if block(char) in KANJI_BLOCKS))
 
     def __unicode__(self):
         return self.content
