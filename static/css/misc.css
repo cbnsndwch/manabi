@@ -334,6 +334,7 @@ div.fullscreen_content { }
     padding-bottom: 1em;
 }
 
+
 .flashcard_container {
     /*width: 700px;*/
     margin: 0px auto;
@@ -367,7 +368,7 @@ div.fullscreen_content { }
 .flashcard_content .meaning {
     font-size: 2em;
     display: block;
-    margin: 1em 0;
+    margin: .4em 0;
 }
 .flashcard_content .expression, .flashcard_content .reading {
     font-size: 4em;
@@ -390,17 +391,19 @@ div.fullscreen_content { }
 .flashcard_container .kanji_stroke_frames_container {
     width: 70%;
     overflow-x: auto;
-    overflow-y: hidden;
+    overflow-y: auto;
+    max-height: 100px;
     margin: 2em auto;
-    background-color:#fafafa;
 }
 .flashcard_container .kanji_stroke_frames {
     cursor: move;
+    padding-bottom: 2px;
+    background-color: #fafafa;
 }
 .reviews_front_prompt {
     color: gray;
     font-size: 1.3em;
-    /*margin-bottom:0px;*/
+    margin-bottom: 0;
 }
 .reviews_back_prompt {
     color: gray;
@@ -460,6 +463,18 @@ div.reviews_correctGradeButtons {
     width: 4.25em;
     font-size:1.1em%;
     display: block;
+}
+
+
+/* Zoom out the review screen a little for smaller displays. */
+@media only screen and (min-height: 80px) {
+    .flashcard_content {
+        /*zoom: .6;*/
+        font-size: .9em;
+    }
+    .reviews_front_prompt, .reviews_back_prompt {
+        font-size: 1em;
+    }
 }
 
 .card_stats table {
