@@ -635,6 +635,7 @@ ul.divided li, div.divided {
 }
 .fact_form_container .field .dijitTextBox {
     font-size: 1.6em;
+    line-height: 1.2em;
     margin-top: .2em;
     margin-bottom: .2em;
     padding: .2em;
