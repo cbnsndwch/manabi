@@ -12,7 +12,7 @@ from models.fields import FieldContent
 @receiver(fact_grid_updated, dispatch_uid='nuke_fact_grid_namespace')
 def nuke_fact_grid_namespace(sender, decks=[], **kwargs):
     for deck in decks:
-        invalidate_namespace(fact_grid_namespace(deck=deck.pk))
+        invalidate_namespace(fact_grid_namespace(deck.pk))
  
 
 ###############################################################################

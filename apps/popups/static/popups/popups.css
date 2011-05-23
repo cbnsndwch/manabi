@@ -1,0 +1,41 @@
+
+.popup #tabhead .logo {
+    zoom: .7;
+}
+
+.popup #body_contents {
+    padding-top: inherit;
+    padding-bottom: 1em;
+}
+
+.popup #body_contents_container, .popup #footer {
+    padding: .5em 1em;
+    margin-left: 10px;
+    margin-right: 10px;
+}
+.popup #footer {
+    display: none;
+}
+.popup #body_left, .popup #body_right {
+    width: 10px;
+}
+.popup .inner_body_contents:not(.wide) > *:not(.wide):not(hr) {
+    max-width: 50em;
+}
+
+.popup .add_decks .columns {
+    overflow: hidden;
+}
+.popup .add_decks .column {
+    padding: 1em;
+    margin-bottom: inherit;
+    /*width: 42%;*/
+    width: 19em;
+}
+
+
+.popup #footer {
+    zoom: .85;
+    margin-left: 3em;
+    
+}

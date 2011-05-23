@@ -178,7 +178,7 @@ class Card(models.Model):
 
 
     @cached_function(namespace=lambda c, *args, **kwargs:
-                               fact_grid_namespace(deck=c.deck))
+                               fact_grid_namespace(c.deck.pk))
     def _render(self, template_name):
         # map fieldtype-id to fieldcontents
         fields = dict((field.field_type.name, field)

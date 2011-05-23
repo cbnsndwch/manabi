@@ -1,9 +1,9 @@
 
-def fact_grid_namespace(deck=None, *args, **kwargs):
+def fact_grid_namespace(deck_pk):
     '''
     This namespace is keyed on the deck PK. Used for the fact grid.
     '''
-    return ['fact_grid', deck]
+    return ['fact_grid', str(deck_pk)]
 
 
 
@@ -11,7 +11,7 @@ def fact_grid_namespace(deck=None, *args, **kwargs):
 ###############################################################################
 # Per-deck, review-related stat caches
 
-def deck_review_stats_namespace(deck, *args, **kwargs):
+def deck_review_stats_namespace(obj):
     '''
     Namespace keyed on the deck PK.
     
@@ -20,7 +20,17 @@ def deck_review_stats_namespace(deck, *args, **kwargs):
     the number of new cards. For the stats which are related to that, use 
     a different caching strategy than what this namespace provides.
     '''
-    return ['deck_review_stats', deck.pk]
+    pk = None
+
+    from flashcards.models.cards import Card
+    from flashcards.models.decks import Deck
+
+    if isinstance(obj, Card):
+        pk = obj.deck.pk
+    elif isinstance(obj, Deck):
+        pk = obj.pk
+
+    return ['deck_review_stats', pk]
 
 
 

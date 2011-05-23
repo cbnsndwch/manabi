@@ -192,7 +192,9 @@ def rest_facts_tags(request):
 # the process is started.
 
 
-@cached_view(namespace=fact_grid_namespace, timeout=(3600 * 24 * 6)) # 6 day timeout
+@cached_view(namespace=lambda request, *args, **kwargs:
+                           fact_grid_namespace(request.GET.get('deck')),
+             timeout=(3600 * 24 * 6)) # 6 day timeout
 @api_dojo_data
 @has_card_query_filters
 def rest_facts(request, deck=None, tags=None): 
