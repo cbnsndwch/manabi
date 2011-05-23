@@ -8,18 +8,21 @@ def site_base_extender(request):
     '''
     ctx = {}
 
-    if request.is_ajax():
-        name = 'body_pane_base.html' 
+    if hasattr(request, 'fragment_base_template_name'):
+        fragment_name = request.fragment_base_template_name
     else:
-        name ='site_base.html'
-    ctx['base_template_name'] = name
+        if request.is_ajax():
+            name = 'body_pane_base.html' 
+        else:
+            name ='site_base.html'
+        ctx['base_template_name'] = name
 
-    # Googlebot?
-    if request.META.get('HTTP_X_ESCAPED_FRAGMENT', 'false').lower() == 'true':
-        fragment_name = 'site_base.html'
-    else:
-        fragment_name = 'body_pane_base.html'
+        # Googlebot?
+        if (request.META.get('HTTP_X_ESCAPED_FRAGMENT', 'false').lower()
+                == 'true'):
+            fragment_name = 'site_base.html'
+        else:
+            fragment_name = 'body_pane_base.html'
     ctx['fragment_base_template_name'] = fragment_name
-
     return ctx
 

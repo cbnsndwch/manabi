@@ -2,6 +2,8 @@
 
 {% load cache %}
 
+{% block head_title %}Create Flashcards : Choose Deck{% endblock %}
+
 {% block content_class %}add_decks wide{% endblock %}
 
 {% block content %}
@@ -40,9 +42,19 @@
             window.location = dojo.query(this).query('a').first().attr('href');
         });
 
+
+        // Get field prefill options from the GET params.
+        var encodedParams = window.location.search;
+
         dojo.query('.create_cards .deck_list a').onclick(function(evt){
-            console.log(evt);
-            window.open(dojo.query(this).attr('href'), null, 'width=576, height=642, modal=yes');
+            var href = dojo.query(this).attr('href') + encodedParams;
+
+            var unencodedParams = dojo.queryToObject(encodedParams.substring(encodedParams.indexOf('?') + 1));
+            if ('_popup' in unencodedParams && unencodedParams['_popup'].toLowerCase() == 'true' ) {
+                window.open(href, null, 'width=576, height=680, modal=yes, location=no');
+            } else {
+                window.location = href;
+            }
             evt.preventDefault();
         });
     });

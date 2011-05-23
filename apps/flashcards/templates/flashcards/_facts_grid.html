@@ -86,7 +86,7 @@
         clientSort="true"
         autoHeight="11" id="cards_factsGrid" jsId="cards_factsGrid"
         selectionMode="single" rowSelector="false" formatterScope="factsStoreFormatter" 
-        rowsPerPage="40" keepRows="200" noDataMessage="No flashcards in this deck. Create some by selecting the 'Create Flashcards' button.">
+        rowsPerPage="40" keepRows="400" noDataMessage="No flashcards in this deck. Create some by selecting the 'Create Flashcards' button.">
         <script type="dojo/connect" event="onStyleRow" args="evt">
             // Style the suspended rows
             var row_index = evt.index;
@@ -95,8 +95,6 @@
                 var is_suspended = this.store.getValue(item, 'suspended', null);
                 evt.customClasses += (is_suspended ? ' suspended_grid_row' : '');
             }
-            //this.focus.styleRow(evt);
-            //this.edit.styleRow(evt);
         </script>
         <script type="dojo/connect" event="onRowClick" args="evt">
             var row_index = evt.rowIndex;
@@ -116,11 +114,12 @@
                     {% endif %}
                 {% endfor %}
                 {% if request.user == deck.owner %}
-                    <th width="40px" field="fact-id" formatter="cards_formatCardActions">&nbsp;</th>
+                    <th width="70px" field="fact-id" formatter="cards_formatCardActions">&nbsp;</th>
                 {% endif %}
             </tr>
         </thead>
     </table>
+
     {% if request.user == deck.owner %}
         <div style="position:relative; left:-2px; margin-top:3px;">
             <button jsId="cards_deleteButton" dojoType="dijit.form.Button" iconClass="dijitEditorIcon dijitEditorIconDelete" disabled="true">

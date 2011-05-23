@@ -8,6 +8,7 @@
 # after all.
 
 from django.contrib.auth.decorators import login_required
+from django.core.urlresolvers import reverse
 from django.db import transaction
 from django.forms import forms
 from django.http import Http404, HttpResponseRedirect, HttpResponse
@@ -166,19 +167,35 @@ def deck_delete(request, deck_id, post_delete_redirect='/flashcards/decks'): #to
              'container_id': 'deckDialog'})
 
 @login_required
-def deck_create(request, post_save_redirect='/flashcards/decks'):
+def deck_create(request,
+                post_save_redirect=None,
+                cancel_redirect='add_decks'):
+    cancel_redirect = reverse(cancel_redirect)
+
+    if post_save_redirect is not None:
+        post_save_redirect = reverse(post_save_redirect)
+
     if request.method == 'POST':
+
         deck_form = DeckForm(request.POST)
         if deck_form.is_valid():
             new_deck = deck_form.save(commit=False)
             new_deck.owner = request.user
             new_deck.save()
+
             if 'tags' in deck_form.cleaned_data:
                     new_deck.tags = deck_form.cleaned_data['tags']
 
+            #TODO still necessary?
             scheduling_options = SchedulingOptions(deck=new_deck)
             scheduling_options.save()
-            return HttpResponse(json_encode({'success': True, 'postRedirect': new_deck.get_absolute_url()}), mimetype='text/javascript')
+
+            if post_save_redirect is None:
+                post_save_redirect = new_deck.get_absolute_url()
+            else:
+                post_save_redirect = reverse(post_save_redirect)
+
+            return HttpResponse(json_encode({'success': True, 'postRedirect': post_save_redirect}), mimetype='text/javascript')
         else:
             #FIXME post_redirect for failure? handle in ajax?
             return HttpResponse(json_encode({'success': False}), mimetype='text/javascript')
@@ -186,8 +203,9 @@ def deck_create(request, post_save_redirect='/flashcards/decks'):
             deck_form = DeckForm()
     return render_to_response('flashcards/deck_form.html', 
         {'form': deck_form,
-         'post_save_redirect': post_save_redirect}
-        , context_instance=RequestContext(request)) #todo:post/pre redirs
+         'post_save_redirect': post_save_redirect,
+         'cancel_redirect': cancel_redirect,
+        } , context_instance=RequestContext(request)) #todo:post/pre redirs
 
 
 

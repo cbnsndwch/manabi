@@ -8,56 +8,18 @@
 
 
 {% block extra_head_base %}
+    {% include "_dojo_minimal_setup.html" %}
+
     {# tells googlebot to crawl /?_escaped_fragment_= #}
     <meta name="fragment" content="!">
 
-    <link rel="stylesheet" href="{{ MEDIA_URL }}static/tag-it/css/jquery-ui/jquery.ui.autocomplete.custom.css"></link>
     <link rel="stylesheet" href="{{ MEDIA_URL }}static/js/jdic/jPlayer/skins/manabi/jplayer.css"></link>
 
-    {% cache 1200 dojango_include_html %}
-    {% include "dojango/include.html" %}
-    {% endcache %}
 
-    {% block dojango_post_dj_config %}
-    {% endblock %}
-
-
-    {# manabi.requirements #}
-    {# <script type="text/javascript" src="{{ MEDIA_URL }}static/js/manabi/requirements.js"></script> #}
-    <script type="text/javascript" src="{{ MEDIA_URL }}static/js/manabi/nls/manabiRelease_en-us.js"></script>    
-    <script type="text/javascript" src="{{ MEDIA_URL }}static/js/manabi/manabiRelease.js"></script>    
     <script type="text/javascript" src="{{ MEDIA_URL }}static/js/highcharts/highcharts.js"></script>
     <script type="text/javascript" src="{{ MEDIA_URL }}static/js/jquery-sparkline/jquery.sparkline.js" charset="utf-8"></script>
-    <script type="text/javascript" src="{{ MEDIA_URL }}static/tag-it/js/tag-it.js" charset="utf-8"></script>
 
     <script type="text/javascript">
-        dojo.config
-
-        dojo.require('dojango.dojango');
-
-        // xhr csrf for django
-        dojo.require('dojo.cookie');
-        dojo.ready(function(){
-            var xhr = dojo.xhr;
-            dojo.xhr = function(method, args, hasBody) {
-                if(!args.headers){
-                    args.headers = {};
-                }
-                args.headers['X-CSRFToken'] = dojo.cookie('csrftoken');
-                return xhr(method, args, hasBody);
-            };
-        });
-        
-
-        // add our module paths for local files
-        var relUrl = '../../../js/'; //{{ MEDIA_URL }}
-        dojango.registerModulePath('jdic', '{{ MEDIA_URL }}static/js/jdic', relUrl + 'jdic');
-        dojango.registerModulePath('kanjivg', '{{ MEDIA_URL }}static/js/kanjivg', relUrl + 'kanjivg');
-        dojango.registerModulePath('reviews', '{{ MEDIA_URL }}static/js/reviews', relUrl + 'reviews');
-        dojango.registerModulePath('stats', '{{ MEDIA_URL }}static/js/stats', relUrl + 'stats');
-        dojango.registerModulePath('custom', '{{ MEDIA_URL }}static/js/custom', relUrl + 'custom');
-        dojango.registerModulePath('manabi', '{{ MEDIA_URL }}static/js/manabi', relUrl + 'manabi');
-
         $(function() {
             Highcharts.setOptions({
                 global: {
@@ -71,10 +33,82 @@
 		});
     </script>
 
-    <script type="text/javascript" src="{{ MEDIA_URL }}static/js/manabi.js"></script>    
     <script type="text/javascript" src="{{ MEDIA_URL }}static/js/jdic/jPlayer/jquery.jplayer.min.js"></script>
 
     {% block extra_head %}{% endblock %}
+
+    {% if user.is_authenticated %}
+        <style type="text/css">
+            @import url({{ STATIC_URL }}flashcards/css/tundraGridMod.css);
+            @import url({{ DOJANGO.DOJOX_URL }}/widget/Dialog/Dialog.css);
+            .dojoxGrid table { margin: 0; }
+        </style>
+
+        <script type="text/javascript">
+            dojo.require('reviews');
+            dojo.require('reviews_ui');
+            dojo.require('jdic.audio');
+            dojo.require('kanjivg.frames');
+            dojo.require('reviews.CardStatsButton');
+            //dojo.require('reviews.CardPreview');
+            dojo.require('stats.UsageSparkline');
+
+
+            // Fact editor grid
+            //
+            //TODO: This is really old code that needs to be cleaned up.
+            //
+            //defaultCell: { width: 8, editable: false, type: dojox.grid.cells._Widget },
+            var cards_editRow = function(row_index) {
+                var selected_fact_id = cards_factsGrid.getItem(row_index)['fact-id'];
+                var success_callback = dojo.hitch(null, function(selected_fact_row_index, data, card_counter) {
+                    fact_ui.hideFactEditForm();
+                    //update the grid item via the grid's store, to update the display (though the change has already gone to the server)
+                    var grid_item = cards_factsGrid.getItem(selected_fact_row_index);
+                    dojo.query('.cards_fieldContent', cards_factForm.domNode).forEach(function(field_content_item) {
+                        var field_content_type_item = dijit.getEnclosingWidget(field_content_item.nextElementSibling);
+                        var field_content_item = dijit.getEnclosingWidget(field_content_item);
+                        var new_value = '';
+                        if (field_content_item.get('baseClass') == 'dijitSelect') {
+                            new_value = field_content_item.get('displayedValue');
+                            if (field_content_item.get('value') == 'none') {
+                                new_value = '';
+                            }
+                        } else {
+                            new_value = field_content_item.get('value');
+                        }
+                        cards_factsGrid.store.setValue(grid_item, 
+                            'id' + field_content_type_item.get('value'), 
+                            new_value);
+                    });
+                    cards_factsGrid.store.save(); //TODO handle errors
+                }, row_index);
+            
+                fact_ui.showFactEditForm(selected_fact_id, success_callback);
+            }
+
+            dojo.declare("dojox.grid.formatterScopeObj", null, {
+		        store: null,
+		        _widgets: [],
+		        constructor: function(kwArgs){
+			        this.store = kwArgs.store;
+			        this._widgets = [];
+		        },
+                cards_formatCardActions: function(item, row_index) {
+                    return '<span class="fakeLink" onclick="cards_editRow('+row_index+')">Edit</span>';
+            }});
+
+            fact_ui.current_search_url_parameter = '';
+            fact_ui.current_tag_filter_list = Array();
+
+
+            dojo.addOnLoad(function() {
+                fact_add_ui.setKeyboardShortcuts();
+            });
+        </script>
+
+    {% endif %}
+
 
 {% endblock %}
 
@@ -124,7 +158,7 @@
 
 {% block above_body_contents %}
     {% if user.is_authenticated %}
-        {% with user|is_lazy_user as  user_is_lazy %}
+        {% with user|is_lazy_user as user_is_lazy %}
             {% cache 1200 flashcards_base_html user_is_lazy %}
             {% include "flashcards/base.html" %}
             {% endcache %}

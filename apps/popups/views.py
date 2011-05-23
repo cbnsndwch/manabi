@@ -15,9 +15,11 @@ from flashcards.forms import DeckForm, FactForm, FieldContentForm
 from flashcards.models import FactType, Fact, Deck, CardTemplate, FieldType
 from flashcards.models import FieldContent, Card
 from flashcards.views.shortcuts import get_deck_or_404
+from django.core.urlresolvers import reverse
 
+LOGIN_URL = '/popups/login/'
 
-@login_required
+@login_required(login_url=LOGIN_URL)
 def deck_chooser(request):
     '''Create a deck, or choose a deck to add cards to.'''
     context = {
@@ -27,12 +29,14 @@ def deck_chooser(request):
                               context_instance=RequestContext(request))
 
 
-@login_required
+@login_required(login_url=LOGIN_URL)
 def fact_add_form(request, deck_id=None):
     '''Form for creating facts.'''
     deck = get_deck_or_404(request.user, deck_id)
 
-    context = fact_add_form_context(request, deck=deck, autofocus=True)
+    context = fact_add_form_context(request, deck=deck,
+                                    autofocus=True, popup_window=True,
+                                    takes_initial_values_from_GET=True)
 
     return render_to_response('popups/fact_add_form.html', context,
                               context_instance=RequestContext(request))

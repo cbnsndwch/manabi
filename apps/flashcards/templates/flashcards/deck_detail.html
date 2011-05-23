@@ -193,7 +193,7 @@
                     var delete_response = window.confirm('Really delete this deck, and all the flashcards it contains? This action cannot be undone.');
                     if (delete_response) {
                         var url = '{% url delete_deck deck.id %}';
-                        manabi_ui.xhrPostData(url, null, '{% url decks %}');//.addCallback(function(){ manabi_ui.refreshDeckInput(); });
+                        manabi_ui.xhrPostData(url, null, '{% url decks %}');
                     }
 	            </script>
             </button>

@@ -1,0 +1,62 @@
+{% load cache %}
+
+
+<link rel="stylesheet" href="{{ MEDIA_URL }}static/tag-it/css/jquery-ui/jquery.ui.autocomplete.custom.css"></link>
+
+{% cache 1200 dojango_include_html %}
+{% include "dojango/include.html" %}
+{% endcache %}
+
+{% block dojango_post_dj_config %}
+{% endblock %}
+
+{# manabi.requirements #}
+{# <script type="text/javascript" src="{{ MEDIA_URL }}static/js/manabi/requirements.js"></script> #}
+<script type="text/javascript" src="{{ MEDIA_URL }}static/js/manabi/nls/manabiRelease_en-us.js"></script>    
+<script type="text/javascript" src="{{ MEDIA_URL }}static/js/manabi/manabiRelease.js"></script>    
+<script type="text/javascript" src="{{ MEDIA_URL }}static/tag-it/js/tag-it.js" charset="utf-8"></script>
+
+<script type="text/javascript">
+    dojo.require('dojango.dojango');
+
+    // xhr csrf for django
+    dojo.require('dojo.cookie');
+    dojo.ready(function(){
+        var xhr = dojo.xhr;
+        dojo.xhr = function(method, args, hasBody) {
+            if(!args.headers){
+                args.headers = {};
+            }
+            args.headers['X-CSRFToken'] = dojo.cookie('csrftoken');
+            return xhr(method, args, hasBody);
+        };
+    });
+    
+
+    // add our module paths for local files
+    var relUrl = '../../../js/'; //{{ MEDIA_URL }}
+    dojango.registerModulePath('jdic', '{{ MEDIA_URL }}static/js/jdic', relUrl + 'jdic');
+    dojango.registerModulePath('kanjivg', '{{ MEDIA_URL }}static/js/kanjivg', relUrl + 'kanjivg');
+    dojango.registerModulePath('reviews', '{{ MEDIA_URL }}static/js/reviews', relUrl + 'reviews');
+    dojango.registerModulePath('stats', '{{ MEDIA_URL }}static/js/stats', relUrl + 'stats');
+    dojango.registerModulePath('custom', '{{ MEDIA_URL }}static/js/custom', relUrl + 'custom');
+    dojango.registerModulePath('manabi', '{{ MEDIA_URL }}static/js/manabi', relUrl + 'manabi');
+
+</script>
+
+<script type="text/javascript" src="{{ MEDIA_URL }}static/js/manabi.js"></script>    
+
+
+<link rel="stylesheet" href="{{ STATIC_URL }}css/CardPreview.css"></link>
+
+<script type="text/javascript" src="{{ STATIC_URL }}js/flashcards.js"></script>
+<script type="text/javascript" src="{{ STATIC_URL }}js/reviews/reviews.js"></script>
+<script type="text/javascript" src="{{ STATIC_URL }}js/reviews/reviews_ui.js"></script>
+
+<script type="text/javascript">
+    //dojo.require('reviews');
+    //dojo.require('reviews_ui');
+    dojo.require('reviews.CardPreview');
+</script>
+
+

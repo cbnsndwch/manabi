@@ -4,6 +4,7 @@ dojo.provide('manabi_ui');
 
 Mi = manabi;
 
+manabi_ui.xhrLinksDisabled = false;
 
 manabi.plural = function(value, singular, plural) {
     // plural(1, "foot", "feet") ==> "1 foot"
@@ -116,42 +117,48 @@ manabi_ui._xhrLinkLoad = function(hash) {
     manabi_ui._currentPageHash = hash;
     // load the page
     var target_pane = manabi_ui.body_pane;
-    var href = hash;
+    if (target_pane) {
+        var href = hash;
 
-    if (href) {
-        if (href[0] == '!') {
-            href = href.substring(1);
+        if (href) {
+            if (href[0] == '!') {
+                href = href.substring(1);
+            }
+            if (href[0] == '/') {
+                href = href.substring(1);
+            }
+        } else {
+            href = 'home';
         }
-        if (href[0] == '/') {
-            href = href.substring(1);
-        }
-    } else {
-        href = 'home';
+        target_pane.set('href', href);
     }
-    target_pane.set('href', href);
 };
 
 manabi_ui.xhrLink = function(href) { //, target_pane) {
-    // set the URL hash for browser history
-    if (typeof(href) != 'undefined') {
-        var hash = href.replace(manabi_ui._baseURL, '');
+    if (manabi_ui.xhrLinksDisabled) {
+        window.location = href;
+    } else {
+        // set the URL hash for browser history
+        if (typeof(href) != 'undefined') {
+            var hash = href.replace(manabi_ui._baseURL, '');
 
-        if (hash.indexOf('!/') !== 0) {
-            if (hash[0] == '!') {
-                hash[0] = '/';
-                hash = '!' + hash;
-            } else if (hash[0] != '/') {
-                hash = '!/' + hash;
-            } else {
-                hash = '!' + hash;
+            if (hash.indexOf('!/') !== 0) {
+                if (hash[0] == '!') {
+                    hash[0] = '/';
+                    hash = '!' + hash;
+                } else if (hash[0] != '/') {
+                    hash = '!/' + hash;
+                } else {
+                    hash = '!' + hash;
+                }
             }
-        }
-        dojo.hash(hash);
+            dojo.hash(hash);
 
-        manabi_ui._xhrLinkLoad(hash);
+            manabi_ui._xhrLinkLoad(hash);
+        }
+        //TODO scroll to top when page loads?
+        //TODO error page too (onDownloadError)
     }
-    //TODO scroll to top when page loads?
-    //TODO error page too (onDownloadError)
 }
 
 
@@ -169,10 +176,12 @@ manabi_ui._xhrPostArgs = function(url, postRedirectUrl) {
         'url': url,
         handleAs: 'json',
         load: dojo.hitch(null, function(url, data) {
-            if (data && 'postRedirect' in data) {
+            if (postRedirectUrl) {
+                manabi_ui.xhrLink(postRedirectUrl);
+            } else if (data && 'postRedirect' in data) {
                 manabi_ui.xhrLink(data.postRedirect);
             } else {
-                manabi_ui.xhrLink(postRedirectUrl ? postRedirectUrl : dojo.hash());
+                manabi_ui.xhrLink(dojo.hash());
             }
         }, postRedirectUrl),
         error: function(error) {
@@ -236,7 +245,7 @@ manabi_ui.refreshSelectInput = function(input_id, options) {
 };
 
 manabi_ui._getOptionsFromStore = function(store) {
-    var options = new Array();
+    var options = [];
     var def = new dojo.Deferred();
     store.close();
     store.fetch({

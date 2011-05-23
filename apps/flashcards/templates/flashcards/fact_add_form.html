@@ -1,15 +1,15 @@
 {% comment %}TODO:Update this to use the standard fact_form.html, need to update the js to use the new names mostly{% endcomment %}
 
 
-<div id="factAddFormWrapper"  class="fact_form_container">
+<div id="factAddFormWrapper"  class="fact_form_container fact_add_form_container">
     <div dojoType="dijit.form.Form" jsId="factAddForm" encType="multipart/form-data" action="" method="">
         <script type="dojo/method" event="onSubmit" args="evt">
             evt.preventDefault();
             fact_add_ui.factAddFormSubmit();
         </script>
         <div class="dijitDialogPaneContentArea">
-            <span id="deckInputContainer" style="display:none">
-                <input name="fact-deck" jsId="deckInput" dojoType="dijit.form.Select" tabIndex="49">
+            <span id="deckInputContainer">
+                <input name="fact-deck" type="hidden" jsId="deckInput" id="deckInput" dojoType="dijit.form.TextBox" {# dojoType="dijit.form.Select" #} tabIndex="49" {% if fact_add_form.deck %}value="{{ fact_add_form.deck.id }}"{% endif %}>
             </span>
 
             <div id="factFields">
@@ -30,16 +30,14 @@
                                 {% endif %}
                                 {% spaceless %}
                                     <span class="fakeLink" onclick="fact_ui.generateReading(dijit.byId('id_field_content-0-content').get('value'),'id_field_content-1-content')">
-                                        <img src="{{ MEDIA_URL }}static/css/dojo_themes/tundra/images/icons/arrow_refresh.png" class="refresh" alt="Refresh transliteration field">
+                                        <img src="{{ STATIC_URL }}css/dojo_themes/tundra/images/icons/arrow_refresh.png" class="refresh" alt="Refresh transliteration field">
                                     </span>
                                 {% endspaceless %}
 
                             {% else %}
 
                                 <label>{{ field_type.display_name }}:</label>
-                                {% if not field_type.blank %}
-                                    <span class="required">(required)</span>
-                                {% endif %}
+                                {% if not field_type.blank %}<span class="required">(required)</span>{% endif %}
 
                             {% endif %}
 
@@ -71,23 +69,28 @@
                                             id="id_field_content-{{ forloop.counter0 }}-content" 
                                             name="field_content-{{ forloop.counter0 }}-content" 
                                             class="field_content{% if field_type.transliteration_field_type %} kanji_field{% endif %}{% if field_type.reverse_transliteration_field_type %} reading_field{% endif %} {{ field_type.name }}"
-                                            tabIndex="{% if field_type.is_transliteration_field_type %}-1{% else %}3{{ forloop.counter }}{% endif %}">{% if field_type.multi_line %}</textarea>{% endif %}
+                                            {% if field_type.initial and not field_type.multi_line%}
+                                                value="{{ field_type.initial|escape }}"
+                                            {% endif %}
+                                            tabIndex="{% if field_type.is_transliteration_field_type %}-1{% else %}3{{ forloop.counter }}{% endif %}">{% if field_type.multi_line %}{% if field_type.initial %}{{ field_type.initial|escape }}{% endif %}</textarea>{% endif %}
 
                                     {% if field_type.transliteration_field_type %}
                                         <script type="text/javascript">
                                             //this field has a corresponding transliteration field
                                             dojo.addOnLoad(function() {
-                                                var field_widget = dijit.byId('id_field_content-{{ forloop.counter0 }}-content');
-                                                dojo.connect(field_widget, 'onBlur', function() {
+                                                var fieldWidget = dijit.byId('id_field_content-{{ forloop.counter0 }}-content');
+                                                var generateReading = function() {
                                                     //automatically generate this kanji field's reading
                                                     //TODO unless the newly focused field is the reading field (how to detect new focus?)
-                                                    var reading_field_node = dojo.query('.reading_field', dojo.byId('factFields'))[0];
-                                                    if (reading_field_node) {
-                                                        fact_ui.generateReading(
-                                                            this.get('value'),
-                                                            dijit.getEnclosingWidget(reading_field_node));
+                                                    var readingFieldNode = dojo.query('.reading_field', dojo.byId('factFields'))[0];
+                                                    if (readingFieldNode) {
+                                                        fact_ui.generateReading( this.get('value'), dijit.getEnclosingWidget(readingFieldNode));
                                                     }
-                                                });
+                                                };
+                                                dojo.connect(fieldWidget, 'onBlur', generateReading);
+                                                if (fieldWidget.get('value')) {
+                                                    generateReading.call(fieldWidget);
+                                                };
                                             });
                                         </script>
                                     {% endif %}
@@ -152,9 +155,9 @@
         </div>
         <div style="margin-top:1em;">
             <div class="dijitDialogPaneActionBar">
-                <div style="float:left;padding-top:1.2em" class="weak subtext">
+                {% comment %}<div style="float:left;padding-top:1.2em" class="weak subtext">
                     Tip: use Ctrl-Enter to submit the form.
-                </div>
+                </div>{% endcomment %}
                 <button dojoType="dijit.form.Button" type="submit" 
                     jsId="factAddFormSubmitButton" tabIndex="59">
                     Create Flashcards
@@ -162,7 +165,12 @@
                 <button dojoType="dijit.form.Button">
                     Close
                     <script type="dojo/connect" event="onClick" args="evt">
-                        factAddDialog.hide();
+                        {% if fact_add_form.popup_window %}
+                            window.open('', '_self', ''); //bug fix. see: http://stackoverflow.com/questions/2032640/problem-with-window-close-and-chrome
+                            window.close();
+                        {% else %}
+                            factAddDialog.hide();
+                        {% endif %}
                     </script>
                 </button>
                 <div jsId="factAddFormResults" dojoType="dijit.layout.ContentPane"></div>
@@ -171,6 +179,24 @@
     </div>
 </div>
 
+
+
+{% if fact_add_form.autofocus %}
+    <script type="text/javascript">
+        // Focus the first non-empty field, which has a tab-index.
+        dojo.ready(function(){
+            dojo.query(factAddForm.domNode).query('.dijit.field_content').every(function(fieldNode){
+                var fieldWidget = dijit.getEnclosingWidget(fieldNode);
+                if (fieldWidget.get('tabIndex') == -1 || fieldWidget.get('value')) {
+                    return true;
+                } else {
+                    fieldWidget.focus();
+                    return false;
+                }
+            });
+        });
+    </script>
+{% endif %}
 
 
 {% include "flashcards/_fact_form_tag_widget_js.html" %}

@@ -2,6 +2,7 @@ from apps.utils.templatetags.japanese import strip_ruby_bottom, strip_ruby_text
 from cachecow.cache import cached_function
 from constants import ISO_639_2_LANGUAGES
 from django.db import models, transaction
+from model_utils.managers import manager_from
 import pickle
 
 

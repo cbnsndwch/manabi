@@ -2,6 +2,12 @@
 .popup #tabhead .logo {
     zoom: .7;
 }
+.popup .login {
+    font-size: .8em;
+}
+.popup.tundra .dijitDialogPaneContentArea {
+    padding-top: 6px;
+}
 
 .popup #body_contents {
     padding-top: inherit;

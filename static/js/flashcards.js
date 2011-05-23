@@ -70,12 +70,10 @@ function factFormSubmit(submitSuccessCallback, submitErrorCallback, _factAddForm
 
     //get count of field contents
     var field_content_count = dojo.query('.field_content', _factAddForm.domNode).length;
-    /*console.log(field_content_count);*/
 
     factAddFormValue['fact-fact_type'] = 1; //FIXME temp hack - assume Japanese
     factAddFormValue['field_content-TOTAL_FORMS'] = field_content_count.toString(); //fieldContentInputCount.toString();
     factAddFormValue['field_content-INITIAL_FORMS'] = factId ? field_content_count.toString() : '0'; //fieldContentInputCount; 
-    //alert('submitted w/args:\n' + dojo.toJson(factAddFormValue));
     
     var xhrArgs = {
         url: factId ? '/flashcards/internal-api/facts/' + factId + '/' : '/flashcards/internal-api/facts/',
@@ -99,15 +97,12 @@ function factFormSubmit(submitSuccessCallback, submitErrorCallback, _factAddForm
             submitErrorCallback(data, tempCardCounter); //TODO other callback
         }
     };
-    //dojo.byId("response2").innerHTML = "Message being sent..."
-    //Call the asynchronous xhrPost
-    dojo.xhrPost(xhrArgs); //var deferred = 
-    //dojo.place('Added '+tempCardCounter.toString()+' cards for '+'what'+'<br>','factAddFormResults', 'last');
+    dojo.xhrPost(xhrArgs);
 }
 
 function resetFactAddForm() {
     //factAddForm.reset(); //don't reset everything... just the field contents
-    dojo.query('.dijitTextBox:not([type=hidden]), .dijitTextarea:not([type=hidden])',factAddDialog.domNode).forEach(function(node, index, arr){
+    dojo.query('.dijitTextBox:not([type=hidden]), .dijitTextarea:not([type=hidden])',factAddForm.domNode).forEach(function(node, index, arr){
         var field = dijit.getEnclosingWidget(node);
         field.set('value', '');
         // force an onChange event, to be safe
@@ -121,7 +116,7 @@ function resetFactAddForm() {
     });
 
     //reset hidden fields
-    dojo.query('.hiddenFieldLink', factAddDialog.domNode).forEach(function(node) {
+    dojo.query('.hiddenFieldLink', factAddForm.domNode).forEach(function(node) {
         node.style.display = '';
         dojo.query(node).next()[0].style.display = 'none';
     });
@@ -141,7 +136,7 @@ function resetFactAddForm() {
 
     //focus the first text field
     //dojo.query('.dijitTextBox:not([type=hidden]):first-of-type, .dijitTextarea:not([type=hidden]):first-of-type', factAddDialog.domNode).query('input')[0].focus(); //FIXME for textboxes
-    dojo.query('.dijitTextBox:not([type=hidden]) input, .dijitTextArea:not([type=hidden])', factAddDialog.domNode)[0].focus(); //FIXME for textboxes
+    dojo.query('.dijitTextBox:not([type=hidden]) input, .dijitTextArea:not([type=hidden])', factAddForm.domNode)[0].focus(); //FIXME for textboxes
 }
 
 function createFieldInputsForUpdate(domNode, factTypeId, factFieldValues, cardTemplatesOnCompleteCallback, factFieldsOnCompleteCallback) { //todo:refactor into 2 meths
@@ -426,7 +421,7 @@ fact_ui._generateReading = function(expression) {
     //var expression = expression_field.attr('value');
     var ret_def = new dojo.Deferred();
     var xhr_args = {
-        url: 'flashcards/internal-api/generate_reading/',
+        url: '/flashcards/internal-api/generate_reading/',
         content: {expression: expression},
         handleAs: 'json',
         headers: { "Content-Type": "application/x-www-form-urlencoded; charset=utf-8" },
@@ -476,15 +471,13 @@ fact_ui.generateReading = function(expression, reading_field, show_standby) {
 };
 
 
-fact_ui.showFactAddDialog = function(deck_id) {
-    if (typeof deck_id == 'undefined') { deck_id = null; }
-    if (deck_id) {
-        //FIXME set it, hide the select
-        //TODO .set('value', etc) wasn't working for some reason
-        dojo.attr(deckInput, 'value', deck_id.toString());
-        //deckInput.set('value', deck_id.toString());
-    }
+fact_ui.showFactAddDialog = function(deckId) {
+    if (typeof deckId == 'undefined') { deckId = null; }
     factAddDialog.show();
+
+    if (deckId) {
+        deckInput.attr('value', deckId.toString());
+    }
 };
 
 

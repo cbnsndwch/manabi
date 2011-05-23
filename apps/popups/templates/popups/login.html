@@ -1,4 +1,4 @@
-{% extends "site_base.html" %}
+{% extends "popup_base.html" %}
 
 {% load i18n %}
 {% load uni_form_tags %}
@@ -6,10 +6,13 @@
 {% load account_tags %}
 {% load lazysignup_tags %}
 
+{% load cache %}
+
 {% block head_title %}{% trans "Login" %}{% endblock %}
 
-{% block body %}
-    
+{% block content_class %}{% endblock %}
+
+{% block content %}
     <h1>{% trans "Log In" %}</h1>
     
     {% if user.is_authenticated and not user|is_lazy_user %}
@@ -18,15 +21,15 @@
     {% else %}
         {% ifsetting ACCOUNT_OPEN_SIGNUP %}
             {% if user|is_lazy_user %} {% url lazysignup_convert as signup_url %} {% else %} {% url acct_signup as signup_url %} {% endif %}
-            <p>{% blocktrans %}Don't have an account? <a href="{{ signup_url }}">Sign up</a>!{% endblocktrans %}</p>
+            <p>{% blocktrans %}Don't have an account? <a href="{{ signup_url }}" target="_blank">Sign up</a>!{% endblocktrans %}</p>
         {% endifsetting %}
     {% endif %}
     
-    <form class="login uniForm" method="POST" action="{% url acct_login %}">
+    <form class="login uniForm" method="POST" action="{% url popup_acct_login %}">
         {% csrf_token %}
         <fieldset class="inlineLabels">
             <div class="form_block">
-                <a href="{% url acct_passwd_reset %}">{% trans "Forgot password?" %}</a>
+                <a href="{% url acct_passwd_reset %}" target="_blank">{% trans "Forgot password?" %}</a>
             </div>
             {{ form|as_uni_form }}
             {% if redirect_field_value %}
@@ -46,4 +49,8 @@
             $("#id_username").focus();
         });
     </script>
+
 {% endblock %}
+
+
+

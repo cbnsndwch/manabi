@@ -69,6 +69,7 @@ class Deck(models.Model):
     
     class Meta:
         app_label = 'flashcards'
+        ordering = ('name',)
         #TODO unique_together = (('owner', 'name'), )
     
     def get_absolute_url(self):

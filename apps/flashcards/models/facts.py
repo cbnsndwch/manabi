@@ -12,13 +12,27 @@ import pickle
 import random
 import usertagging
 from usertagging.models import UserTaggedItem
+from model_utils.managers import manager_from
 
 
 def seconds_to_days(s):
     return s / 86400.0
 
 
+class _FactTypeManager(object):
+    def japanese(self):
+        # Unfortunately hard-coded for now, since we only have 2 types, and 
+        # this is a relic of an old abandoned design that should be refactored.
+        return self.get(id=1)
+    
+    def example_sentences(self):
+        return self.get(id=2)
+
+FactTypeManager = lambda: manager_from(_FactTypeManager)
+
 class FactType(models.Model):
+    objects = FactTypeManager()
+
     name = models.CharField(max_length=50)
     active = models.BooleanField(default=True, blank=True)
 

@@ -19,7 +19,7 @@
         <meta name="author" content="Alex Ehlke">
         <meta name="description" content="Japanese flashcards based on real science.">
 
-        <title>{% if SITE_NAME %}{{ SITE_NAME }} : {% endif %}{% block head_title %}{% endblock %}</title>
+        <title>Manabi {% block head_title %}{% endblock %}</title>
         <!--[if IE]><style>
             div {
                 zoom: 1; /* trigger hasLayout */
@@ -47,7 +47,7 @@
             {% block extra_head %}{% endblock %}
         {% endblock %}
 
-        <link rel="stylesheet" href="{{ MEDIA_URL }}static/css/tundraMods.css">
+        <link rel="stylesheet" href="{{ STATIC_URL }}css/tundraMods.css">
 
         <script type="text/javascript">
             // don't allow IE users yet :( ... >:]
@@ -89,7 +89,7 @@
         {% endif %}
         
         <div id="tabhead">
-            <div class="logo" dir="ltr">{% block logo_link_image %}{% endblock %}</div>
+            <div class="logo" dir="ltr">{% block site_logo %}{% endblock %}</div>
             <div class="login">{% block login %}{% endblock %}{% block locale_switcher %}{% endblock %}<div style="text-align: right;"></div></div>
             <div id="left_tabs" >{% block left_tabs %}{% endblock %}</div>
             <div id="right_tabs" >{% block right_tabs %}{% endblock %}</div>

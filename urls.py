@@ -36,6 +36,11 @@ urlpatterns = patterns('',
 
     (r'^mobile-account/', include('mobileaccount.urls')),
 
+    url(r'^popups/login/$', 'account.views.login', name='popup_acct_login', kwargs={
+        'template_name': 'popups/login.html',}),
+
+    (r'^popups/', include('popups.urls')),
+
     url(r'^terms-of-service/$', direct_to_template,
         {'template': 'tos.html'}, name='terms_of_service'),
     url(r'^privacy-policy/$', direct_to_template,

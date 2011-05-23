@@ -1,27 +1,29 @@
-
-from flashcards.models import FactType, Fact, Deck, CardTemplate, \
-    FieldType, FieldContent, Card, \
-    GRADE_NONE, GRADE_HARD, GRADE_GOOD, GRADE_EASY, \
-    SchedulingOptions
-
+from flashcards.models import (FactType, Fact, Deck, CardTemplate,
+    FieldType, FieldContent, Card,
+    GRADE_NONE, GRADE_HARD, GRADE_GOOD, GRADE_EASY, SchedulingOptions,)
 from django.template.loader import render_to_string
 import datetime
 
 
-def subfact_form_context(request, subfact=None, field_content_offset=0, fact_form_ordinal=1):
+def subfact_form_context(request, subfact=None,
+                         field_content_offset=0, fact_form_ordinal=1):
     '''
     `form_ordinal` is the offset to use for e.g. fact-1-id
     '''
     context = {}
     sentence_fact_type = FactType.objects.get(id=2)
-    field_types = sentence_fact_type.fieldtype_set.exclude(disabled_in_form=True).order_by('ordinal')
+    field_types = sentence_fact_type.fieldtype_set.exclude(
+            disabled_in_form=True).order_by('ordinal')
     context.update({
         'fact_type': sentence_fact_type,
         'field_types': field_types,
     })
     if subfact:
         context.update({
-            'field_content_for_field_types': dict((field_type, subfact.field_contents.get(field_type=field_type),) for field_type in field_types),
+            'field_content_for_field_types':
+                    dict((field_type,
+                          subfact.field_contents.get(field_type=field_type),)
+                         for field_type in field_types),
             'field_content_offset': field_content_offset,
             'fact_form_ordinal': fact_form_ordinal,
             'is_js_template': False,
@@ -32,6 +34,36 @@ def subfact_form_context(request, subfact=None, field_content_offset=0, fact_for
             'is_js_template': True,
         })
     return {'subfact_form': context}
+
+def fact_add_form_context(request, 
+                          deck=None, autofocus=False, popup_window=False,
+                          takes_initial_values_from_GET=False):
+    context = {}
+    fact_type = FactType.objects.japanese()
+    card_templates = fact_type.cardtemplate_set.all()
+
+    field_types = fact_type.fieldtype_set.exclude(
+            disabled_in_form=True).order_by('ordinal')
+
+    # Get any initial form values from the GET params.
+    # They'll be sanitized in the template.
+    for field_type in field_types:
+        if takes_initial_values_from_GET:
+            field_type.initial = request.GET.get(field_type.name, None)
+        else:
+            field_type.initial = None
+
+    context['fact_add_form'] = {
+        'card_templates': card_templates,
+        'field_types': field_types,
+        'deck': deck,
+        'autofocus': autofocus,
+        'popup_window': popup_window,
+    }
+
+    context.update(subfact_form_context(request))
+    return context
+
 
 def card_existence_context(request):
     '''

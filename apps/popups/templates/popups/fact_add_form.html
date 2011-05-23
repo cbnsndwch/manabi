@@ -1,0 +1,20 @@
+{% extends "popup_base.html" %}
+
+{% load cache %}
+
+{% block head_title %}Create Flashcards{% endblock %}
+
+{% block content_class %}fact_form fact_add_form{% endblock %}
+
+{% block content %}
+
+{% include "flashcards/fact_add_form.html" %}
+
+
+<script type="text/javascript">
+    resizeTo(576, 690);
+
+    {% include "flashcards/_fact_add_form_on_show.js" %}
+</script>
+
+{% endblock %}
