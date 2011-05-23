@@ -103,7 +103,7 @@ class RepetitionAlgo(object):
                                         self.grade,
                                         self.reviewed_at,)],
                      namespace=lambda a, *args, **kwargs:
-                            deck_review_stats_namespace(deck=a.card.deck))
+                            deck_review_stats_namespace(a.card.deck))
     def next_repetition(self):
         '''
         Returns an instance of `NextRepetition` containing the updated 
