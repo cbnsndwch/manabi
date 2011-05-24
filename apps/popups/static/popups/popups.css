@@ -36,8 +36,12 @@
     padding: 1em;
     margin-bottom: inherit;
     /*width: 42%;*/
-    width: 19em;
+    width: 21em;
 }
+.popup .add_decks .column.create_deck {
+    width: 12em;
+}
+
 
 
 .popup #footer {
