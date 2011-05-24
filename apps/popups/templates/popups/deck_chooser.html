@@ -41,22 +41,6 @@
         dojo.query('.add_decks .create_deck').onclick(function(evt){
             window.location = dojo.query(this).query('a').first().attr('href');
         });
-
-
-        // Get field prefill options from the GET params.
-        var encodedParams = window.location.search;
-
-        dojo.query('.create_cards .deck_list a').onclick(function(evt){
-            var href = dojo.query(this).attr('href') + encodedParams;
-
-            var unencodedParams = dojo.queryToObject(encodedParams.substring(encodedParams.indexOf('?') + 1));
-            if ('_popup' in unencodedParams && unencodedParams['_popup'].toLowerCase() == 'true' ) {
-                window.open(href, null, 'width=576, height=680, modal=yes, location=no');
-            } else {
-                window.location = href;
-            }
-            evt.preventDefault();
-        });
     });
 </script>
 
