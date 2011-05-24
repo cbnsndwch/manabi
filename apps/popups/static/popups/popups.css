@@ -42,6 +42,16 @@
     width: 12em;
 }
 
+.popup .fact_form_container .dijitDialogPaneActionBar {
+    height: 5em;
+}
+.popup .fact_form_container #factAddFormResults {
+    float: left;
+    text-align: left;
+    position: relative;
+    top: -1.2em;
+}
+
 
 
 .popup #footer {
