@@ -12,7 +12,6 @@ from forms import TextbookForm
 from dojango.decorators import json_response
 from dojango.util import to_dojo_data, json_decode, json_encode
 
-@login_required
 def book_list(request):
     context = {
         'books': Textbook.decked_objects.all()
@@ -20,7 +19,6 @@ def book_list(request):
     return render_to_response('books/book_list.html', context,
         context_instance=RequestContext(request))
 
-@login_required
 def book_detail(request, object_id=None, slug=None):
     book = get_object_or_404(Textbook, pk=object_id)
 

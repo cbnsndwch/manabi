@@ -24,28 +24,29 @@ from flashcards.models import FactType, Fact, Deck, CardTemplate, FieldType
 from flashcards.models import FieldContent, Card
 from flashcards.models import SchedulingOptions
 from flashcards.forms import TextbookSourceForm
+from flashcards.views.shortcuts import get_deck_or_404
 from books.forms import TextbookForm
 import usertagging
 
 
-@login_required
 def add_decks(request):
     '''Starting point for adding a deck, whether by creating or by downloading a shared deck.'''
-    shared_decks = Deck.objects.shared_decks().exclude(owner=request.user).order_by('name')
-    context = {
-        'shared_deck_list': shared_decks,
-        'deck_list': Deck.objects.filter(owner=request.user, active=True).order_by('name'),
-    }
-    return render_to_response('flashcards/add.html', context, context_instance=RequestContext(request))
+    ctx = {}
+    shared_decks = Deck.objects.shared_decks()
+    if request.user.is_authenticated():
+        shared_decks = shared_decks.exclude(owner=request.user)
+        ctx['deck_list'] = Deck.objects.filter(owner=request.user, active=True).order_by('name')
+    ctx['shared_deck_list'] = shared_decks
+    return render_to_response('flashcards/add.html', ctx, context_instance=RequestContext(request))
 
-@login_required
 def deck_detail(request, deck_id=None):
-    deck = get_object_or_404(Deck, pk=deck_id)
+    deck = get_deck_or_404(request.user, deck_id)
 
-    # Redirect if the user is already subscribed to this deck.
-    subscriber = deck.get_subscriber_deck_for_user(request.user)
-    if subscriber:
-        return redirect(subscriber.get_absolute_url())
+    if request.user.is_authenticated():
+        # Redirect if the user is already subscribed to this deck.
+        subscriber = deck.get_subscriber_deck_for_user(request.user)
+        if subscriber:
+            return redirect(subscriber.get_absolute_url())
 
     fact_tags = deck.fact_tags()
 

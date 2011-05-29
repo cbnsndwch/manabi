@@ -1,14 +1,15 @@
-from functools import wraps
-from django.contrib.auth.decorators import login_required
-from django.shortcuts import get_object_or_404
-from flashcards.models.decks import Deck
-from dojango.util import to_json_response, json_encode
-from dojango.decorators import json_response
-from django.http import HttpResponseServerError, HttpResponse
-from django.utils import simplejson as json
-import usertagging
 from django.conf import settings
+from django.contrib.auth.decorators import login_required
+from django.http import HttpResponseServerError, HttpResponse
+from django.shortcuts import get_object_or_404
+from django.utils import simplejson as json
+from dojango.decorators import json_response
+from dojango.util import to_json_response, json_encode
+from flashcards.models.decks import Deck
+from flashcards.views.shortcuts import get_deck_or_404
+from functools import wraps
 import datetime
+import usertagging
 
 import logging
 logger = logging.getLogger(__name__)
@@ -52,11 +53,11 @@ def has_card_query_filters(func):
     @wraps(func)
     def wrapper(request, *args, **kwargs):
         # Deck
-        if 'deck' in request.GET and request.GET['deck'].strip():
-            deck = get_object_or_404(Deck, pk=request.GET['deck'])
-        else:
-            deck = None
-        kwargs['deck'] = deck
+        kwargs['deck'] = None
+        deck_pk = request.GET.get('deck', '').strip()
+        if deck_pk:
+            deck = get_deck_or_404(request.user, deck_pk)
+            kwargs['deck'] = deck
 
         # Tags
         try:
@@ -168,8 +169,7 @@ def flashcard_api_with_dojo_data(view_func):
     def wrapper(request, *args, **kwargs):
         try:
             return json_response(
-                   login_required(
-                   all_http_methods(view_func)))(request, *args, **kwargs)
+                   all_http_methods(view_func))(request, *args, **kwargs)
         except ApiException as e:
             # Wrap our ApiException message in our container format
             ret = {'success':  False}

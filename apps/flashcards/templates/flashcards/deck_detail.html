@@ -81,13 +81,17 @@
                     You can study this this deck by adding it to your personal deck collection.
                 </p>
                 <div>
-                    <button dojoType="dijit.form.Button">
-	                    Add Deck
-	                    <script type="dojo/connect" event="onClick" args="evt">
-                            var url = '{% url api-subscribe_to_deck deck.id %}';
-                            manabi_ui.xhrPostData(url);
-	                    </script>
-                    </button>
+                    {% if request.user.is_authenticated %}
+                        <button dojoType="dijit.form.Button">
+	                        Add Deck
+	                        <script type="dojo/connect" event="onClick" args="evt">
+                                var url = '{% url api-subscribe_to_deck deck.id %}';
+                                manabi_ui.xhrPostData(url);
+	                        </script>
+                        </button>
+                    {% else %}
+                        Please <a href="{% url acct_login %}">login</a> or <a href="{% url acct_signup %}">signup</a> first.
+                    {% endif %}
                 </div>
             </div>
         {% endif %}

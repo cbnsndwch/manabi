@@ -13,7 +13,8 @@
     {# tells googlebot to crawl /?_escaped_fragment_= #}
     <meta name="fragment" content="!">
 
-    <link rel="stylesheet" href="{{ MEDIA_URL }}static/js/jdic/jPlayer/skins/manabi/jplayer.css"></link>
+    <link rel="stylesheet" href="{{ STATIC_URL }}js/jdic/jPlayer/skins/manabi/jplayer.css"></link>
+    <link rel="stylesheet" href="{{ DOJANGO.DOJOX_URL }}/widget/Dialog/Dialog.css"></link>
 
 
     <script type="text/javascript" src="{{ MEDIA_URL }}static/js/highcharts/highcharts.js"></script>
@@ -37,12 +38,12 @@
 
     {% block extra_head %}{% endblock %}
 
+    <style type="text/css">
+        @import url({{ STATIC_URL }}flashcards/css/tundraGridMod.css);
+        .dojoxGrid table { margin: 0; }
+    </style>
+
     {% if user.is_authenticated %}
-        <style type="text/css">
-            @import url({{ STATIC_URL }}flashcards/css/tundraGridMod.css);
-            @import url({{ DOJANGO.DOJOX_URL }}/widget/Dialog/Dialog.css);
-            .dojoxGrid table { margin: 0; }
-        </style>
 
         <script type="text/javascript">
             dojo.require('reviews');
@@ -52,55 +53,6 @@
             dojo.require('reviews.CardStatsButton');
             //dojo.require('reviews.CardPreview');
             dojo.require('stats.UsageSparkline');
-
-
-            // Fact editor grid
-            //
-            //TODO: This is really old code that needs to be cleaned up.
-            //
-            //defaultCell: { width: 8, editable: false, type: dojox.grid.cells._Widget },
-            var cards_editRow = function(row_index) {
-                var selected_fact_id = cards_factsGrid.getItem(row_index)['fact-id'];
-                var success_callback = dojo.hitch(null, function(selected_fact_row_index, data, card_counter) {
-                    fact_ui.hideFactEditForm();
-                    //update the grid item via the grid's store, to update the display (though the change has already gone to the server)
-                    var grid_item = cards_factsGrid.getItem(selected_fact_row_index);
-                    dojo.query('.cards_fieldContent', cards_factForm.domNode).forEach(function(field_content_item) {
-                        var field_content_type_item = dijit.getEnclosingWidget(field_content_item.nextElementSibling);
-                        var field_content_item = dijit.getEnclosingWidget(field_content_item);
-                        var new_value = '';
-                        if (field_content_item.get('baseClass') == 'dijitSelect') {
-                            new_value = field_content_item.get('displayedValue');
-                            if (field_content_item.get('value') == 'none') {
-                                new_value = '';
-                            }
-                        } else {
-                            new_value = field_content_item.get('value');
-                        }
-                        cards_factsGrid.store.setValue(grid_item, 
-                            'id' + field_content_type_item.get('value'), 
-                            new_value);
-                    });
-                    cards_factsGrid.store.save(); //TODO handle errors
-                }, row_index);
-            
-                fact_ui.showFactEditForm(selected_fact_id, success_callback);
-            }
-
-            dojo.declare("dojox.grid.formatterScopeObj", null, {
-		        store: null,
-		        _widgets: [],
-		        constructor: function(kwArgs){
-			        this.store = kwArgs.store;
-			        this._widgets = [];
-		        },
-                cards_formatCardActions: function(item, row_index) {
-                    return '<span class="fakeLink" onclick="cards_editRow('+row_index+')">Edit</span>';
-            }});
-
-            fact_ui.current_search_url_parameter = '';
-            fact_ui.current_tag_filter_list = Array();
-
 
             dojo.addOnLoad(function() {
                 fact_add_ui.setKeyboardShortcuts();
@@ -138,8 +90,8 @@
 {% block nav %}
     <ul>
         <li id="nav_tab_home" class="tab {% is_active_tab request "home" %}"><a href="{% url home_inline %}" id="nav_home_link" class="xhr_link">Home</a>
+        <li id="nav_tab_add" class="tab {% is_active_tab request "add" %}"><a href="{% url add_decks %}" id="nav_add_link" class="xhr_link">Add</a>
         {% if user.is_authenticated %}
-            <li id="nav_tab_add" class="tab {% is_active_tab request "add" %}"><a href="{% url add_decks %}" id="nav_add_link" class="xhr_link">Add</a>
             <li id="nav_tab_manage" class="tab {% is_active_tab request "manage" %}"><a href="{% url decks %}" id="nav_manage_link" class="xhr_link">Manage</a>
             <li id="nav_tab_stats" class="tab {% is_active_tab request "stats" %}"><a href="{% url stats %}" class="xhr_link">Stats</a>
         {% endif %}

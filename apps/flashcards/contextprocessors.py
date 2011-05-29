@@ -69,12 +69,15 @@ def card_existence_context(request):
     '''
     adds 'cards_exist', 'decks_exist' (booleans)
     '''
-    decks = Deck.objects.of_user(request.user)
-    cards = Card.objects.of_user(request.user, with_upstream=True)
-    return {
-        'decks_exist': decks.exists(),
-        'cards_exist': cards.exists(),
-    }
+    ctx = {}
+    if request.user.is_authenticated():
+        decks = Deck.objects.of_user(request.user)
+        cards = Card.objects.of_user(request.user, with_upstream=True)
+        ctx = {
+            'decks_exist': decks.exists(),
+            'cards_exist': cards.exists(),
+        }
+    return ctx
 
 def deck_count_context(request):
     '''

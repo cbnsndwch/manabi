@@ -37,7 +37,7 @@ from flashcards.forms import DeckForm, FactForm, FieldContentForm, CardForm
 from flashcards.models import (FactType, Fact, Deck, CardTemplate, FieldType,
                                FieldContent, Card)
 from flashcards.models.constants import MAX_NEW_CARD_ORDINAL
-from flashcards.views.decorators import flashcard_api as api
+from flashcards.views.decorators import flashcard_api as api, api_data_response
 from flashcards.views.decorators import (ApiException, has_card_query_filters,
     flashcard_api_with_dojo_data as api_dojo_data)
 from flashcards.views.shortcuts import get_deck_or_404
@@ -118,6 +118,7 @@ def rest_deck_description(request, deck_id):
 
 
 @api_dojo_data
+@login_required
 def rest_card_templates(request, fact_type_id):
     '''Returns list of CardTemplate objects given a parent FactType id'''
     fact_type = get_object_or_404(FactType, pk=fact_type_id)
@@ -125,12 +126,14 @@ def rest_card_templates(request, fact_type_id):
 
 
 @api_dojo_data
+@login_required
 def rest_fields(request, fact_type_id):
     '''Returns list of Field objects given a FactType id'''
     fact_type = get_object_or_404(FactType, pk=fact_type_id)
     return to_dojo_data(fact_type.fieldtype_set.all().order_by('ordinal'))
 
 @api_dojo_data
+@login_required
 def rest_fact_types(request):
     return to_dojo_data(FactType.objects.all())
 
@@ -138,6 +141,7 @@ def rest_fact_types(request):
 
 
 @api_dojo_data
+@login_required
 def rest_cards(request): #todo:refactor into facts (no???)
     '''
     Returns the cards for a given fact. Accepts `fact` in the GET params.
@@ -148,6 +152,7 @@ def rest_cards(request): #todo:refactor into facts (no???)
 
 
 @api_dojo_data
+@login_required
 def rest_card_templates_for_fact(request, fact_id):
     '''
     Returns a list of card templates for which the given fact 
@@ -251,7 +256,8 @@ def rest_facts(request, deck=None, tags=None):
         ret = {}
 
         #TODO just get this from the form object.
-        deck = get_deck_or_404(request.user, request.POST['fact-deck'])
+        deck = get_deck_or_404(request.user, request.POST['fact-deck'],
+                               must_own=True)
 
         # Override the submitted deck ID with the ID from the URL, 
         # since this is a RESTful interface.
@@ -262,7 +268,9 @@ def rest_facts(request, deck=None, tags=None):
     
         #CardFormset = modelformset_factory(Card, exclude=('fact', 'ease_factor', )) #TODO make from CardForm
         #card_formset = CardFormset(post_data, prefix='card')
-        card_templates = CardTemplate.objects.filter(id__in=[e[1] for e in post_data.items() if e[0].find('card_template') == 0])
+        card_templates = CardTemplate.objects.filter(
+                id__in=[e[1] for e in post_data.items()
+                if e[0].find('card_template') == 0])
     
         #FieldContentFormset = modelformset_factory(FieldContent, exclude=('fact', ))
         FieldContentFormset = modelformset_factory(
@@ -347,7 +355,8 @@ def rest_fact(request, fact_id): #todo:refactor into facts
 
         #todo: refactor this into model code
         
-        # if this fact is a shared fact which the current subscribing user hasn't copied yet, copy it first
+        # if this fact is a shared fact which the current subscribing user 
+        # hasn't copied yet, copy it first
         fact = Fact.objects.get_for_owner_or_subscriber(fact_id, request.user)
 
         #fact_form = FactForm(post_data, prefix='fact', instance=fact)
@@ -425,8 +434,10 @@ def rest_fact(request, fact_id): #todo:refactor into facts
                                 # hold it.
                                 new_subfact = original.fact.copy_to_parent_fact(
                                         fact, copy_field_contents=True)
-                                new_field_content = new_subfact.fieldcontent_set.get(field_type=field_content_form.cleaned_data['field_type'])
-                                new_field_content.content = field_content_form.cleaned_data['content']
+                                new_field_content = new_subfact.fieldcontent_set.get(
+                                        field_type=field_content_form.cleaned_data['field_type'])
+                                new_field_content.content = \
+                                        field_content_form.cleaned_data['content']
                                 new_field_content.save()
                             else:
                                 # not user's own, but he didn't update it anyway

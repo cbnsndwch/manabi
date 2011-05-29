@@ -16,7 +16,8 @@ from django.views.decorators.cache import cache_page
 def index(request):
     '''Entry point to the site.'''
     context = {
-        'extended_template_name': ('ajax_site_base.html' if request.user.is_authenticated() else 'site_base.html'),
+        #'extended_template_name': ('ajax_site_base.html' if request.user.is_authenticated() else 'site_base.html'),
+        'extended_template_name': 'ajax_site_base.html',
     }
     if request.user.is_authenticated():
         #build the context object
@@ -38,7 +39,6 @@ def index(request):
                               context_instance=RequestContext(request))
 
 
-@login_required
 def home(request):
     '''The homepage that gets loaded via ajax.'''
     context = {}

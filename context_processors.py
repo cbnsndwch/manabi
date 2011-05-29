@@ -5,8 +5,10 @@ def site_base_extender(request):
 
     And `fragment_base_template_name` for ajax pages that need to be rendered
     differently for googlebot.
+
+    Also adds `request_is_ajax` boolean to context.
     '''
-    ctx = {}
+    ctx = {'request_is_ajax': request.is_ajax()}
 
     if hasattr(request, 'fragment_base_template_name'):
         fragment_name = request.fragment_base_template_name
