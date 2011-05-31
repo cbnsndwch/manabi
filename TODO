@@ -4,12 +4,12 @@ manabi notes
 
 post-launch todo:
 -----------------
+handle redirects without erroring out on ajax requests. dojango's __prepare_json_ret is to blame.
+
 err msg 
 
 notice for no js, no cookies (see SO)
 kb shortcuts: replay audio
-
-fix kanji writing for multiple kanji
 
 think about how to show 0 card facts in the grid. they used to look suspended.
 
@@ -18,8 +18,6 @@ check out subfacts
 add form validation error handling to manabi_ui.xhrPost
 
 goog analytics for other ajax requests (POST etc)
-
--?-due counts on main page vs deck pages are different.
 
 -------------
 optimizations

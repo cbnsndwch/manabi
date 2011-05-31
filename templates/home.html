@@ -11,6 +11,8 @@
 {% load kanji_tags %}
 {% load i18n lazysignup_tags %}
 
+{% block content_class %}home{% endblock %}
+
 {% block content %}
 
 {% if user|is_lazy_user or user.is_anonymous %}
@@ -66,14 +68,17 @@
 <hr>
 <div class="column" style="width: 26em">
     <p><em>Why Manabi?</em></p>
-    <p>Manabi uses a <a href="http://en.wikipedia.org/wiki/Spaced_repetition" target="_blank" class="definition">spaced repetition</a> algorithm to remind you when and what you need to review, by tracking your <a href="http://en.wikipedia.org/wiki/Forgetting_curve" target="_blank" class="definition">forgetting curve</a> for every card you study. It's easy! It's also a free service.</p>
+    <p>Manabi uses a <a href="http://en.wikipedia.org/wiki/Spaced_repetition" target="_blank" class="definition">spaced repetition</a> algorithm to remind you when and what you need to review, by tracking your <a href="http://en.wikipedia.org/wiki/Forgetting_curve" target="_blank" class="definition">forgetting curve</a> for every card you study.</p>
+    <p>In short, it's less work and less worry for you to retain what you learn. It's easy, and free.</p>
 </div>
-<div class="column" style="margin-left: 2.5em;">
-    <p>&nbsp;</p>
-    <p><a href="http://www.twitter.com/manabiSRS" target="_blank"><img src="http://twitter-badges.s3.amazonaws.com/twitter-b.png" alt="Follow manabiSRS on Twitter"/></a></p>
-    <p>
-    <h3><a href="http://blog.manabi.org" target="_blank" class="weak">Blog</a></h3>
-    </p>
+<div class="column" id="manabi_project_links">
+    <ul>
+        <!--<p>&nbsp;</p>-->
+        <li><a href="http://www.twitter.com/manabiSRS" target="_blank"><img src="http://twitter-badges.s3.amazonaws.com/twitter-b.png" alt="Follow manabiSRS on Twitter"/></a></li>
+        <li><a href="http://blog.manabi.org" target="_blank" class="weak">Blog</a></li>
+        <li><a href="https://chrome.google.com/webstore/detail/fkpccoheeacbclgieadamngphcniiidi" target="_blank" class="weak">Chrome extension</a></li>
+        <li class="weak">iPhone app <span class="subtext">(<a href="http://blog.manabi.org/iphone-app-preview" target="_blank">coming soon</a>)</span></li>
+    </ul>
 </div>
 <div style="clear:both"></div>
 

@@ -117,7 +117,6 @@ hr {
 
 #column_wrap {
     background-color: #f0f0f0;
-    /*background-color: white;*/
 }
 
 .sidebar_box {
@@ -195,6 +194,19 @@ hr {
     margin-top: 0px;
 }
 
+.home #manabi_project_links {
+    margin-left: 2.5em;
+    list-style: none;
+}
+.home #manabi_project_links ul {
+    margin: 2.5em 0;
+}
+.home #manabi_project_links li {
+    margin-bottom: 1.1em;
+    font-size: 1.1em;
+    list-style: none;
+    font-weight: bold;
+}
 
 div.fullscreen {
     display: block;
@@ -205,12 +217,8 @@ div.fullscreen {
     height: 100%;
     background-color: white;
     z-index: 10;
-    /*background-color: #BEB9B3;*/
     background-color: #f2f2f2;
-    /*background-color:red;*/
     background-image: url(/site_media/static/images/f8f8f8_noise.png);
-    /*background: -webkit-gradient(radial, 50% 50%, 0, 50% 50%, 800, from(#FDFCFA), color-stop(0.8, #E6E1DB), to(#BEB9B3));*/
-
 }
 
 .fullscreen_toolbar {
@@ -241,26 +249,16 @@ div.fullscreen_content { }
 
 
 .flashcard_container.flashcard_front {
-    /*background-color: #BEB9B3;
-    background: -webkit-gradient(radial, 50% 50%, 0, 50% 30%, 500, from(#FDFCFA), color-stop(0.8, #E6E1DB), to(#BEB9B3));
-    background: -moz-radial-gradient(50% 50%, farthest-side, #FDFCFA, #E6E1DB, #BEB9B3);*/
     background: -webkit-gradient(radial, 50% bottom, 1, 50% bottom, 250, from(rgba(91, 91, 91, .1)), to(rgba(242, 242, 242, .1)));
     background: -moz-radial-gradient(50% 200% 1deg, circle closest-corner, rgba(91, 91, 91, .1) 9%, rgba(242, 242, 242, .1) 100%);
-
     border-bottom: 1px solid #d5d5d5;
-
-    /*min-height: 240px;*/
-    /*padding-top: 3em;*/
     padding-bottom: 1em;
 }
 
 
 .flashcard_container {
-    /*width: 700px;*/
     margin: 0px auto;
     text-align: center;
-    /*min-height: 150px;*/
-    /*padding-top: 2em;*/
 }
 
 .flashcard_content .table_container {
@@ -494,11 +492,7 @@ div.column, p.column {
 
 
 
-/*.add_decks .column:first-of-type {
-    border-left: none;
-}*/
 .add_decks .column {
-    /*border-left: solid 3px lightgray;*/
     width: 29%;
     text-align: center;
     padding: 1em 1em 9999em 1em;
