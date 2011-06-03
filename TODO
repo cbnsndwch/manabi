@@ -4,6 +4,8 @@ manabi notes
 
 post-launch todo:
 -----------------
+report error if user enters invalid ISBN
+
 handle redirects without erroring out on ajax requests. dojango's __prepare_json_ret is to blame.
 
 err msg 
