@@ -55,6 +55,7 @@
 {% block nav %}
     <ul>
         <li id="nav_tab_home" class="tab {% is_active_tab request "home" %}"><a href="{% url home %}" id="nav_home_link">Home</a>
+        <li id="nav_tab_add" class="tab {% is_active_tab request "add" %}"><a href="{% url add_decks %}" id="nav_add_link">Add</a>
     </ul>
 {% endblock %}
 
