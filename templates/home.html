@@ -75,29 +75,10 @@
     <ul>
         <li><a href="http://www.twitter.com/manabiSRS" target="_blank"><img src="http://twitter-badges.s3.amazonaws.com/twitter-b.png" alt="Follow manabiSRS on Twitter"/></a></li>
         <li><a href="http://blog.manabi.org" target="_blank" class="weak">Blog</a></li>
-        <li><a href="https://chrome.google.com/webstore/detail/fkpccoheeacbclgieadamngphcniiidi" target="_blank" class="weak">Chrome extension</a></li>
+        <li><img src="{{ STATIC_URL }}images/chrome.jpg"> <a href="https://chrome.google.com/webstore/detail/fkpccoheeacbclgieadamngphcniiidi" target="_blank" class="weak">Chrome extension</a></li>
         <li class="weak">iPhone app <span class="subtext">(<a href="http://blog.manabi.org/iphone-app-preview" target="_blank">coming soon</a>)</span></li>
     </ul>
 </div>
 <div style="clear:both"></div>
 
-{% comment %}    Please email me if you have any problems, questions or suggestions: <a href="mailto:">jehlke@student.umass.edu</a>{% endcomment %}
-{% comment %}<em>Hint:</em> You can press 1-4 on your keyboard to grade cards instead of clicking the buttons (1=wrong, 2=hard, 3=good, 4=too easy). You can also show the flashcard answer by pressing the spacebar.
-{% endcomment %}
-
-
-{% comment %}
-    {% if user.is_authenticated %}
-            {% url what_next as what_next_url %}
-            <p class="what_next">{% blocktrans %}Wondering <a href="{{ what_next_url }}">What Next</a>?{% endblocktrans %}</p>
-    {% else %}
-        {% url acct_login as login_url %}
-        {% ifsetting ACCOUNT_OPEN_SIGNUP %}
-            {% url acct_signup as signup_url %}
-            <p>{% blocktrans %}You can <a href="{{ signup_url }}">Sign up</a> and <a href="{{ login_url }}">Log in</a> to try out the site.{% endblocktrans %}</p>
-        {% else %}
-            <p>{% blocktrans %}You can <a href="{{ login_url }}">Log in</a> to try out the site.{% endblocktrans %}</p>
-        {% endifsetting %}
-    {% endif %}
-{% endcomment %}
 {% endblock %}
