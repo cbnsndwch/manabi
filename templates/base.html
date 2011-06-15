@@ -73,6 +73,8 @@
     <body class="{% block body_class %}{% endblock %}" style="overflow-x:hidden">
         {% csrf_token %}
 
+        <noscript>Please enable JavaScript to use Manabi.</noscript>
+
         {% block body_top %}{% endblock %}
         {% if site_wide_announcements %}
             <div id="site_wide_announcements">

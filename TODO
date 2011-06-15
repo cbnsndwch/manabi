@@ -110,6 +110,8 @@ models:
 
 ~new stuff~
 -----------
+listening exercise cards - just hear the audio, and know the reading
+
 try to speed up fact form submission. it's terribly slow.
 
 add slugs to URLs
@@ -136,7 +138,8 @@ is there a good way to get new cards without knowing if a user has his own card 
 
 SUPER CRITICAL BUGS:
 --------------------
-the 'get a new browser' links go to http://manabi.org/http://mozilla.org/firefox and so on.
+login doesnt redirect right in chrome extension - it should force login for lazy users.
+then it shoudl also link to *convert* not signup.
 
 the fullscreen spinner isn't always fullscreen if the page is scrolled down
 
