@@ -32,7 +32,7 @@ urlpatterns = patterns('',
 
     (r'^account/', include('account.urls')),
     (r'^admin/', include(admin.site.urls)),
-    (r'^sentry/', include('sentry.urls')),
+    (r'^sentry/', include('sentry.web.urls')),
 
     (r'^mobile-account/', include('mobileaccount.urls')),
 
