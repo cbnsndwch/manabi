@@ -321,13 +321,6 @@ class Card(models.Model):
             grade, reviewed_at,
             duration=duration, question_duration=question_duration)
 
-        # Update the overall review statistics for this user
-        review_stats = self.owner.reviewstatistics
-        if was_new:
-            review_stats.increment_new_reviews()
-        if grade == GRADE_NONE:
-            review_stats.increment_failed_reviews()
-
         # Create Undo stack item
         UndoCardReview.objects.add_undo(card_history_item)
 
@@ -349,7 +342,6 @@ class Card(models.Model):
         card_history_item.interval    = self.interval
         card_history_item.save()
 
-        review_stats.save()
         self.save()
         post_card_reviewed.send(self, instance=self)
 
