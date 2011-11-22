@@ -2,7 +2,6 @@ from books.models import Textbook
 from cachecow.cache import cached_function
 from constants import DEFAULT_EASE_FACTOR
 from constants import GRADE_NONE, GRADE_HARD, GRADE_GOOD, GRADE_EASY
-from dbtemplates.models import Template
 from django.contrib.auth.models import User
 from django.core.urlresolvers import reverse
 from django.db import models

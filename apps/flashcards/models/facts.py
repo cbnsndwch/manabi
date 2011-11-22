@@ -1,5 +1,4 @@
 from constants import MAX_NEW_CARD_ORDINAL
-from dbtemplates.models import Template
 from django.contrib.auth.models import User
 from django.db import models, transaction
 from django.db.models import Q
