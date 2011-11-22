@@ -1,17 +1,20 @@
-from constants import GRADE_NONE, GRADE_HARD, GRADE_GOOD, GRADE_EASY, \
-    MAX_NEW_CARD_ORDINAL, EASE_FACTOR_MODIFIERS, \
-    YOUNG_FAILURE_INTERVAL, MATURE_FAILURE_INTERVAL, MATURE_INTERVAL_MIN, \
-    GRADE_EASY_BONUS_FACTOR, DEFAULT_EASE_FACTOR, INTERVAL_FUZZ_MAX, \
-    ALL_GRADES, GRADE_NAMES
-from cachecow.cache import cached_function
-from cardtemplates import CardTemplate
 from datetime import timedelta, datetime
+
 from django.core.cache import cache
 from django.db import models
 from django.db.models import Count, Min, Max, Sum, Avg
 from django.template.loader import render_to_string
+from cachecow.cache import cached_function
+
+from constants import (GRADE_NONE, GRADE_HARD, GRADE_GOOD, GRADE_EASY,
+                       MAX_NEW_CARD_ORDINAL, EASE_FACTOR_MODIFIERS,
+                       YOUNG_FAILURE_INTERVAL, MATURE_FAILURE_INTERVAL,
+                       MATURE_INTERVAL_MIN, GRADE_EASY_BONUS_FACTOR,
+                       DEFAULT_EASE_FACTOR, INTERVAL_FUZZ_MAX,
+                       ALL_GRADES, GRADE_NAMES)
+from cardtemplates import CardTemplate
 from flashcards.cachenamespaces import (deck_review_stats_namespace,
-                                        fact_grid_namespace,)
+                                        fact_grid_namespace)
 from managers.cardmanager import CardManager
 from repetitionscheduler import repetition_algo_dispatcher
 from undo import UndoCardReview
@@ -81,7 +84,8 @@ class Card(models.Model):
         '''
         Returns a new Card object.
         '''
-        return Card(fact=target_fact, template_id=self.template_id,
+        return Card(fact=target_fact,
+                    template_id=self.template_id,
                     priority=self.priority,
                     leech=False, active=True, suspended=False,
                     new_card_ordinal=self.new_card_ordinal)
@@ -348,40 +352,40 @@ class Card(models.Model):
 
 #TODO implement (remember to update UndoReview too)
 # This can probably just be a proxy model for CardHistory or something.
-class CardStatistics(models.Model):
-    card = models.ForeignKey(Card)
+#class CardStatistics(models.Model):
+#    card = models.ForeignKey(Card)
 
-    failure_count = models.PositiveIntegerField(default=0, editable=False)
-    #TODO review stats depending on how card was rated, and how mature it is
+#    failure_count = models.PositiveIntegerField(default=0, editable=False)
+#    #TODO review stats depending on how card was rated, and how mature it is
 
-    #apparently needed for synchronization/import purposes
-    yes_count = models.PositiveIntegerField(default=0, editable=False)
-    no_count = models.PositiveIntegerField(default=0, editable=False)
+#    #apparently needed for synchronization/import purposes
+#    yes_count = models.PositiveIntegerField(default=0, editable=False)
+#    no_count = models.PositiveIntegerField(default=0, editable=False)
 
-    average_thinking_time = models.PositiveIntegerField(null=True, editable=False)
+#    average_thinking_time = models.PositiveIntegerField(null=True, editable=False)
 
-    #initial_ease 
+#    #initial_ease 
     
-    successive_count = models.PositiveIntegerField(default=0, editable=False) #incremented at each success, zeroed at failure
-    successive_streak_count = models.PositiveIntegerField(default=0, editable=False) #incremented at each failure after a success
-    average_successive_count = models.PositiveIntegerField(default=0, editable=False) #
+#    successive_count = models.PositiveIntegerField(default=0, editable=False) #incremented at each success, zeroed at failure
+#    successive_streak_count = models.PositiveIntegerField(default=0, editable=False) #incremented at each failure after a success
+#    average_successive_count = models.PositiveIntegerField(default=0, editable=False) #
 
-    skip_count = models.PositiveIntegerField(default=0, editable=False)
-    total_review_time = models.FloatField(default=0) #s
-    first_reviewed_at = models.DateTimeField()
-    first_success_at = models.DateTimeField()
+#    skip_count = models.PositiveIntegerField(default=0, editable=False)
+#    total_review_time = models.FloatField(default=0) #s
+#    first_reviewed_at = models.DateTimeField()
+#    first_success_at = models.DateTimeField()
     
     
-    #these take into account short-term memory effects
-    #they ignore any more than a single review per day (or 8 hours - TBD)
-    #adjusted_review_count = models.PositiveIntegerField(default=0, editable=False)
-    #adjusted_success_count = models.PositiveIntegerField(default=0, editable=False)
-    #first_adjusted_success_at = models.DateTimeField()
-    #failures_in_a_row = models.PositiveIntegerField(default=0, editable=False)
-    #adjusted_failures_in_a_row = models.PositiveIntegerField(default=0, editable=False)
+#    #these take into account short-term memory effects
+#    #they ignore any more than a single review per day (or 8 hours - TBD)
+#    #adjusted_review_count = models.PositiveIntegerField(default=0, editable=False)
+#    #adjusted_success_count = models.PositiveIntegerField(default=0, editable=False)
+#    #first_adjusted_success_at = models.DateTimeField()
+#    #failures_in_a_row = models.PositiveIntegerField(default=0, editable=False)
+#    #adjusted_failures_in_a_row = models.PositiveIntegerField(default=0, editable=False)
 
-    class Meta:
-        app_label = 'flashcards'
+#    class Meta:
+#        app_label = 'flashcards'
 
 
 
