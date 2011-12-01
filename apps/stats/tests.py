@@ -1,49 +1,32 @@
 # -*- coding: utf-8 -*-
+#
+import urllib
 
 from django.test import Client, TestCase
 from django.core.urlresolvers import reverse
 from django.utils import simplejson
 from django.contrib.auth.models import User
-import urllib
+
 import settings
+from manabi.test_helpers import ManabiTestCase
 
 
-class StatsTest(TestCase):
+class StatsTest(ManabiTestCase):
     fixtures = ['sample_db.json']
 
-    def setUp(self):
-        pass
-
-    def do_login(self):
-        self.login = self.client.login(
-            username='alex', password='w')
-        self.failUnless(self.login, 'Could not log in')
-
-    def tearDown(self):
-        pass
-        
     def test_reps_view(self):
-        self.do_login()
+        res = self.get(reverse('graphs_repetitions'))
+        self.assertStatus(200, res)
 
-        res = self.client.get(reverse('graphs_repetitions'))
-
-        self.assertEqual(res.status_code, 200)
-
+        self.assertApiSuccess(res)
         json = simplejson.loads(res.content)
-
-        self.assertTrue(json['success'])
         self.assertTrue('series' in json['data'])
         
     def test_due_counts_view(self):
-        self.do_login()
+        res = self.get(reverse('graphs_due_counts'))
+        self.assertStatus(200, res)
 
-        res = self.client.get(reverse('graphs_due_counts'))
-
-        self.assertEqual(res.status_code, 200)
-
+        self.assertApiSuccess(res)
         json = simplejson.loads(res.content)
-
-        self.assertTrue(json['success'])
         self.assertTrue('series' in json['data'])
-
 

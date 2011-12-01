@@ -91,12 +91,15 @@ def fact_update(request, fact_id):
         fact_type = FactType.objects.get(id=1) #assume japanese for now
         decks = Deck.objects.filter(owner=request.user, active=True)
         card_templates = []
-        activated_card_templates = [e.template for e in fact.card_set.filter(active=True)]
+        activated_card_templates = [e.template for e
+                                    in fact.card_set.filter(active=True)]
 
         for card_template in fact_type.cardtemplate_set.all():
             #TODO only send the id(uri)/name/status
-            #card_templates.append({'card_template': card_template, 'activated_for_fact': (card_template in activated_card_templates)})
-            card_template.activated_for_fact = (card_template in activated_card_templates)
+            #card_templates.append({'card_template': card_template,
+            #'activated_for_fact': (card_template in activated_card_templates)})
+            card_template.activated_for_fact = (card_template
+                                                in activated_card_templates)
             card_templates.append(card_template)
 
         context = {

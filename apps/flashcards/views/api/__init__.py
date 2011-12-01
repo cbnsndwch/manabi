@@ -17,9 +17,9 @@
 # Some views which should be considered part of the REST API are contained 
 # in the reviews.py module. This module contains the rest of them.
 
+import random
         
-from apps.utils import japanese
-from apps.utils.querycleaner import clean_query
+from cachecow.cache import cached_view
 from django.contrib.auth.decorators import login_required
 from django.forms import forms
 from django.forms.models import modelformset_factory
@@ -29,32 +29,32 @@ from django.template import RequestContext, loader
 from django.utils import simplejson
 from django.views.decorators.cache import cache_page
 from django.views.decorators.http import require_GET
-from django.views.generic.create_update import (
-    update_object, delete_object, create_object)
+from django.views.generic.create_update import (update_object, delete_object,
+                                                create_object)
 from dojango.decorators import json_response
 from dojango.util import to_dojo_data, json_decode, json_encode
+
+from apps.utils import japanese
+from apps.utils.querycleaner import clean_query
+from flashcards.cachenamespaces import fact_grid_namespace
 from flashcards.forms import DeckForm, FactForm, FieldContentForm, CardForm
 from flashcards.models import (FactType, Fact, Deck, CardTemplate, FieldType,
                                FieldContent, Card)
 from flashcards.models.constants import MAX_NEW_CARD_ORDINAL
-from flashcards.views.decorators import flashcard_api as api, api_data_response
-from flashcards.views.decorators import (ApiException, has_card_query_filters,
-    flashcard_api_with_dojo_data as api_dojo_data)
+from flashcards.views.decorators import (flashcard_api as api, api_data_response
+                                         ApiException, has_card_query_filters,
+                                         flashcard_api_with_dojo_data as 
+                                         api_dojo_data)
 from flashcards.views.shortcuts import get_deck_or_404
-import random
 from flashcards.signals import fact_deleted
-from flashcards.cachenamespaces import fact_grid_namespace
-from cachecow.cache import cached_view
 
 #import logging
 #logger = logging.getLogger(__name__)
 
 
-
 #FIXME add permissions validation for every method (The important ones have it)
         
         
-
 
 @api
 def rest_deck_subscribe(request, deck_id):
@@ -70,7 +70,6 @@ def rest_deck_subscribe(request, deck_id):
 def rest_generate_reading(request):
     if request.method == 'POST':
         return japanese.generate_reading(request.POST['expression'])
-
 
 @api
 def rest_deck(request, deck_id):
@@ -136,7 +135,6 @@ def rest_fields(request, fact_type_id):
 @login_required
 def rest_fact_types(request):
     return to_dojo_data(FactType.objects.all())
-
 
 
 
