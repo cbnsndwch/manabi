@@ -312,7 +312,8 @@ dojo.declare('reviews.Session', null, {
         // Also stores the return value in `this.currentCardQuestionDuration`
         if (this._questionStartTime) {
             var now = new Date();
-            this.currentCardQuestionDuration = (now - this._questionStartTime) / 1000; // convert from ms to seconds.
+            // convert from ms to seconds.
+            this.currentCardQuestionDuration = (now - this._questionStartTime) / 1000;
             this._questionStartTime = null;
             return this.currentCardQuestionDuration;
         }

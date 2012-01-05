@@ -142,8 +142,8 @@ reviews_ui.showCardBack = function(card) {
 
     // Stop the question timer
     reviews_ui.session.stopQuestionTimer();
-    
-    //enable the grade buttons
+
+    // Enable the grade buttons
     dojo.query('.dijitButton', dojo.byId('reviews_gradeButtons')).forEach(function(node) {
         dijit.getEnclosingWidget(node).set('disabled', false);
     });

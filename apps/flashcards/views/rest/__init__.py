@@ -1,41 +1,38 @@
 # Eventually this will supercede most of flashcards.views.api
 # We're transitioning POX etc. RPC crap to mostly legit REST.
+import random
 
-from apps.utils import japanese
-from apps.utils.querycleaner import clean_query
+from catnap.django_urls import absolute_reverse as reverse
+from catnap.restviews import (JsonEmitterMixin, AutoContentTypeMixin,
+        RestView, ListView, DetailView, DeletionMixin)
+from catnap.exceptions import (HttpForbiddenException,
+        HttpTemporaryRedirectException)
+from catnap.auth import BasicAuthentication, DjangoContribAuthentication
 from django.contrib.auth.decorators import login_required
 from django.db import transaction
 from django.forms import forms
 from django.forms.models import modelformset_factory, formset_factory
 from django.http import Http404, HttpResponseRedirect, HttpResponse
 from django.shortcuts import get_object_or_404, render_to_response
+from django.utils.decorators import method_decorator
 from django.template import RequestContext, loader
 from django.views.generic.create_update import (
         update_object, delete_object, create_object)
 from dojango.decorators import json_response
 from dojango.util import to_dojo_data, json_decode, json_encode
-from flashcards.forms import DeckForm, FactForm, FieldContentForm, CardForm
-#from flashcards.models import FactType, Fact, Deck, CardTemplate, FieldType
-#from flashcards.models import FieldContent, Card
-from flashcards import models
-from flashcards.models import Card
-from flashcards.models.undo import UndoCardReview
-from flashcards.models.constants import MAX_NEW_CARD_ORDINAL
-from catnap.django_urls import absolute_reverse as reverse
-from flashcards.views.decorators import has_card_query_filters
-from apps.utils import querycleaner
+
+from apps.utils import japanese, querycleaner
 from apps.utils.querycleaner import clean_query
-import random
-from flashcards.views.shortcuts import get_deck_or_404
-from django.utils.decorators import method_decorator
-from catnap.restviews import (JsonEmitterMixin, AutoContentTypeMixin,
-        RestView, ListView, DetailView, DeletionMixin)
+from flashcards import models
+from flashcards.contextprocessors import review_start_context
+from flashcards.forms import DeckForm, FactForm, FieldContentForm, CardForm
+from flashcards.models import Card
+from flashcards.models.constants import MAX_NEW_CARD_ORDINAL
+from flashcards.models.undo import UndoCardReview
 from flashcards.restresources import (
         UserResource, DeckResource, CardResource)
-from catnap.exceptions import (HttpForbiddenException,
-        HttpTemporaryRedirectException)
-from catnap.auth import BasicAuthentication, DjangoContribAuthentication
-from flashcards.contextprocessors import review_start_context
+from flashcards.views.decorators import has_card_query_filters
+from flashcards.views.shortcuts import get_deck_or_404
 
 
 class ManabiRestView(JsonEmitterMixin, AutoContentTypeMixin, RestView):
@@ -117,8 +114,8 @@ class DeckList(ListView, ManabiRestView):
 
     def get_url(self):
         return reverse('rest-deck_list')
-    
-    
+
+
 class Deck(DeletionMixin, DetailView, ManabiRestView):
     '''
     Detail view of a single deck.
@@ -199,7 +196,7 @@ class SharedDeckList(ListView, ManabiRestView):
 
     def get_url(self):
         return reverse('rest-shared_deck_list')
-     
+
 
 class DeckSubscription(ManabiRestView):
     '''
@@ -234,7 +231,7 @@ class DeckSubscription(ManabiRestView):
         return self.responses.created(
                 reverse('rest-deck', args=[new_deck.id]))
 
-        
+
 class NextCardsForReview(CardQueryFiltersMixin, ManabiRestView):
     '''
     Returns a list of Card resources -- the next cards up for review.  
@@ -242,7 +239,7 @@ class NextCardsForReview(CardQueryFiltersMixin, ManabiRestView):
     cards will be selected.
     '''
     content_subtype = 'CardList'
-    
+
     query_structure = {
         'count': int,
         'early_review': bool,

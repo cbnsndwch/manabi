@@ -1,16 +1,16 @@
-# ##################################
-# ##################################
-# ##################################
-# ###
-# ### Notice
-# ###
+####################################
+####################################
+####################################
+####
+####  Notice
+####
 #
 # This module is mostly deprecated,
 # and is being gradually phased out,
 # in favor of the new REST API,
 # which is in flashcards.views.rest
 #
-# ##################################
+####################################
 
 
 
@@ -41,10 +41,9 @@ from flashcards.forms import DeckForm, FactForm, FieldContentForm, CardForm
 from flashcards.models import (FactType, Fact, Deck, CardTemplate, FieldType,
                                FieldContent, Card)
 from flashcards.models.constants import MAX_NEW_CARD_ORDINAL
-from flashcards.views.decorators import (flashcard_api as api, api_data_response
+from flashcards.views.decorators import (flashcard_api as api, api_data_response,
                                          ApiException, has_card_query_filters,
-                                         flashcard_api_with_dojo_data as 
-                                         api_dojo_data)
+                                         flashcard_api_with_dojo_data as api_dojo_data)
 from flashcards.views.shortcuts import get_deck_or_404
 from flashcards.signals import fact_deleted
 
@@ -319,9 +318,8 @@ def rest_facts(request, deck=None, tags=None):
                     template=card_template,
                     fact=new_fact,
                     active=True,
-                    new_card_ordinal=random.randrange(
-                        0, MAX_NEW_CARD_ORDINAL),
                     priority = 0)
+                new_card.randomize_new_order()
                 new_card.save()
         else:
             raise ApiException({
@@ -504,8 +502,7 @@ def rest_fact(request, fact_id): #todo:refactor into facts
                             new_card = Card(template=card_template)
                             new_card.fact = fact2
                             new_card.active = True
-                            new_card.new_card_ordinal = random.randrange(
-                                    0, MAX_NEW_CARD_ORDINAL)
+                            new_card.randomize_new_order()
                             new_card.save()
                     else:
                         #card was not selected in update, so disable it 

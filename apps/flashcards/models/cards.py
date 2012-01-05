@@ -1,4 +1,5 @@
 from datetime import timedelta, datetime
+import random
 
 from django.core.cache import cache
 from django.db import models
@@ -117,6 +118,13 @@ class Card(models.Model):
     def last_review_grade_name(self):
         '''Returns a string version of the last review grade.'''
         return GRADE_NAMES.get(self.last_review_grade)
+
+    def randomize_new_order(self):
+        '''
+        Randomizes the order of this card, for selecting new cards.
+        '''
+        self.new_card_ordinal = random.randrange(0, MAX_NEW_CARD_ORDINAL)
+        self.save()
 
     def activate(self):
         from flashcards.signals import card_active_field_changed
@@ -295,12 +303,12 @@ class Card(models.Model):
 
         (See `NextRepetition` class)
         '''
-        self.last_ease_factor, self.ease_factor = \
-            self.ease_factor, next_repetition.ease_factor
-        self.last_interval, self.interval = \
-            self.interval, next_repetition.interval
-        self.last_due_at, self.due_at = \
-            self.due_at, next_repetition.due_at
+        self.last_ease_factor, self.ease_factor = (
+            self.ease_factor, next_repetition.ease_factor)
+        self.last_interval, self.interval = (
+            self.interval, next_repetition.interval)
+        self.last_due_at, self.due_at = (
+            self.due_at, next_repetition.due_at)
 
     def review(self, grade, duration=None, question_duration=None):
         '''

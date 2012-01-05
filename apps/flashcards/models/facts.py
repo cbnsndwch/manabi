@@ -19,6 +19,7 @@ def seconds_to_days(s):
 
 
 class _FactTypeManager(object):
+    @property
     def japanese(self):
         # Unfortunately hard-coded for now, since we only have 2 types, and 
         # this is a relic of an old abandoned design that should be refactored.

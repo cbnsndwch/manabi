@@ -39,7 +39,7 @@ def fact_add_form_context(request,
                           deck=None, autofocus=False, popup_window=False,
                           takes_initial_values_from_GET=False):
     context = {}
-    fact_type = FactType.objects.japanese()
+    fact_type = FactType.objects.japanese
     card_templates = fact_type.cardtemplate_set.all()
 
     field_types = fact_type.fieldtype_set.exclude(
@@ -121,7 +121,6 @@ def review_start_context(request, deck=None):
     }
     context['next_card_due_at_message'] = render_to_string(
             'flashcards/_next_card_due_at.txt', context).strip()
-
 
     #'new_cards_left_for_today': new_cards_left_for_today,
 

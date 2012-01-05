@@ -8,11 +8,15 @@ from django.utils import simplejson
 from django.contrib.auth.models import User
 
 import settings
-from manabi.test_helpers import ManabiTestCase
+from manabi.test_helpers import ManabiTestCase, create_sample_data, create_user
 
 
 class StatsTest(ManabiTestCase):
-    fixtures = ['sample_db.json']
+    #fixtures = ['sample_db.json']
+    def setUp(self):
+        user = create_user()
+        create_sample_data(facts=30, user=user)
+        self.review_cards(user)
 
     def test_reps_view(self):
         res = self.get(reverse('graphs_repetitions'))

@@ -1,5 +1,7 @@
-from apps.utils import querycleaner
-from apps.utils.querycleaner import clean_query
+import datetime
+import string
+import subprocess
+
 from django.contrib.auth.decorators import login_required
 from django.contrib.humanize.templatetags.humanize import naturalday
 from django.core.exceptions import PermissionDenied
@@ -10,15 +12,15 @@ from django.template import RequestContext, loader
 from django.template.loader import render_to_string
 from dojango.decorators import json_response
 from dojango.util import to_dojo_data, json_decode, json_encode
+
+from apps.utils import querycleaner
+from apps.utils.querycleaner import clean_query
 from flashcards.models import Card
 from flashcards.models.constants import (
     GRADE_NONE, GRADE_HARD, GRADE_GOOD, GRADE_EASY)
 from flashcards.models.undo import UndoCardReview
 from flashcards.views.decorators import flashcard_api as api
 from flashcards.views.decorators import has_card_query_filters
-import datetime
-import string
-import subprocess
 
 
 
@@ -42,7 +44,6 @@ def subfacts(request, parent_fact_id):
     parent_fact = get_object_or_404(Fact, pk=parent_fact_id)
     context = {'subfacts': parent_fact.subfacts.all()}
     return render_to_response('flashcards/subfacts.html', context)
-
 
 @api
 def due_card_count(request):
@@ -70,7 +71,6 @@ def next_card_due_at(request, deck=None, tags=None):
         deck=deck, tags=tags)
     due_at = cards.next_card_due_at()
     return naturalday(due_at.date())
-
 
 @api
 def rest_card(request, card_id): 
@@ -112,12 +112,9 @@ def undo_review(request):
         UndoCardReview.objects.undo(request.user)
         return {'success': True}
 
-
 @api
 def reset_review_undo_stack(request):
     if request.method == 'POST':
         UndoCardReview.objects.reset(request.user)
         return {'success': True}
-
-
 
