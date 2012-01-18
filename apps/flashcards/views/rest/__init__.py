@@ -269,7 +269,7 @@ class NextCardsForReview(CardQueryFiltersMixin, ManabiRestView):
         # Assemble a list of the cards to be serialized.
         return self.render_to_response({
             'card_list':
-                [CardResource(card).get_data() for card in next_cards]
+                [CardResource(card).get_data() for card in next_cards],
         })
 
 
@@ -315,11 +315,10 @@ class CardReviews(ManabiRestView):
         return self.responses.no_content()
 
 
-
-
 class ReviewUndo(ManabiRestView):
     '''
     Undo stack for card reviews.
+
     A write (POST) or delete-only resource, at the moment.
     '''
     def post(self, request):

@@ -2,7 +2,6 @@ from catnap.restresources import RestResource, RestModelResource
 from django.core.urlresolvers import reverse
 
 
-
 class UserResource(RestModelResource):
     fields = ('id', 'username', 'first_name', 'last_name', 'date_joined',)
 
@@ -36,6 +35,7 @@ class CardReviewsResource(RestResource):
     def get_url_path(self):
         return reverse('rest-card_reviews', args=[self.card.obj.id])
 
+
 class CardResource(RestModelResource):
     fields = ('id', 'fact_id', 'ease_factor', 'interval', 'due_at',
               'last_ease_factor', 'last_interval', 'last_due_at',
@@ -43,7 +43,7 @@ class CardResource(RestModelResource):
 
     def get_url_path(self):
         return reverse('rest-card', args=[self.obj.id])
-    
+
     def get_data(self):
         data = super(CardResource, self).get_data()
         data.update({
@@ -57,5 +57,4 @@ class CardResource(RestModelResource):
             'reviews_url': CardReviewsResource(self).get_url()
         })
         return data
-
 

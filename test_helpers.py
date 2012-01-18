@@ -1,5 +1,6 @@
 import random
 import string
+import sys
 
 from django.contrib.auth.models import User
 from django.core.urlresolvers import reverse
@@ -7,8 +8,11 @@ from django.http import HttpResponse
 from django.test import Client, TestCase
 from django.utils import simplejson as json
 
+from manabi.apps.flashcards.models.constants import (
+    GRADE_NONE, GRADE_HARD, GRADE_GOOD, GRADE_EASY)
 from apps.flashcards.management.commands.flashcards_init import create_initial_data
-from apps.flashcards.models import Deck, Card, Fact, FactType, FieldType, FieldContent
+from apps.flashcards.models import (Deck, Card, Fact, FactType, FieldType,
+                                    FieldContent, SchedulingOptions)
 
 PASSWORD = 'whatever'
 
@@ -31,10 +35,9 @@ class ManabiTestCase(TestCase):
     def before_tearDown(self):
         pass
 
-    def _http_verb(self, verb, url, user=None, *args, **kwargs):
-        '''
-        Defaults to being logged-in with a newly created user.
-        '''
+    def _http_verb(self, verb, url, *args, **kwargs):
+        ''' Defaults to being logged-in with a newly created user. '''
+        user = kwargs.pop('user')
         if user is None:
             user = create_user()
         self.client.login(username=user.username, password=PASSWORD)
@@ -60,7 +63,6 @@ class ManabiTestCase(TestCase):
     def assertStatus(self, status_code, response_or_url):
         if isinstance(response_or_url, basestring):
             response_or_url = self.get(response_or_url)
-        print response_or_url
         self.assertEqual(status_code, response_or_url.status_code)
 
     def assertApiSuccess(self, response):
@@ -70,13 +72,12 @@ class ManabiTestCase(TestCase):
  
     def review_cards(self, user):
         ''' Returns the cards that were reviewed. '''
-        ret = self.get(reverse('rest-next_cards_for_review'), user=user)
-        cards = self.get(reverse('rest-next_cards_for_review'), user=user).JSON['card_list']
+        cards = self.api.next_cards_for_review(user)
+        for card in cards:
+            self.api.review_card(self.user, card, GRADE_GOOD)
         import sys
-        print >> sys.stderr, cards
-        print >> sys.stderr, self.get(reverse('rest-deck_list'), user=user).JSON
         return cards
-        #FIXME
+
 
 class APIShortcuts(object):
     def __init__(self, test_case):
@@ -85,8 +86,15 @@ class APIShortcuts(object):
     def decks(self, user):
         return self.tc.get(reverse('rest-deck_list'), user=user).JSON['deck_list']
 
+    def next_cards_for_review(self, user):
+        return self.tc.get(reverse('rest-next_cards_for_review'), user=user).JSON['card_list']
+
+    def review_card(self, user, card, grade):
+        return self.tc.post(card['reviews_url'], {'grade': grade}, user=user)
+
+
 def random_name():
-    return ''.join(random.choice(string.ascii_lowercase) for _ in xrange(6))
+    return ''.join(random.choice(string.ascii_lowercase) for _ in xrange(5))
 
 def create_user():
     username = random_name()
@@ -107,19 +115,20 @@ def create_sample_data(user=None, facts=100):
 
 def create_deck(user=None):
     owner = user or create_user()
-    return Deck.objects.create(
+    deck = Deck.objects.create(
         name=random_name().title(),
         description='Example description',
         owner=owner,
     )
+    SchedulingOptions.objects.create(deck=deck)
+    return deck
 
 def create_fact(user=None, deck=None):
-    """
-    Includes card creation.
-    """
+    """ Includes card creation. """
     deck = deck or create_deck(user=user)
     fact = Fact.objects.create(
         deck=deck,
+        fact_type=FactType.objects.japanese,
     )
     for template in FactType.objects.japanese.cardtemplate_set.all():
         card = Card(

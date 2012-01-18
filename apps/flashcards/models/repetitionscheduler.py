@@ -1,12 +1,11 @@
 import random
-from constants import GRADE_NONE, GRADE_HARD, GRADE_GOOD, GRADE_EASY, \
-    MATURE_INTERVAL_MIN
+from constants import (GRADE_NONE, GRADE_HARD, GRADE_GOOD, GRADE_EASY,
+                       MATURE_INTERVAL_MIN)
 from datetime import timedelta, datetime
 from utils import timedelta_to_float
 from math import cos, pi
 from cachecow.cache import cached_function
 from flashcards.cachenamespaces import deck_review_stats_namespace
-
 
 
 def repetition_algo_dispatcher(card, *args, **kwargs):
@@ -32,7 +31,6 @@ def repetition_algo_dispatcher(card, *args, **kwargs):
     return cls(card, *args, **kwargs)
 
 
-
 class RepetitionAlgo(object):
     '''
     This base class represents the most general kind of card, which does 
@@ -51,7 +49,8 @@ class RepetitionAlgo(object):
         GRADE_NONE: -0.3, #TODO more accurate grade_none value
         GRADE_HARD: -0.1401,
         GRADE_GOOD:  0.0,
-        GRADE_EASY:  0.1} 
+        GRADE_EASY:  0.1,
+    }
 
     GRADE_EASY_BONUS_FACTOR = 0.2
 
@@ -116,9 +115,7 @@ class RepetitionAlgo(object):
         return NextRepetition(self.card, interval, ease_factor, due_at)
 
     def _next_interval(self, failure_interval=0):
-        '''
-        Returns an interval, measured in days.
-        '''
+        ''' Returns an interval, measured in days. '''
         #TODO fuzz the results
         current_interval = self.card.interval
         ease_factor = self.card.ease_factor
@@ -204,9 +201,7 @@ class RepetitionAlgo(object):
         return next_ease_factor
 
     def _next_due_at(self):
-        '''
-        Returns the new due date for this card.
-        '''
+        ''' Returns the new due date for this card. '''
         next_ease_factor = self._next_ease_factor()
         next_interval = self._next_interval()
         next_due_at = self.reviewed_at + timedelta(days=next_interval)
@@ -214,7 +209,7 @@ class RepetitionAlgo(object):
 
 
     def _time_waited(self):
-        '''The time elapsed since last review.'''
+        ''' The time elapsed since last review. '''
         return self.reviewed_at - self.card.last_reviewed_at
 
     def _percent_waited(self):
@@ -317,13 +312,10 @@ class RepetitionAlgo(object):
         #print 'and after fuzz: ' + str(next_interval)
 
     def fuzz(self, next_repetition):
-        '''
-        Fuzzes the interval and due date for a repetition. Idempotent.
-        '''
+        ''' Fuzzes the interval and due date for a repetition. Idempotent. '''
         if next_repetition.fuzzed:
             return
         next_repetition.fuzzed = True
-
 
 
 class YoungCardAlgo(RepetitionAlgo):

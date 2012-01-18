@@ -3,11 +3,11 @@ from django.db.models import Avg, Max, Min, Count
 from itertools import chain
 from model_utils.managers import manager_from
 import datetime
-from flashcards.models.constants import \
-    GRADE_NONE, GRADE_HARD, GRADE_GOOD, GRADE_EASY, \
-    MAX_NEW_CARD_ORDINAL, EASE_FACTOR_MODIFIERS, \
-    YOUNG_FAILURE_INTERVAL, MATURE_FAILURE_INTERVAL, MATURE_INTERVAL_MIN, \
-    GRADE_EASY_BONUS_FACTOR, DEFAULT_EASE_FACTOR, INTERVAL_FUZZ_MAX
+from flashcards.models.constants import (
+    GRADE_NONE, GRADE_HARD, GRADE_GOOD, GRADE_EASY,
+    MAX_NEW_CARD_ORDINAL, EASE_FACTOR_MODIFIERS,
+    YOUNG_FAILURE_INTERVAL, MATURE_FAILURE_INTERVAL, MATURE_INTERVAL_MIN,
+    GRADE_EASY_BONUS_FACTOR, DEFAULT_EASE_FACTOR, INTERVAL_FUZZ_MAX)
 
 
 class SchedulerMixin(object):
@@ -15,7 +15,6 @@ class SchedulerMixin(object):
     Contains the functions for retrieving the next cards that are 
     ready to be reviewed.
     '''
-
     def _space_cards(self, card_query, count, review_time,
             excluded_ids=[], early_review=False):
         '''
@@ -124,9 +123,7 @@ class SchedulerMixin(object):
             excluded_ids=[], early_review=False, learn_more=False,
             deck=None, tags=None,
             add_upstream_facts_as_needed=True, **kwargs):
-        '''
-        Gets the next new cards for this user or deck.
-        '''
+        ''' Gets the next new cards for this user or deck. '''
         from flashcards.models.facts import Fact
 
         if not count:
@@ -263,7 +260,6 @@ class SchedulerMixin(object):
 
         (#TODO consider changing this to have a separate option)
         '''
-
         #TODO somehow spread some new cards into the early review 
         # cards if early_review==True
         #TODO use args instead, like *kwargs etc for these funcs
@@ -307,7 +303,6 @@ class CommonFiltersMixin(object):
     This is particularly useful with view URLs which take query params for 
     these things.
     '''
-
     def of_deck(self, deck, with_upstream=False):
         cards = self.filter(fact__deck=deck)
         if with_upstream and deck.synchronized_with:
@@ -351,7 +346,7 @@ class CommonFiltersMixin(object):
         return self.exclude(id__in=excluded_ids)
 
     def unsuspended(self):
-        '''Returns unsuspended cards.'''
+        ''' Returns unsuspended cards. '''
         return self.filter(suspended=False)
 
     def common_filters(self, user,
@@ -438,7 +433,6 @@ class CommonFiltersMixin(object):
 
         return due_cards.order_by('-interval')
 
-
     def count_of_cards_due_tomorrow(self, user):
         '''
         Returns the number of cards due by tomorrow at the same time 
@@ -516,11 +510,4 @@ class CardStatsMixin(object):
 
 CardManager = lambda: manager_from(
     CommonFiltersMixin, SchedulerMixin, CardStatsMixin)
-    
-
-        
-
-
-
-
 

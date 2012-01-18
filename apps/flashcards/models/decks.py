@@ -18,7 +18,6 @@ import random
 import usertagging
 
 
-
 class _DeckManager(object):
     def of_user(self, user):
         return self.filter(owner=user, active=True)
@@ -61,7 +60,6 @@ class Deck(models.Model):
     # disabled.
     suspended = models.BooleanField(default=False, db_index=True) 
     active = models.BooleanField(default=True, blank=True, db_index=True)
-
 
     def __unicode__(self):
         return u'{0} ({1})'.format(self.name, self.owner)
@@ -106,7 +104,6 @@ class Deck(models.Model):
     #        return updated_fields | other_fields
     #    else:
     #        return FieldContent.objects.filter(fact__deck=self, fact__active=True)
-
 
     def field_contents(self):
         '''
@@ -252,7 +249,6 @@ class Deck(models.Model):
                 card.save()
         #done!
         return deck
-
 
     @property
     def card_count(self):
@@ -407,11 +403,11 @@ usertagging.register(Deck)
 
 
 DEFAULT_INTERVALS = {
-    GRADE_NONE:          (20.0/(24.0*60.0), 25.0/(24.0*60.0)),
+    GRADE_NONE: (20.0/(24.0*60.0), 25.0/(24.0*60.0)),
     #cards.GRADE_mature_unknown': (0.333, 0.333),
-    GRADE_HARD:             (0.333, 0.5),
-    GRADE_GOOD:             (3.0, 5.0),
-    GRADE_EASY:             (7.0, 9.0),
+    GRADE_HARD: (0.333, 0.5),
+    GRADE_GOOD: (3.0, 5.0),
+    GRADE_EASY: (7.0, 9.0),
 }
 
 
@@ -437,7 +433,8 @@ class SchedulingOptions(models.Model):
     
     #TODO should be classmethod
     def _generate_interval(self, min_duration, max_duration):
-        return random.uniform(min_duration, max_duration) #TODO favor (random.triangular) conservatism
+        #TODO favor (random.triangular) conservatism
+        return random.uniform(min_duration, max_duration) 
 
     def _interval_min_max(self, grade):
         if grade == GRADE_NONE:
@@ -455,7 +452,6 @@ class SchedulingOptions(models.Model):
 
         return (min_, max_,)
         
-
     def initial_interval(self, grade, do_fuzz=True):
         '''
         Generates an initial interval duration for a new card that's been reviewed.
@@ -466,11 +462,4 @@ class SchedulingOptions(models.Model):
             return self._generate_interval(min_, max_)
         else:
             return (min_ + max_) / 2.0
-
-
-
-
-
-
-
 

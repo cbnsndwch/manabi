@@ -9,7 +9,7 @@ class CardTemplate(models.Model):
 
     name = models.CharField(max_length=50)
     description = models.TextField(max_length=200, blank=True)
-    
+
     front_template_name = models.CharField(max_length=50)
     back_template_name = models.CharField(max_length=50) #TODO use a template marker for 'answer' fields to be typed in, optionally
 
