@@ -16,8 +16,13 @@
 {% endblock %}
 
 {% block extra_head_scripts %}
-    <script type="text/javascript" src="https://ajax.googleapis.com/ajax/libs/jquery/1.4.4/jquery.min.js"></script>
-    <script type="text/javascript" src="https://ajax.googleapis.com/ajax/libs/jqueryui/1.8.11/jquery-ui.min.js"></script>
+    {% if LIVE_HOST %}
+        <script type="text/javascript" src="https://ajax.googleapis.com/ajax/libs/jquery/1.4.4/jquery.min.js"></script>
+        <script type="text/javascript" src="https://ajax.googleapis.com/ajax/libs/jqueryui/1.8.11/jquery-ui.min.js"></script>
+    {% else %}
+        <script type="text/javascript" src="{{ STATIC_URL }}lib/jquery/jquery-1.4.4.min.js"></script>
+        <script type="text/javascript" src="{{ STATIC_URL }}lib/jquery/jquery-ui-1.8.7.custom.min.js"></script>
+    {% endif %}
 {% endblock %}
 
 {% block body_class %}{{ DOJANGO.THEME }}{% endblock %}

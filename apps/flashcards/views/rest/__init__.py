@@ -329,5 +329,3 @@ class ReviewUndo(ManabiRestView):
         UndoCardReview.objects.reset(request.user)
         return self.responses.no_content()
 
-
-
