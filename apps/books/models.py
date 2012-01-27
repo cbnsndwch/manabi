@@ -5,15 +5,14 @@ from functools import wraps
 import settings
 from apps.utils.slugs import slugify
 
-
 amazon_api = AmazonAPI(settings.AWS_KEY, settings.AWS_SECRET_KEY, 'us')
-
 
 
 class DeckedTextbookManager(models.Manager):
     def get_query_set(self):
         return super(DeckedTextbookManager, self).get_query_set().filter(
                 deck__active=True, deck__shared=True).distinct()
+
 
 def uses_amazon_api(func):
     @wraps(func)
@@ -97,11 +96,4 @@ class Textbook(models.Model):
             'author': attribs.Author.pyval,
             'title': self.custom_title or attribs.Title.pyval,
         }
-
-
-
-
-
-
-
 
