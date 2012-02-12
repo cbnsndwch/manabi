@@ -31,11 +31,14 @@ def backup():
     with cd(env.home):
         sudo('cron/tarsnap_backup.sh')
 
-def deploy():
-    backup()
+def lite_deploy():
     git_pull()
     upload_settings()
     restart_webserver()
+
+def deploy():
+    backup()
+    lite_deploy()
 
 def full_deploy():
     deploy()
