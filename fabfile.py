@@ -35,6 +35,7 @@ def deploy():
     backup()
     git_pull()
     upload_settings()
+    restart_webserver()
 
 def full_deploy():
     deploy()
@@ -44,7 +45,8 @@ def restart_webserver():
     sudo('/etc/init.d/cherokee restart')
     #sudo('kill -9 `cat /tmp/cherokee-django.pid`')
     # do it gracefully (send HUP signal, wait 10-15s, then kill)
-    sudo('kill -HUP `cat /tmp/cherokee-gunicorn-manabi.pid`')
+    with settings(warn_only=True):
+        sudo('kill -HUP `cat /tmp/cherokee-gunicorn-manabi.pid`')
     run('wget manabi.org -O /dev/null')
 
 def hard_restart_webserver():

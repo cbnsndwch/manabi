@@ -1,8 +1,9 @@
-from flashcards.models import Deck, FactType, Fact, CardTemplate, \
-    FieldType, Card, FieldContent, SchedulingOptions, \
-    ReviewStatistics, CardHistory
-from books.models import Textbook
 from django.contrib import admin
+
+from books.models import Textbook
+from flashcards.models import (
+    Deck, FactType, Fact, CardTemplate,
+    FieldType, Card, FieldContent, SchedulingOptions, CardHistory)
 
 
 class CardAdmin(admin.ModelAdmin):
@@ -32,7 +33,6 @@ class TextbookAdmin(admin.ModelAdmin):
 
 admin.site.register(Deck, DeckAdmin)
 admin.site.register(CardHistory)
-admin.site.register(ReviewStatistics)
 admin.site.register(FactType, FactTypeAdmin)
 admin.site.register(Fact, FactAdmin)
 admin.site.register(CardTemplate)
@@ -41,3 +41,4 @@ admin.site.register(Card, CardAdmin)
 admin.site.register(FieldContent)
 admin.site.register(SchedulingOptions)
 admin.site.register(Textbook)
+
