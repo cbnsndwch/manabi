@@ -49,12 +49,12 @@ def restart_webserver():
     #sudo('kill -9 `cat /tmp/cherokee-django.pid`')
     # do it gracefully (send HUP signal, wait 10-15s, then kill)
     with settings(warn_only=True):
-        sudo('kill -HUP `cat /tmp/cherokee-gunicorn-manabi.pid`')
-    run('wget manabi.org -O /dev/null')
+        sudo('kill -HUP `cat /tmp/manabi-gunicorn.pid`')
+    #run('wget manabi.org -O /dev/null')
 
 def hard_restart_webserver():
     sudo('/etc/init.d/cherokee stop')
-    sudo('kill -INT `cat /tmp/cherokee-gunicorn-manabi.pid`')
+    sudo('kill -INT `cat /tmp/manabi-gunicorn.pid`')
     sudo('/etc/init.d/cherokee restart')
-    run('wget manabi.org -O /dev/null')
+    #run('wget manabi.org -O /dev/null')
 
