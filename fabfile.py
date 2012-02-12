@@ -29,7 +29,7 @@ def git_pull():
 
 def backup():
     with cd(env.home):
-        run('cron/tarsnap_backup.sh')
+        sudo('cron/tarsnap_backup.sh')
 
 def deploy():
     backup()
