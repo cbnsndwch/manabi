@@ -20,10 +20,10 @@
             _kms('//i.kissmetrics.com/i.js');_kms('//doug1izaerwt3.cloudfront.net/79d44fed4c032657d06cd8f6635adcd178885255.1.js');
         </script>
 
-        {% if user.is_authenticated %}
-        <script type="text/javascript">
-            _kmq.push(['identify', '{{ user.username|escapejs }}']);
-        </script>
+        {% if user.is_authenticated and not user|is_lazy_user %}
+            <script type="text/javascript">
+                _kmq.push(['identify', '{{ user.username|escapejs }}']);
+            </script>
         {% endif %}
 
         <meta charset="utf-8">
