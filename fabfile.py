@@ -23,6 +23,9 @@ def build_media():
     with cd(env.path):
         python('manage.py collectstatic --noinput')
 
+def git_push():
+    local('git push')
+
 def git_pull():
     with cd(env.path):
         run('git pull origin master')
@@ -32,6 +35,7 @@ def backup():
         sudo('cron/tarsnap_backup.sh')
 
 def lite_deploy():
+    git_push()
     git_pull()
     upload_settings()
     restart_webserver()

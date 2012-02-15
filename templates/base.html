@@ -9,6 +9,23 @@
 
 <html>
     <head>
+        <script type="text/javascript">
+            var _kmq = _kmq || [];
+            function _kms(u){
+                setTimeout(function(){
+                    var s = document.createElement('script'); var f = document.getElementsByTagName('script')[0]; s.type = 'text/javascript'; s.async = true;
+                    s.src = u; f.parentNode.insertBefore(s, f);
+                }, 1);
+            }
+            _kms('//i.kissmetrics.com/i.js');_kms('//doug1izaerwt3.cloudfront.net/79d44fed4c032657d06cd8f6635adcd178885255.1.js');
+        </script>
+
+        {% if user.is_authenticated %}
+        <script type="text/javascript">
+            _kmq.push(['identify', '{{ user.username|escapejs }}']);
+        </script>
+        {% endif %}
+
         <meta charset="utf-8">
         <meta http-equiv="Content-Type" content="text/html; charset=utf-8">
 
