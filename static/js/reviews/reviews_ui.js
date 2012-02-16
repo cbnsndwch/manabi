@@ -161,6 +161,7 @@ reviews_ui.showCardBack = function(card) {
 reviews_ui.reviewCard = function(grade) {
     reviews_ui.session.reviewCurrentCard(grade).then(function(data) {
         // Enable the Undo button (maybe should do this before the def?)
+        _kmq.push(['record', 'Reviewed a card', {grade: grade}]);
         reviews_undoReviewButton.set('disabled', false);
         //FIXME anything go here?
     });

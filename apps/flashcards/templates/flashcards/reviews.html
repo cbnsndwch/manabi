@@ -79,6 +79,7 @@
                                 Show Answer
                             </div>
                             <script type="dojo/connect" event="onClick" args="evt">
+                                _kmq.push(['record', 'Clicked "Show Answer"']);
                                 reviews_ui.showCardBack(reviews_ui.session.currentCard);
                             </script>
                         </button>
@@ -150,7 +151,7 @@
                         <div style="clear:both"></div>
                     </div>
                     <div style="margin-top:1em;text-align:center;">
-                        <img src="{{ STATIC_URL }}css/dojo_themes/tundra/images/icons/information.png" style="position:relative;top:3px"> <span class="fakeLink" id="reviews_gradesHelpLink" style="font-size:12px;color:#0174DF" onclick="dijit.byId('reviews_gradesHelpDialog').show()">How do I know which button to press?</span>
+                        <img src="{{ STATIC_URL }}css/dojo_themes/tundra/images/icons/information.png" style="position:relative;top:3px"> <span class="fakeLink" id="reviews_gradesHelpLink" style="font-size:12px;color:#0174DF" onclick="_kmq.push(['record', 'Clicked grades help link']); dijit.byId('reviews_gradesHelpDialog').show()">How do I know which button to press?</span>
                     </div>
                     <div id="reviews_gradesHelpDialog" dojoType="dijit.Dialog">
                         <div style="width:40em">
