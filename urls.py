@@ -27,7 +27,7 @@ urlpatterns = patterns('',
             'form_class': PinaxLazyConvertForm,
             'email_verification': settings.ACCOUNT_EMAIL_VERIFICATION,
             'verification_sent_template_name': 'account/verification_sent.html',
-            'success_url': ''
+            'success_url': '',
         }),
 
     (r'^account/', include('account.urls')),

@@ -13,8 +13,13 @@
         <p>
             Please <a href="{% url acct_login %}">{% trans "Login" %}</a> with your new account.
         </p>
+
+        <script type="text/javascript">
+            _kmq.push(['record', 'Verified email']);
+        </script>
     {% else %}
         <p>{% trans "Invalid confirmation key." %}</p>
     {% endif %}
+
 {% endblock %}
 

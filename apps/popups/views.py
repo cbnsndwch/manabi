@@ -1,21 +1,23 @@
-from flashcards.models import FactType, Fact, Deck, CardTemplate, \
-    FieldType, FieldContent, Card, \
-    GRADE_NONE, GRADE_HARD, GRADE_GOOD, GRADE_EASY, \
-    SchedulingOptions
+from django.views.decorators.cache import cache_page
+from django.core.urlresolvers import reverse
 from django.contrib.auth.decorators import login_required
 from django.core.urlresolvers import resolve
 from django.db.models import F
 from django.shortcuts import render_to_response, redirect
 from django.template import RequestContext
+
+from flashcards.models import FactType, Fact, Deck, CardTemplate, \
+    FieldType, FieldContent, Card, \
+    GRADE_NONE, GRADE_HARD, GRADE_GOOD, GRADE_EASY, \
+    SchedulingOptions
 from flashcards.contextprocessors import subfact_form_context
 from flashcards.contextprocessors import (
-    deck_count_context, card_existence_context, fact_add_form_context,)
-from django.views.decorators.cache import cache_page
+    deck_count_context, card_existence_context, fact_add_form_context)
 from flashcards.forms import DeckForm, FactForm, FieldContentForm
 from flashcards.models import FactType, Fact, Deck, CardTemplate, FieldType
 from flashcards.models import FieldContent, Card
 from flashcards.views.shortcuts import get_deck_or_404
-from django.core.urlresolvers import reverse
+
 
 LOGIN_URL = '/popups/login/'
 
@@ -28,7 +30,6 @@ def deck_chooser(request):
     return render_to_response('popups/deck_chooser.html', context,
                               context_instance=RequestContext(request))
 
-
 @login_required(login_url=LOGIN_URL)
 def fact_add_form(request, deck_id=None):
     '''Form for creating facts.'''
@@ -40,9 +41,4 @@ def fact_add_form(request, deck_id=None):
 
     return render_to_response('popups/fact_add_form.html', context,
                               context_instance=RequestContext(request))
-
-
-
-
-
 
