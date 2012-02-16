@@ -23,6 +23,8 @@
                     <button dojoType="dijit.form.Button">
 	                    <div style="margin:.7em .6em;"><h3>Learn new cards</h3></div>
 	                    <script type="dojo/connect" event="onClick" args="evt">
+                            _kmq.push(['record', 'Clicked "Learn More"', {deck_id: '{{ deck.id }}'}]);
+
                             var args = {};
                             {% if deck %}args.deckId = {{ deck.id }}{% endif %}
                             args.earlyReview = false;
@@ -38,6 +40,7 @@
             <button dojoType="dijit.form.Button">
 	            <div style="margin:.7em 1.7em;"><h3>Review early</h3></div>
 	            <script type="dojo/connect" event="onClick" args="evt">
+                    _kmq.push(['record', 'Clicked "Review Early"', {deck_id: '{{ deck.id }}'}]);
                     var args = {};
                     {% if deck %}args.deckId = {{ deck.id }};{% endif %}
                     args.earlyReview = true;
@@ -59,6 +62,7 @@
             <button dojoType="dijit.form.Button">
 	            <div style="margin:.7em 1.7em;"><h3>Study now!</h3></div>
 	            <script type="dojo/connect" event="onClick" args="evt">
+                    _kmq.push(['record', 'Clicked "Study Now"', {deck_id: '{{ deck.id }}'}]);
                     reviews_ui.startSession({ {% if deck %}deckId: {{ deck.id }}{% endif %} });
 	            </script>
             </button>
