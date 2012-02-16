@@ -85,6 +85,8 @@
                         <button dojoType="dijit.form.Button">
 	                        Add Deck
 	                        <script type="dojo/connect" event="onClick" args="evt">
+                                _kmq.push(['record', 'Added deck']);
+
                                 var url = '{% url api-subscribe_to_deck deck.id %}';
                                 manabi_ui.xhrPostData(url);
 	                        </script>
