@@ -5,6 +5,15 @@
     <div dojoType="dijit.form.Form" jsId="factAddForm" encType="multipart/form-data" action="" method="">
         <script type="dojo/method" event="onSubmit" args="evt">
             evt.preventDefault();
+
+            // Record metrics for subfact creation.
+            dojo.query('#factAddFormWrapper .subfact input.field_content').some(function(inp) {
+                if (inp.value) {
+                    _kmq.push(['record', 'Added an example sentence', {value: inp.value}]);
+                    return true;
+                }
+            });
+
             fact_add_ui.factAddFormSubmit();
         </script>
         <div class="dijitDialogPaneContentArea">
@@ -179,8 +188,6 @@
     </div>
 </div>
 
-
-
 {% if fact_add_form.autofocus %}
     <script type="text/javascript">
         // Focus the first non-empty field, which has a tab-index.
@@ -198,7 +205,5 @@
     </script>
 {% endif %}
 
-
 {% include "flashcards/_fact_form_tag_widget_js.html" %}
-
 
