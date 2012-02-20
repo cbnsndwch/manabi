@@ -86,6 +86,7 @@
 	                        Add Deck
 	                        <script type="dojo/connect" event="onClick" args="evt">
                                 _kmq.push(['record', 'Added deck']);
+                                _kmq.push(['record', 'Added or created deck']);
 
                                 var url = '{% url api-subscribe_to_deck deck.id %}';
                                 manabi_ui.xhrPostData(url);
