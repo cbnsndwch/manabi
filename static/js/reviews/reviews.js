@@ -164,7 +164,6 @@ dojo.declare('reviews.Session', null, {
         //     `undoStackUrl`
         dojo.safeMixin(this, args);
 
-
         // Initialize non-primitive props
         this.cards = [];
         this.currentCard = null;
@@ -173,7 +172,6 @@ dojo.declare('reviews.Session', null, {
         this._endTime = null;
         this._resetQuestionTimer();
         this._resetCardTimer();
-
 
         this.cardsReviewedPending = [];
         this.cardsReviewedPendingDef = []; //contains the Deferred objects for each pending review

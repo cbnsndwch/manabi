@@ -161,7 +161,6 @@ reviews_ui.showCardBack = function(card) {
 reviews_ui.reviewCard = function(grade) {
     reviews_ui.session.reviewCurrentCard(grade).then(function(data) {
         // Enable the Undo button (maybe should do this before the def?)
-        _kmq.push(['record', 'Reviewed a card', {grade: grade}]);
         reviews_undoReviewButton.set('disabled', false);
         //FIXME anything go here?
     });
@@ -334,6 +333,8 @@ reviews_ui.startSession = function(args) {
         undoStackUrl: '/flashcards/api/next-cards-for-review/undo-stack/' // rest-review_undo_stack
     };
 
+    _kmq.push(['record', 'Started review session', {deck: sessionArgs.deckId}]);
+
     reviews_ui.session = new reviews.Session(sessionArgs);
     reviews_ui.sessionStarted = true;
     reviews_ui.sessionOverAfterCurrentCard = false;
@@ -362,7 +363,6 @@ reviews_ui.startSession = function(args) {
             }
         }, initialCardPrefetch));
     });
-
 };
 
 reviews_ui.submitReviewOptionsDialog = function(earlyReview, learnMore) {
