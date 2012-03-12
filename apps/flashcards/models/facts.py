@@ -61,7 +61,6 @@ class FactType(models.Model):
         app_label = 'flashcards'
 
 
-
 class FactManager(models.Manager):
     def all_tags_per_user(self, user):
         '''
@@ -196,11 +195,6 @@ class FactManager(models.Manager):
         return new_shared_facts
 
 
-
-
-
-
-
 class Fact(models.Model):
     objects = FactManager()
     deck = models.ForeignKey('flashcards.Deck',
@@ -225,13 +219,16 @@ class Fact(models.Model):
     parent_fact = models.ForeignKey('self',
         blank=True, null=True, related_name='child_facts')
 
+    def roll_ordinal(self):
+        if not self.new_fact_ordinal:
+            self.new_fact_ordinal = random.randrange(
+                0, MAX_NEW_CARD_ORDINAL)
+
     def save(self, *args, **kwargs):
         '''
         Set a random sorting index for new cards.
         '''
-        if not self.new_fact_ordinal:
-            self.new_fact_ordinal = random.randrange(
-                0, MAX_NEW_CARD_ORDINAL)
+        self.roll_ordinal()
         super(Fact, self).save(*args, **kwargs)
 
     def delete_for_user(self, user):

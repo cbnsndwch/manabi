@@ -47,7 +47,7 @@ class Card(models.Model):
     ease_factor = models.FloatField(null=True, blank=True)
     interval = models.FloatField(null=True, blank=True, db_index=True) #days
     due_at = models.DateTimeField(null=True, blank=True, db_index=True)
-    
+
     last_ease_factor = models.FloatField(null=True, blank=True)
     last_interval = models.FloatField(null=True, blank=True)
     last_due_at = models.DateTimeField(null=True, blank=True)

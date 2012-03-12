@@ -4,13 +4,15 @@ from django.core.exceptions import PermissionDenied
 from django.http import HttpResponse
 from django.shortcuts import get_object_or_404, render_to_response, redirect
 from django.template import RequestContext, loader
-from models import Textbook
-from flashcards.views.shortcuts import get_deck_or_404
 from django.views.decorators.http import require_POST
-from flashcards.forms import TextbookSourceForm
-from forms import TextbookForm
 from dojango.decorators import json_response
 from dojango.util import to_dojo_data, json_decode, json_encode
+
+from flashcards.forms import TextbookSourceForm
+from flashcards.views.shortcuts import get_deck_or_404
+from forms import TextbookForm
+from models import Textbook
+
 
 def book_list(request):
     context = {

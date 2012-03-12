@@ -1,9 +1,13 @@
+from functools import wraps
+from urllib2 import URLError
+
 from django.db import models
 from model_utils.managers import manager_from
 from amazonproduct import API as AmazonAPI
-from functools import wraps
-import settings
+
 from apps.utils.slugs import slugify
+import settings
+
 
 amazon_api = AmazonAPI(settings.AWS_KEY, settings.AWS_SECRET_KEY, 'us')
 
@@ -38,7 +42,10 @@ class Textbook(models.Model):
         app_label = 'flashcards'
 
     def __unicode__(self):
-        return self.get_basic_info()['title'] + u' [{0}]'.format(self.isbn)
+        try:
+            return self.get_basic_info()['title'] + u' [{0}]'.format(self.isbn)
+        except URLError:
+            return 'ISBN: {0}'.format(self.isbn)
 
     def save(self, *args, **kwargs):
         title = self.get_basic_info()['title']

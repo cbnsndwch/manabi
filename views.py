@@ -12,7 +12,6 @@ from flashcards.contextprocessors import deck_count_context, card_existence_cont
 from django.views.decorators.cache import cache_page
 
 
-
 def index(request):
     '''Entry point to the site.'''
     context = {
@@ -44,9 +43,4 @@ def home(request):
     context = {}
     return render_to_response('home.html', context,
         context_instance=RequestContext(request, processors=[card_existence_context]))
-
-
-
-
-
 

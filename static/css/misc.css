@@ -146,6 +146,9 @@ hr {
 .inner_body_contents:not(.wide) > *:not(.wide):not(hr) {
     max-width: 57.2em;
 }
+.full_width {
+    width: 57.2em;
+}
 #body {
     width: 100%;
     padding: 0px;

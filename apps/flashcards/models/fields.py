@@ -1,9 +1,11 @@
-from apps.utils.templatetags.japanese import strip_ruby_bottom, strip_ruby_text
+import pickle
+
 from cachecow.cache import cached_function
-from constants import ISO_639_2_LANGUAGES
 from django.db import models, transaction
 from model_utils.managers import manager_from
-import pickle
+
+from apps.utils.templatetags.japanese import strip_ruby_bottom, strip_ruby_text
+from constants import ISO_639_2_LANGUAGES
 
 
 OPTIONAL_CHARACTER_RESTRICTIONS = (
@@ -21,7 +23,28 @@ OPTIONAL_MEDIA_TYPE_RESTRICTIONS = (
 )
 
 
+class _FieldTypeManager(object):
+    @property
+    def expression(self):
+        from apps.flashcards.models import FactType
+        return self.get(name='expression', fact_type=FactType.objects.japanese)
+
+    @property
+    def reading(self):
+        from apps.flashcards.models import FactType
+        return self.get(name='reading', fact_type=FactType.objects.japanese)
+
+    @property
+    def meaning(self):
+        from apps.flashcards.models import FactType
+        return self.get(name='meaning', fact_type=FactType.objects.japanese)
+
+FieldTypeManager = lambda: manager_from(_FieldTypeManager)
+
+
 class FieldType(models.Model):
+    objects = FieldTypeManager()
+
     fact_type = models.ForeignKey('flashcards.FactType')
 
     # Used for referencing fields by name in code, instead of by id
@@ -33,7 +56,7 @@ class FieldType(models.Model):
     transliteration_field_type = models.OneToOneField('self',
         blank=True, null=True,
         related_name='reverse_transliteration_field_type')
-    
+
     #constraints
     unique = models.BooleanField(default=True)
     blank = models.BooleanField(default=False)
@@ -108,7 +131,6 @@ class FieldType(models.Model):
                            ('ordinal', 'fact_type'),
                            ('display_name', 'fact_type'),)
         app_label = 'flashcards'
-
 
 
 class FieldContent(models.Model):
@@ -229,7 +251,6 @@ class FieldContent(models.Model):
         #TODO unique_together = (('fact', 'field_type'), )
         # one field content per field per fact
         app_label = 'flashcards'
-
 
     def copy_to_fact(self, fact):
         '''
