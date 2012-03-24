@@ -1,7 +1,6 @@
-from flashcards.models import FactType, Fact, Deck, CardTemplate, \
-    FieldType, FieldContent, Card, \
-    GRADE_NONE, GRADE_HARD, GRADE_GOOD, GRADE_EASY, \
-    SchedulingOptions
+from flashcards.models import (FactType, Fact, Deck, CardTemplate,
+    FieldType, FieldContent, Card,
+    GRADE_NONE, GRADE_HARD, GRADE_GOOD, GRADE_EASY)
 from django.contrib.auth.decorators import login_required
 from django.core.urlresolvers import resolve
 from django.db.models import F

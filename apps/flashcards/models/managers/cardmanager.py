@@ -1,8 +1,10 @@
+import datetime
+from itertools import chain
+
 from django.db import models
 from django.db.models import Avg, Max, Min, Count
-from itertools import chain
+
 from model_utils.managers import manager_from
-import datetime
 from flashcards.models.constants import (
     GRADE_NONE, GRADE_HARD, GRADE_GOOD, GRADE_EASY,
     MAX_NEW_CARD_ORDINAL, EASE_FACTOR_MODIFIERS,
@@ -35,6 +37,23 @@ class SchedulerMixin(object):
         # since we shouldn't set their due_at (via delay())
         delayed_cards = [] 
 
+        # REDIS WIP
+        #while True:
+        #    cards = card_query.exclude(
+        #        id__in=[card.id for card in delayed_cards])
+        #    card_ids = cards[:count].values_list('id', flat=True)
+
+        #    if early_review and len(cards) == 0:
+        #        return delayed_cards[:count]
+
+        #    # get cards to delay.
+        #    # get fact IDs
+        #    # get zrange of score > 
+        #    for card in cards:
+        #        min_space = card.sibling_spacing()
+        #        fact_id = card.fact_id
+        #        if redis.zrangebyscore()
+
         while True:
             cards_delayed = 0
             cards = card_query.exclude(
@@ -55,7 +74,6 @@ class SchedulerMixin(object):
                                 and abs(card.due_at
                                         - sibling.last_reviewed_at)
                                 <= min_space):
-                        #
                         # Delay the card. It's already sorted by priority,
                         # so we delay this one instead of its sibling.
                         if card.is_new() or early_review:
@@ -134,7 +152,7 @@ class SchedulerMixin(object):
 
         def _next_new_cards2():
             new_cards = []
-            for card in new_card_query.select_related().iterator():
+            for card in new_card_query.iterator():
                 min_space = card.sibling_spacing()
 
                 for sibling in card.siblings:
@@ -303,6 +321,10 @@ class CommonFiltersMixin(object):
     This is particularly useful with view URLs which take query params for 
     these things.
     '''
+    def available(self):
+        ''' Cards which are active and unsuspended. '''
+        return self.filter(active=True, suspended=False)
+
     def of_deck(self, deck, with_upstream=False):
         cards = self.filter(fact__deck=deck)
         if with_upstream and deck.synchronized_with:
@@ -380,10 +402,23 @@ class CommonFiltersMixin(object):
         '''
         return self.new(user).count() + self.of_upstream(user).count()
 
+    def approx_new_count(self, user=None, deck=None):
+        '''
+        Approximates how many new cards are actually available to review.
+        Will be between what new_count and unspaced_new_count return,
+        but much faster than the latter.
+        '''
+        cards = self.available()
+        if deck:
+            cards = cards.of_deck(deck)
+        return (cards.new(user).values_list('fact_id').distinct().count() +
+                cards.of_upstream(user).values_list('fact_id').distinct().count())
+
     def unspaced_new_count(self, user):
         '''
         Same as `new_count`, except it subtracts new cards that 
-        will be delayed due to sibling spacing.
+        will be delayed due to sibling spacing (cards which haven't
+        been spaced.)
 
         Works properly with upstream cards.
         '''
@@ -399,7 +434,7 @@ class CommonFiltersMixin(object):
         upstream = self.of_upstream(user).values('fact_id').distinct().count()
 
         return local + upstream
-    
+
     def young(self, user):
         return self.filter(
                 last_reviewed_at__isnull=False,
@@ -449,7 +484,7 @@ class CommonFiltersMixin(object):
         #    facts = usertagging.models.UserTaggedItem.objects.get_by_model(
         #            Fact, tags)
         #    cards = cards.filter(fact__in=facts)
-        
+
         this_time_tomorrow = (datetime.datetime.utcnow()
                               + datetime.timedelta(days=1))
         cards = self.filter(

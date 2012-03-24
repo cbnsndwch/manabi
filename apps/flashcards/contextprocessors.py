@@ -1,15 +1,13 @@
 from flashcards.models import (FactType, Fact, Deck, CardTemplate,
     FieldType, FieldContent, Card,
-    GRADE_NONE, GRADE_HARD, GRADE_GOOD, GRADE_EASY, SchedulingOptions,)
+    GRADE_NONE, GRADE_HARD, GRADE_GOOD, GRADE_EASY)
 from django.template.loader import render_to_string
 import datetime
 
 
 def subfact_form_context(request, subfact=None,
                          field_content_offset=0, fact_form_ordinal=1):
-    '''
-    `form_ordinal` is the offset to use for e.g. fact-1-id
-    '''
+    ''' `form_ordinal` is the offset to use for e.g. fact-1-id '''
     context = {}
     sentence_fact_type = FactType.objects.get(id=2)
     field_types = sentence_fact_type.fieldtype_set.exclude(
@@ -103,7 +101,8 @@ def review_start_context(request, deck=None):
 
     card_count = cards.count()
 
-    unspaced_new_card_count = cards.unspaced_new_count(user)
+    # this is much faster but less accurate than cards.unspaced_new_count.
+    unspaced_new_card_count = cards.approx_new_count(user)
 
     context = {
         'card_count': card_count,

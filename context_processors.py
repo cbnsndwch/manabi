@@ -23,6 +23,9 @@ def site_base_extender(request):
         if (request.META.get('HTTP_X_ESCAPED_FRAGMENT', 'false').lower()
                 == 'true'):
             fragment_name = 'site_base.html'
+        elif 'DEBUG' in request.GET:
+            # Used for debug_toolbar.
+            fragment_name = 'site_base.html'
         else:
             fragment_name = 'body_pane_base.html'
     ctx['fragment_base_template_name'] = fragment_name

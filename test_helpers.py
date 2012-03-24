@@ -12,7 +12,7 @@ from manabi.apps.flashcards.models.constants import (
     GRADE_NONE, GRADE_HARD, GRADE_GOOD, GRADE_EASY)
 from apps.flashcards.management.commands.flashcards_init import create_initial_data
 from apps.flashcards.models import (Deck, Card, Fact, FactType, FieldType,
-                                    FieldContent, SchedulingOptions)
+                                    FieldContent)
 
 PASSWORD = 'whatever'
 
@@ -120,7 +120,6 @@ def create_deck(user=None):
         description='Example description',
         owner=owner,
     )
-    SchedulingOptions.objects.create(deck=deck)
     return deck
 
 def create_fact(user=None, deck=None):

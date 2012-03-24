@@ -22,7 +22,6 @@ from flashcards.contextprocessors import subfact_form_context
 from flashcards.forms import DeckForm, FactForm, FieldContentForm
 from flashcards.models import FactType, Fact, Deck, CardTemplate, FieldType
 from flashcards.models import FieldContent, Card
-from flashcards.models import SchedulingOptions
 from flashcards.forms import TextbookSourceForm
 from flashcards.views.shortcuts import get_deck_or_404
 from books.forms import TextbookForm
@@ -189,10 +188,6 @@ def deck_create(request,
 
             if 'tags' in deck_form.cleaned_data:
                     new_deck.tags = deck_form.cleaned_data['tags']
-
-            #TODO still necessary?
-            scheduling_options = SchedulingOptions(deck=new_deck)
-            scheduling_options.save()
 
             if post_save_redirect is None:
                 post_save_redirect = new_deck.get_absolute_url()

@@ -19,7 +19,7 @@ from flashcards.cachenamespaces import (deck_review_stats_namespace,
 from managers.cardmanager import CardManager
 from repetitionscheduler import repetition_algo_dispatcher
 from undo import UndoCardReview
-
+    
 
 class Card(models.Model):
     objects = CardManager()
@@ -82,14 +82,19 @@ class Card(models.Model):
         return u'{0} | {1}'.format(front, back)
 
     def copy(self, target_fact):
-        '''
-        Returns a new Card object.
-        '''
-        return Card(fact=target_fact,
+        ''' Returns a new Card object. '''
+        card = Card(fact=target_fact,
                     template_id=self.template_id,
                     priority=self.priority,
                     leech=False, active=True, suspended=False,
                     new_card_ordinal=self.new_card_ordinal)
+        card.redis.update_all()
+        return card
+
+    @property
+    def redis(self):
+        from apps.flashcards.models.redis_models import RedisCard
+        return RedisCard(self)
 
     @property
     def owner(self):
@@ -118,6 +123,13 @@ class Card(models.Model):
     def last_review_grade_name(self):
         '''Returns a string version of the last review grade.'''
         return GRADE_NAMES.get(self.last_review_grade)
+
+    def update_due_at(self, due_at, update_last_due_at=True):
+        if update_last_due_at:
+            self.last_due_at, self.due_at = (
+                self.due_at, due_at)
+        else:
+            self.due_at = due_at
 
     def randomize_new_order(self):
         '''
@@ -188,7 +200,6 @@ class Card(models.Model):
         return self.cardhistory_set.aggregate(
                 Sum('question_duration'))['question_duration__sum']
 
-
     @cached_function(namespace=lambda c, *args, **kwargs:
                                fact_grid_namespace(c.deck.pk))
     def _render(self, template_name):
@@ -254,7 +265,8 @@ class Card(models.Model):
         '''
         now = datetime.utcnow()
         from_date = self.due_at if self.due_at >= now else now
-        self.due_at = from_date + duration
+        self.update_due_at(from_date + duration, update_last_due_at=False)
+        #self.redis.update_due_at()
 
     def next_repetition_per_grade(self, reviewed_at=None):
         #FIXME disable fuzzing
@@ -307,8 +319,9 @@ class Card(models.Model):
             self.ease_factor, next_repetition.ease_factor)
         self.last_interval, self.interval = (
             self.interval, next_repetition.interval)
-        self.last_due_at, self.due_at = (
-            self.due_at, next_repetition.due_at)
+        self.update_due_at(next_repetition.due_at)
+
+        self.redis.update_ease_factor()
 
     def review(self, grade, duration=None, question_duration=None):
         '''
@@ -344,7 +357,7 @@ class Card(models.Model):
         self._apply_updated_schedule(next_repetition)
 
         self.last_review_grade = grade
-        self.last_reviewed_at = reviewed_at
+        self.last_reviewed_at  = reviewed_at
 
         if grade == GRADE_NONE:
             self.last_failed_at = reviewed_at
@@ -355,45 +368,6 @@ class Card(models.Model):
         card_history_item.save()
 
         self.save()
+        self.redis.after_review()
         post_card_reviewed.send(self, instance=self)
-
-
-#TODO implement (remember to update UndoReview too)
-# This can probably just be a proxy model for CardHistory or something.
-#class CardStatistics(models.Model):
-#    card = models.ForeignKey(Card)
-
-#    failure_count = models.PositiveIntegerField(default=0, editable=False)
-#    #TODO review stats depending on how card was rated, and how mature it is
-
-#    #apparently needed for synchronization/import purposes
-#    yes_count = models.PositiveIntegerField(default=0, editable=False)
-#    no_count = models.PositiveIntegerField(default=0, editable=False)
-
-#    average_thinking_time = models.PositiveIntegerField(null=True, editable=False)
-
-#    #initial_ease 
-    
-#    successive_count = models.PositiveIntegerField(default=0, editable=False) #incremented at each success, zeroed at failure
-#    successive_streak_count = models.PositiveIntegerField(default=0, editable=False) #incremented at each failure after a success
-#    average_successive_count = models.PositiveIntegerField(default=0, editable=False) #
-
-#    skip_count = models.PositiveIntegerField(default=0, editable=False)
-#    total_review_time = models.FloatField(default=0) #s
-#    first_reviewed_at = models.DateTimeField()
-#    first_success_at = models.DateTimeField()
-    
-    
-#    #these take into account short-term memory effects
-#    #they ignore any more than a single review per day (or 8 hours - TBD)
-#    #adjusted_review_count = models.PositiveIntegerField(default=0, editable=False)
-#    #adjusted_success_count = models.PositiveIntegerField(default=0, editable=False)
-#    #first_adjusted_success_at = models.DateTimeField()
-#    #failures_in_a_row = models.PositiveIntegerField(default=0, editable=False)
-#    #adjusted_failures_in_a_row = models.PositiveIntegerField(default=0, editable=False)
-
-#    class Meta:
-#        app_label = 'flashcards'
-
-
 

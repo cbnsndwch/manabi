@@ -65,7 +65,6 @@ class CardQueryFiltersMixin(object):
 
 
 
-
 # Resource views
 
 class EntryPoint(ManabiRestView):
@@ -155,7 +154,6 @@ class Deck(DeletionMixin, DetailView, ManabiRestView):
                     'rest-deck_subscription', args=[deck.id])
 
         return context
-        
 
     def allowed_methods(self, request, *args, **kwargs):
         '''Don't return "DELETE" if the user has no permission.'''
@@ -183,7 +181,6 @@ class DeckStatus(ManabiRestView):
         deck.suspended = params.get('suspended', deck.suspended)
         deck.save()
         return self.render_to_response({'suspended': deck.suspended})
-
 
 
 class SharedDeckList(ListView, ManabiRestView):

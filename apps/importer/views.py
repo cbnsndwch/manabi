@@ -76,7 +76,7 @@ def importer(request):
                 card.randomize_new_order()
 
         context.update({
-            'cards_created': deck.card_count,
+            'cards_created': deck.card_count(),
             'deck': deck,
         })
     return render_to_response('importer/importer.html', context,

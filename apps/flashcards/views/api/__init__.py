@@ -321,6 +321,7 @@ def rest_facts(request, deck=None, tags=None):
                     priority = 0)
                 new_card.randomize_new_order()
                 new_card.save()
+                new_card.redis.update_all()
         else:
             raise ApiException({
                 #'card': card_formset.errors,

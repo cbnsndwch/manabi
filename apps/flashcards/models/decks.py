@@ -1,7 +1,7 @@
-from books.models import Textbook
+import datetime
+import random
+
 from cachecow.cache import cached_function
-from constants import DEFAULT_EASE_FACTOR
-from constants import GRADE_NONE, GRADE_HARD, GRADE_GOOD, GRADE_EASY
 from django.contrib.auth.models import User
 from django.core.urlresolvers import reverse
 from django.db import models
@@ -9,12 +9,16 @@ from django.db import transaction
 from django.db.models import Avg
 from django.forms import ModelForm
 from django.forms.util import ErrorList
-from flashcards.cachenamespaces import deck_review_stats_namespace
-from itertools import chain
 from model_utils.managers import manager_from
+
+from apps.manabi_redis.models import redis
+from books.models import Textbook
+from constants import DEFAULT_EASE_FACTOR
+from constants import GRADE_NONE, GRADE_HARD, GRADE_GOOD, GRADE_EASY
+from flashcards.cachenamespaces import deck_review_stats_namespace
+from flashcards.models.intervals import initial_interval
+from itertools import chain
 import cards
-import datetime
-import random
 import usertagging
 
 
@@ -211,10 +215,6 @@ class Deck(models.Model):
         # copy the tags
         deck.tags = usertagging.utils.edit_string_for_tags(self.tags)
 
-        # create default deck scheduling options
-        scheduling_options = SchedulingOptions(deck=deck)
-        scheduling_options.save()
-
         # copy the facts - just the first few as a buffer
         shared_fact_to_fact = {}
         #TODO dont hardcode value here #chain(self.fact_set.all(), Fact.objects.filter(parent_fact__deck=self)):
@@ -250,43 +250,35 @@ class Deck(models.Model):
         #done!
         return deck
 
-    @property
     def card_count(self):
-        #FIXME this is inaccurate for synchronized deck which the (subscriber) 
-        # user has added cards to
-        deck = self.synchronized_with if self.synchronized_with else self
-        return cards.Card.objects.filter(
-                fact__deck=deck, active=True, suspended=False).count()
+        return cards.Card.objects.of_deck(self, with_upstream=True).available().count()
 
-    @property
-    def new_card_count(self):
-        #FIXME do for sync'd decks
-        return cards.Card.objects.cards_new_count(
-                self.owner, deck=self, active=True, suspended=False)
+    #TODO kill - unused?
+    #@property
+    #def new_card_count(self):
+    #    return Card.objects.approx_new_count(deck=self)
+    #    #FIXME do for sync'd decks
+    #    return cards.Card.objects.cards_new_count(
+    #            self.owner, deck=self, active=True, suspended=False)
 
-    @property
-    def due_card_count(self):
-        return cards.Card.objects.cards_due_count(
-                self.owner, deck=self, active=True, suspended=False)
+    #TODO kill - unused?
+    #@property
+    #def due_card_count(self):
+    #    return cards.Card.objects.cards_due_count(
+    #            self.owner, deck=self, active=True, suspended=False)
 
     @cached_function(namespace=deck_review_stats_namespace)
     def average_ease_factor(self):
         '''
-        Includes suspended cards in the calcuation. Doesn't include inactive 
-        cards.
+        Includes suspended cards in the calcuation. Doesn't include inactive cards.
         '''
-        deck_cards = cards.Card.objects.filter(
-                fact__deck=self,
-                active=True,
-                ease_factor__isnull=False)
-        if deck_cards.exists():
-            average_ef = deck_cards.aggregate(
-                    average_ease_factor=Avg('ease_factor')
-                    )['average_ease_factor']
-            if average_ef:
-                return average_ef
+        ease_factors = redis.zrange('ease_factor:deck:{0}'.format(self.id),
+                                    0, -1, withscores=True)
+        cardinality = len(ease_factors)
+        if cardinality:
+            return sum(score for val,score in ease_factors) / cardinality
         return DEFAULT_EASE_FACTOR
-    
+
     @transaction.commit_on_success    
     def delete_cascading(self):
         #FIXME if this is a shared/synced deck
@@ -294,7 +286,6 @@ class Deck(models.Model):
             for card in fact.card_set.all():
                 card.delete()
             fact.delete()
-        self.schedulingoptions.delete()
         self.delete()
 
     def export_to_csv(self):
@@ -400,66 +391,4 @@ class Deck(models.Model):
         return response
 
 usertagging.register(Deck)
-
-
-DEFAULT_INTERVALS = {
-    GRADE_NONE: (20.0/(24.0*60.0), 25.0/(24.0*60.0)),
-    #cards.GRADE_mature_unknown': (0.333, 0.333),
-    GRADE_HARD: (0.333, 0.5),
-    GRADE_GOOD: (3.0, 5.0),
-    GRADE_EASY: (7.0, 9.0),
-}
-
-
-class SchedulingOptions(models.Model):
-    deck = models.OneToOneField(Deck)
-    
-    mature_unknown_interval_min = models.FloatField(null=True, blank=True)
-    mature_unknown_interval_max = models.FloatField(null=True, blank=True)
-    unknown_interval_min = models.FloatField(null=True, blank=True)  # 
-    unknown_interval_max = models.FloatField(null=True, blank=True)  #TODO more? 0.5)
-    hard_interval_min = models.FloatField(null=True, blank=True)       #  8 hours
-    hard_interval_max = models.FloatField(null=True, blank=True)         # 12 hours
-    medium_interval_min = models.FloatField(null=True, blank=True)       #  3 days
-    medium_interval_max = models.FloatField(null=True, blank=True)       #  5 days
-    easy_interval_min = models.FloatField(null=True, blank=True)         #  7 days
-    easy_interval_max = models.FloatField(null=True, blank=True)         #  9 days
-
-    def __unicode__(self):
-        return self.deck.name
-
-    class Meta:
-        app_label = 'flashcards'
-    
-    #TODO should be classmethod
-    def _generate_interval(self, min_duration, max_duration):
-        #TODO favor (random.triangular) conservatism
-        return random.uniform(min_duration, max_duration) 
-
-    def _interval_min_max(self, grade):
-        if grade == GRADE_NONE:
-            min_, max_ = self.unknown_interval_min, self.unknown_interval_max
-        if grade == GRADE_HARD:
-            min_, max_ = self.hard_interval_min, self.hard_interval_max
-        elif grade == GRADE_GOOD:
-            min_, max_ = self.medium_interval_min, self.medium_interval_max
-        elif grade == GRADE_EASY:
-            min_, max_ = self.easy_interval_min, self.easy_interval_max
-
-        #TODO we don't use these yet since we don't allow user customizing
-        if True or (min_ is None or max_ is None): 
-            return DEFAULT_INTERVALS[grade]
-
-        return (min_, max_,)
-        
-    def initial_interval(self, grade, do_fuzz=True):
-        '''
-        Generates an initial interval duration for a new card that's been reviewed.
-        '''
-        min_, max_ = self._interval_min_max(grade)
-        
-        if do_fuzz:
-            return self._generate_interval(min_, max_)
-        else:
-            return (min_ + max_) / 2.0
 

@@ -1,11 +1,13 @@
-import random
-from constants import (GRADE_NONE, GRADE_HARD, GRADE_GOOD, GRADE_EASY,
-                       MATURE_INTERVAL_MIN)
 from datetime import timedelta, datetime
-from utils import timedelta_to_float
 from math import cos, pi
+import random
+
 from cachecow.cache import cached_function
+
+from constants import (GRADE_NONE, GRADE_HARD, GRADE_GOOD, GRADE_EASY, MATURE_INTERVAL_MIN)
 from flashcards.cachenamespaces import deck_review_stats_namespace
+from flashcards.models.intervals import initial_interval
+from utils import timedelta_to_float
 
 
 def repetition_algo_dispatcher(card, *args, **kwargs):
@@ -331,8 +333,7 @@ class YoungCardAlgo(RepetitionAlgo):
         interval for "Easy" grades.
         '''
         return (self.card.interval 
-                < self.card.fact.deck.schedulingoptions.initial_interval(
-                    GRADE_EASY))
+                < initial_interval(self.card.fact.deck, GRADE_EASY))
 
     def _next_interval(self, failure_interval=0):
         return super(YoungCardAlgo, self)._next_interval(
@@ -359,8 +360,8 @@ class MatureCardAlgo(RepetitionAlgo):
 
 class NewCardAlgo(RepetitionAlgo):
     def _next_interval(self, failure_interval=0):
-        interval = self.card.fact.deck.schedulingoptions.initial_interval(
-            self.grade)#FIXME, do_fuzz=do_fuzz)
+        #FIXME, do_fuzz=do_fuzz)
+        interval = initial_interval(self.card.fact.deck, self.grade)
 
         #TODO Lessen interval if reviewed too soon after a sibling card.
         return interval
@@ -397,8 +398,8 @@ class FailedCardAlgo(RepetitionAlgo):
     # This is just the deck's unknown interval
 
     def _next_interval(self, failure_interval=0):
-        interval = self.card.fact.deck.schedulingoptions.initial_interval(
-            self.grade)#FIXME, do_fuzz=do_fuzz)
+        #FIXME, do_fuzz=do_fuzz)
+        interval = initial_interval(self.card.fact.deck, self.grade)
 
         #TODO lessen effect if reviewed successfully very soon after a 
         # failed review.

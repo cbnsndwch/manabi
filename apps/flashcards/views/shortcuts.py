@@ -1,10 +1,11 @@
+from catnap.exceptions import HttpForbiddenException
+from django.forms import forms
+from django.shortcuts import get_object_or_404
+
 from flashcards.forms import DeckForm, FactForm, FieldContentForm, CardForm
 from flashcards.models import FactType, Fact, Deck, CardTemplate, FieldType
 from flashcards.models import FieldContent, Card
 from flashcards.models.constants import MAX_NEW_CARD_ORDINAL
-from django.forms import forms
-
-from django.shortcuts import get_object_or_404
 
 
 def get_deck_or_404(user, pk, must_own=False):
@@ -22,6 +23,4 @@ def get_deck_or_404(user, pk, must_own=False):
         raise HttpForbiddenException(msg)
 
     return deck
-
-
 

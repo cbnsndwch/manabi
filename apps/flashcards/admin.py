@@ -3,7 +3,7 @@ from django.contrib import admin
 from books.models import Textbook
 from flashcards.models import (
     Deck, FactType, Fact, CardTemplate,
-    FieldType, Card, FieldContent, SchedulingOptions, CardHistory)
+    FieldType, Card, FieldContent, CardHistory)
 
 
 class CardAdmin(admin.ModelAdmin):
@@ -39,6 +39,5 @@ admin.site.register(CardTemplate)
 admin.site.register(FieldType, FieldTypeAdmin)
 admin.site.register(Card, CardAdmin)
 admin.site.register(FieldContent)
-admin.site.register(SchedulingOptions)
 admin.site.register(Textbook)
 

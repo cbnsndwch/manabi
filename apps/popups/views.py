@@ -6,10 +6,9 @@ from django.db.models import F
 from django.shortcuts import render_to_response, redirect
 from django.template import RequestContext
 
-from flashcards.models import FactType, Fact, Deck, CardTemplate, \
-    FieldType, FieldContent, Card, \
-    GRADE_NONE, GRADE_HARD, GRADE_GOOD, GRADE_EASY, \
-    SchedulingOptions
+from flashcards.models import (FactType, Fact, Deck, CardTemplate,
+    FieldType, FieldContent, Card,
+    GRADE_NONE, GRADE_HARD, GRADE_GOOD, GRADE_EASY)
 from flashcards.contextprocessors import subfact_form_context
 from flashcards.contextprocessors import (
     deck_count_context, card_existence_context, fact_add_form_context)

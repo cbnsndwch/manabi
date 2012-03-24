@@ -65,12 +65,13 @@ class UndoCardReviewManager(models.Manager):
         card = last_undo.card
         card_history = last_undo.card_history
         undone_card = last_undo.pickled_card
-        
+
         # Overwrite the card model with its pickled counterpart
         for from_model, to_model in [(undone_card, card,)]:
             for field_name in _get_model_fields(from_model):
                 setattr(to_model, field_name, getattr(from_model, field_name))
             to_model.save()
+            to_model.redis.update_all()
 
         # Delete the card history item
         card_history.delete()

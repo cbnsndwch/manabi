@@ -22,7 +22,7 @@ class DeckResource(RestModelResource):
         data = super(DeckResource, self).get_data()
         data.update({
             'owner': UserResource(self.obj.owner).get_data(),
-            'card_count': self.obj.card_count,
+            'card_count': self.obj.card_count(),
             'status_url': reverse('rest-deck_status', args=[self.obj.id]),
         })
         return data
