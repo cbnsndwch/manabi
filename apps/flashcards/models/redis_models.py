@@ -68,7 +68,6 @@ class RedisCard(object):
         redis.srem('cards:owner:%s' % card.fact.deck.owner_id, card.id)
 
 
-
 # Listeners
 
 @receiver(post_save, sender=Card, dispatch_uid='card_saved_redis')
