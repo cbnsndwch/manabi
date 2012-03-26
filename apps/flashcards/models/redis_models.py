@@ -45,6 +45,10 @@ class RedisCard(object):
         else:
             redis.zrem(key, self.card.id)
 
+    def update_card_owner(self):
+        key = 'cards:owner:%s' % self.card.fact.deck.owner_id
+        redis.sadd(key, self.card.id)
+
     def after_review(self):
         ''' Call after a card is reviewed. '''
         #self._update_review_date()
@@ -55,11 +59,13 @@ class RedisCard(object):
     def update_all(self):
         self.update_deck()
         self.update_ease_factor()
+        self.update_card_owner()
 
     def delete(self):
         deck_id = card.fact.deck_id
-        redis.srem('cards:deck:' + deck_id, card.id)
-        redis.zrem('ease_factor:deck:' + deck_id, card.id)
+        redis.srem('cards:deck:%s' % deck_id, card.id)
+        redis.zrem('ease_factor:deck:%s' % deck_id, card.id)
+        redis.srem('cards:owner:%s' % card.fact.deck.owner_id, card.id)
 
 
 
@@ -73,5 +79,5 @@ def card_saved(sender, card, created, **kwargs):
 
 @receiver(post_delete, sender=Card, dispatch_uid='card_deleted_redis')
 def card_deleted(sender, card, **kwargs):
-    redis.
+    card.redis.delete()
 

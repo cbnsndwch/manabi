@@ -346,12 +346,14 @@ class CommonFiltersMixin(object):
             user_cards = user_cards.without_upstream(user)
 
         return user_cards
-    
+
     def without_upstream(self, user):
         '''
         Excludes cards that the subscribed user doesn't yet own,
         but which are in a synchronized deck this user owns.
         '''
+        #card_ids = redis.smembers('cards:owner:%s' % user.id)
+        #return self.filter(id__in=card_ids)
         return self.filter(fact__deck__owner=user)
 
     def of_upstream(self, user):
@@ -359,6 +361,8 @@ class CommonFiltersMixin(object):
         Filters to include only upstream cards (which the
         user hasn't copied yet).
         '''
+        #card_ids = redis.smembers('cards:owner:%s' % user.id)
+        #return self.exclude(id__in=card_ids)
         return self.exclude(fact__deck__owner=user)
 
     def with_tags(self, tags):
