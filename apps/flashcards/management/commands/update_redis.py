@@ -24,5 +24,7 @@ def update_redis():
 
 class Command(BaseCommand):
     def handle(self, *args, **options):
+        if args and args[0].lower() == 'flush':
+            redis.flushdb()
         update_redis()
 

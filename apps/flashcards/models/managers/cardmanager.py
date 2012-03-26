@@ -4,6 +4,7 @@ from itertools import chain
 from django.db import models
 from django.db.models import Avg, Max, Min, Count
 
+from apps.manabi_redis.models import redis
 from model_utils.managers import manager_from
 from flashcards.models.constants import (
     GRADE_NONE, GRADE_HARD, GRADE_GOOD, GRADE_EASY,
@@ -326,10 +327,13 @@ class CommonFiltersMixin(object):
         return self.filter(active=True, suspended=False)
 
     def of_deck(self, deck, with_upstream=False):
-        cards = self.filter(fact__deck=deck)
+        deck_key = 'cards:deck:{0}'.format(deck.id)
         if with_upstream and deck.synchronized_with:
-            return cards | self.filter(fact__deck=deck.synchronized_with)
-        return cards
+            sync_deck_key = 'cards:deck:{0}'.format(deck.synchronized_with_id)
+            card_ids = redis.sunion(deck_key, sync_deck_key)
+        else:
+            card_ids = redis.smembers(deck_key)
+        return self.filter(id__in=card_ids)
 
     def of_user(self, user, with_upstream=False):
         from flashcards.models.facts import Fact

@@ -71,7 +71,6 @@ class UndoCardReviewManager(models.Manager):
             for field_name in _get_model_fields(from_model):
                 setattr(to_model, field_name, getattr(from_model, field_name))
             to_model.save()
-            to_model.redis.update_all()
 
         # Delete the card history item
         card_history.delete()

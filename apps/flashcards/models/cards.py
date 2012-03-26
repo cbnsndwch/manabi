@@ -83,13 +83,11 @@ class Card(models.Model):
 
     def copy(self, target_fact):
         ''' Returns a new Card object. '''
-        card = Card(fact=target_fact,
+        return Card(fact=target_fact,
                     template_id=self.template_id,
                     priority=self.priority,
                     leech=False, active=True, suspended=False,
                     new_card_ordinal=self.new_card_ordinal)
-        card.redis.update_all()
-        return card
 
     @property
     def redis(self):

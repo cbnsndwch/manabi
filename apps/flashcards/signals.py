@@ -1,7 +1,6 @@
 import django.dispatch
 from django.dispatch import receiver
-from django.db.models.signals import (post_save, m2m_changed, post_delete,
-                                      pre_delete,)
+from django.db.models.signals import post_save, post_delete, pre_delete
 from models.fields import FieldContent
 from flashcards.models import Card
 
