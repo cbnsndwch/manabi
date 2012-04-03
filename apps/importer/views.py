@@ -37,7 +37,7 @@ def importer(request):
             return redirect(reverse('importer.views.importer') + query)
 
         # Now let's import it all.
-        
+
         deck = Deck.objects.create(
             name=request.POST['deck_name'],
             owner=request.user,

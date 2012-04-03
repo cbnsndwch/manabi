@@ -71,7 +71,8 @@ class RedisCard(object):
 # Listeners
 
 @receiver(post_save, sender=Card, dispatch_uid='card_saved_redis')
-def card_saved(sender, card, created, **kwargs):
+def card_saved(sender, instance, created, **kwargs):
+    card = instance
     if not created:
         return
     card.update_deck()
