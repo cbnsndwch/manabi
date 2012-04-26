@@ -1,12 +1,13 @@
 import os
 
-from django.conf.urls.defaults import *
 from django.conf import settings
-from flashcards.models import Deck, FactType, Card
-from django.views.generic.simple import direct_to_template
-from django.views.generic.list_detail import object_list, object_detail
+from django.conf.urls.defaults import *
 from django.views.decorators.cache import cache_page
+from django.views.generic.list_detail import object_list, object_detail
+from django.views.generic.simple import direct_to_template
 
+from flashcards.models import Deck, FactType, Card
+from flashcards import redis_listeners
 
 
 urlpatterns = patterns('flashcards.views.crud',

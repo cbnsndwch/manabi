@@ -1,9 +1,5 @@
-from django.dispatch import receiver
-from django.db.models.signals import post_save, post_delete, pre_delete
-
 from apps.utils.utils import unix_time
 from apps.manabi_redis.models import redis
-from apps.flashcards.models import Card
 
 
 class RedisCard(object):
@@ -66,18 +62,4 @@ class RedisCard(object):
         redis.srem('cards:deck:%s' % deck_id, card.id)
         redis.zrem('ease_factor:deck:%s' % deck_id, card.id)
         redis.srem('cards:owner:%s' % card.fact.deck.owner_id, card.id)
-
-
-# Listeners
-
-@receiver(post_save, sender=Card, dispatch_uid='card_saved_redis')
-def card_saved(sender, instance, created, **kwargs):
-    card = instance
-    if not created:
-        return
-    card.update_deck()
-
-@receiver(post_delete, sender=Card, dispatch_uid='card_deleted_redis')
-def card_deleted(sender, card, **kwargs):
-    card.redis.delete()
 
