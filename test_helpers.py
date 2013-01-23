@@ -27,9 +27,9 @@ class ManabiTestCase(TestCase):
 
     def setUp(self):
         self.api = APIShortcuts(self)
-        self.after_setUp()
-
         settings.DEFAULT_URL_PREFIX = 'http://testserver'
+
+        self.after_setUp()
 
     def after_setUp(self):
         pass
@@ -94,7 +94,7 @@ class APIShortcuts(object):
         ret = getattr(self.tc, method)(*args, user=user)
         #self.tc.assertTrue(200 <= ret.status_code < 300, msg=ret.content)
         self.tc.assertTrue(200 <= ret.status_code < 300,
-                           msg='{}\n{}'.format(ret.status_code, ret.content))
+                           msg='{}\n{}\n{}'.format(ret.status_code, args[0], ret.content))
         return ret
 
     def get(self, *args, **kwargs):
