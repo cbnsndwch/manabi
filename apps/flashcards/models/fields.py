@@ -1,6 +1,6 @@
 import pickle
 
-from cachecow.cache import cached_function
+from cachecow.decorators import cached_function
 from django.db import models, transaction
 from model_utils.managers import manager_from
 

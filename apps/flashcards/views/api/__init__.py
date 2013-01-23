@@ -19,7 +19,7 @@
 
 import random
         
-from cachecow.cache import cached_view
+from cachecow.decorators import cached_view
 from django.contrib.auth.decorators import login_required
 from django.forms import forms
 from django.forms.models import modelformset_factory

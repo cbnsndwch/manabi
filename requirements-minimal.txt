@@ -36,6 +36,13 @@ python-dateutil==1.4.1
 rfc3339==5
 pytz==2012j
 -e git+git@github.com:aehlke/django-kanjivg.git@30e607785e5b7ad8b57c7e528cc3a62684bb8ed5#egg=django_kanjivg-dev
+django-mailer==0.1.0
+https://github.com/jtauber/django-mailer/zipball/master
+-e git+git@github.com:aehlke/django-lazysignup.git@1ddcdc0936ec67abe2a663f9a0d64b91a319d014#egg=django_lazysignup-dev
+django-email-confirmation==0.2
+gunicorn==0.17.2
+django-debug-toolbar==0.9.4
+django-nose2==0.1.1
 
 # Awful dependencies to remove:
 johnny-cache==0.3.1

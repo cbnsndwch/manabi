@@ -1,6 +1,7 @@
 import random
 import string
 import sys
+from django.conf import settings
 
 from django.contrib.auth.models import User
 from django.core.urlresolvers import reverse
@@ -17,6 +18,8 @@ from apps.flashcards.models import (Deck, Card, Fact, FactType, FieldType,
 PASSWORD = 'whatever'
 
 class ManabiTestCase(TestCase):
+    longMessage = True
+
     @classmethod
     def setUpClass(cls):
         user = create_user()
@@ -25,6 +28,8 @@ class ManabiTestCase(TestCase):
     def setUp(self):
         self.api = APIShortcuts(self)
         self.after_setUp()
+
+        settings.DEFAULT_URL_PREFIX = 'http://testserver'
 
     def after_setUp(self):
         pass
@@ -44,7 +49,7 @@ class ManabiTestCase(TestCase):
         resp = getattr(self.client, verb)(url, user=user, *args, **kwargs)
         headers = dict(resp.items())
         if 'json' in headers.get('Content-Type', ''):
-            resp.JSON = json.loads(resp.content)
+            resp.json = json.loads(resp.content)
         return resp
 
     def get(self, *args, **kwargs):
@@ -83,14 +88,31 @@ class APIShortcuts(object):
     def __init__(self, test_case):
         self.tc = test_case
 
+    def call(self, *args, **kwargs):
+        method = kwargs.get('method')
+        user = kwargs.get('user')
+        ret = getattr(self.tc, method)(*args, user=user)
+        #self.tc.assertTrue(200 <= ret.status_code < 300, msg=ret.content)
+        self.tc.assertTrue(200 <= ret.status_code < 300,
+                           msg='{}\n{}'.format(ret.status_code, ret.content))
+        return ret
+
+    def get(self, *args, **kwargs):
+        kwargs['method'] = 'get'
+        return self.call(*args, **kwargs)
+
+    def post(self, *args, **kwargs):
+        kwargs['method'] = 'post'
+        return self.call(*args, **kwargs)
+
     def decks(self, user):
-        return self.tc.get(reverse('rest-deck_list'), user=user).JSON['deck_list']
+        return self.get(reverse('rest-deck_list'), user=user).json['deck_list']
 
     def next_cards_for_review(self, user):
-        return self.tc.get(reverse('rest-next_cards_for_review'), user=user).JSON['card_list']
+        return self.get(reverse('rest-next_cards_for_review'), user=user).json['card_list']
 
     def review_card(self, user, card, grade):
-        return self.tc.post(card['reviews_url'], {'grade': grade}, user=user)
+        return self.post(card['reviews_url'], {'grade': grade}, user=user)
 
 
 def random_name():

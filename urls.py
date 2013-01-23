@@ -17,10 +17,6 @@ urlpatterns = patterns('',
     url(r'^account/signup/$', 'account.views.signup',
         name="acct_signup", kwargs={'form_class': SignupForm}), 
 
-
-    url(r'^account/confirm_email/(\w+)/$',
-        'mobileaccount.views.confirm_email_proxy', name='acct_confirm_email'),
-
     url(r'^convert/convert/$', 'lazysignup.views.convert',
         name='lazysignup_convert',
         kwargs={
@@ -32,7 +28,7 @@ urlpatterns = patterns('',
 
     (r'^account/', include('account.urls')),
     (r'^admin/', include(admin.site.urls)),
-    (r'^sentry/', include('sentry.web.urls')),
+    #(r'^sentry/', include('sentry.web.urls')),
 
     (r'^mobile-account/', include('mobileaccount.urls')),
 
@@ -66,8 +62,6 @@ urlpatterns = patterns('',
     #url(r'^profiles/', include('idios.urls')),
 
     (r'^about/', include('about.urls')),
-    (r'^notices/', include('notification.urls')),
-    (r'^announcements/', include('announcements.urls')),
     
     # my own
     #(r'^reports/', include('reports.urls')),
@@ -92,5 +86,4 @@ if settings.SERVE_MEDIA:
     #    #(r'^site_media/', include('staticfiles.urls')),
     #    url(r'', include('staticfiles.urls')),
     #)
-
 

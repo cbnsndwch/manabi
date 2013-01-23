@@ -2,7 +2,7 @@ from datetime import timedelta, datetime
 from math import cos, pi
 import random
 
-from cachecow.cache import cached_function
+from cachecow.decorators import cached_function
 
 from constants import (GRADE_NONE, GRADE_HARD, GRADE_GOOD, GRADE_EASY, MATURE_INTERVAL_MIN)
 from flashcards.cachenamespaces import deck_review_stats_namespace

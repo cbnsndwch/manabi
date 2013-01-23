@@ -5,6 +5,7 @@ from django.forms.util import ErrorList
 from django.db.models.signals import post_save  
 
 import usertagging
+from usertagging.forms import TagField
 
 
 from models import Card, CardHistory, Fact, FactType, FieldType, FieldContent, Deck, CardTemplate
@@ -70,7 +71,7 @@ class CardTemplateForm(forms.ModelForm):
         
 
 class FactForm(forms.ModelForm):
-    tags = usertagging.forms.TagField(required=False)
+    tags = TagField(required=False)
 
     def save(self, force_insert=False, force_update=False, commit=True):
         m = super(FactForm, self).save(commit=False)

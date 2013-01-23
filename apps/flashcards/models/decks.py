@@ -1,7 +1,7 @@
 import datetime
 import random
 
-from cachecow.cache import cached_function
+from cachecow.decorators import cached_function
 from django.contrib.auth.models import User
 from django.core.urlresolvers import reverse
 from django.db import models

@@ -5,8 +5,8 @@ from django.test import Client, TestCase
 from django.core.urlresolvers import reverse
 from django.utils import simplejson
 from django.contrib.auth.models import User
+from django.conf import settings
 
-import settings
 from manabi.apps.flashcards.models import Deck
 from manabi.apps.flashcards.models.constants import (
     GRADE_NONE, GRADE_HARD, GRADE_GOOD, GRADE_EASY)

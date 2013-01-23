@@ -8,8 +8,6 @@ urlpatterns = patterns('mobileaccount.views',
     url(r'^signup/$', 'signup', name='mobile_acct_signup', kwargs={
         'template_name': 'mobileaccount/signup.html',
         #'success_url': 'mobile_account/signup_success.html',
-        'verification_sent_template_name':
-            'mobileaccount/verification_sent.html',
         'form_class': SignupForm}),
 )
 

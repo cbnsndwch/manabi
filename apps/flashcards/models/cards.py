@@ -5,7 +5,7 @@ from django.core.cache import cache
 from django.db import models
 from django.db.models import Count, Min, Max, Sum, Avg
 from django.template.loader import render_to_string
-from cachecow.cache import cached_function
+from cachecow.decorators import cached_function
 
 from constants import (GRADE_NONE, GRADE_HARD, GRADE_GOOD, GRADE_EASY,
                        MAX_NEW_CARD_ORDINAL, EASE_FACTOR_MODIFIERS,
