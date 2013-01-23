@@ -566,18 +566,3 @@ dojo.declare('reviews.Session', null, {
     }
 });
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
