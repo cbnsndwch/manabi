@@ -3,13 +3,14 @@ from urllib2 import URLError
 
 from django.db import models
 from model_utils.managers import manager_from
-from amazonproduct import API as AmazonAPI
+#from amazonproduct import API as AmazonAPI
 
 from apps.utils.slugs import slugify
 import settings
 
 
-amazon_api = AmazonAPI(settings.AWS_KEY, settings.AWS_SECRET_KEY, 'us')
+#TODO find different way.
+#amazon_api = AmazonAPI(settings.AWS_KEY, settings.AWS_SECRET_KEY, 'us')
 
 
 class DeckedTextbookManager(models.Manager):

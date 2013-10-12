@@ -311,12 +311,12 @@ else:
 if LIVE_HOST:
     DOJANGO_DOJO_THEME_URL = 'http://ajax.googleapis.com/ajax/libs/dojo/1.6/dijit/themes'
     DOJANGO_DOJO_THEME = 'tundra'
-    DOJANGO_BASE_MEDIA_URL = MEDIA_URL + 'static'
+    DOJANGO_BASE_MEDIA_URL = STATIC_URL
     DOJO_BASE_PATH = './'#STATIC_URL + 'js'
 else:
-    DOJANGO_DOJO_THEME_URL = MEDIA_URL + 'static/css/dojo_themes'
+    DOJANGO_DOJO_THEME_URL = STATIC_URL + 'css/dojo_themes'
     DOJANGO_DOJO_THEME = 'tundra'
-    DOJANGO_BASE_MEDIA_URL = MEDIA_URL + 'static'
+    DOJANGO_BASE_MEDIA_URL = STATIC_URL
 
 
 # JDic audio server root URL - the directory containing the mp3s.
