@@ -10,6 +10,7 @@ hiredis==0.1.1
 pytz==2013d
 
 
+https://github.com/kennethreitz/dj-static/archive/8c9f384a7a0eed48556bf7d85ae5f25f23845ebc.zip
 https://github.com/aehlke/django-cachecow/archive/master.zip
 https://github.com/aehlke/django-kanjivg/archive/master.zip
 https://github.com/aehlke/django-snippetscream/archive/master.zip
