@@ -22,8 +22,6 @@ if base not in sys.path:
 #if base_parent not in sys.path:
 #    sys.path.append(base_parent)
 
-for p in sys.path: print p
-
 if __name__ == "__main__":
     os.environ.setdefault("DJANGO_SETTINGS_MODULE", "manabi.settings")
 

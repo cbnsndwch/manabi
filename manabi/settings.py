@@ -31,13 +31,13 @@ MANAGERS = ADMINS
 import logging
 if DEBUG:
     logging.basicConfig(
-            level=logging.ERROR,
-            format='%(asctime)s %(levelname)s %(message)s')
+        level=logging.ERROR,
+        format='%(asctime)s %(levelname)s %(message)s')
 else:
     logging.basicConfig(
-            level=logging.ERROR,
-            format='%(asctime)s %(levelname)s %(message)s',
-            filename='/var/log/python-manabi.log')
+        level=logging.ERROR,
+        format='%(asctime)s %(levelname)s %(message)s',
+        filename='/var/log/python-manabi.log')
 
 TIME_ZONE = 'UTC'
 LANGUAGE_CODE = 'en'
@@ -167,6 +167,7 @@ INSTALLED_APPS = (
     # Other
     #'template_repl',
     'south',
+    'django_nose', # Must come after south.
     #'lazysignup',
     'catnap',
     'cachecow',
@@ -199,6 +200,10 @@ if DEBUG:
         #'devserver',
     )
 
+TEST_RUNNER = 'django_nose.NoseTestSuiteRunner'
+NOSE_PLUGINS = [
+    'manabi.nose_plugins.SilenceSouth',
+]
 
 DEVSERVER_MODULES = (
     #'devserver.modules.sql.SQLRealTimeModule',

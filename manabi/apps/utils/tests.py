@@ -10,12 +10,14 @@ class ReadingGenerationTest(TestCase):
     def test_compound_word(self):
         word = u'曲がり角'
         reading = generate_reading(word)
+        print reading
         self.assertTrue(u'かど' in reading)
         self.assertEqual(u'曲[ま]がり　角[かど]', reading)
 
     def test_furiganaize(self):
         word = u'角'
         reading = u'かど'
+        print reading
         translit = _furiganaize(word, reading, False)
         self.assertTrue(u'かど' in translit)
 
