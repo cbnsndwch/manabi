@@ -35,6 +35,9 @@ class JdicAudioTest(TestCase):
         'Returns json response as dict'
         post_data = {'filename': filename}
         
+        
+        import sys
+        for p in sys.path: print p
         res = self.client.post(
             reverse('jdic_audio_file_exists'), post_data)
 

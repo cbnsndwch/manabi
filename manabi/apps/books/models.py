@@ -75,6 +75,8 @@ class Textbook(models.Model):
         return self.isbn.strip().replace('-', '')
 
     def _item_lookup(self, **kwargs):
+        return
+        #TODO fix
         return amazon_api.item_lookup(
                 self.cleaned_isbn, IdType='ISBN', SearchIndex='Books', **kwargs)
 

@@ -24,8 +24,8 @@ from manabi.apps.flashcards.models import FactType, Fact, Deck, CardTemplate, Fi
 from manabi.apps.flashcards.models import FieldContent, Card
 from manabi.apps.flashcards.forms import TextbookSourceForm
 from manabi.apps.flashcards.views.shortcuts import get_deck_or_404
-from books.forms import TextbookForm
-import usertagging
+from manabi.apps.books.forms import TextbookForm
+from manabi.apps import usertagging
 
 
 def add_decks(request):

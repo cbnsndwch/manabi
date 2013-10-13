@@ -9,7 +9,7 @@ from manabi.apps.flashcards.models.decks import Deck
 from manabi.apps.flashcards.views.shortcuts import get_deck_or_404
 from functools import wraps
 import datetime
-import usertagging
+from manabi.apps import usertagging
 
 import logging
 logger = logging.getLogger(__name__)

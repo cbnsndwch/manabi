@@ -1,16 +1,16 @@
+from lazysignup.decorators import allow_lazy_user
 from django.conf.urls.defaults import *
 from django.views.generic.simple import direct_to_template
-from forms import SignupForm
-from utils.urldecorators import decorated_patterns
-from lazysignup.decorators import allow_lazy_user
-from utils.authforms import PinaxLazyConvertForm
-
 from django.conf import settings
-
 from django.contrib import admin
+
+from forms import SignupForm
+from manabi.apps.utils.urldecorators import decorated_patterns
+from manabi.apps.utils.authforms import PinaxLazyConvertForm
+from manabi.apps.flashcards.urls import rest_api_urlpatterns
+
 admin.autodiscover()
 
-from manabi.apps.flashcards.urls import rest_api_urlpatterns
 
 
 urlpatterns = patterns('',

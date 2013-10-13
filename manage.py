@@ -20,8 +20,14 @@ def add_path(p):
         sys.path.remove(p)
     sys.path.insert(0, p)
 
+def remove_path(p):
+    if p in sys.path:
+        sys.path.remove(p)
+
+remove_path(os.path.dirname(os.path.dirname(__file__)))
+
+add_path(join(os.path.dirname(__file__), 'manabi'))
 add_path(os.path.dirname(__file__))
-#add_path(join(os.path.dirname(__file__), 'manabi'))
 
 
 if __name__ == "__main__":
@@ -34,7 +40,7 @@ if __name__ == "__main__":
     #if apps_path not in sys.path:
     #    sys.path.insert(0, apps_path)
      
-    #for p in sys.path: print p
+    for p in sys.path: print p
 
     execute_from_command_line(sys.argv)
 
