@@ -8,7 +8,7 @@
 		evt.preventDefault();
 
         var def = manabi_ui.xhrPost(
-            '{% url delete_deck deck.id %}',
+            '{% url "delete_deck" deck.id %}',
             dojo.byId('deckDeleteForm'),
             '{{ post_delete_redirect }}');
 	</script>
@@ -19,7 +19,7 @@
 	<button dojoType="dijit.form.Button" jsId="deckDeleteCancelButton">
 		Cancel
 		<script type="dojo/connect" event="onClick" args="evt">
-            manabi_ui.xhrLink('{% url decks %}');
+            manabi_ui.xhrLink('{% url "decks" %}');
 		</script>
 	</button>
 </div>

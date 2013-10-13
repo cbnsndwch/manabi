@@ -25,7 +25,7 @@
                     </script>
                     <script type="dojo/connect" event="onClick" args="evt">
                         var suspend = this.get('checked');
-                        var url = "{% url rest-deck_status deck.id %}";
+                        var url = "{% url "rest-deck_status" deck.id %}";
 
                         var xhr_args = {
                             url: url,
@@ -51,7 +51,7 @@
         {% endfor %}
     </ul>
 {% else %}
-    <p class="weak">You have no decks in your library. Please <a href="{% url add_decks %}" class="xhr_link">add</a> some first.</p>
+    <p class="weak">You have no decks in your library. Please <a href="{% url "add_decks" %}" class="xhr_link">add</a> some first.</p>
 {% endif %}
 
 

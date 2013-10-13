@@ -17,7 +17,7 @@
             <script type="dojo/connect" event="onChange" args="value">
                 console.log(this.id + " changed to value" + value);
                 dojo.xhrPost({
-                    'url': '{% url api-deck_name deck.id %}',
+                    'url': '{% url "api-deck_name" deck.id %}',
                     content: {name: value},
                     handleAs: 'json'
                 });
@@ -27,7 +27,7 @@
         <div dojoType="dijit.InlineEditBox" autosave="false" editor="dijit.form.Textarea">
             <script type="dojo/connect" event="onChange" args="value">
                 dojo.xhrPost({
-                    'url': '{% url api-deck_description deck.id %}',
+                    'url': '{% url "api-deck_description" deck.id %}',
                     content: {description: value},
                     handleAs: 'json'
                 });
@@ -49,7 +49,7 @@
                     Resume Deck
                     <script type="dojo/connect" event="onClick" args="evt">
                         var xhr_args = {
-                            url: "{% url rest-deck_status deck.id %}",
+                            url: "{% url "rest-deck_status" deck.id %}",
                             content: {'suspended': false},
                             handleAs: 'json',
                             load: dojo.hitch(this, function(data) {
@@ -88,12 +88,12 @@
                                 _kmq.push(['record', 'Added deck']);
                                 _kmq.push(['record', 'Added or created deck']);
 
-                                var url = '{% url api-subscribe_to_deck deck.id %}';
+                                var url = '{% url "api-subscribe_to_deck" deck.id %}';
                                 manabi_ui.xhrPostData(url);
 	                        </script>
                         </button>
                     {% else %}
-                        Please <a href="{% url acct_login %}">login</a> or <a href="{% url acct_signup %}">signup</a> first.
+                        Please <a href="{% url "acct_login" %}">login</a> or <a href="{% url acct_signup %}">signup</a> first.
                     {% endif %}
                 </div>
             </div>
@@ -154,7 +154,7 @@
                     <script type="dojo/connect" event="onClick" args="evt">
                         // Shares or unshares this deck.
                         var share = this.get('checked');
-                        var url = '{% url api-deck deck.id %}';
+                        var url = '{% url "api-deck" deck.id %}';
                         manabi_ui.xhrPutData(url, {'shared': share});
                     </script>            
                 </button>
@@ -174,7 +174,7 @@
                 <div dojoType="dijit.form.Form" class="hidden form" jsId="deckTextbookSourceForm">
 	                <script type="dojo/connect" event="onSubmit" args="evt">
 		                evt.preventDefault();
-                        manabi_ui.xhrPost('{% url deck_textbook_source deck.id %}', deckTextbookSourceForm.domNode);
+                        manabi_ui.xhrPost('{% url "deck_textbook_source" deck.id %}', deckTextbookSourceForm.domNode);
 	                </script>
                     <div>Select the textbook used to make this deck: {{ textbook_source_form.textbook_source }},</div>
                     <div>or enter its ISBN: {{ textbook_form.isbn }}.</div>
@@ -195,7 +195,7 @@
         <script>!function(d,s,id){var js,fjs=d.getElementsByTagName(s)[0];if(!d.getElementById(id)){js=d.createElement(s);js.id=id;js.src="//platform.twitter.com/widgets.js";fjs.parentNode.insertBefore(js,fjs);}}(document,"script","twitter-wjs");</script>
 
         <p>
-            <a href="{% url exported_deck_csv deck.id %}" class="weak" target="_blank">Export to CSV</a>
+            <a href="{% url "exported_deck_csv" deck.id %}" class="weak" target="_blank">Export to CSV</a>
         </p>
         <p>
             <button dojoType="dijit.form.Button">
@@ -203,8 +203,8 @@
 	            <script type="dojo/connect" event="onClick" args="evt">
                     var delete_response = window.confirm('Really delete this deck, and all the flashcards it contains? This action cannot be undone.');
                     if (delete_response) {
-                        var url = '{% url delete_deck deck.id %}';
-                        manabi_ui.xhrPostData(url, null, '{% url decks %}');
+                        var url = '{% url "delete_deck" deck.id %}';
+                        manabi_ui.xhrPostData(url, null, '{% url "decks" %}');
                     }
 	            </script>
             </button>

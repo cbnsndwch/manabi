@@ -32,12 +32,12 @@
     {% load lazysignup_tags %}
 
     {% if user|is_lazy_user %}
-            <a href="{% url acct_login %}">{% trans "Login" %}</a> {% ifsetting ACCOUNT_OPEN_SIGNUP %}{% trans "or" %} <a href="{% url lazysignup_convert %}" class="xhr_link"><b>{% trans "Sign up" %}</b></a>{% endifsetting %}
+            <a href="{% url "acct_login" %}">{% trans "Login" %}</a> {% ifsetting ACCOUNT_OPEN_SIGNUP %}{% trans "or" %} <a href="{% url lazysignup_convert %}" class="xhr_link"><b>{% trans "Sign up" %}</b></a>{% endifsetting %}
     {% else %}
         {% if user.is_authenticated %}
-            <b>{% user_display user %}</b> | <a href="{% url acct_email %}">{% trans "Account" %}</a> | {% if user.is_staff %}<a href="/admin/">{% trans "Admin" %}</a> | {% endif %}<a href="{% url acct_logout %}">{% trans "Logout" %}</a>
+            <b>{% user_display user %}</b> | <a href="{% url "acct_email" %}">{% trans "Account" %}</a> | {% if user.is_staff %}<a href="/admin/">{% trans "Admin" %}</a> | {% endif %}<a href="{% url acct_logout %}">{% trans "Logout" %}</a>
         {% else %}
-            <a href="{% url acct_login %}">{% trans "Login" %}</a> {% ifsetting ACCOUNT_OPEN_SIGNUP %}{% trans "or" %} <a href="{% url acct_signup %}"><b>{% trans "Sign up" %}</b></a>{% endifsetting %}
+            <a href="{% url "acct_login" %}">{% trans "Login" %}</a> {% ifsetting ACCOUNT_OPEN_SIGNUP %}{% trans "or" %} <a href="{% url acct_signup %}"><b>{% trans "Sign up" %}</b></a>{% endifsetting %}
         {% endif %}
     {% endif %}
 {% endblock %}
@@ -47,7 +47,7 @@
 <div id="site_title">
     {% spaceless %}
     {% block site_title_link_tag %}
-        <a href="{% url home %}">
+        <a href="{% url "home" %}">
     {% endblock %}
             <span id="site_logo"><img src="{{ STATIC_URL }}images/gaku.png"></span>
             <span class="no_hover">Manabi</span><span class="hover">まなび</span>
@@ -59,8 +59,8 @@
 
 {% block nav %}
     <ul>
-        <li id="nav_tab_home" class="tab {% is_active_tab request "home" %}"><a href="{% url home %}" id="nav_home_link">Home</a>
-        <li id="nav_tab_add" class="tab {% is_active_tab request "add" %}"><a href="{% url add_decks %}" id="nav_add_link">Add</a>
+        <li id="nav_tab_home" class="tab {% is_active_tab request "home" %}"><a href="{% url "home" %}" id="nav_home_link">Home</a>
+        <li id="nav_tab_add" class="tab {% is_active_tab request "add" %}"><a href="{% url "add_decks" %}" id="nav_add_link">Add</a>
     </ul>
 {% endblock %}
 
@@ -115,8 +115,8 @@
 <div class="legal">
     <a rel="license" href="http://creativecommons.org/licenses/by-sa/3.0/"><img alt="Creative Commons License" src="{{ STATIC_URL }}images/cc.png" /></a> 
     {% trans "&copy; Alex Ehlke 2011" %}.
-    Feedback or support: <a href="mailto:support@manabi.org">support@manabi.org</a> | <a href="{% url terms_of_service %}" class="xhr_link">Terms of Service</a> | <a href="{% url privacy_policy %}" class="xhr_link">Privacy Policy</a>
-    | <a href="{% url credits %}" class="xhr_link">Credits</a>
+    Feedback or support: <a href="mailto:support@manabi.org">support@manabi.org</a> | <a href="{% url "terms_of_service" %}" class="xhr_link">Terms of Service</a> | <a href="{% url privacy_policy %}" class="xhr_link">Privacy Policy</a>
+    | <a href="{% url "credits" %}" class="xhr_link">Credits</a>
 </div>
 {% endblock %}
 

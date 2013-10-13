@@ -54,7 +54,7 @@
             
         };
         dojo.xhrGet({
-            url: '{% url graphs_repetitions %}',
+            url: '{% url "graphs_repetitions" %}',
             handleAs: 'json'
         }).then(function(data) {
             if (data.success) {
@@ -117,7 +117,7 @@
             
         };
         dojo.xhrGet({
-            url: '{% url graphs_due_counts %}',
+            url: '{% url "graphs_due_counts" %}',
             handleAs: 'json'
         }).then(function(data) {
             if (data.success) {

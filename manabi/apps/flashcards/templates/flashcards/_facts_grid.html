@@ -1,14 +1,14 @@
 
 
 <div dojoType="dojo.data.ItemFile{% if request.user == deck.owner %}Write{% else %}Read{% endif %}Store" jsId="cards_factStore" 
-    url="{% url api-facts %}?fact_type=1&deck={{ deck.id }}" clearOnClose="true">
+    url="{% url "api-facts" %}?fact_type=1&deck={{ deck.id }}" clearOnClose="true">
 </div>
 <div dojoType="dojo.data.ItemFileReadStore" jsId="cards_fieldTypeStore" 
-    url="{% url api-fact_type_fields 1 %}">
+    url="{% url "api-fact_type_fields" 1 %}">
 </div>
 <div dojoType="dojox.grid.formatterScopeObj" store="cards_factStore" jsId="factsStoreFormatter"></div> 
 
-<div dojoType="dojo.data.ItemFileReadStore" jsId="cards_factsTagsStore" url="{% url api-fact_tags %}">
+<div dojoType="dojo.data.ItemFileReadStore" jsId="cards_factsTagsStore" url="{% url "api-fact_tags" %}">
 </div>
 
 <div class="wide">
@@ -22,7 +22,7 @@
                     var store = cards_factsGrid.store;
                     store.close();
                     fact_ui.facts_url_query['search'] = search_query;
-                    store.url = '{% url api-facts %}?' + dojo.objectToQuery(fact_ui.facts_url_query);
+                    store.url = '{% url "api-facts" %}?' + dojo.objectToQuery(fact_ui.facts_url_query);
                     store.fetch();
                     cards_factsGrid.sort(); //forces a refresh
                     cards_clearFactSearchButton.domNode.style.visibility = '';
@@ -63,7 +63,7 @@
                             var store = cards_factsGrid.store;
                             store.close();
                             fact_ui.facts_url_query['tag'] = fact_ui.current_tag_filter_list;
-                            store.url = '{% url api-facts %}?' + dojo.objectToQuery(fact_ui.facts_url_query);
+                            store.url = '{% url "api-facts" %}?' + dojo.objectToQuery(fact_ui.facts_url_query);
                             store.fetch();
                             cards_factsGrid.sort(); //forces a refresh
                             //add closable tag div
@@ -130,7 +130,7 @@
                         var grid_item = cards_factsGrid.selection.getSelected()[0];
                         var fact_id = grid_item['fact-id'][0]; //TODO allow multiple selections
                         var deferred = dojo.xhrPost({
-                            url: '{% url api-facts %}' + fact_id + '/',
+                            url: '{% url "api-facts" %}' + fact_id + '/',
                             handleAs: 'text',
                             content: { _method: 'DELETE' },
                             load: function(data) {
@@ -156,7 +156,7 @@
                     var suspend = this.get('checked');
                     var grid_item = cards_factsGrid.selection.getSelected()[0];
                     var fact_id = grid_item['fact-id'][0]; //TODO allow multiple selections
-                    var url = '{% url api-facts %}' + fact_id;
+                    var url = '{% url "api-facts" %}' + fact_id;
                     url += suspend ? '/suspend/' : '/unsuspend/';
 
                     var xhr_args = {

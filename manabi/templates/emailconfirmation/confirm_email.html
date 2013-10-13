@@ -11,7 +11,7 @@
         {% user_display email_address.user as user_display %}
         <p>{% blocktrans with email_address.email as email %}You have confirmed that {{ email }} is an e-mail address for user '{{ user_display }}'.{% endblocktrans %}</p>
         <p>
-            Please <a href="{% url acct_login %}">{% trans "Login" %}</a> with your new account.
+            Please <a href="{% url "acct_login" %}">{% trans "Login" %}</a> with your new account.
         </p>
 
         <script type="text/javascript">

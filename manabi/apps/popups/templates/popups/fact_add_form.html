@@ -8,7 +8,7 @@
 
 {% block content %}
 
-<h4 style="padding-left:2px;margin-bottom:1em;">Create flashcards in '{{ fact_add_form.deck.name }}' (<a href="{% url popups-deck_chooser %}">change deck</a>)</h4>
+<h4 style="padding-left:2px;margin-bottom:1em;">Create flashcards in '{{ fact_add_form.deck.name }}' (<a href="{% url "popups-deck_chooser" %}">change deck</a>)</h4>
 
 {% include "flashcards/fact_add_form.html" %}
 

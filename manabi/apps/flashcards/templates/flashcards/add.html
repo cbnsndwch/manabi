@@ -24,7 +24,7 @@
 
     <div class="find_textbook_link weak clickable_contents">
         <img src="{{ STATIC_URL }}icons/book_front.png">
-        <a href="{% url book_list %}" class="xhr_link" style="font-weight:bold;">Learning from a textbook?</a>
+        <a href="{% url "book_list" %}" class="xhr_link" style="font-weight:bold;">Learning from a textbook?</a>
     </div>
     <ul class="shared_decks deck_list">
         {% cache 300 shared_deck_list %} 
@@ -34,7 +34,7 @@
 </div>
 <div class="column create_deck clickable_contents">
     <img src="{{ STATIC_URL }}icons/isloo/inbox_empty.png" class="icon">
-    <h2><a href="{% url create_deck %}" class="xhr_link">Create a Deck</a></h2>
+    <h2><a href="{% url "create_deck" %}" class="xhr_link">Create a Deck</a></h2>
     <p class="column_description">Create a new deck of your own.</p>
 </div>
 <div class="column create_cards">
@@ -68,7 +68,7 @@
 
         // make "create deck" clickable
         dojo.query('.add_decks .create_deck').onclick(function(evt){
-            manabi_ui.xhrLink('{% url create_deck %}');
+            manabi_ui.xhrLink('{% url "create_deck" %}');
         });
     });
 </script>

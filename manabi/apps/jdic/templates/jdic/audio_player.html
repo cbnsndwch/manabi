@@ -5,7 +5,7 @@
             var server = new jdic.audio.Server('{{ audio_server }}');
 
             // Only create the widget if the desired audio file actually exists.
-            //server.audioExists('{% url jdic_audio_file_exists %}', '{{ kanji }}', '{{ kana }}').then(function(exists) {
+            //server.audioExists('{% url "jdic_audio_file_exists" %}', '{{ kanji }}', '{{ kana }}').then(function(exists) {
             //exists = true;
             //    if (exists) {
                     var player = new jdic.audio.Player({

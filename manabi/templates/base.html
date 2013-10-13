@@ -100,7 +100,7 @@
                     {% for announcement in site_wide_announcements %}
                     <li>
                         <a href="{{ announcement.get_absolute_url }}">{{ announcement }}</a> -
-                        <a href="{% url announcement_hide announcement.pk %}?next={{ request.path }}">{% trans "Hide announcement" %}</a>
+                        <a href="{% url "announcement_hide" announcement.pk %}?next={{ request.path }}">{% trans "Hide announcement" %}</a>
                     </li>
                     {% endfor %}
                 </ul>

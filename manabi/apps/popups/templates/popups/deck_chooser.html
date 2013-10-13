@@ -11,7 +11,7 @@
 <div class="columns">
     <div class="column create_deck clickable_contents">
         <img src="{{ STATIC_URL }}icons/isloo/inbox_empty.png" class="icon">
-        <h2><a href="{% url popups-create_deck %}" class="xhr_link">Create a Deck</a></h2>
+        <h2><a href="{% url "popups-create_deck" %}" class="xhr_link">Create a Deck</a></h2>
         <p class="column_description">Create a new deck of your own.</p>
     </div>
     <div class="column create_cards">
@@ -21,7 +21,7 @@
         {% if deck_list %}
             <ul class="deck_list">
                 {% for deck in deck_list %}
-                    <li class="clickable_contents"><a href="{% url popups-fact_add_form deck_id=deck.id %}">{{ deck.name }}</a></li>
+                    <li class="clickable_contents"><a href="{% url "popups-fact_add_form" deck_id=deck.id %}">{{ deck.name }}</a></li>
                 {% endfor %}
             </ul>
         {% else %}

@@ -27,25 +27,25 @@
                         You can start using it right away.
                     </div>
                     {% if not cards_exist %}
-                        <div class="eyecatching_action_button"><a href="{% url add_decks %}" class="xhr_link" id="start_learning_now_link">Start learning now!</a></div>
+                        <div class="eyecatching_action_button"><a href="{% url "add_decks" %}" class="xhr_link" id="start_learning_now_link">Start learning now!</a></div>
                         <script>
                             _kmq.push(['trackClick', 'start_learning_now_link', 'Clicked "Start Learning Now"']);
                         </script>
                     {% endif %}
                     <div>
-                        After you've tried it out, <a href="{% url lazysignup_convert %}">sign up for a free account</a> to save your progress.
+                        After you've tried it out, <a href="{% url "lazysignup_convert" %}">sign up for a free account</a> to save your progress.
                     </div>
                     {% if cards_exist %}
-                        <div class="eyecatching_action_button"><a href="{% url lazysignup_convert %}">Sign Up!</a></div>
+                        <div class="eyecatching_action_button"><a href="{% url "lazysignup_convert" %}">Sign Up!</a></div>
                     {% endif %}
                 {% else %}
-                    <div>Please <a href="{% url acct_signup %}">sign up here</a> for a free account.</div>
+                    <div>Please <a href="{% url "acct_signup" %}">sign up here</a> for a free account.</div>
                 {% endif %}
             </div>
             <div class="column login_link">
                 <h3>Already signed up?</h3>
                 <div>
-                    <a href="{% url acct_login %}">Log in here</a>.
+                    <a href="{% url "acct_login" %}">Log in here</a>.
                 </div>
             </div>
             <div style="clear:both"></div>

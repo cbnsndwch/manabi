@@ -20,16 +20,16 @@
         <p><span class="warning">{% trans "Note" %}</span>: {% blocktrans %}you are already logged in as {{ user_display }}.{% endblocktrans %}</p>
     {% else %}
         {% ifsetting ACCOUNT_OPEN_SIGNUP %}
-            {% if user|is_lazy_user %} {% url lazysignup_convert as signup_url %} {% else %} {% url acct_signup as signup_url %} {% endif %}
+            {% if user|is_lazy_user %} {% url "lazysignup_convert" as signup_url %} {% else %} {% url acct_signup as signup_url %} {% endif %}
             <p>{% blocktrans %}Don't have an account? <a href="{{ signup_url }}" target="_blank">Sign up</a>!{% endblocktrans %}</p>
         {% endifsetting %}
     {% endif %}
     
-    <form class="login uniForm" method="POST" action="{% url popup_acct_login %}">
+    <form class="login uniForm" method="POST" action="{% url "popup_acct_login" %}">
         {% csrf_token %}
         <fieldset class="inlineLabels">
             <div class="form_block">
-                <a href="{% url acct_passwd_reset %}" target="_blank">{% trans "Forgot password?" %}</a>
+                <a href="{% url "acct_passwd_reset" %}" target="_blank">{% trans "Forgot password?" %}</a>
             </div>
             {{ form|as_uni_form }}
             {% if redirect_field_value %}

@@ -73,27 +73,27 @@
     {% load lazysignup_tags %}
 
     {% if user|is_lazy_user %}
-            <a href="{% url acct_login %}">{% trans "Login" %}</a> {% ifsetting ACCOUNT_OPEN_SIGNUP %}{% trans "or" %} <a href="{% url lazysignup_convert %}"><b>{% trans "Sign up" %}</b></a>{% endifsetting %}
+            <a href="{% url "acct_login" %}">{% trans "Login" %}</a> {% ifsetting ACCOUNT_OPEN_SIGNUP %}{% trans "or" %} <a href="{% url lazysignup_convert %}"><b>{% trans "Sign up" %}</b></a>{% endifsetting %}
     {% else %}
         {% if user.is_authenticated %}
-            <b>{% user_display user %}</b> | <a href="{% url acct_email %}">{% trans "Account" %}</a> | {% if user.is_staff %}<a href="/admin/">{% trans "Admin" %}</a> | {% endif %}<a href="{% url acct_logout %}">{% trans "Logout" %}</a>
+            <b>{% user_display user %}</b> | <a href="{% url "acct_email" %}">{% trans "Account" %}</a> | {% if user.is_staff %}<a href="/admin/">{% trans "Admin" %}</a> | {% endif %}<a href="{% url acct_logout %}">{% trans "Logout" %}</a>
         {% else %}
-            <a href="{% url acct_login %}">{% trans "Login" %}</a> {% ifsetting ACCOUNT_OPEN_SIGNUP %}{% trans "or" %} <a href="{% url acct_signup %}"><b>{% trans "Sign up" %}</b></a>{% endifsetting %}
+            <a href="{% url "acct_login" %}">{% trans "Login" %}</a> {% ifsetting ACCOUNT_OPEN_SIGNUP %}{% trans "or" %} <a href="{% url acct_signup %}"><b>{% trans "Sign up" %}</b></a>{% endifsetting %}
         {% endif %}
     {% endif %}
 {% endblock %}
 
 {% block site_title_link_tag %}
-    <a href="{% url home_inline %}" class="xhr_link">
+    <a href="{% url "home_inline" %}" class="xhr_link">
 {% endblock %}
 
 {% block nav %}
     <ul>
-        <li id="nav_tab_home" class="tab {% is_active_tab request "home" %}"><a href="{% url home_inline %}" id="nav_home_link" class="xhr_link">Home</a>
-        <li id="nav_tab_add" class="tab {% is_active_tab request "add" %}"><a href="{% url add_decks %}" id="nav_add_link" class="xhr_link">Add</a>
+        <li id="nav_tab_home" class="tab {% is_active_tab request "home" %}"><a href="{% url "home_inline" %}" id="nav_home_link" class="xhr_link">Home</a>
+        <li id="nav_tab_add" class="tab {% is_active_tab request "add" %}"><a href="{% url "add_decks" %}" id="nav_add_link" class="xhr_link">Add</a>
         {% if user.is_authenticated %}
-            <li id="nav_tab_manage" class="tab {% is_active_tab request "manage" %}"><a href="{% url decks %}" id="nav_manage_link" class="xhr_link">Manage</a>
-            <li id="nav_tab_stats" class="tab {% is_active_tab request "stats" %}"><a href="{% url stats %}" class="xhr_link">Stats</a>
+            <li id="nav_tab_manage" class="tab {% is_active_tab request "manage" %}"><a href="{% url "decks" %}" id="nav_manage_link" class="xhr_link">Manage</a>
+            <li id="nav_tab_stats" class="tab {% is_active_tab request "stats" %}"><a href="{% url "stats" %}" class="xhr_link">Stats</a>
         {% endif %}
 
         <script type="text/javascript">
