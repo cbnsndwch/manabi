@@ -10,7 +10,7 @@ import pickle
 import random
 from manabi.apps import usertagging
 from manabi.apps.usertagging.models import UserTaggedItem
-from model_utils.managers import manager_from
+from manabi.apps.utils.managers import manager_from
 
 
 def seconds_to_days(s):
@@ -27,7 +27,7 @@ class _FactTypeManager(object):
     def example_sentences(self):
         return self.get(id=2)
 
-FactTypeManager = lambda: manager_from(_FactTypeManager)
+FactTypeManager = manager_from(_FactTypeManager)
 
 class FactType(models.Model):
     objects = FactTypeManager()

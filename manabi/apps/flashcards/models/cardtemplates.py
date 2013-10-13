@@ -2,7 +2,7 @@ from django.db import models
 from django.contrib.auth.models import User
 from django.forms import ModelForm
 from django.forms.util import ErrorList
-from model_utils.managers import manager_from
+from manabi.apps.utils.managers import manager_from
 
 
 class _CardTemplateManager(object):
@@ -24,7 +24,7 @@ class _CardTemplateManager(object):
     def kanji_writing(self):
         return self.get(name='Kanji Writing')
 
-CardTemplateManager = lambda: manager_from(_CardTemplateManager)
+CardTemplateManager = manager_from(_CardTemplateManager)
 
 class CardTemplate(models.Model):
     objects = CardTemplateManager()

@@ -1,5 +1,5 @@
 from django.db.models import Count, Min, Max, Sum, Avg
-from model_utils.managers import manager_from
+from manabi.apps.utils.managers import manager_from
 from manabi.apps.utils.usertime import start_and_end_of_day
 from constants import MATURE_INTERVAL_MIN
 from django.db import models
@@ -62,7 +62,7 @@ class CardHistoryStatsMixin(object):
 
 
 
-CardHistoryManager = lambda: manager_from(
+CardHistoryManager = manager_from(
     CardHistoryManagerMixin, CardHistoryStatsMixin)
 
 class CardHistory(models.Model):

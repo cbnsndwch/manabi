@@ -9,7 +9,7 @@ from django.db import transaction
 from django.db.models import Avg
 from django.forms import ModelForm
 from django.forms.util import ErrorList
-from model_utils.managers import manager_from
+from manabi.apps.utils.managers import manager_from
 
 from manabi.apps.manabi_redis.models import redis
 from manabi.apps.books.models import Textbook
@@ -32,7 +32,7 @@ class _DeckManager(object):
     def synchronized_decks(self, user):
         return self.filter(owner=user, synchronized_with__isnull=False)
 
-DeckManager = lambda: manager_from(_DeckManager)
+DeckManager = manager_from(_DeckManager)
 
 
 class Deck(models.Model):

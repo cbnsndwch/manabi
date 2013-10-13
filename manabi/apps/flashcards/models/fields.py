@@ -2,7 +2,7 @@ import pickle
 
 from cachecow.decorators import cached_function
 from django.db import models, transaction
-from model_utils.managers import manager_from
+from manabi.apps.utils.managers import manager_from
 
 from manabi.apps.utils.templatetags.japanese import strip_ruby_bottom, strip_ruby_text
 from constants import ISO_639_2_LANGUAGES
@@ -39,7 +39,7 @@ class _FieldTypeManager(object):
         from manabi.apps.flashcards.models import FactType
         return self.get(name='meaning', fact_type=FactType.objects.japanese)
 
-FieldTypeManager = lambda: manager_from(_FieldTypeManager)
+FieldTypeManager = manager_from(_FieldTypeManager)
 
 
 class FieldType(models.Model):
