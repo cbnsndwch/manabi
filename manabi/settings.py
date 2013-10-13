@@ -168,7 +168,7 @@ INSTALLED_APPS = (
     #'template_repl',
     'south',
     'django_nose', # Must come after south.
-    #'lazysignup',
+    'lazysignup',
     'catnap',
     'cachecow',
 
@@ -204,6 +204,7 @@ TEST_RUNNER = 'django_nose.NoseTestSuiteRunner'
 NOSE_PLUGINS = [
     'manabi.nose_plugins.SilenceSouth',
 ]
+NOSE_ARGS = ['--logging-level=WARNING']
 
 DEVSERVER_MODULES = (
     #'devserver.modules.sql.SQLRealTimeModule',
@@ -277,15 +278,15 @@ ABSOLUTE_URL_OVERRIDES = {
 
 #ACCOUNT_OPEN_SIGNUP = True
 #ACCOUNT_REQUIRED_EMAIL = LIVE_HOST
-#ACCOUNT_EMAIL_VERIFICATION = LIVE_HOST
+ACCOUNT_EMAIL_VERIFICATION = False
 #ACCOUNT_EMAIL_AUTHENTICATION = False
 #ACCOUNT_UNIQUE_EMAIL = EMAIL_CONFIRMATION_UNIQUE_EMAIL = False
 
 AUTHENTICATION_BACKENDS = [
     #'pinax.apps.account.auth_backends.AuthenticationBackend',
     #'utils.auth_backends.AuthenticationBackendWithLazySignup',
-    #'lazysignup.backends.LazySignupBackend',
     'django.contrib.auth.backends.ModelBackend',
+    'lazysignup.backends.LazySignupBackend',
 ]
 
 #LAZYSIGNUP_ENABLE = True

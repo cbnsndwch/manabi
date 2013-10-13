@@ -1,12 +1,11 @@
 from lazysignup.decorators import allow_lazy_user
-from django.conf.urls.defaults import *
-from django.views.generic.simple import direct_to_template
+from django.conf.urls import *
 from django.conf import settings
 from django.contrib import admin
 
 from forms import SignupForm
+from manabi.apps.utils.views import direct_to_template
 from manabi.apps.utils.urldecorators import decorated_patterns
-from manabi.apps.utils.authforms import PinaxLazyConvertForm
 from manabi.apps.flashcards.urls import rest_api_urlpatterns
 
 admin.autodiscover()
@@ -18,14 +17,7 @@ urlpatterns = patterns('',
     url(r'^account/signup/$', 'account.views.signup',
         name="acct_signup", kwargs={'form_class': SignupForm}), 
 
-    url(r'^convert/convert/$', 'lazysignup.views.convert',
-        name='lazysignup_convert',
-        kwargs={
-            'form_class': PinaxLazyConvertForm,
-            'email_verification': settings.ACCOUNT_EMAIL_VERIFICATION,
-            'verification_sent_template_name': 'account/verification_sent.html',
-            'success_url': '',
-        }),
+    url(r'convert/', include('lazysignup.urls')),
 
     (r'^account/', include('account.urls')),
     (r'^admin/', include(admin.site.urls)),

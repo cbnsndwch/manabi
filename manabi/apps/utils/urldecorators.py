@@ -1,5 +1,5 @@
 from django.core.urlresolvers import RegexURLPattern, RegexURLResolver
-from django.conf.urls.defaults import patterns
+from django.conf.urls import patterns
 
 class DecoratedURLPattern(RegexURLPattern):
     def resolve(self, *args, **kwargs):

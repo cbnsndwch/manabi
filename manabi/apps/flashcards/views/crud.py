@@ -16,8 +16,8 @@ from django.shortcuts import get_object_or_404, render_to_response, redirect
 from django.template import RequestContext, loader
 from django.views.generic.create_update import update_object, delete_object, create_object
 from django.views.generic.list_detail import object_list, object_detail
-from manabi.apps.dojango.decorators import json_response
-from manabi.apps.dojango.util import to_dojo_data, json_decode, json_encode
+from dojango.decorators import json_response
+from dojango.util import to_dojo_data, json_decode, json_encode
 from manabi.apps.flashcards.contextprocessors import subfact_form_context
 from manabi.apps.flashcards.forms import DeckForm, FactForm, FieldContentForm
 from manabi.apps.flashcards.models import FactType, Fact, Deck, CardTemplate, FieldType

@@ -6,7 +6,7 @@ from django.utils import simplejson
 from django.contrib.auth.models import User
 import urllib
 from django.conf import settings
-from manabi.apps.dojango.conf import settings as dojango_settings
+from dojango.conf import settings as dojango_settings
 
 
 class JdicAudioTest(TestCase):
@@ -35,9 +35,6 @@ class JdicAudioTest(TestCase):
         'Returns json response as dict'
         post_data = {'filename': filename}
         
-        
-        import sys
-        for p in sys.path: print p
         res = self.client.post(
             reverse('jdic_audio_file_exists'), post_data)
 

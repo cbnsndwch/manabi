@@ -10,8 +10,9 @@ hiredis==0.1.1
 pytz==2013d
 django-allauth=0.13.0
 django-nose=1.2
-bpython
+django-lazysignup=0.12.2
 
+bpython
 psycopg2
 unidecode
 

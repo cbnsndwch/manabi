@@ -6,7 +6,7 @@ def create_initial_data():
     from manabi.apps.flashcards.models.facts import FactType
     from manabi.apps.flashcards.models.fields import FieldType
     from manabi.apps.flashcards.models.cardtemplates import CardTemplate
-    import flashcards.partsofspeech as partsofspeech
+    import manabi.apps.flashcards.partsofspeech as partsofspeech
     import pickle
     
     #Japanese model

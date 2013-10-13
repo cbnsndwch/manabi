@@ -31,7 +31,7 @@ class Card(models.Model):
     # negatives for lower priority, positives for higher
     priority = models.IntegerField(default=0, null=True, blank=True) 
     
-    leech = models.BooleanField() #TODO add leech handling
+    leech = models.BooleanField(default=False) #TODO add leech handling
     
     # False when the card is removed from the Fact. This way, we can keep 
     # card statistics if enabled later.

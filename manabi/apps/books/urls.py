@@ -1,6 +1,6 @@
-from django.conf.urls.defaults import *
+from django.conf.urls import *
 from django.conf import settings
-from django.views.generic.simple import direct_to_template
+from manabi.apps.utils.views import direct_to_template
 from django.views.generic.list_detail import object_list, object_detail
 
 

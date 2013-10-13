@@ -1,6 +1,6 @@
 from django.conf import settings
-from django.conf.urls.defaults import *
-from django.views.generic.simple import direct_to_template
+from django.conf.urls import *
+from manabi.apps.utils.views import direct_to_template
 from forms import SignupForm
 
 

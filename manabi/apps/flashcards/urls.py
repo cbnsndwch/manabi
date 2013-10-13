@@ -1,10 +1,10 @@
 import os
 
 from django.conf import settings
-from django.conf.urls.defaults import *
+from django.conf.urls import *
 from django.views.decorators.cache import cache_page
 from django.views.generic.list_detail import object_list, object_detail
-from django.views.generic.simple import direct_to_template
+from manabi.apps.utils.views import direct_to_template
 
 from manabi.apps.flashcards.models import Deck, FactType, Card
 from manabi.apps.flashcards import redis_listeners
