@@ -1,23 +1,26 @@
-from constants import MAX_NEW_CARD_ORDINAL
+import pickle
+import random
+
+from django.db.models.query import QuerySet
 from django.contrib.auth.models import User
 from django.db import models, transaction
 from django.db.models import Q
 from django.forms import ModelForm
 from django.forms.util import ErrorList
+from model_utils.managers import PassThroughManager
+
+from constants import MAX_NEW_CARD_ORDINAL
 from fields import FieldContent
 from manabi.apps.flashcards.signals import fact_suspended, fact_unsuspended
-import pickle
-import random
 from manabi.apps import usertagging
 from manabi.apps.usertagging.models import UserTaggedItem
-from manabi.apps.utils.managers import manager_from
 
 
 def seconds_to_days(s):
     return s / 86400.0
 
 
-class _FactTypeManager(object):
+class FactTypeQuerySet(QuerySet):
     @property
     def japanese(self):
         # Unfortunately hard-coded for now, since we only have 2 types, and 
@@ -27,10 +30,9 @@ class _FactTypeManager(object):
     def example_sentences(self):
         return self.get(id=2)
 
-FactTypeManager = manager_from(_FactTypeManager)
 
 class FactType(models.Model):
-    objects = FactTypeManager()
+    objects = PassThroughManager.for_queryset_class(FactTypeQuerySet)()
 
     name = models.CharField(max_length=50)
     active = models.BooleanField(default=True, blank=True)

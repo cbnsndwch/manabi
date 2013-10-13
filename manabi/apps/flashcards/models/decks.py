@@ -9,7 +9,8 @@ from django.db import transaction
 from django.db.models import Avg
 from django.forms import ModelForm
 from django.forms.util import ErrorList
-from manabi.apps.utils.managers import manager_from
+from django.db.models.query import QuerySet
+from model_utils.managers import PassThroughManager
 
 from manabi.apps.manabi_redis.models import redis
 from manabi.apps.books.models import Textbook
@@ -22,7 +23,7 @@ import cards
 from manabi.apps import usertagging
 
 
-class _DeckManager(object):
+class DeckQuerySet(QuerySet):
     def of_user(self, user):
         return self.filter(owner=user, active=True)
 
@@ -32,12 +33,10 @@ class _DeckManager(object):
     def synchronized_decks(self, user):
         return self.filter(owner=user, synchronized_with__isnull=False)
 
-DeckManager = manager_from(_DeckManager)
-
 
 class Deck(models.Model):
     #manager
-    objects = DeckManager()
+    objects = PassThroughManager.for_queryset_class(DeckQuerySet)()
 
     name = models.CharField(max_length=100)
     description = models.TextField(max_length=2000, blank=True)

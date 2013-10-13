@@ -2,7 +2,8 @@ import pickle
 
 from cachecow.decorators import cached_function
 from django.db import models, transaction
-from manabi.apps.utils.managers import manager_from
+from django.db.models.query import QuerySet
+from model_utils.managers import PassThroughManager
 
 from manabi.apps.utils.templatetags.japanese import strip_ruby_bottom, strip_ruby_text
 from constants import ISO_639_2_LANGUAGES
@@ -23,7 +24,7 @@ OPTIONAL_MEDIA_TYPE_RESTRICTIONS = (
 )
 
 
-class _FieldTypeManager(object):
+class FieldTypeQuerySet(QuerySet):
     @property
     def expression(self):
         from manabi.apps.flashcards.models import FactType
@@ -39,11 +40,9 @@ class _FieldTypeManager(object):
         from manabi.apps.flashcards.models import FactType
         return self.get(name='meaning', fact_type=FactType.objects.japanese)
 
-FieldTypeManager = manager_from(_FieldTypeManager)
-
 
 class FieldType(models.Model):
-    objects = FieldTypeManager()
+    objects = PassThroughManager.for_queryset_class(FieldTypeQuerySet)()
 
     fact_type = models.ForeignKey('flashcards.FactType')
 

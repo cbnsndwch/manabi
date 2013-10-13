@@ -16,13 +16,14 @@ from constants import (GRADE_NONE, GRADE_HARD, GRADE_GOOD, GRADE_EASY,
 from cardtemplates import CardTemplate
 from manabi.apps.flashcards.cachenamespaces import (deck_review_stats_namespace,
                                         fact_grid_namespace)
-from managers.cardmanager import CardManager
+from managers.cardmanager import CardQuerySet
 from repetitionscheduler import repetition_algo_dispatcher
 from undo import UndoCardReview
+from model_utils.managers import PassThroughManager
     
 
 class Card(models.Model):
-    objects = CardManager()
+    objects = PassThroughManager.for_queryset_class(CardQuerySet)()
 
     fact = models.ForeignKey('flashcards.Fact', db_index=True)
     template = models.ForeignKey(CardTemplate)

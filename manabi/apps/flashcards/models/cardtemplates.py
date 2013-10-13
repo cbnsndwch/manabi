@@ -2,10 +2,11 @@ from django.db import models
 from django.contrib.auth.models import User
 from django.forms import ModelForm
 from django.forms.util import ErrorList
-from manabi.apps.utils.managers import manager_from
+from django.db.models.query import QuerySet
+from model_utils.managers import PassThroughManager
 
 
-class _CardTemplateManager(object):
+class CardTemplateQuerySet(QuerySet):
     # Unfortunately hard-coded for now, since we have a ton of 
     # extensability built into the system, but very little usage of it.
     @property
@@ -24,10 +25,9 @@ class _CardTemplateManager(object):
     def kanji_writing(self):
         return self.get(name='Kanji Writing')
 
-CardTemplateManager = manager_from(_CardTemplateManager)
 
 class CardTemplate(models.Model):
-    objects = CardTemplateManager()
+    objects = PassThroughManager.for_queryset_class(CardTemplateQuerySet)()
 
     fact_type = models.ForeignKey('flashcards.FactType')
 

@@ -1,8 +1,10 @@
+from django.db.models.query import QuerySet
+from django.db import models
 from django.db.models import Count, Min, Max, Sum, Avg
-from manabi.apps.utils.managers import manager_from
+from model_utils.managers import PassThroughManager
+
 from manabi.apps.utils.usertime import start_and_end_of_day
 from constants import MATURE_INTERVAL_MIN
-from django.db import models
 
 
 class CardHistoryManagerMixin(object):
@@ -61,12 +63,12 @@ class CardHistoryStatsMixin(object):
         return items.aggregate(Sum('duration'))['duration__sum']
 
 
+class CardHistoryQuerySet(CardHistoryManagerMixin, CardHistoryStatsMixin, QuerySet):
+    pass
 
-CardHistoryManager = manager_from(
-    CardHistoryManagerMixin, CardHistoryStatsMixin)
 
 class CardHistory(models.Model):
-    objects = CardHistoryManager()
+    objects = PassThroughManager.for_queryset_class(CardHistoryQuerySet)()
 
     card = models.ForeignKey('Card')
 

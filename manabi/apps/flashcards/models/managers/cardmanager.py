@@ -2,10 +2,11 @@ import datetime
 from itertools import chain
 
 from django.db import models
+from django.db.models.query import QuerySet
 from django.db.models import Avg, Max, Min, Count
+from model_utils.managers import PassThroughManager
 
 from manabi.apps.manabi_redis.models import redis
-from manabi.apps.utils.managers import manager_from
 from manabi.apps.flashcards.models.constants import (
     GRADE_NONE, GRADE_HARD, GRADE_GOOD, GRADE_EASY,
     MAX_NEW_CARD_ORDINAL, EASE_FACTOR_MODIFIERS,
@@ -551,5 +552,6 @@ class CardStatsMixin(object):
             'due_on').annotate(due_count=Count('id'))
 
 
-CardManager = manager_from(CommonFiltersMixin, SchedulerMixin, CardStatsMixin)
+class CardQuerySet(CommonFiltersMixin, SchedulerMixin, CardStatsMixin, QuerySet):
+    pass
 
