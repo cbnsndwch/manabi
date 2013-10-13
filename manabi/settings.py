@@ -179,7 +179,7 @@ INSTALLED_APPS = (
     # my own
     'manabi.apps.flashcards',
     'manabi.apps.books',
-    'manabi.apps.dojango',
+    'dojango',
     'manabi.apps.utils',
     'manabi.apps.usertagging', #fork of django-tagging, which is isolated per-user
     'manabi.apps.jdic',
