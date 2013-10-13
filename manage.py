@@ -15,14 +15,14 @@ import os
 #sys.path.insert(0, join(settings.PINAX_ROOT, "apps"))
 
 
-base = os.path.dirname(__file__)
-base_parent = os.path.dirname(base)
-if base_parent in sys.path:
-    sys.path.remove(base_parent)
-if base in sys.path:
-    sys.path.remove(base)
-sys.path.insert(0, base)
-sys.path.insert(0, base_parent)
+def add_path(p):
+    if p in sys.path:
+        sys.path.remove(p)
+    sys.path.insert(0, p)
+
+add_path(os.path.dirname(__file__))
+add_path(join(os.path.dirname(__file__), 'manabi'))
+
 
 if __name__ == "__main__":
     os.environ.setdefault("DJANGO_SETTINGS_MODULE", "manabi.settings")
@@ -34,7 +34,7 @@ if __name__ == "__main__":
     #if apps_path not in sys.path:
     #    sys.path.insert(0, apps_path)
      
-    #for p in sys.path: print p
+    for p in sys.path: print p
 
     execute_from_command_line(sys.argv)
 
