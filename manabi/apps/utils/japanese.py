@@ -4,10 +4,11 @@ from itertools import takewhile
 from settings import MECAB_ENCODING
 
 CODE_PAGES = {
-              'ascii'   : (2, 126), #todo: full-width roman
-              'hiragana': (12352, 12447),
-              'katakana': (12448, 12543),
-              'kanji'   : (19968, 40879)} #todo: rare kanji too
+    'ascii'   : (2, 126), #todo: full-width roman
+    'hiragana': (12352, 12447),
+    'katakana': (12448, 12543),
+    'kanji'   : (19968, 40879),
+} #todo: rare kanji too
 
 
 def _code_page(utf8_char):

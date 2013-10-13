@@ -177,18 +177,18 @@ INSTALLED_APPS = (
     #'about',
   
     # my own
-    'flashcards',
-    'books',
-    'dojango',
-    'utils',
-    'usertagging', #fork of django-tagging, which is isolated per-user
-    'jdic',
+    'manabi.apps.flashcards',
+    'manabi.apps.books',
+    'manabi.apps.dojango',
+    'manabi.apps.utils',
+    'manabi.apps.usertagging', #fork of django-tagging, which is isolated per-user
+    'manabi.apps.jdic',
     'kanjivg',
-    'stats',
+    'manabi.apps.stats',
     #TODO 'mobileaccount',
-    'importer',
+    'manabi.apps.importer',
     #TODO 'popups',
-    'manabi_redis',
+    'manabi.apps.manabi_redis',
 
     'gunicorn',
 )
