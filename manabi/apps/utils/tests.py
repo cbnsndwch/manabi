@@ -6,7 +6,6 @@ from japanese import (
 
 
 class ReadingGenerationTest(TestCase):
-
     def test_compound_word(self):
         word = u'曲がり角'
         reading = generate_reading(word)
