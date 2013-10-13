@@ -11,11 +11,11 @@ from django.template.loader import render_to_string
 from django.views.decorators.http import require_GET
 from dojango.decorators import json_response
 from dojango.util import to_dojo_data, json_decode, json_encode
-from flashcards.models import CardHistory, Card
-from flashcards.models.constants import GRADE_NONE, GRADE_HARD, GRADE_GOOD, GRADE_EASY
-from flashcards.views.decorators import ApiException
-from flashcards.views.decorators import flashcard_api as api
-from flashcards.views.decorators import has_card_query_filters
+from manabi.apps.flashcards.models import CardHistory, Card
+from manabi.apps.flashcards.models.constants import GRADE_NONE, GRADE_HARD, GRADE_GOOD, GRADE_EASY
+from manabi.apps.flashcards.views.decorators import ApiException
+from manabi.apps.flashcards.views.decorators import flashcard_api as api
+from manabi.apps.flashcards.views.decorators import has_card_query_filters
 
 
 @login_required

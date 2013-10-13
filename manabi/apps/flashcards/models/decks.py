@@ -15,8 +15,8 @@ from apps.manabi_redis.models import redis
 from books.models import Textbook
 from constants import DEFAULT_EASE_FACTOR
 from constants import GRADE_NONE, GRADE_HARD, GRADE_GOOD, GRADE_EASY
-from flashcards.cachenamespaces import deck_review_stats_namespace
-from flashcards.models.intervals import initial_interval
+from manabi.apps.flashcards.cachenamespaces import deck_review_stats_namespace
+from manabi.apps.flashcards.models.intervals import initial_interval
 from itertools import chain
 import cards
 import usertagging
@@ -361,7 +361,7 @@ class Deck(models.Model):
 
         writer = UnicodeWriter(response)
 
-        from flashcards.models import FactType, Fact, FieldType
+        from manabi.apps.flashcards.models import FactType, Fact, FieldType
         fact_type = FactType.objects.get(id=1)
         field_types = FieldType.objects.filter(fact_type=fact_type).order_by('id')
         facts = Fact.objects.with_upstream(self.owner, deck=self)

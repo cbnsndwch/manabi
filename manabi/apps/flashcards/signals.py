@@ -2,7 +2,7 @@ import django.dispatch
 from django.dispatch import receiver
 from django.db.models.signals import post_save, post_delete, pre_delete
 from models.fields import FieldContent
-from flashcards.models import Card
+from manabi.apps.flashcards.models import Card
 
 fact_suspended = django.dispatch.Signal()
 fact_unsuspended = django.dispatch.Signal()

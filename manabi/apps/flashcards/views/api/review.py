@@ -15,12 +15,12 @@ from dojango.util import to_dojo_data, json_decode, json_encode
 
 from apps.utils import querycleaner
 from apps.utils.querycleaner import clean_query
-from flashcards.models import Card
-from flashcards.models.constants import (
+from manabi.apps.flashcards.models import Card
+from manabi.apps.flashcards.models.constants import (
     GRADE_NONE, GRADE_HARD, GRADE_GOOD, GRADE_EASY)
-from flashcards.models.undo import UndoCardReview
-from flashcards.views.decorators import flashcard_api as api
-from flashcards.views.decorators import has_card_query_filters
+from manabi.apps.flashcards.models.undo import UndoCardReview
+from manabi.apps.flashcards.views.decorators import flashcard_api as api
+from manabi.apps.flashcards.views.decorators import has_card_query_filters
 
 
 

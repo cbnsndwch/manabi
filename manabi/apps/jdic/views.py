@@ -1,6 +1,6 @@
 from settings import JDIC_AUDIO_SERVER_URL, JDIC_AUDIO_SERVER_TIMEOUT
-from flashcards.views.decorators import flashcard_api as api
-from flashcards.views.decorators import ApiException
+from manabi.apps.flashcards.views.decorators import flashcard_api as api
+from manabi.apps.flashcards.views.decorators import ApiException
 from django.views.decorators.http import require_POST
 import httplib
 

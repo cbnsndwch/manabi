@@ -1,7 +1,7 @@
 from django.contrib import admin
 
 from books.models import Textbook
-from flashcards.models import (
+from manabi.apps.flashcards.models import (
     Deck, FactType, Fact, CardTemplate,
     FieldType, Card, FieldContent, CardHistory)
 

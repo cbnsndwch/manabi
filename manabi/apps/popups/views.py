@@ -6,16 +6,16 @@ from django.db.models import F
 from django.shortcuts import render_to_response, redirect
 from django.template import RequestContext
 
-from flashcards.models import (FactType, Fact, Deck, CardTemplate,
+from manabi.apps.flashcards.models import (FactType, Fact, Deck, CardTemplate,
     FieldType, FieldContent, Card,
     GRADE_NONE, GRADE_HARD, GRADE_GOOD, GRADE_EASY)
-from flashcards.contextprocessors import subfact_form_context
-from flashcards.contextprocessors import (
+from manabi.apps.flashcards.contextprocessors import subfact_form_context
+from manabi.apps.flashcards.contextprocessors import (
     deck_count_context, card_existence_context, fact_add_form_context)
-from flashcards.forms import DeckForm, FactForm, FieldContentForm
-from flashcards.models import FactType, Fact, Deck, CardTemplate, FieldType
-from flashcards.models import FieldContent, Card
-from flashcards.views.shortcuts import get_deck_or_404
+from manabi.apps.flashcards.forms import DeckForm, FactForm, FieldContentForm
+from manabi.apps.flashcards.models import FactType, Fact, Deck, CardTemplate, FieldType
+from manabi.apps.flashcards.models import FieldContent, Card
+from manabi.apps.flashcards.views.shortcuts import get_deck_or_404
 
 
 LOGIN_URL = '/popups/login/'

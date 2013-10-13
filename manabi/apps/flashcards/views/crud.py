@@ -18,12 +18,12 @@ from django.views.generic.create_update import update_object, delete_object, cre
 from django.views.generic.list_detail import object_list, object_detail
 from dojango.decorators import json_response
 from dojango.util import to_dojo_data, json_decode, json_encode
-from flashcards.contextprocessors import subfact_form_context
-from flashcards.forms import DeckForm, FactForm, FieldContentForm
-from flashcards.models import FactType, Fact, Deck, CardTemplate, FieldType
-from flashcards.models import FieldContent, Card
-from flashcards.forms import TextbookSourceForm
-from flashcards.views.shortcuts import get_deck_or_404
+from manabi.apps.flashcards.contextprocessors import subfact_form_context
+from manabi.apps.flashcards.forms import DeckForm, FactForm, FieldContentForm
+from manabi.apps.flashcards.models import FactType, Fact, Deck, CardTemplate, FieldType
+from manabi.apps.flashcards.models import FieldContent, Card
+from manabi.apps.flashcards.forms import TextbookSourceForm
+from manabi.apps.flashcards.views.shortcuts import get_deck_or_404
 from books.forms import TextbookForm
 import usertagging
 

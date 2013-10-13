@@ -22,8 +22,8 @@ def deck_review_stats_namespace(obj):
     '''
     pk = None
 
-    from flashcards.models.cards import Card
-    from flashcards.models.decks import Deck
+    from manabi.apps.flashcards.models.cards import Card
+    from manabi.apps.flashcards.models.decks import Deck
 
     if isinstance(obj, Card):
         pk = obj.deck.pk

@@ -21,16 +21,16 @@ from dojango.util import to_dojo_data, json_decode, json_encode
 
 from apps.utils import japanese, querycleaner
 from apps.utils.querycleaner import clean_query
-from flashcards import models
-from flashcards.contextprocessors import review_start_context
-from flashcards.forms import DeckForm, FactForm, FieldContentForm, CardForm
-from flashcards.models import Card
-from flashcards.models.constants import MAX_NEW_CARD_ORDINAL
-from flashcards.models.undo import UndoCardReview
-from flashcards.restresources import (
+from manabi.apps.flashcards import models
+from manabi.apps.flashcards.contextprocessors import review_start_context
+from manabi.apps.flashcards.forms import DeckForm, FactForm, FieldContentForm, CardForm
+from manabi.apps.flashcards.models import Card
+from manabi.apps.flashcards.models.constants import MAX_NEW_CARD_ORDINAL
+from manabi.apps.flashcards.models.undo import UndoCardReview
+from manabi.apps.flashcards.restresources import (
         UserResource, DeckResource, CardResource)
-from flashcards.views.decorators import has_card_query_filters
-from flashcards.views.shortcuts import get_deck_or_404
+from manabi.apps.flashcards.views.decorators import has_card_query_filters
+from manabi.apps.flashcards.views.shortcuts import get_deck_or_404
 
 
 class ManabiRestView(JsonEmitterMixin, AutoContentTypeMixin, RestView):

@@ -5,8 +5,8 @@ from django.shortcuts import get_object_or_404
 from django.utils import simplejson as json
 from dojango.decorators import json_response
 from dojango.util import to_json_response, json_encode
-from flashcards.models.decks import Deck
-from flashcards.views.shortcuts import get_deck_or_404
+from manabi.apps.flashcards.models.decks import Deck
+from manabi.apps.flashcards.views.shortcuts import get_deck_or_404
 from functools import wraps
 import datetime
 import usertagging

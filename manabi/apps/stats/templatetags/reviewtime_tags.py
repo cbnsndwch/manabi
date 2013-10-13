@@ -1,5 +1,5 @@
 from django import template
-from flashcards.models import CardHistory
+from manabi.apps.flashcards.models import CardHistory
 
 register = template.Library()
 

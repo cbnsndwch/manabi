@@ -2,10 +2,10 @@ from catnap.exceptions import HttpForbiddenException
 from django.forms import forms
 from django.shortcuts import get_object_or_404
 
-from flashcards.forms import DeckForm, FactForm, FieldContentForm, CardForm
-from flashcards.models import FactType, Fact, Deck, CardTemplate, FieldType
-from flashcards.models import FieldContent, Card
-from flashcards.models.constants import MAX_NEW_CARD_ORDINAL
+from manabi.apps.flashcards.forms import DeckForm, FactForm, FieldContentForm, CardForm
+from manabi.apps.flashcards.models import FactType, Fact, Deck, CardTemplate, FieldType
+from manabi.apps.flashcards.models import FieldContent, Card
+from manabi.apps.flashcards.models.constants import MAX_NEW_CARD_ORDINAL
 
 
 def get_deck_or_404(user, pk, must_own=False):

@@ -3,9 +3,9 @@ from django.core.management.base import BaseCommand
 
 def create_initial_data():
     from django.conf import settings
-    from flashcards.models.facts import FactType
-    from flashcards.models.fields import FieldType
-    from flashcards.models.cardtemplates import CardTemplate
+    from manabi.apps.flashcards.models.facts import FactType
+    from manabi.apps.flashcards.models.fields import FieldType
+    from manabi.apps.flashcards.models.cardtemplates import CardTemplate
     import flashcards.partsofspeech as partsofspeech
     import pickle
     

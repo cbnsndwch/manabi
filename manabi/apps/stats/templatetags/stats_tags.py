@@ -1,7 +1,7 @@
 from copy import copy
 from datetime import datetime, timedelta
 from django import template
-from flashcards.models import CardHistory, Deck, Card
+from manabi.apps.flashcards.models import CardHistory, Deck, Card
 
 register = template.Library()
 

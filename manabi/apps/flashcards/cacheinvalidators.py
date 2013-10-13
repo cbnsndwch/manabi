@@ -3,8 +3,8 @@ from django.db.models.signals import (post_save, m2m_changed, post_delete,
                                       pre_delete,)
 from django.dispatch import receiver
 from cachenamespaces import deck_review_stats_namespace, fact_grid_namespace
-from flashcards.models import Card
-from flashcards.signals import (fact_grid_updated,
+from manabi.apps.flashcards.models import Card
+from manabi.apps.flashcards.signals import (fact_grid_updated,
                                 post_card_reviewed, card_active_field_changed,)
 from models.fields import FieldContent
 

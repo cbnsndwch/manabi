@@ -1,5 +1,5 @@
 from django import template
-from flashcards.models import CardHistory, Deck
+from manabi.apps.flashcards.models import CardHistory, Deck
 from ..contextprocessors import review_start_context
 from copy import copy
 

@@ -5,7 +5,7 @@ from django.db.models import Q
 from django.forms import ModelForm
 from django.forms.util import ErrorList
 from fields import FieldContent
-from flashcards.signals import fact_suspended, fact_unsuspended
+from manabi.apps.flashcards.signals import fact_suspended, fact_unsuspended
 import flashcards.partsofspeech
 import pickle
 import random

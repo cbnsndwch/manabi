@@ -9,7 +9,7 @@ import settings
 from django.contrib import admin
 admin.autodiscover()
 
-from flashcards.urls import rest_api_urlpatterns
+from manabi.apps.flashcards.urls import rest_api_urlpatterns
 
 
 urlpatterns = patterns('',

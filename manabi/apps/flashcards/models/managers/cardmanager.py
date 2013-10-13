@@ -6,7 +6,7 @@ from django.db.models import Avg, Max, Min, Count
 
 from apps.manabi_redis.models import redis
 from model_utils.managers import manager_from
-from flashcards.models.constants import (
+from manabi.apps.flashcards.models.constants import (
     GRADE_NONE, GRADE_HARD, GRADE_GOOD, GRADE_EASY,
     MAX_NEW_CARD_ORDINAL, EASE_FACTOR_MODIFIERS,
     YOUNG_FAILURE_INTERVAL, MATURE_FAILURE_INTERVAL, MATURE_INTERVAL_MIN,
@@ -143,7 +143,7 @@ class SchedulerMixin(object):
             deck=None, tags=None,
             add_upstream_facts_as_needed=True, **kwargs):
         ''' Gets the next new cards for this user or deck. '''
-        from flashcards.models.facts import Fact
+        from manabi.apps.flashcards.models.facts import Fact
 
         if not count:
             return []
@@ -336,7 +336,7 @@ class CommonFiltersMixin(object):
         return self.filter(id__in=card_ids)
 
     def of_user(self, user, with_upstream=False):
-        from flashcards.models.facts import Fact
+        from manabi.apps.flashcards.models.facts import Fact
 
         #TODO this is probably really slow
         facts = Fact.objects.with_upstream(user)
@@ -366,7 +366,7 @@ class CommonFiltersMixin(object):
         return self.exclude(fact__deck__owner=user)
 
     def with_tags(self, tags):
-        from flashcards.models.facts import Fact
+        from manabi.apps.flashcards.models.facts import Fact
         from usertagging.models import UserTaggedItem
 
         facts = UserTaggedItem.objects.get_by_model(Fact, tags)
@@ -484,7 +484,7 @@ class CommonFiltersMixin(object):
 
         No longer includes new cards in its count.
         '''
-        #from flashcards.models.facts import Fact
+        #from manabi.apps.flashcards.models.facts import Fact
         #cards = self.of_user(user)
         #if deck:
         #    cards = cards.filter(fact__deck=deck)

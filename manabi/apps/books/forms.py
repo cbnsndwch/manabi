@@ -1,6 +1,6 @@
 from django import forms
 from models import Textbook
-from flashcards.models import Deck
+from manabi.apps.flashcards.models import Deck
 
 class TextbookForm(forms.ModelForm):
     '''

@@ -8,8 +8,8 @@ from django.views.decorators.http import require_POST
 from dojango.decorators import json_response
 from dojango.util import to_dojo_data, json_decode, json_encode
 
-from flashcards.forms import TextbookSourceForm
-from flashcards.views.shortcuts import get_deck_or_404
+from manabi.apps.flashcards.forms import TextbookSourceForm
+from manabi.apps.flashcards.views.shortcuts import get_deck_or_404
 from forms import TextbookForm
 from models import Textbook
 

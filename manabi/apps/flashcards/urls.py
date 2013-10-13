@@ -6,8 +6,8 @@ from django.views.decorators.cache import cache_page
 from django.views.generic.list_detail import object_list, object_detail
 from django.views.generic.simple import direct_to_template
 
-from flashcards.models import Deck, FactType, Card
-from flashcards import redis_listeners
+from manabi.apps.flashcards.models import Deck, FactType, Card
+from manabi.apps.flashcards import redis_listeners
 
 
 urlpatterns = patterns('flashcards.views.crud',
@@ -107,7 +107,7 @@ internal_api_urlpatterns += patterns('flashcards.views.api.review',
 
 
 # Actual REST API
-from flashcards.views.rest import *
+from manabi.apps.flashcards.views.rest import *
 rest_api_urlpatterns = patterns('',
     url(r'^$', EntryPoint.as_view(),
         name='rest-entry_point'),

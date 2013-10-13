@@ -1,5 +1,5 @@
 import datetime
-from flashcards.models import CardHistory, Card
+from manabi.apps.flashcards.models import CardHistory, Card
 from django.contrib.auth.models import User
 from django.shortcuts import render_to_response
 from django.template import RequestContext

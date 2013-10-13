@@ -14,7 +14,7 @@ from constants import (GRADE_NONE, GRADE_HARD, GRADE_GOOD, GRADE_EASY,
                        DEFAULT_EASE_FACTOR, INTERVAL_FUZZ_MAX,
                        ALL_GRADES, GRADE_NAMES)
 from cardtemplates import CardTemplate
-from flashcards.cachenamespaces import (deck_review_stats_namespace,
+from manabi.apps.flashcards.cachenamespaces import (deck_review_stats_namespace,
                                         fact_grid_namespace)
 from managers.cardmanager import CardManager
 from repetitionscheduler import repetition_algo_dispatcher
@@ -137,13 +137,13 @@ class Card(models.Model):
         self.save()
 
     def activate(self):
-        from flashcards.signals import card_active_field_changed
+        from manabi.apps.flashcards.signals import card_active_field_changed
         self.active = True
         self.save()
         card_active_field_changed.send(self, instance=self)
 
     def deactivate(self):
-        from flashcards.signals import card_active_field_changed
+        from manabi.apps.flashcards.signals import card_active_field_changed
         self.active = False
         self.save()
         card_active_field_changed.send(self, instance=self)
@@ -333,7 +333,7 @@ class Card(models.Model):
         `duration` is the same, but for each entire duration of viewing 
         this card (so, the time taken for the front and back of the card.)
         '''
-        from flashcards.signals import pre_card_reviewed, post_card_reviewed
+        from manabi.apps.flashcards.signals import pre_card_reviewed, post_card_reviewed
         pre_card_reviewed.send(self, instance=self)
 
         reviewed_at = datetime.utcnow()

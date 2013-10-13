@@ -34,16 +34,16 @@ from dojango.util import to_dojo_data, json_decode, json_encode
 
 from apps.utils import japanese
 from apps.utils.querycleaner import clean_query
-from flashcards.cachenamespaces import fact_grid_namespace
-from flashcards.forms import DeckForm, FactForm, FieldContentForm, CardForm
-from flashcards.models import (FactType, Fact, Deck, CardTemplate, FieldType,
+from manabi.apps.flashcards.cachenamespaces import fact_grid_namespace
+from manabi.apps.flashcards.forms import DeckForm, FactForm, FieldContentForm, CardForm
+from manabi.apps.flashcards.models import (FactType, Fact, Deck, CardTemplate, FieldType,
                                FieldContent, Card)
-from flashcards.models.constants import MAX_NEW_CARD_ORDINAL
-from flashcards.views.decorators import (flashcard_api as api, api_data_response,
+from manabi.apps.flashcards.models.constants import MAX_NEW_CARD_ORDINAL
+from manabi.apps.flashcards.views.decorators import (flashcard_api as api, api_data_response,
                                          ApiException, has_card_query_filters,
                                          flashcard_api_with_dojo_data as api_dojo_data)
-from flashcards.views.shortcuts import get_deck_or_404
-from flashcards.signals import fact_deleted
+from manabi.apps.flashcards.views.shortcuts import get_deck_or_404
+from manabi.apps.flashcards.signals import fact_deleted
 
 #import logging
 #logger = logging.getLogger(__name__)
