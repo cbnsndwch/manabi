@@ -2,7 +2,7 @@ import os
 import datetime
 from decimal import Decimal
 
-from dojango.conf import settings # using the app-specific settings
+from manabi.apps.dojango.conf import settings # using the app-specific settings
 from django.core.serializers.json import DateTimeAwareJSONEncoder
 from django.db.models import Model
 from django.db.models.query import QuerySet

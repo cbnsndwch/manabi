@@ -7,10 +7,10 @@ from django.utils.safestring import mark_safe
 from django.forms.util import flatatt
 from django.utils import datetime_safe
 
-from dojango.util import json_encode
-from dojango.util.config import Config
+from manabi.apps.dojango.util import json_encode
+from manabi.apps.dojango.util.config import Config
 
-from dojango.util import dojo_collector
+from manabi.apps.dojango.util import dojo_collector
 
 __all__ = (
     'Media', 'MediaDefiningClass', # original django classes

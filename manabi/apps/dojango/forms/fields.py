@@ -1,11 +1,12 @@
 from django.forms import *
+from django.utils import formats
 
-from dojango.forms import widgets
-from dojango.util import json_encode
+from manabi.apps.dojango.forms import widgets
+from manabi.apps.dojango.util import json_encode
 
 __all__ = (
-    'Field', 'DEFAULT_DATE_INPUT_FORMATS', 'DEFAULT_TIME_INPUT_FORMATS', # original django classes
-    'DEFAULT_DATETIME_INPUT_FORMATS', 'MultiValueField', 'ComboField', # original django classes
+    'Field', # original django classes
+    'MultiValueField', 'ComboField', # original django classes
     'DojoFieldMixin', 'CharField', 'ChoiceField', 'TypedChoiceField',
     'IntegerField', 'BooleanField', 'FileField', 'ImageField',
     'DateField', 'TimeField', 'DateTimeField', 'SplitDateTimeField',
@@ -72,26 +73,26 @@ class FileField(DojoFieldMixin, fields.FileField):
 class ImageField(DojoFieldMixin, fields.ImageField):
     widget = widgets.FileInput
 
-DEFAULT_DATE_INPUT_FORMATS = tuple(list(fields.DEFAULT_DATE_INPUT_FORMATS) + [
-    '%Y-%m-%dT%H:%M', '%Y-%m-%dT%H:%M:%S'
-])
 class DateField(DojoFieldMixin, fields.DateField):
     widget = widgets.DateInput
     
     def __init__(self, input_formats=None, min_value=None, max_value=None, *args, **kwargs):
-        kwargs['input_formats'] = input_formats or DEFAULT_DATE_INPUT_FORMATS
+        kwargs['input_formats'] = input_formats or \
+            tuple(list(formats.get_format('DATE_INPUT_FORMATS')) + [
+                '%Y-%m-%dT%H:%M', '%Y-%m-%dT%H:%M:%S' # also support dojo's default date-strings
+            ])
         self.max_value = max_value
         self.min_value = min_value
         super(DateField, self).__init__(*args, **kwargs)
 
-DEFAULT_TIME_INPUT_FORMATS = tuple(list(fields.DEFAULT_TIME_INPUT_FORMATS) + [
-    '%Y-%m-%dT%H:%M', '%Y-%m-%dT%H:%M:%S', 'T%H:%M:%S', 'T%H:%M'
-])
 class TimeField(DojoFieldMixin, fields.TimeField):
     widget = widgets.TimeInput
     
     def __init__(self, input_formats=None, min_value=None, max_value=None, *args, **kwargs):
-        kwargs['input_formats'] = input_formats or DEFAULT_TIME_INPUT_FORMATS
+        kwargs['input_formats'] = input_formats or \
+            tuple(list(formats.get_format('TIME_INPUT_FORMATS')) + [
+                '%Y-%m-%dT%H:%M', '%Y-%m-%dT%H:%M:%S', 'T%H:%M:%S', 'T%H:%M' # also support dojo's default time-strings
+            ])
         self.max_value = max_value
         self.min_value = min_value
         super(TimeField, self).__init__(*args, **kwargs)

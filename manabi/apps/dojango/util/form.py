@@ -1,4 +1,4 @@
-from dojango.util import is_number
+from manabi.apps.dojango.util import is_number
 
 def get_combobox_data(request):
     """Return the standard live search data that are posted from a ComboBox widget.

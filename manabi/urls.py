@@ -4,7 +4,8 @@ from forms import SignupForm
 from utils.urldecorators import decorated_patterns
 from lazysignup.decorators import allow_lazy_user
 from utils.authforms import PinaxLazyConvertForm
-import settings
+
+from django.conf import settings
 
 from django.contrib import admin
 admin.autodiscover()

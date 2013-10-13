@@ -4,9 +4,9 @@ from django.db import models
 from django.template import TemplateSyntaxError
 from django.template.loader import get_template
 
-from dojango.util import extract_nodelist_options
-from dojango.util.dojo_collector import add_module
-from dojango.util.perms import access_model
+from manabi.apps.dojango.util import extract_nodelist_options
+from manabi.apps.dojango.util.dojo_collector import add_module
+from manabi.apps.dojango.util.perms import access_model
 from django.core.urlresolvers import reverse, NoReverseMatch
 
 import random

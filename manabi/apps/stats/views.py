@@ -9,8 +9,8 @@ from django.shortcuts import get_object_or_404, render_to_response
 from django.template import RequestContext, loader
 from django.template.loader import render_to_string
 from django.views.decorators.http import require_GET
-from dojango.decorators import json_response
-from dojango.util import to_dojo_data, json_decode, json_encode
+from manabi.apps.dojango.decorators import json_response
+from manabi.apps.dojango.util import to_dojo_data, json_decode, json_encode
 from manabi.apps.flashcards.models import CardHistory, Card
 from manabi.apps.flashcards.models.constants import GRADE_NONE, GRADE_HARD, GRADE_GOOD, GRADE_EASY
 from manabi.apps.flashcards.views.decorators import ApiException

@@ -357,12 +357,12 @@ else:
 
 if LIVE_HOST:
     try:
-        from settings_production import *
+        from manabi.settings_production import *
     except ImportError:
         pass
 else:
     try:
-        from settings_development import *
+        from manabi.settings_development import *
     except ImportError:
         pass
 

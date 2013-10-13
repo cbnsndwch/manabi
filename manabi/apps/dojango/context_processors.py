@@ -1,4 +1,4 @@
-from dojango.util.config import Config
+from manabi.apps.dojango.util.config import Config
 
 def config(request):
     '''Make several dojango constants available in the template, like:

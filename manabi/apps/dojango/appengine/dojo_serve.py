@@ -1,14 +1,14 @@
 import os
 import wsgiref.handlers
 
-from dojango.appengine import memcache_zipserve
+from manabi.apps.dojango.appengine import memcache_zipserve
 
 from google.appengine.ext import webapp
 
 # setup the environment
 from common.appenginepatch.aecmd import setup_env
 setup_env(manage_py_env=True)
-from dojango.conf import settings
+from manabi.apps.dojango.conf import settings
 
 # creating a handler structure for the zip-files within the release folder
 release_dir = '%s/release/%s' % (settings.BASE_MEDIA_ROOT, settings.DOJO_VERSION)

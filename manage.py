@@ -21,7 +21,7 @@ def add_path(p):
     sys.path.insert(0, p)
 
 add_path(os.path.dirname(__file__))
-add_path(join(os.path.dirname(__file__), 'manabi'))
+#add_path(join(os.path.dirname(__file__), 'manabi'))
 
 
 if __name__ == "__main__":

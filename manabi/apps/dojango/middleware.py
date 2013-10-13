@@ -3,7 +3,7 @@ import re
 from django.conf import settings
 from django.http import HttpResponseServerError
 
-from dojango.util import dojo_collector
+from manabi.apps.dojango.util import dojo_collector
 
 class AJAXSimpleExceptionResponse:
     """Thanks to newmaniese of http://www.djangosnippets.org/snippets/650/ .

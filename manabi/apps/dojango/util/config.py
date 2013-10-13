@@ -1,4 +1,4 @@
-from dojango.conf import settings # using the app-specific settings
+from manabi.apps.dojango.conf import settings # using the app-specific settings
 import dojo_collector
 
 class Config:

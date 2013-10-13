@@ -5,8 +5,8 @@ from django.http import HttpResponse
 from django.shortcuts import get_object_or_404, render_to_response, redirect
 from django.template import RequestContext, loader
 from django.views.decorators.http import require_POST
-from dojango.decorators import json_response
-from dojango.util import to_dojo_data, json_decode, json_encode
+from manabi.apps.dojango.decorators import json_response
+from manabi.apps.dojango.util import to_dojo_data, json_decode, json_encode
 
 from manabi.apps.flashcards.forms import TextbookSourceForm
 from manabi.apps.flashcards.views.shortcuts import get_deck_or_404

@@ -10,8 +10,8 @@ from formsets import BaseFormSet
 
 from django.db.models import fields
 
-from dojango.forms.fields import *
-from dojango.forms.widgets import DojoWidgetMixin, Textarea, Select, SelectMultiple, HiddenInput
+from manabi.apps.dojango.forms.fields import *
+from manabi.apps.dojango.forms.widgets import DojoWidgetMixin, Textarea, Select, SelectMultiple, HiddenInput
 
 __all__ = (
     'ModelForm', 'BaseModelForm', 'model_to_dict', 'fields_for_model',

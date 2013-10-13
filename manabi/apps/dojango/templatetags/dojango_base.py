@@ -1,8 +1,8 @@
 from django import template
 
-from dojango.conf import settings # using the app-specific settings
-from dojango.util import json_encode as util_json_encode
-from dojango.util.config import Config
+from manabi.apps.dojango.conf import settings # using the app-specific settings
+from manabi.apps.dojango.util import json_encode as util_json_encode
+from manabi.apps.dojango.util.config import Config
 
 register = template.Library()
 

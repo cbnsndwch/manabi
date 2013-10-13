@@ -1,4 +1,4 @@
-from settings import *
+from manabi.settings import *
 
 DATABASES = {
     'default': {

@@ -16,8 +16,8 @@ from django.http import Http404, HttpResponseRedirect, HttpResponse
 from django.shortcuts import get_object_or_404, render_to_response
 from django.utils.decorators import method_decorator
 from django.template import RequestContext, loader
-from dojango.decorators import json_response
-from dojango.util import to_dojo_data, json_decode, json_encode
+from manabi.apps.dojango.decorators import json_response
+from manabi.apps.dojango.util import to_dojo_data, json_decode, json_encode
 
 from manabi.apps.utils import japanese, querycleaner
 from manabi.apps.utils.querycleaner import clean_query

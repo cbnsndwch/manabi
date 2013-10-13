@@ -29,8 +29,8 @@ from django.template import RequestContext, loader
 from django.utils import simplejson
 from django.views.decorators.cache import cache_page
 from django.views.decorators.http import require_GET
-from dojango.decorators import json_response
-from dojango.util import to_dojo_data, json_decode, json_encode
+from manabi.apps.dojango.decorators import json_response
+from manabi.apps.dojango.util import to_dojo_data, json_decode, json_encode
 
 from manabi.apps.utils import japanese
 from manabi.apps.utils.querycleaner import clean_query

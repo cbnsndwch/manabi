@@ -4,7 +4,7 @@ from django import forms
 from django.forms.util import ErrorList
 from django.db.models.signals import post_save  
 
-import usertagging
+from manabi.apps import usertagging
 from manabi.apps.usertagging.forms import TagField
 
 

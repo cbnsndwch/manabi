@@ -3,7 +3,7 @@ from optparse import make_option
 import os
 import re
 import shutil
-from dojango.conf import settings
+from manabi.apps.dojango.conf import settings
 
 try:
     from django.core.management.base import BaseCommand, CommandError

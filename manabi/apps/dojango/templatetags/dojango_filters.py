@@ -1,6 +1,6 @@
 from django.template import Library
 
-from dojango.util import json_encode
+from manabi.apps.dojango.util import json_encode
 
 register = Library()
 

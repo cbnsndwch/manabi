@@ -4,11 +4,11 @@ from django.db import models
 from django.shortcuts import render_to_response
 from django.conf import settings
 
-from dojango.util import to_dojo_data, json_encode
-from dojango.decorators import json_response
-from dojango.util import to_dojo_data
-from dojango.util.form import get_combobox_data
-from dojango.util.perms import access_model, access_model_field
+from manabi.apps.dojango.util import to_dojo_data, json_encode
+from manabi.apps.dojango.decorators import json_response
+from manabi.apps.dojango.util import to_dojo_data
+from manabi.apps.dojango.util.form import get_combobox_data
+from manabi.apps.dojango.util.perms import access_model, access_model_field
 
 import operator
     

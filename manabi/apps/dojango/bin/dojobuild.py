@@ -22,7 +22,7 @@ def setup_environ():
     return project_directory
 
 project_dir = setup_environ()
-from dojango.management.commands.dojobuild import Command
+from manabi.apps.dojango.management.commands.dojobuild import Command
 
 if __name__ == "__main__":
     my_build = Command()

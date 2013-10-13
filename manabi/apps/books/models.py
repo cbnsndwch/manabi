@@ -6,7 +6,7 @@ from model_utils.managers import manager_from
 #from amazonproduct import API as AmazonAPI
 
 from manabi.apps.utils.slugs import slugify
-import settings
+from django.conf import settings
 
 
 #TODO find different way.

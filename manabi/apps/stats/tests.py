@@ -6,7 +6,7 @@ from django.core.urlresolvers import reverse
 from django.utils import simplejson
 from django.contrib.auth.models import User
 
-import settings
+from django.conf import settings
 from manabi.test_helpers import ManabiTestCase, create_sample_data, create_user
 
 
