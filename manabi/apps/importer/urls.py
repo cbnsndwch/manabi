@@ -1,6 +1,6 @@
 from django.conf.urls import *
 
-urlpatterns = patterns('importer.views',
+urlpatterns = patterns('manabi.apps.importer.views',
     url(r'^$', 'importer'),
 )
 

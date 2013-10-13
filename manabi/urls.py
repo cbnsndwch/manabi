@@ -68,16 +68,16 @@ urlpatterns = patterns('',
     (r'^stats/', include('manabi.apps.stats.urls')),
 )
 
-if settings.SERVE_MEDIA:
-    urlpatterns += patterns('',
-        (r'^favicon\.ico$', 'manabi.apps.utils.views.redirect_to', {'url': '/site_media/static/favicon.ico'}),
-    )
+#if settings.SERVE_MEDIA:
+#    urlpatterns += patterns('',
+#TODO        (r'^favicon\.ico$', 'manabi.apps.utils.views.redirect_to', {'url': '/site_media/static/favicon.ico'}),
+#    )
 
-    from django.contrib.staticfiles.urls import staticfiles_urlpatterns
-    urlpatterns += staticfiles_urlpatterns()
+#    from django.contrib.staticfiles.urls import staticfiles_urlpatterns
+#    urlpatterns += staticfiles_urlpatterns()
 
-    #urlpatterns += patterns('', 
-    #    #(r'^site_media/', include('staticfiles.urls')),
-    #    url(r'', include('staticfiles.urls')),
-    #)
+#    #urlpatterns += patterns('', 
+#    #    #(r'^site_media/', include('staticfiles.urls')),
+#    #    url(r'', include('staticfiles.urls')),
+#    #)
 

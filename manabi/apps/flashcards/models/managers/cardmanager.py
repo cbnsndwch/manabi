@@ -5,7 +5,7 @@ from django.db import models
 from django.db.models import Avg, Max, Min, Count
 
 from manabi.apps.manabi_redis.models import redis
-from model_utils.managers import manager_from
+from manabi.apps.utils.managers import manager_from
 from manabi.apps.flashcards.models.constants import (
     GRADE_NONE, GRADE_HARD, GRADE_GOOD, GRADE_EASY,
     MAX_NEW_CARD_ORDINAL, EASE_FACTOR_MODIFIERS,
@@ -551,6 +551,5 @@ class CardStatsMixin(object):
             'due_on').annotate(due_count=Count('id'))
 
 
-CardManager = lambda: manager_from(
-    CommonFiltersMixin, SchedulerMixin, CardStatsMixin)
+CardManager = manager_from(CommonFiltersMixin, SchedulerMixin, CardStatsMixin)
 

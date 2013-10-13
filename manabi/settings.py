@@ -94,7 +94,7 @@ MIDDLEWARE_CLASSES = (
     'django.contrib.messages.middleware.MessageMiddleware',
     #'account.middleware.LocaleMiddleware', #Enable when we add more translations.
     #'django.middleware.doc.XViewMiddleware',
-    'pagination.middleware.PaginationMiddleware',
+    #'pagination.middleware.PaginationMiddleware',
     #'pinax.middleware.security.HideSensistiveFieldsMiddleware',
     'catnap.middleware.HttpAcceptMiddleware',
     'catnap.middleware.HttpMethodsFallbackMiddleware',
@@ -102,8 +102,8 @@ MIDDLEWARE_CLASSES = (
 
 if DEBUG:
     MIDDLEWARE_CLASSES += (
-        'debug_toolbar.middleware.DebugToolbarMiddleware',
-        'apps.utils.middleware.JsonDebugMiddleware',
+        #'debug_toolbar.middleware.DebugToolbarMiddleware',
+        'manabi.apps.utils.middleware.JsonDebugMiddleware',
     )
 
 
@@ -219,17 +219,17 @@ DEVSERVER_MODULES = (
 #DEVSERVER_IGNORED_PREFIXES = ['/site_media', '/uploads', '/static', '/media']
 DEVSERVER_IGNORED_PREFIXES = []
 
-DEBUG_TOOLBAR_PANELS = (
-    'debug_toolbar.panels.version.VersionDebugPanel',
-    'debug_toolbar.panels.timer.TimerDebugPanel',
-    'debug_toolbar.panels.settings_vars.SettingsVarsDebugPanel',
-    'debug_toolbar.panels.headers.HeaderDebugPanel',
-    'debug_toolbar.panels.request_vars.RequestVarsDebugPanel',
-    'debug_toolbar.panels.template.TemplateDebugPanel',
-    'debug_toolbar.panels.sql.SQLDebugPanel',
-    'debug_toolbar.panels.signals.SignalDebugPanel',
-    #'debug_toolbar.panels.logger.LoggingPanel',
-)
+#DEBUG_TOOLBAR_PANELS = (
+#    'debug_toolbar.panels.version.VersionDebugPanel',
+#    'debug_toolbar.panels.timer.TimerDebugPanel',
+#    'debug_toolbar.panels.settings_vars.SettingsVarsDebugPanel',
+#    'debug_toolbar.panels.headers.HeaderDebugPanel',
+#    'debug_toolbar.panels.request_vars.RequestVarsDebugPanel',
+#    'debug_toolbar.panels.template.TemplateDebugPanel',
+#    'debug_toolbar.panels.sql.SQLDebugPanel',
+#    'debug_toolbar.panels.signals.SignalDebugPanel',
+#    #'debug_toolbar.panels.logger.LoggingPanel',
+#)
 
 
 if LIVE_HOST:

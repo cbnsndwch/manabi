@@ -8,6 +8,7 @@ from manabi.apps.utils.views import direct_to_template
 from manabi.apps.flashcards.views.crud import deck_create
 from manabi.apps.utils.urldecorators import decorated_patterns
 
+
 def popup_base_template(func):
     def wrapped(request, *args, **kwargs):
         request.fragment_base_template_name = 'popup_base.html'
@@ -16,7 +17,7 @@ def popup_base_template(func):
 
 
 fact_creator_urlpatterns = decorated_patterns(
-    'popups.views', popup_base_template,
+    'manabi.apps.popups.views', popup_base_template,
 
     url(r'^decks/$', 'deck_chooser',
         name='popups-deck_chooser'),
@@ -30,7 +31,8 @@ fact_creator_urlpatterns = decorated_patterns(
         }, name='popups-create_deck'),
 )
 
-urlpatterns = patterns('popups.views',
+
+urlpatterns = patterns('manabi.apps.popups.views',
     url(r'^fact-creator/', include(fact_creator_urlpatterns)),
 )
 

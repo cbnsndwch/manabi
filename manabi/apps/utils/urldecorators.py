@@ -1,12 +1,14 @@
 from django.core.urlresolvers import RegexURLPattern, RegexURLResolver
 from django.conf.urls import patterns
 
+
 class DecoratedURLPattern(RegexURLPattern):
     def resolve(self, *args, **kwargs):
         result = RegexURLPattern.resolve(self, *args, **kwargs)
         if result:
             result.func = self._decorate_with(result.func)
         return result
+
 
 def decorated_patterns(prefix, func, *args, **kwargs):
     '''
@@ -35,12 +37,9 @@ def decorated_patterns(prefix, func, *args, **kwargs):
                 p.__class__ = DecoratedURLPattern
                 p._decorate_with = func
             elif isinstance(p, RegexURLResolver):
-                for pp in p._get_url_patterns():
+                for pp in p.url_patterns:
                     if isinstance(pp, RegexURLPattern):
                         pp.__class__ = DecoratedURLPattern
                         pp._decorate_with = func
     return result
-
-
-
 

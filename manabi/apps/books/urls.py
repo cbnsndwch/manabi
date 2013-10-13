@@ -4,7 +4,7 @@ from django.conf import settings
 from manabi.apps.utils.views import direct_to_template
 
 
-urlpatterns = patterns('books.views',
+urlpatterns = patterns('manabi.apps.books.views',
     url(r'^$', 'book_list',
         name='book_list'),
     

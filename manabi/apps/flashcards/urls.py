@@ -9,7 +9,7 @@ from manabi.apps.flashcards.models import Deck, FactType, Card
 from manabi.apps.flashcards import redis_listeners
 
 
-urlpatterns = patterns('flashcards.views.crud',
+urlpatterns = patterns('manabi.apps.flashcards.views.crud',
     url(r'^add/$', 'add_decks',
         name='add_decks'),
 
@@ -35,7 +35,8 @@ urlpatterns = patterns('flashcards.views.crud',
         name='update_fact'),
 )
 
-urlpatterns += patterns('books.views',
+
+urlpatterns += patterns('manabi.apps.books.views',
     url(r'^decks/(?P<deck_id>\d+)/textbook-source/$', 'deck_textbook_source',
         name='deck_textbook_source'),
 )
@@ -43,7 +44,7 @@ urlpatterns += patterns('books.views',
 
 
 # kinda-sorta-RESTy API
-internal_api_urlpatterns = patterns('flashcards.views.api',
+internal_api_urlpatterns = patterns('manabi.apps.flashcards.views.api',
     url(r'^decks/(\w+)/subscribe/$', 'rest_deck_subscribe',
         name='api-subscribe_to_deck'),
     #url(r'^api$', 'rest_entry_point'),
@@ -82,7 +83,7 @@ internal_api_urlpatterns = patterns('flashcards.views.api',
 )
 
 
-internal_api_urlpatterns += patterns('flashcards.views.api.review',
+internal_api_urlpatterns += patterns('manabi.apps.flashcards.views.api.review',
     url(r'^facts/(\w+)/subfacts/$', 'subfacts',
         name='fact_subfacts'),
 

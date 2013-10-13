@@ -5,6 +5,7 @@ site-packages
 site_media/
 env/
 apps/dojango/media/dojo
+./run/
 *.prc
 *.swo
 *.pyc

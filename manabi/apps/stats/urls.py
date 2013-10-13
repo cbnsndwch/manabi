@@ -2,7 +2,7 @@ from django.conf.urls import *
 
 
 # graph data urls
-graph_urlpatterns = patterns('stats.views',
+graph_urlpatterns = patterns('manabi.apps.stats.views',
     url(r'^repetitions.json$',
         'repetitions',
         name='graphs_repetitions'),
@@ -18,7 +18,7 @@ graph_urlpatterns = patterns('stats.views',
 
 
 # place app url patterns here
-urlpatterns = patterns('stats.views',
+urlpatterns = patterns('manabi.apps.stats.views',
     url(r'^graphs/', include(graph_urlpatterns)),
 
     #url(r'^scheduling-summary/$',

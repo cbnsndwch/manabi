@@ -11,24 +11,23 @@ pytz==2013d
 django-allauth=0.13.0
 django-nose=1.2
 django-lazysignup=0.12.2
+django-model-utils==1.5.0
 
 bpython
 psycopg2
 unidecode
-
 
 https://github.com/kennethreitz/dj-static/archive/8c9f384a7a0eed48556bf7d85ae5f25f23845ebc.zip
 https://github.com/aehlke/django-cachecow/archive/master.zip
 https://github.com/aehlke/django-kanjivg/archive/master.zip
 https://github.com/aehlke/django-snippetscream/archive/master.zip
 
+# For django-catnap.
+WebOb==1.0.3
 
 # TODO: These should be used, but require some code work:
 # django-lazysignup
 
-
-# Used for migration to v2, but should be upgraded:
-django-model-utils==0.5.0
 
 
 # Deprecated, but used for migration to v2:

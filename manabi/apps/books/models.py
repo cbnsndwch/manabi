@@ -2,7 +2,6 @@ from functools import wraps
 from urllib2 import URLError
 
 from django.db import models
-from model_utils.managers import manager_from
 #from amazonproduct import API as AmazonAPI
 
 from manabi.apps.utils.slugs import slugify
