@@ -1,3 +1,3 @@
 from django import template
-template.add_to_builtins('utils.templatetags.dictaccess')
+template.add_to_builtins('manabi.apps.utils.templatetags.dictaccess')
 

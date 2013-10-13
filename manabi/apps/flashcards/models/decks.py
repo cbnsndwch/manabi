@@ -12,14 +12,14 @@ from django.forms.util import ErrorList
 from model_utils.managers import manager_from
 
 from apps.manabi_redis.models import redis
-from manabi.apps.books import Textbook
+from manabi.apps.books.models import Textbook
 from constants import DEFAULT_EASE_FACTOR
 from constants import GRADE_NONE, GRADE_HARD, GRADE_GOOD, GRADE_EASY
 from manabi.apps.flashcards.cachenamespaces import deck_review_stats_namespace
 from manabi.apps.flashcards.models.intervals import initial_interval
 from itertools import chain
 import cards
-import usertagging
+from manabi.apps import usertagging
 
 
 class _DeckManager(object):

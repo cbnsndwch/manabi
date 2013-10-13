@@ -6,11 +6,10 @@ from django.forms import ModelForm
 from django.forms.util import ErrorList
 from fields import FieldContent
 from manabi.apps.flashcards.signals import fact_suspended, fact_unsuspended
-import flashcards.partsofspeech
 import pickle
 import random
-import usertagging
-from usertagging.models import UserTaggedItem
+from manabi.apps import usertagging
+from manabi.apps.usertagging.models import UserTaggedItem
 from model_utils.managers import manager_from
 
 

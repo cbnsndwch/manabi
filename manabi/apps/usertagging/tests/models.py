@@ -1,6 +1,6 @@
 from django.db import models
 
-from usertagging.fields import TagField
+from manabi.apps.usertagging.fields import TagField
 
 class Perch(models.Model):
     size = models.IntegerField()

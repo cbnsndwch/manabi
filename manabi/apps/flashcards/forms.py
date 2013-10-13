@@ -5,7 +5,7 @@ from django.forms.util import ErrorList
 from django.db.models.signals import post_save  
 
 import usertagging
-from usertagging.forms import TagField
+from manabi.apps.usertagging.forms import TagField
 
 
 from models import Card, CardHistory, Fact, FactType, FieldType, FieldContent, Deck, CardTemplate

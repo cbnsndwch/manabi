@@ -15,9 +15,9 @@ from django.utils.translation import ugettext_lazy as _
 
 from django.contrib.auth.models import User
 
-from usertagging import settings
-from usertagging.utils import calculate_cloud, get_tag_list, get_queryset_and_model, parse_tag_input
-from usertagging.utils import LOGARITHMIC
+from manabi.apps.usertagging import settings
+from manabi.apps.usertagging.utils import calculate_cloud, get_tag_list, get_queryset_and_model, parse_tag_input
+from manabi.apps.usertagging.utils import LOGARITHMIC
 
 qn = connection.ops.quote_name
 

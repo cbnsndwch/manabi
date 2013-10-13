@@ -4,9 +4,9 @@ usertagging components for Django's form library.
 from django import forms
 from django.utils.translation import ugettext as _
 
-from usertagging import settings
-from usertagging.models import Tag
-from usertagging.utils import parse_tag_input
+from manabi.apps.usertagging import settings
+from manabi.apps.usertagging.models import Tag
+from manabi.apps.usertagging.utils import parse_tag_input
 
 class TagAdminForm(forms.ModelForm):
     class Meta:

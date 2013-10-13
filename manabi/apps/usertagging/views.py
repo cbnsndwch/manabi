@@ -5,8 +5,8 @@ from django.http import Http404
 from django.utils.translation import ugettext as _
 from django.views.generic.list_detail import object_list
 
-from usertagging.models import Tag, UserTaggedItem
-from usertagging.utils import get_tag, get_queryset_and_model
+from manabi.apps.usertagging.models import Tag, UserTaggedItem
+from manabi.apps.usertagging.utils import get_tag, get_queryset_and_model
 
 def tagged_object_list(request, queryset_or_model=None, tag=None,
         related_tags=False, related_tag_counts=True, **kwargs):

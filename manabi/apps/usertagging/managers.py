@@ -5,7 +5,7 @@ application.
 from django.contrib.contenttypes.models import ContentType
 from django.db import models
 
-from usertagging.models import Tag, UserTaggedItem
+from manabi.apps.usertagging.models import Tag, UserTaggedItem
 
 class ModelTagManager(models.Manager):
     """

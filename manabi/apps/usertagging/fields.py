@@ -5,9 +5,9 @@ from django.db.models import signals
 from django.db.models.fields import CharField
 from django.utils.translation import ugettext_lazy as _
 
-from usertagging import settings
-from usertagging.models import Tag
-from usertagging.utils import edit_string_for_tags
+from manabi.apps.usertagging import settings
+from manabi.apps.usertagging.models import Tag
+from manabi.apps.usertagging.utils import edit_string_for_tags
 
 class TagField(CharField):
     """
@@ -113,7 +113,7 @@ class TagField(CharField):
         return 'CharField'
 
     def formfield(self, **kwargs):
-        from usertagging import forms
+        from manabi.apps.usertagging import forms
         defaults = {'form_class': forms.TagField}
         defaults.update(kwargs)
         return super(TagField, self).formfield(**defaults)

@@ -17,10 +17,12 @@ import os
 
 base = os.path.dirname(__file__)
 base_parent = os.path.dirname(base)
-if base not in sys.path:
-    sys.path.insert(0, base)
-if base_parent not in sys.path:
-    sys.path.insert(0, base_parent)
+if base_parent in sys.path:
+    sys.path.remove(base_parent)
+if base in sys.path:
+    sys.path.remove(base)
+sys.path.insert(0, base)
+sys.path.insert(0, base_parent)
 
 if __name__ == "__main__":
     os.environ.setdefault("DJANGO_SETTINGS_MODULE", "manabi.settings")

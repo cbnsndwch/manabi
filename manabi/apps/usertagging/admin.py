@@ -1,6 +1,6 @@
 from django.contrib import admin
-from usertagging.models import Tag, UserTaggedItem
-from usertagging.forms import TagAdminForm
+from manabi.apps.usertagging.models import Tag, UserTaggedItem
+from manabi.apps.usertagging.forms import TagAdminForm
 
 class TagAdmin(admin.ModelAdmin):
     form = TagAdminForm

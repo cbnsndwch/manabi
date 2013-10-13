@@ -367,7 +367,7 @@ class CommonFiltersMixin(object):
 
     def with_tags(self, tags):
         from manabi.apps.flashcards.models.facts import Fact
-        from usertagging.models import UserTaggedItem
+        from manabi.apps.usertagging.models import UserTaggedItem
 
         facts = UserTaggedItem.objects.get_by_model(Fact, tags)
         return self.filter(fact__in=facts)

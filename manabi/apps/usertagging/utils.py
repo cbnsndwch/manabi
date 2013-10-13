@@ -161,7 +161,7 @@ def get_tag_list(tags, owner=None):
        * A ``Tag`` ``QuerySet``.
 
     """
-    from usertagging.models import Tag
+    from manabi.apps.usertagging.models import Tag
     if isinstance(tags, Tag):
         return [tags]
     elif isinstance(tags, QuerySet) and tags.model is Tag:
@@ -211,7 +211,7 @@ def get_tag(tag, owner=None):
 
     If no matching tag can be found, ``None`` will be returned.
     """
-    from usertagging.models import Tag
+    from manabi.apps.usertagging.models import Tag
     if isinstance(tag, Tag):
         return tag
 

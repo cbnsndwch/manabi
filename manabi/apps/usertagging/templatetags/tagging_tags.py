@@ -2,8 +2,8 @@ from django.db.models import get_model
 from django.template import Library, Node, TemplateSyntaxError, Variable, resolve_variable
 from django.utils.translation import ugettext as _
 
-from usertagging.models import Tag, UserTaggedItem
-from usertagging.utils import LINEAR, LOGARITHMIC
+from manabi.apps.usertagging.models import Tag, UserTaggedItem
+from manabi.apps.usertagging.utils import LINEAR, LOGARITHMIC
 
 register = Library()
 

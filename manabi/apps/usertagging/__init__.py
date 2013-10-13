@@ -1,6 +1,6 @@
 from django.utils.translation import ugettext as _
 
-from usertagging.managers import ModelTaggedItemManager, TagDescriptor
+from manabi.apps.usertagging.managers import ModelTaggedItemManager, TagDescriptor
 
 VERSION = (0, 4, 'pre')
 
