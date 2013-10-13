@@ -13,8 +13,8 @@ from django.template.loader import render_to_string
 from dojango.decorators import json_response
 from dojango.util import to_dojo_data, json_decode, json_encode
 
-from apps.utils import querycleaner
-from apps.utils.querycleaner import clean_query
+from manabi.appsutils import querycleaner
+from manabi.appsutils.querycleaner import clean_query
 from manabi.apps.flashcards.models import Card
 from manabi.apps.flashcards.models.constants import (
     GRADE_NONE, GRADE_HARD, GRADE_GOOD, GRADE_EASY)

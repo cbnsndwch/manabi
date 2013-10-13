@@ -9,7 +9,7 @@ from manabi.apps.flashcards.models.constants import (
     DEFAULT_EASE_FACTOR, INTERVAL_FUZZ_MAX,
     ALL_GRADES, GRADE_NAMES)
 from manabi.apps.flashcards.models import (FactType, Fact, Deck, CardTemplate, Card)
-from apps.manabi_redis.models import redis
+from manabi.appsmanabi_redis.models import redis
 
 
 

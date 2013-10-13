@@ -6,7 +6,7 @@ from django.shortcuts import get_object_or_404, render_to_response, redirect
 from django.template import RequestContext, loader
 from django.core.urlresolvers import reverse
 
-from apps.flashcards.models import (Deck, FactType, CardTemplate, Card,
+from manabi.appsflashcards.models import (Deck, FactType, CardTemplate, Card,
                                    FieldContent, FieldType, Fact)
 
 
