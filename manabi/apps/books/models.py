@@ -5,7 +5,7 @@ from django.db import models
 from model_utils.managers import manager_from
 #from amazonproduct import API as AmazonAPI
 
-from manabi.appsutils.slugs import slugify
+from apps.utils.slugs import slugify
 import settings
 
 

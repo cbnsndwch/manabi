@@ -1,7 +1,7 @@
 from django.db.models.signals import post_save, post_delete, pre_delete
 from django.dispatch import receiver
 
-from manabi.appsflashcards.models import Card
+from apps.flashcards.models import Card
 
 
 @receiver(post_save, sender=Card, dispatch_uid='card_saved_redis')

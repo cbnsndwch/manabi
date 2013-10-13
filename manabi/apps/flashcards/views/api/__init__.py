@@ -32,8 +32,8 @@ from django.views.decorators.http import require_GET
 from dojango.decorators import json_response
 from dojango.util import to_dojo_data, json_decode, json_encode
 
-from manabi.appsutils import japanese
-from manabi.appsutils.querycleaner import clean_query
+from apps.utils import japanese
+from apps.utils.querycleaner import clean_query
 from manabi.apps.flashcards.cachenamespaces import fact_grid_namespace
 from manabi.apps.flashcards.forms import DeckForm, FactForm, FieldContentForm, CardForm
 from manabi.apps.flashcards.models import (FactType, Fact, Deck, CardTemplate, FieldType,

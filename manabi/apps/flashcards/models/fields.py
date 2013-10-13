@@ -4,7 +4,7 @@ from cachecow.decorators import cached_function
 from django.db import models, transaction
 from model_utils.managers import manager_from
 
-from manabi.appsutils.templatetags.japanese import strip_ruby_bottom, strip_ruby_text
+from apps.utils.templatetags.japanese import strip_ruby_bottom, strip_ruby_text
 from constants import ISO_639_2_LANGUAGES
 
 
@@ -26,17 +26,17 @@ OPTIONAL_MEDIA_TYPE_RESTRICTIONS = (
 class _FieldTypeManager(object):
     @property
     def expression(self):
-        from manabi.appsflashcards.models import FactType
+        from apps.flashcards.models import FactType
         return self.get(name='expression', fact_type=FactType.objects.japanese)
 
     @property
     def reading(self):
-        from manabi.appsflashcards.models import FactType
+        from apps.flashcards.models import FactType
         return self.get(name='reading', fact_type=FactType.objects.japanese)
 
     @property
     def meaning(self):
-        from manabi.appsflashcards.models import FactType
+        from apps.flashcards.models import FactType
         return self.get(name='meaning', fact_type=FactType.objects.japanese)
 
 FieldTypeManager = lambda: manager_from(_FieldTypeManager)
@@ -232,7 +232,7 @@ class FieldContent(models.Model):
         '''
         Returns a list of each individual kanji in this field (if any).
         '''
-        from manabi.appsutils.unicodeblocks import block, KANJI_BLOCKS
+        from apps.utils.unicodeblocks import block, KANJI_BLOCKS
         return list(set(char for char in self.content
                         if block(char) in KANJI_BLOCKS))
 

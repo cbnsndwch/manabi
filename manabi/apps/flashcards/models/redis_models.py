@@ -1,5 +1,5 @@
-from manabi.appsutils.utils import unix_time
-from manabi.appsmanabi_redis.models import redis
+from apps.utils.utils import unix_time
+from apps.manabi_redis.models import redis
 
 
 class RedisCard(object):

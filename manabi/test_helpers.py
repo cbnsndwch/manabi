@@ -11,8 +11,8 @@ from django.utils import simplejson as json
 
 from manabi.apps.flashcards.models.constants import (
     GRADE_NONE, GRADE_HARD, GRADE_GOOD, GRADE_EASY)
-from manabi.appsflashcards.management.commands.flashcards_init import create_initial_data
-from manabi.appsflashcards.models import (Deck, Card, Fact, FactType, FieldType,
+from apps.flashcards.management.commands.flashcards_init import create_initial_data
+from apps.flashcards.models import (Deck, Card, Fact, FactType, FieldType,
                                     FieldContent)
 
 PASSWORD = 'whatever'

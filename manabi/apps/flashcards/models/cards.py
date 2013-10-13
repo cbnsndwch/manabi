@@ -91,7 +91,7 @@ class Card(models.Model):
 
     @property
     def redis(self):
-        from manabi.appsflashcards.models.redis_models import RedisCard
+        from apps.flashcards.models.redis_models import RedisCard
         return RedisCard(self)
 
     @property
