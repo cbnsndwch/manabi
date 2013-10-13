@@ -1,8 +1,10 @@
-from settings import JDIC_AUDIO_SERVER_URL, JDIC_AUDIO_SERVER_TIMEOUT
+import httplib
+
+from django.conf import settings
+from django.views.decorators.http import require_POST
+
 from manabi.apps.flashcards.views.decorators import flashcard_api as api
 from manabi.apps.flashcards.views.decorators import ApiException
-from django.views.decorators.http import require_POST
-import httplib
 
 
 @api
@@ -17,8 +19,8 @@ def audio_file_exists(request):
     filename = request.POST['filename']
 
     conn = httplib.HTTPConnection(
-        JDIC_AUDIO_SERVER_URL.lstrip('http://').rstrip('/audio/'),
-        timeout=JDIC_AUDIO_SERVER_TIMEOUT)
+        settings.JDIC_AUDIO_SERVER_URL.lstrip('http://').rstrip('/audio/'),
+        timeout=settings.JDIC_AUDIO_SERVER_TIMEOUT)
 
     url = ''.join(['/audio/', filename])
     print url

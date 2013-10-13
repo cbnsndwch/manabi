@@ -1,9 +1,11 @@
 from redis import StrictRedis
 
-from settings import REDIS
+from django.conf import settings
+
 
 class ManabiRedis(StrictRedis):
     pass
 
-redis = ManabiRedis(host=REDIS['host'], port=REDIS['port'], db=REDIS['db'])
+
+redis = ManabiRedis(host=settings.REDIS['host'], port=settings.REDIS['port'], db=settings.REDIS['db'])
 

@@ -1,8 +1,8 @@
 
-MANABI_DIR=~/src/manabi/manabi
+MANABI_DIR=~/src/manabi
 
 alias g="git"
-alias cdm="cd $MANABI_DIR"
+alias cdm="cd $MANABI_DIR/manabi"
 alias mm="python $MANABI_DIR/manage.py"
 alias mshell="mm shell -i bpython"
 alias mt="DJANGO_SETTINGS_MODULE=manabi.settings_testing mm test"

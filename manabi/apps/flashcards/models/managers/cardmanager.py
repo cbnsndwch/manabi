@@ -4,7 +4,7 @@ from itertools import chain
 from django.db import models
 from django.db.models import Avg, Max, Min, Count
 
-from apps.manabi_redis.models import redis
+from manabi.apps.manabi_redis.models import redis
 from model_utils.managers import manager_from
 from manabi.apps.flashcards.models.constants import (
     GRADE_NONE, GRADE_HARD, GRADE_GOOD, GRADE_EASY,

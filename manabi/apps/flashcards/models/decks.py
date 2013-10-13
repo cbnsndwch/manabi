@@ -11,7 +11,7 @@ from django.forms import ModelForm
 from django.forms.util import ErrorList
 from model_utils.managers import manager_from
 
-from apps.manabi_redis.models import redis
+from manabi.apps.manabi_redis.models import redis
 from manabi.apps.books.models import Textbook
 from constants import DEFAULT_EASE_FACTOR
 from constants import GRADE_NONE, GRADE_HARD, GRADE_GOOD, GRADE_EASY
