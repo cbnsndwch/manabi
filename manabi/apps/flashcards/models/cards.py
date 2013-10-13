@@ -20,12 +20,14 @@ from managers.cardmanager import CardQuerySet
 from repetitionscheduler import repetition_algo_dispatcher
 from undo import UndoCardReview
 from model_utils.managers import PassThroughManager
-    
+
+
 
 class Card(models.Model):
     objects = PassThroughManager.for_queryset_class(CardQuerySet)()
 
     fact = models.ForeignKey('flashcards.Fact', db_index=True)
+
 
     # False when the card is removed from the Fact. This way, we can keep 
     # card statistics if enabled later.
@@ -55,7 +57,7 @@ class Card(models.Model):
     # OLD:
 
     #TODELETE
-    template = models.ForeignKey(CardTemplate)
+    legacy_template = models.ForeignKey(CardTemplate)
 
     #TODO how to have defaults without null (gives a 'may not be NULL' error)
     # negatives for lower priority, positives for higher
@@ -68,10 +70,11 @@ class Card(models.Model):
     #synchronized_with = models.ForeignKey('self', null=True, blank=True) 
 
     class Meta:
-        unique_together = (('fact', 'template'), )
+        #unique_together = (('fact', 'template'), )
         app_label = 'flashcards'
 
     def __unicode__(self):
+        return u'{} | {}'.format(self.fact.expression, self.fact.meaning)
         from BeautifulSoup import BeautifulSoup
 
         fields = dict((field.field_type.name, field)

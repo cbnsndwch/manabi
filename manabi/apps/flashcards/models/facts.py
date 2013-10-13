@@ -155,22 +155,23 @@ class FactManager(models.Manager):
 class Fact(models.Model):
     objects = FactManager()
 
-    deck = models.ForeignKey('flashcards.Deck',
-        blank=True, null=True, db_index=True)
+    deck = models.ForeignKey('flashcards.Deck', blank=True, null=True, db_index=True)
 
-    synchronized_with = models.ForeignKey('self',
-        null=True, blank=True, related_name='subscriber_facts')
+    synchronized_with = models.ForeignKey(
+        'self', null=True, blank=True, related_name='subscriber_facts')
     new_fact_ordinal = models.PositiveIntegerField(null=True, blank=True)
-    
     active = models.BooleanField(default=True, blank=True)
+
+    expression = models.CharField(max_length=500)
+    reading = models.CharField(max_length=1500, blank=True)
+    meaning = models.CharField(max_length=1000)
 
     created_at = models.DateTimeField()
     modified_at = models.DateTimeField()
 
     def roll_ordinal(self):
         if not self.new_fact_ordinal:
-            self.new_fact_ordinal = random.randrange(
-                0, MAX_NEW_CARD_ORDINAL)
+            self.new_fact_ordinal = random.randrange(0, MAX_NEW_CARD_ORDINAL)
 
     def save(self, *args, **kwargs):
         '''
@@ -187,25 +188,6 @@ class Fact(models.Model):
     @property
     def owner(self):
         return self.deck.owner
-
-    @property
-    def subfacts(self):
-        '''
-        Returns subfacts (via the child_facts relation) of this fact.
-        Includes subfacts of the subscribed fact if this is synchronized 
-        with a shared deck.
-
-        Only includes active subfacts.
-        '''
-        subfacts = self.child_facts.all()
-        if self.synchronized_with:
-            synchronized_subfacts = self.synchronized_with.child_facts
-            subfacts = subfacts | synchronized_subfacts.exclude(
-                    id__in=subfacts.exclude(
-                            synchronized_with__isnull=True).values_list(
-                                    'synchronized_with_id', flat=True))
-        return subfacts.filter(active=True)
-
 
     @property
     def field_contents(self):
