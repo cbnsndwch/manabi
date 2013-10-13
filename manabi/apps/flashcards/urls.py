@@ -3,7 +3,6 @@ import os
 from django.conf import settings
 from django.conf.urls import *
 from django.views.decorators.cache import cache_page
-from django.views.generic.list_detail import object_list, object_detail
 from manabi.apps.utils.views import direct_to_template
 
 from manabi.apps.flashcards.models import Deck, FactType, Card

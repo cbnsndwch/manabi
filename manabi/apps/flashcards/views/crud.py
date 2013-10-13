@@ -14,8 +14,8 @@ from django.forms import forms
 from django.http import Http404, HttpResponseRedirect, HttpResponse
 from django.shortcuts import get_object_or_404, render_to_response, redirect
 from django.template import RequestContext, loader
-from django.views.generic.create_update import update_object, delete_object, create_object
-from django.views.generic.list_detail import object_list, object_detail
+from django.views.generic.detail import DetailView
+from django.views.generic.list import ListView
 from dojango.decorators import json_response
 from dojango.util import to_dojo_data, json_decode, json_encode
 from manabi.apps.flashcards.contextprocessors import subfact_form_context
@@ -63,7 +63,7 @@ def deck_detail(request, deck_id=None):
 
     }
     #detail_args['extra_context'].update(study_options_context(request, deck_id=deck_id))
-    return object_detail(request, **detail_args)
+    return DetailView.as_view(request, **detail_args)
 
 
 @login_required
@@ -129,7 +129,7 @@ def deck_list(request):
     context = {'container_id': 'deckDialog'}
     context['only_one_deck_exists'] = (len(decks) == 1)
 
-    return object_list(request, queryset=decks, extra_context=context, template_object_name='deck')
+    return ListView.as_view(request, queryset=decks, extra_context=context, template_object_name='deck')
 
 
 @login_required

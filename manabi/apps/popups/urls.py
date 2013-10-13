@@ -1,11 +1,12 @@
+from functools import wraps
+
 from django.conf.urls import *
 from django.conf import settings
 from django.core.urlresolvers import reverse
+
 from manabi.apps.utils.views import direct_to_template
-from django.views.generic.list_detail import object_list, object_detail
-from utils.urldecorators import decorated_patterns
-from functools import wraps
 from manabi.apps.flashcards.views.crud import deck_create
+from manabi.apps.utils.urldecorators import decorated_patterns
 
 def popup_base_template(func):
     def wrapped(request, *args, **kwargs):

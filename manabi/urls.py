@@ -3,7 +3,7 @@ from django.conf.urls import *
 from django.conf import settings
 from django.contrib import admin
 
-from forms import SignupForm
+#TODO from forms import SignupForm
 from manabi.apps.utils.views import direct_to_template
 from manabi.apps.utils.urldecorators import decorated_patterns
 from manabi.apps.flashcards.urls import rest_api_urlpatterns
@@ -14,21 +14,21 @@ admin.autodiscover()
 
 urlpatterns = patterns('',
     # Use our customized form
-    url(r'^account/signup/$', 'account.views.signup',
-        name="acct_signup", kwargs={'form_class': SignupForm}), 
+    #TODO url(r'^account/signup/$', 'account.views.signup',
+    #    name="acct_signup", kwargs={'form_class': SignupForm}), 
 
     url(r'convert/', include('lazysignup.urls')),
 
-    (r'^account/', include('account.urls')),
+    #TODO (r'^account/', include('account.urls')),
     (r'^admin/', include(admin.site.urls)),
     #(r'^sentry/', include('sentry.web.urls')),
 
-    (r'^mobile-account/', include('mobileaccount.urls')),
+    #TODO (r'^mobile-account/', include('mobileaccount.urls')),
 
-    url(r'^popups/login/$', 'account.views.login', name='popup_acct_login', kwargs={
-        'template_name': 'popups/login.html',}),
+    #TODO url(r'^popups/login/$', 'account.views.login', name='popup_acct_login', kwargs={
+        #'template_name': 'popups/login.html',}),
 
-    (r'^popups/', include('popups.urls')),
+    (r'^popups/', include('manabi.apps.popups.urls')),
 
     url(r'^terms-of-service/$', direct_to_template,
         {'template': 'tos.html'}, name='terms_of_service'),
@@ -46,30 +46,31 @@ urlpatterns = patterns('',
     url(r'^$', 'views.index', name='home'),
 
     url(r'^home/$', 'views.home', name='home_inline'),
+
+    (r'^dojango/', include('dojango.urls')),
     
     #url(r'^admin/invite_user/$', 'signup_codes.views.admin_invite_user',
         #name="admin_invite_user"),
 
-
     #(r'^profiles/', include('basic_profiles.urls')),
     #url(r'^profiles/', include('idios.urls')),
 
-    (r'^about/', include('about.urls')),
+    (r'^about/', include('manabi.apps.about.urls')),
     
     # my own
     #(r'^reports/', include('reports.urls')),
-    (r'^dojango/', include('dojango.urls')),
-    (r'^flashcards/', include('flashcards.urls')),
-    (r'^textbooks/', include('books.urls')),
-    (r'^importer/', include('importer.urls')),
-    (r'^jdic/', include('jdic.urls')),
+
+    (r'^flashcards/', include('manabi.apps.flashcards.urls')),
+    (r'^textbooks/', include('manabi.apps.books.urls')),
+    (r'^importer/', include('manabi.apps.importer.urls')),
+    (r'^jdic/', include('manabi.apps.jdic.urls')),
     (r'^kanjivg/', include('kanjivg.urls')),
-    (r'^stats/', include('stats.urls')),
+    (r'^stats/', include('manabi.apps.stats.urls')),
 )
 
 if settings.SERVE_MEDIA:
     urlpatterns += patterns('',
-        (r'^favicon\.ico$', 'django.views.generic.simple.redirect_to', {'url': '/site_media/static/favicon.ico'}),
+        (r'^favicon\.ico$', 'manabi.apps.utils.views.redirect_to', {'url': '/site_media/static/favicon.ico'}),
     )
 
     from django.contrib.staticfiles.urls import staticfiles_urlpatterns

@@ -1,7 +1,7 @@
 from django.conf.urls import *
 from django.conf import settings
+
 from manabi.apps.utils.views import direct_to_template
-from django.views.generic.list_detail import object_list, object_detail
 
 
 urlpatterns = patterns('books.views',
