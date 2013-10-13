@@ -1,5 +1,5 @@
-from apps.utils import querycleaner
-from apps.utils.querycleaner import clean_query
+from manabi.apps.utils import querycleaner
+from manabi.apps.utils.querycleaner import clean_query
 from datetime import datetime, timedelta
 from django.contrib.auth.decorators import login_required
 from django.contrib.humanize.templatetags.humanize import naturalday

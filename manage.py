@@ -34,7 +34,7 @@ if __name__ == "__main__":
     #if apps_path not in sys.path:
     #    sys.path.insert(0, apps_path)
      
-    for p in sys.path: print p
+    #for p in sys.path: print p
 
     execute_from_command_line(sys.argv)
 

@@ -6,7 +6,7 @@ from django.utils import simplejson
 from django.contrib.auth.models import User
 import urllib
 import settings
-from apps.dojango.conf import settings as dojango_settings
+from manabi.apps.dojango.conf import settings as dojango_settings
 
 
 class JdicAudioTest(TestCase):

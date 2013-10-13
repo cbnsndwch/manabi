@@ -5,7 +5,7 @@ from django.views.generic.simple import direct_to_template
 from django.views.generic.list_detail import object_list, object_detail
 from utils.urldecorators import decorated_patterns
 from functools import wraps
-from apps.flashcards.views.crud import deck_create
+from manabi.apps.flashcards.views.crud import deck_create
 
 def popup_base_template(func):
     def wrapped(request, *args, **kwargs):

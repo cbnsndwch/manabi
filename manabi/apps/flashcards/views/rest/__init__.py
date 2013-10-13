@@ -19,8 +19,8 @@ from django.template import RequestContext, loader
 from dojango.decorators import json_response
 from dojango.util import to_dojo_data, json_decode, json_encode
 
-from apps.utils import japanese, querycleaner
-from apps.utils.querycleaner import clean_query
+from manabi.apps.utils import japanese, querycleaner
+from manabi.apps.utils.querycleaner import clean_query
 from manabi.apps.flashcards import models
 from manabi.apps.flashcards.contextprocessors import review_start_context
 from manabi.apps.flashcards.forms import DeckForm, FactForm, FieldContentForm, CardForm
