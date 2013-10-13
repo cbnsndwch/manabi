@@ -26,24 +26,10 @@ class Card(models.Model):
     objects = PassThroughManager.for_queryset_class(CardQuerySet)()
 
     fact = models.ForeignKey('flashcards.Fact', db_index=True)
-    template = models.ForeignKey(CardTemplate)
 
-    #TODO how to have defaults without null (gives a 'may not be NULL' error)
-    # negatives for lower priority, positives for higher
-    priority = models.IntegerField(default=0, null=True, blank=True) 
-    
-    leech = models.BooleanField(default=False) #TODO add leech handling
-    
     # False when the card is removed from the Fact. This way, we can keep 
     # card statistics if enabled later.
     active = models.BooleanField(default=True, db_index=True)
-
-    suspended = models.BooleanField(default=False, db_index=True) 
-
-    new_card_ordinal = models.PositiveIntegerField(null=True, blank=True)
-
-    #for owner cards, part of synchronized decks, not used yet
-    #synchronized_with = models.ForeignKey('self', null=True, blank=True) 
 
     ease_factor = models.FloatField(null=True, blank=True)
     interval = models.FloatField(null=True, blank=True, db_index=True) #days
@@ -56,9 +42,30 @@ class Card(models.Model):
     last_reviewed_at = models.DateTimeField(null=True, blank=True)
     last_review_grade = models.PositiveIntegerField(null=True, blank=True)
     last_failed_at = models.DateTimeField(null=True, blank=True)
-    
+
     #TODO use this for is_new
     review_count = models.PositiveIntegerField(default=0, editable=False) 
+
+    new_card_ordinal = models.PositiveIntegerField(null=True, blank=True)
+    
+    suspended = models.BooleanField(default=False, db_index=True) 
+
+
+    ######################
+    # OLD:
+
+    #TODELETE
+    template = models.ForeignKey(CardTemplate)
+
+    #TODO how to have defaults without null (gives a 'may not be NULL' error)
+    # negatives for lower priority, positives for higher
+    priority = models.IntegerField(default=0, null=True, blank=True) 
+    
+    leech = models.BooleanField(default=False) #TODO add leech handling
+    
+
+    #for owner cards, part of synchronized decks, not used yet
+    #synchronized_with = models.ForeignKey('self', null=True, blank=True) 
 
     class Meta:
         unique_together = (('fact', 'template'), )

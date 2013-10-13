@@ -20,6 +20,7 @@ def seconds_to_days(s):
     return s / 86400.0
 
 
+#TODELETE
 class FactTypeQuerySet(QuerySet):
     @property
     def japanese(self):
@@ -30,6 +31,14 @@ class FactTypeQuerySet(QuerySet):
     def example_sentences(self):
         return self.get(id=2)
 
+#TODO 
+# separate the cards of this fact initially
+# not used for child fact types (?)
+#min_card_space = models.FloatField(default=seconds_to_days(600),
+#        help_text='Duration expressed in (partial) days.')
+#TODO
+# minimal interval multiplier between two cards of the same fact
+#space_factor = models.FloatField(default=.1) 
 
 class FactType(models.Model):
     objects = PassThroughManager.for_queryset_class(FactTypeQuerySet)()
@@ -42,11 +51,8 @@ class FactType(models.Model):
             blank=True, null=True, related_name='child_fact_types')
     many_children_per_fact = models.NullBooleanField(blank=True, null=True)
 
-    # separate the cards of this fact initially
-    # not used for child fact types (?)
-    min_card_space = models.FloatField(default=seconds_to_days(600),
-            help_text='Duration expressed in (partial) days.')
 
+    #TODELETE
     # minimal interval multiplier between two cards of the same fact
     space_factor = models.FloatField(default=.1) 
     
@@ -71,6 +77,7 @@ class FactManager(models.Manager):
         return usertagging.models.Tag.objects.usage_for_queryset(
                 user_facts)
     
+    #TODO
     def search(self, fact_type, query, query_set=None):
         '''Returns facts which have FieldContents containing the query.
         `query` is a substring to match on
@@ -97,6 +104,7 @@ class FactManager(models.Manager):
         #return query_set.filter(id__in=set(field_content.fact_id 
         #for field_content in matches))
 
+    #TODELETE, legacy.
     def get_for_owner_or_subscriber(self, fact_id, user):
         '''
         Returns a Fact object of the given id,
@@ -105,61 +113,9 @@ class FactManager(models.Manager):
         creates if necessary.
         It will also create the associated cards.
         '''
-        fact = Fact.objects.get(id=fact_id)
-        if fact.owner != user:
-            if False: #FIXME sometimes fact.parent_fact not fact.deck.shared_at:
-                pass #FIXME raise permissions error
-            else:
-                from decks import Deck
-                # find the subscriber deck for this user
-                try:
-                    subscriber_deck = Deck.objects.get(
-                            owner=user, synchronized_with=fact.deck)
-                except Deck.DoesNotExist:
-                    raise forms.ValidationError(
-                            'You do not have permission to access this deck.')
+        return Fact.objects.get(id=fact_id)
 
-                # check if the fact exists already
-                existent_fact = subscriber_deck.fact_set.filter(
-                        synchronized_with=fact)
-                if existent_fact:
-                    fact = existent_fact[0]
-                else:
-                    fact = fact.copy_to_deck(subscriber_deck, synchronize=True)
-        return fact
-
-    def with_upstream(self, user, deck=None, tags=None):
-        '''
-        Returns a queryset of all active Facts which the user owns, or which 
-        the user is subscribed to (via a subscribed deck).
-        Optionally filter by deck and tags too.
-        '''
-        from decks import Deck
-        user_facts = self.filter(deck__owner=user, parent_fact__isnull=True)
-        
-        if deck:
-            decks = Deck.objects.filter(id=deck.id)
-            user_facts = user_facts.filter(deck__in=decks)
-        else:
-            decks = Deck.objects.filter(owner=user, active=True)
-        if tags:
-            tagged_facts = UserTaggedItem.objects.get_by_model(Fact, tags)
-            user_facts = user_facts.filter(id__in=tagged_facts)
-
-        subscriber_decks = decks.filter(synchronized_with__isnull=False)
-        subscribed_decks = [deck.synchronized_with \
-                            for deck in subscriber_decks \
-                            if deck.synchronized_with is not None]
-        #shared_facts = self.filter(deck_id__in=shared_deck_ids)
-        copied_subscribed_fact_ids = [fact.synchronized_with_id \
-                                      for fact in user_facts \
-                                      if fact.synchronized_with_id is not None]
-        subscribed_facts = self.filter(
-                deck__in=subscribed_decks
-                ).exclude(id__in=copied_subscribed_fact_ids) 
-        # should not be necessary: .exclude(id__in=user_facts)
-        return user_facts | subscribed_facts
-
+    #TODELETE, legacy.
     @transaction.commit_on_success
     def add_new_facts_from_synchronized_decks(self, user, count, deck=None, tags=None):
         '''
@@ -198,27 +154,18 @@ class FactManager(models.Manager):
 
 class Fact(models.Model):
     objects = FactManager()
+
     deck = models.ForeignKey('flashcards.Deck',
         blank=True, null=True, db_index=True)
+
     synchronized_with = models.ForeignKey('self',
         null=True, blank=True, related_name='subscriber_facts')
     new_fact_ordinal = models.PositiveIntegerField(null=True, blank=True)
-
-    fact_type = models.ForeignKey(FactType)
     
     active = models.BooleanField(default=True, blank=True)
-    #suspended = models.BooleanField(default=False, blank=True)
-    priority = models.IntegerField(default=0, null=True, blank=True)
-    #TODO how to reconcile with card priorities?
 
-    notes = models.CharField(max_length=1000, blank=True)
-    
-    created_at = models.DateTimeField(auto_now_add=True, editable=False)
-    modified_at = models.DateTimeField(auto_now=True, editable=False)
-
-    #child facts (e.g. example sentences for a Japanese fact)
-    parent_fact = models.ForeignKey('self',
-        blank=True, null=True, related_name='child_facts')
+    created_at = models.DateTimeField()
+    modified_at = models.DateTimeField()
 
     def roll_ordinal(self):
         if not self.new_fact_ordinal:
@@ -232,87 +179,14 @@ class Fact(models.Model):
         self.roll_ordinal()
         super(Fact, self).save(*args, **kwargs)
 
-    def delete_for_user(self, user):
-        '''
-        If this is an upstream fact that the user hasn't copied over yet, create
-        a dummy fact with inactive status.
-
-        If it's upstream and a downstream one exists, deactivate the downstream 
-        one.
-
-        Otherwise, the user actually owns *this* fact, so call `delete` on it.
-
-        Returns the fact that was actually deleted.
-        '''
-        if self.owner == user:
-            self.delete()
-            return self
-
-        # This is an upstream fact.
-        # See if downstream copy exists.
-        try:
-            downstream_fact = Fact.objects.get(synchronized_with=self)
-        except Fact.DoesNotExist:
-            # Make a dummy copy.
-            # Which user deck is synchronized with this upstream fact's deck?
-            deck = Deck.objects.get(synchronized_with=self.deck)
-            downstream_fact = self.copy_to_deck(deck, synchronize=True)
-        downstream_fact.inactive = True
-        downstream_fact.save()
-        return downstream_fact
-
     def delete(self, *args, **kwargs):
-        # don't necessarily delete for any subscribers of this fact
-        if self.subscriber_facts.all():
-            # don't bother with users who don't have this fact yet - we can 
-            # safely (according to guidelines) delete at this point.
-            # if subscriber facts have reviewed or edited anything within this 
-            # fact, don't delete it for those subscribers.
-            from cards import Card
-
-            # get active subscriber facts
-            active_cards = Card.objects.filter(
-                    fact__in=self.subscriber_facts.all(),
-                    active=True, suspended=False, last_reviewed_at__isnull=False)
-
-            updated_fields = FieldContent.objects.filter(
-                    fact__in=self.subscriber_facts.all())# | \
-            #FieldContent.objects.filter(
-            #        fact__parent_fact__in=self.subscriber_facts.all())
-
-            updated_subfacts = Fact.objects.filter(
-                    id__in=FieldContent.objects.filter(
-                            fact__parent_fact__in=
-                                    self.subscriber_facts.all()
-                            ).values_list('fact_id', flat=True))
-
-            active_subscribers = self.subscriber_facts.filter(
-                    #Q(id__in=updated_fields.values_list(
-                    #       'parent_fact_id', flat=True)) |
-                    Q(id__in=updated_subfacts.values_list(
-                            'parent_fact_id', flat=True)) |
-                    Q(id__in=active_cards.values_list('fact_id', flat=True)) |
-                    Q(id__in=updated_fields.values_list('fact_id', flat=True)))
-
-            # de-synchronize the facts which users have updated or reviewed,
-            # after making sure they contain the field contents.
-            for fact in active_subscribers.iterator():
-                # unsynchronize each fact by copying field contents
-                fact.copy_subscribed_field_contents_and_subfacts()
-                fact.synchronized_with = None
-                for subfact in fact.child_facts.all():
-                    subfact.synchronized_with = None
-                    subfact.save()
-                fact.save()
-
-            other_subscriber_facts = self.subscriber_facts.exclude(
-                    id__in=active_subscribers)
-            other_subscriber_facts.delete()
+        self.subscriber_facts.filter(modified_at__gt=self.created_at).delete()
+        self.subscriber_facts.update(synchronized_with=None)
         super(Fact, self).delete(*args, **kwargs)
 
     @property
     def owner(self):
-        return self.owner_deck.owner
+        return self.deck.owner
 
     @property
     def subfacts(self):
@@ -372,68 +246,16 @@ class Fact(models.Model):
             card.save()
             fact_unsuspended.send(sender=self, instance=self)
 
-    @property
-    def owner_deck(self):
-        '''
-        Gets the deck which owns this fact or subfact. Subfacts have no deck
-        field, so this is a way to get the containing deck for either type.
-        '''
-        if self.parent_fact:
-            return self.parent_fact.deck
-        return self.deck
-
+    #TODELETE?
     def all_owner_decks(self):
         '''
         Returns a list of all the deck this object belongs to,
         including subscriber decks.
         '''
-        return ([self.owner_deck]
-                + [d for d in self.owner_deck.subscriber_decks.filter(active=True)])
+        return ([self.deck]
+                + [d for d in self.deck.subscriber_decks.filter(active=True)])
 
-    def has_updated_content(self):
-        '''Only call this for subscriber facts.
-        Returns whether the subscriber user has edited any 
-        field contents in this fact.
-        '''
-        if not self.synchronized_with:
-            raise TypeError('This is not a subscriber fact.')
-        return self.fieldcontent_set.all().counter() > 0 #.exists()
-
-    def copy_subscribed_field_contents_and_subfacts(self):
-        '''
-        Only call this for subscriber facts.
-        Copies all the field contents for the synchronized fact,
-        so that it will not longer receive updates to field 
-        contents when the subscribed fact is updated. (including deletes)
-        Also copies any subfacts, and their field contents.
-        Effectively unsubscribes just for this fact.
-        '''
-        if not self.synchronized_with:
-            raise TypeError('This is not a subscriber fact.')
-        #elif self.parent_fact:
-            #raise TypeError('This must be called on parent facts, not subfacts.')
-        for field_content in self.synchronized_with.fieldcontent_set.all():
-            # copy if it doesn't already exist
-            if not self.fieldcontent_set.filter(field_type=field_content.field_type):
-                field_content.copy_to_fact(self)
-        if not self.parent_fact:
-            for subfact in self.synchronized_with.child_facts.all():
-                # copy (if it doesn't already exist - but that's handled by the copy method)
-                subfact.copy_to_parent_fact(self, copy_field_contents=True)
-
-    def fieldcontent_set_plus_blank_fields(self):
-        '''
-        Returns self.fieldcontent_set, but adds mock 
-        FieldContent objects for any FieldTypes of this 
-        fact's FactType which do not have corresponding 
-        FieldContent objects.
-        (e.g. a fact without a notes field, so that 
-        the notes field can be included in an update form.)
-        '''
-        pass
-        #field_contents = self.fieldcontent_set.all()
-        #TODO add this
-
+    #TODELETE
     def copy_to_parent_fact(self, parent_fact, copy_field_contents=False):
         '''
         Copies a subfact to a parent fact.
@@ -464,6 +286,7 @@ class Fact(models.Model):
                 field_content.copy_to_fact(subfact_copy)
         return subfact_copy
 
+    #TODO
     def copy_to_deck(self, deck, copy_field_contents=False, copy_subfacts=False,
                      synchronize=False):
         '''
