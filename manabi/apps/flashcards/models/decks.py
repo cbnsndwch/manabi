@@ -136,7 +136,7 @@ class Deck(models.Model):
         if subscriber_decks.exists():
             return subscriber_decks[0]
 
-    @transaction.commit_on_success    
+    @transaction.commit_on_success
     def subscribe(self, user):
         '''
         Subscribes to this shared deck for the given user.
@@ -161,7 +161,7 @@ class Deck(models.Model):
             raise TypeError('Cannot share a deck that is already synchronized to a shared deck.')
 
         #TODO dont allow multiple subscriptions to same deck by same user
-        
+
         # copy the deck
         deck = Deck(
             synchronized_with=self,
