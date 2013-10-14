@@ -20,16 +20,6 @@ def seconds_to_days(s):
     return s / 86400.0
 
 
-#TODELETE
-class FactTypeQuerySet(QuerySet):
-    @property
-    def japanese(self):
-        # Unfortunately hard-coded for now, since we only have 2 types, and 
-        # this is a relic of an old abandoned design that should be refactored.
-        return self.get(id=1)
-    
-    def example_sentences(self):
-        return self.get(id=2)
 
 #TODO 
 # separate the cards of this fact initially
@@ -39,33 +29,6 @@ class FactTypeQuerySet(QuerySet):
 #TODO
 # minimal interval multiplier between two cards of the same fact
 #space_factor = models.FloatField(default=.1) 
-
-class FactType(models.Model):
-    objects = PassThroughManager.for_queryset_class(FactTypeQuerySet)()
-
-    name = models.CharField(max_length=50)
-    active = models.BooleanField(default=True, blank=True)
-
-    #e.g. for Example Sentences for Japanese facts
-    parent_fact_type = models.ForeignKey('self',
-            blank=True, null=True, related_name='child_fact_types')
-    many_children_per_fact = models.NullBooleanField(blank=True, null=True)
-
-
-    #TODELETE
-    # minimal interval multiplier between two cards of the same fact
-    space_factor = models.FloatField(default=.1) 
-    
-    created_at = models.DateTimeField(auto_now_add=True, editable=False)
-    modified_at = models.DateTimeField(auto_now=True, editable=False)
-    
-    def __unicode__(self):
-        if self.parent_fact_type:
-            return self.parent_fact_type.name + ' - ' + self.name
-        return self.name
-    
-    class Meta:
-        app_label = 'flashcards'
 
 
 class FactManager(models.Manager):
@@ -333,6 +296,52 @@ class Fact(models.Model):
 
 usertagging.register(Fact)
 
+
+
+
+#############
+# OLD:
+
+
+#TODELETE
+class FactTypeQuerySet(QuerySet):
+    @property
+    def japanese(self):
+        # Unfortunately hard-coded for now, since we only have 2 types, and 
+        # this is a relic of an old abandoned design that should be refactored.
+        return self.get(id=1)
+    
+    def example_sentences(self):
+        return self.get(id=2)
+
+
+#TODELETE
+class FactType(models.Model):
+    objects = PassThroughManager.for_queryset_class(FactTypeQuerySet)()
+
+    name = models.CharField(max_length=50)
+    active = models.BooleanField(default=True, blank=True)
+
+    #e.g. for Example Sentences for Japanese facts
+    parent_fact_type = models.ForeignKey('self',
+            blank=True, null=True, related_name='child_fact_types')
+    many_children_per_fact = models.NullBooleanField(blank=True, null=True)
+
+
+    #TODELETE
+    # minimal interval multiplier between two cards of the same fact
+    space_factor = models.FloatField(default=.1) 
+    
+    created_at = models.DateTimeField(auto_now_add=True, editable=False)
+    modified_at = models.DateTimeField(auto_now=True, editable=False)
+    
+    def __unicode__(self):
+        if self.parent_fact_type:
+            return self.parent_fact_type.name + ' - ' + self.name
+        return self.name
+    
+    class Meta:
+        app_label = 'flashcards'
 
 
 

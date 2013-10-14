@@ -4,7 +4,6 @@ import random
 from django.core.cache import cache
 from django.db import models
 from django.db.models import Count, Min, Max, Sum, Avg
-from django.template.loader import render_to_string
 from cachecow.decorators import cached_function
 
 from constants import (GRADE_NONE, GRADE_HARD, GRADE_GOOD, GRADE_EASY,
@@ -22,12 +21,22 @@ from undo import UndoCardReview
 from model_utils.managers import PassThroughManager
 
 
+PRODUCTION, RECOGNITION, KANJI_READING, KANJI_WRITING = range(4)
+
+CARD_TEMPLATE_CHOICES = (
+    (PRODUCTION, 'Production'),
+    (RECOGNITION, 'Recognition'),
+    (KANJI_READING, 'Kanji Reading'),
+    (KANJI_WRITING, 'Kanji Writing'),
+)
+
 
 class Card(models.Model):
     objects = PassThroughManager.for_queryset_class(CardQuerySet)()
 
     fact = models.ForeignKey('flashcards.Fact', db_index=True)
 
+    template = models.SmallIntegerField(choices=CARD_TEMPLATE_CHOICES, blank=False)
 
     # False when the card is removed from the Fact. This way, we can keep 
     # card statistics if enabled later.
@@ -36,7 +45,6 @@ class Card(models.Model):
     ease_factor = models.FloatField(null=True, blank=True)
     interval = models.FloatField(null=True, blank=True, db_index=True) #days
     due_at = models.DateTimeField(null=True, blank=True, db_index=True)
-
     last_ease_factor = models.FloatField(null=True, blank=True)
     last_interval = models.FloatField(null=True, blank=True)
     last_due_at = models.DateTimeField(null=True, blank=True)
@@ -57,11 +65,7 @@ class Card(models.Model):
     # OLD:
 
     #TODELETE
-    legacy_template = models.ForeignKey(CardTemplate)
-
-    #TODO how to have defaults without null (gives a 'may not be NULL' error)
-    # negatives for lower priority, positives for higher
-    priority = models.IntegerField(default=0, null=True, blank=True) 
+    legacy_template = models.ForeignKey(CardTemplate, blank=True, null=True, db_index=False)
     
     leech = models.BooleanField(default=False) #TODO add leech handling
     
@@ -70,27 +74,11 @@ class Card(models.Model):
     #synchronized_with = models.ForeignKey('self', null=True, blank=True) 
 
     class Meta:
-        #unique_together = (('fact', 'template'), )
+        #TODO unique_together = (('fact', 'template'), )
         app_label = 'flashcards'
 
     def __unicode__(self):
         return u'{} | {}'.format(self.fact.expression, self.fact.meaning)
-        from BeautifulSoup import BeautifulSoup
-
-        fields = dict((field.field_type.name, field)
-                      for field in self.fact.field_contents)
-        card_context = {'fields': fields}
-        def format_(content):
-            page = BeautifulSoup(content)
-            for tag in page.findAll('script'):
-                tag.extract() # Remove the tag.
-            return u''.join(page.findAll(text=True)).replace('\n', '').strip()
-
-        front = format_(render_to_string(
-            self.template.front_template_name, card_context))
-        back = format_(render_to_string(
-            self.template.back_template_name, card_context))
-        return u'{0} | {1}'.format(front, back)
 
     def copy(self, target_fact):
         ''' Returns a new Card object. '''
@@ -111,7 +99,7 @@ class Card(models.Model):
 
     @property
     def deck(self):
-        return self.fact.owner_deck
+        return self.fact.deck
 
     @property
     def siblings(self):
@@ -149,12 +137,14 @@ class Card(models.Model):
 
     def activate(self):
         from manabi.apps.flashcards.signals import card_active_field_changed
+
         self.active = True
         self.save()
         card_active_field_changed.send(self, instance=self)
 
     def deactivate(self):
         from manabi.apps.flashcards.signals import card_active_field_changed
+
         self.active = False
         self.save()
         card_active_field_changed.send(self, instance=self)
@@ -208,27 +198,6 @@ class Card(models.Model):
         '''
         return self.cardhistory_set.aggregate(
                 Sum('question_duration'))['question_duration__sum']
-
-    @cached_function(namespace=lambda c, *args, **kwargs:
-                               fact_grid_namespace(c.deck.pk))
-    def _render(self, template_name):
-        # map fieldtype-id to fieldcontents
-        fields = dict((field.field_type.name, field)
-                      for field in self.fact.field_contents)
-
-        card_context = {
-            'card': self,
-            'fields': fields,
-        }
-        return render_to_string(template_name, card_context)
-
-    def render_front(self):
-        '''Returns a string of the rendered card front.'''
-        return self._render('flashcards/card_front.html')
-
-    def render_back(self):
-        '''Returns a string of the rendered card back.'''
-        return self._render('flashcards/card_back.html')
 
     def calculated_interval(self):
         '''

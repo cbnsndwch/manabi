@@ -93,47 +93,6 @@ class Deck(models.Model):
         return usertagging.models.Tag.objects.usage_for_queryset(
             deck_facts)
 
-    #def facts(self):
-    #    '''Returns all Facts for this deck,
-    #    including subscribed ones, not including subfacts.
-    #    '''
-    #    from fields import FieldContent
-    #    if self.synchronized_with:
-    #        updated_fields = FieldContent.objects.filter(fact__deck=self, fact__active=True, fact__synchronized_with__isnull=False) #fact__in=self.subscriber_facts.all())
-    #        # 'other' here means non-updated, subscribed
-    #        other_facts = Fact.objects.filter(parent_fact__isnull=True, id__in=updated_fields.values_list('fact', flat=True))
-    #        other_fields = FieldContent.objects.filter(fact__deck=self.synchronized_with).exclude(fact__active=True, fact__in=other_facts.values_list('synchronized_with', flat=True))
-    #        #active_subscribers = active_subscribers | other_fields
-    #        return updated_fields | other_fields
-    #    else:
-    #        return FieldContent.objects.filter(fact__deck=self, fact__active=True)
-
-    def field_contents(self):
-        '''
-        Returns all FieldContents for facts in this deck,
-        preferring updated subscriber fields to subscribed ones,
-        when the deck is synchronized.
-        '''
-        from fields import FieldContent
-        if self.synchronized_with:
-            updated_fields = FieldContent.objects.filter(
-                    fact__deck=self, fact__active=True,
-                    fact__synchronized_with__isnull=False) 
-            #fact__in=self.subscriber_facts.all())
-            # 'other' here means non-updated, subscribed
-            other_facts = Fact.objects.filter(
-                    parent_fact__isnull=True,
-                    id__in=updated_fields.values_list('fact', flat=True))
-            other_fields = FieldContent.objects.filter(
-                    fact__deck=self.synchronized_with
-                    ).exclude(fact__active=True,
-                              fact__in=other_facts.values_list(
-                                    'synchronized_with', flat=True))
-            return updated_fields | other_fields
-        else:
-            return FieldContent.objects.filter(
-                    fact__deck=self, fact__active=True)
-
     @property
     def has_subscribers(self):
         '''
@@ -149,6 +108,7 @@ class Deck(models.Model):
         '''
         if self.synchronized_with:
             raise TypeError('Cannot share synchronized decks (decks which are already synchronized with shared decks).')
+
         self.shared = True
         self.shared_at = datetime.datetime.utcnow()
         self.save()
@@ -160,6 +120,7 @@ class Deck(models.Model):
         '''
         if not self.shared:
             raise TypeError('This is not a shared deck, so it cannot be unshared.')
+
         self.shared = False
         self.save()
 
@@ -171,6 +132,7 @@ class Deck(models.Model):
         we just return the first one.
         '''
         subscriber_decks = self.subscriber_decks.filter(owner=user, active=True)
+
         if subscriber_decks.exists():
             return subscriber_decks[0]
 
