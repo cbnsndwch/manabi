@@ -19,8 +19,8 @@ from django.template import RequestContext, loader
 from dojango.decorators import json_response
 from dojango.util import to_dojo_data, json_decode, json_encode
 
-from manabi.apps.utils import japanese, querycleaner
-from manabi.apps.utils.querycleaner import clean_query
+from manabi.apps.utils import japanese, query_cleaner
+from manabi.apps.utils.query_cleaner import clean_query
 from manabi.apps.flashcards import models
 from manabi.apps.flashcards.contextprocessors import review_start_context
 from manabi.apps.flashcards.forms import DeckForm, FactForm, FieldContentForm, CardForm
@@ -240,7 +240,7 @@ class NextCardsForReview(CardQueryFiltersMixin, ManabiRestView):
         'early_review': bool,
         'learn_more': bool,
         'session_start': bool, # Beginning of review session?
-        'excluded_cards': querycleaner.int_list,
+        'excluded_cards': query_cleaner.int_list,
     }
 
     def get(self, request, **kwargs):

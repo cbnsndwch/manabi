@@ -37,7 +37,7 @@ urlpatterns = patterns('',
     url(r'^credits/$', direct_to_template,
         {'template': 'credits.html'}, name='credits'),
 
-    url(r'^flashcards/api/', include(rest_api_urlpatterns)),
+    #url(r'^flashcards/api/', include(rest_api_urlpatterns)),
 
 ) + decorated_patterns('', allow_lazy_user,
     #url(r'^$', direct_to_template, {

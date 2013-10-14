@@ -33,7 +33,7 @@ from dojango.decorators import json_response
 from dojango.util import to_dojo_data, json_decode, json_encode
 
 from manabi.apps.utils import japanese
-from manabi.apps.utils.querycleaner import clean_query
+from manabi.apps.utils.query_cleaner import clean_query
 from manabi.apps.flashcards.cachenamespaces import fact_grid_namespace
 from manabi.apps.flashcards.forms import DeckForm, FactForm, FieldContentForm, CardForm
 from manabi.apps.flashcards.models import (FactType, Fact, Deck, CardTemplate, FieldType,
