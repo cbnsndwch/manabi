@@ -2,13 +2,13 @@
 # Yea I have git... but I don't want to forget about this stuff.
 # Consider them TODOs.
 
-#TODO implement (remember to update UndoReview too)
+#TODO-OLD implement (remember to update UndoReview too)
 # This can probably just be a proxy model for CardHistory or something.
 #class CardStatistics(models.Model):
 #    card = models.ForeignKey(Card)
 
 #    failure_count = models.PositiveIntegerField(default=0, editable=False)
-#    #TODO review stats depending on how card was rated, and how mature it is
+#    #TODO-OLD review stats depending on how card was rated, and how mature it is
 
 #    #apparently needed for synchronization/import purposes
 #    yes_count = models.PositiveIntegerField(default=0, editable=False)

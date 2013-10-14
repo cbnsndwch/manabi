@@ -156,8 +156,8 @@ manabi_ui.xhrLink = function(href) { //, target_pane) {
 
             manabi_ui._xhrLinkLoad(hash);
         }
-        //TODO scroll to top when page loads?
-        //TODO error page too (onDownloadError)
+        //TODO-OLD scroll to top when page loads?
+        //TODO-OLD error page too (onDownloadError)
     }
 }
 

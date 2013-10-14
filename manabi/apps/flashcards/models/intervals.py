@@ -12,7 +12,7 @@ DEFAULT_INTERVALS = {
 
 
 def _generate_interval(min_duration, max_duration):
-    #TODO favor (random.triangular) conservatism
+    #TODO-OLD favor (random.triangular) conservatism
     return random.uniform(min_duration, max_duration) 
 
 def initial_interval(deck, grade, do_fuzz=True):

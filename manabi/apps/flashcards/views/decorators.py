@@ -61,13 +61,13 @@ def has_card_query_filters(func):
 
         # Tags
         try:
-            #TODO support for multiple tags
+            #TODO-OLD support for multiple tags
             tag_id = int(request.GET.get('tags',
                 request.GET.get('tag', -1)))
         except ValueError:
             tag_id = -1
         if tag_id != -1:
-            tag_ids = [tag_id] #TODO support multiple tags
+            tag_ids = [tag_id] #TODO-OLD support multiple tags
             tags = usertagging.models.Tag.objects.filter(id__in=tag_ids)
         else:
             tags = None
@@ -152,7 +152,7 @@ def flashcard_api(view_func):#vendor_subtype=None):
     It's just a shortcut for decorating with the following:
         `@api_data_response`
         `@login_required`
-        `@all_http_methods` #TODO make this middleware?
+        `@all_http_methods` #TODO-OLD make this middleware?
     '''
     content_type = 'application/json'
     #if content_subtype:

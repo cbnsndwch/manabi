@@ -14,8 +14,11 @@ from manabi.apps.flashcards.models.constants import (
 from manabi.apps.flashcards.management.commands.flashcards_init import create_initial_data
 from manabi.apps.flashcards.models import (Deck, Card, Fact, FactType, FieldType,
                                            FieldContent, CardTemplate)
+from manabi.apps.flashcards.models.cards import CARD_TEMPLATE_CHOICES
+
 
 PASSWORD = 'whatever'
+
 
 class ManabiTestCase(TestCase):
     longMessage = True
@@ -155,20 +158,18 @@ def create_fact(user=None, deck=None):
     deck = deck or create_deck(user=user)
     fact = Fact.objects.create(
         deck=deck,
-        fact_type=FactType.objects.japanese,
+        expression=random_name(),
+        reading=random_name(),
+        meaning=random_name(),
     )
-    for template in FactType.objects.japanese.cardtemplate_set.all():
+
+    for template, template_name in CARD_TEMPLATE_CHOICES:
         card = Card(
             fact=fact,
             template=template,
         )
         card.randomize_new_order()
         card.save()
-    for field_type in FactType.objects.japanese.fieldtype_set.all():
-        FieldContent.objects.create(
-            fact=fact,
-            field_type=field_type,
-            content=random_name(),
-        )
+
     return fact
 

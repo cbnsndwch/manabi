@@ -1,4 +1,4 @@
-{% comment %}TODO:Update this to use the standard fact_form.html, need to update the js to use the new names mostly{% endcomment %}
+{% comment %}TODO-OLD:Update this to use the standard fact_form.html, need to update the js to use the new names mostly{% endcomment %}
 
 
 <div id="factAddFormWrapper"  class="fact_form_container fact_add_form_container">
@@ -90,7 +90,7 @@
                                                 var fieldWidget = dijit.byId('id_field_content-{{ forloop.counter0 }}-content');
                                                 var generateReading = function() {
                                                     //automatically generate this kanji field's reading
-                                                    //TODO unless the newly focused field is the reading field (how to detect new focus?)
+                                                    //TODO-OLD unless the newly focused field is the reading field (how to detect new focus?)
                                                     var readingFieldNode = dojo.query('.reading_field', dojo.byId('factFields'))[0];
                                                     if (readingFieldNode) {
                                                         fact_ui.generateReading( this.get('value'), dijit.getEnclosingWidget(readingFieldNode));

@@ -120,7 +120,7 @@ dojo.declare('reviews.Card', null, {
         } else {
             //days
             duration = Math.round(interval);
-            ret = duration + ' day'; //TODO how to round?
+            ret = duration + ' day'; //TODO-OLD how to round?
         }
 
         //pluralize
@@ -143,8 +143,8 @@ dojo.declare('reviews.Session', null, {
 
     timeLimit: null,
 
-    // private values (TODO: prepend _)
-    //TODO sensible args consolidated w/ view and reviews_ui.startSession
+    // private values (TODO-OLD: prepend _)
+    //TODO-OLD sensible args consolidated w/ view and reviews_ui.startSession
     reviewCount: 0,
     emptyPrefetchProducer: false,
     failsSincePrefetchRequest: 0,
@@ -207,7 +207,7 @@ dojo.declare('reviews.Session', null, {
             }));
         }));
 
-        //TODO cleanup beforehand? precautionary..
+        //TODO-OLD cleanup beforehand? precautionary..
         return def;
     },
 
@@ -231,7 +231,7 @@ dojo.declare('reviews.Session', null, {
         // at the front side of the card, before viewing the answer.
         // We are going to store this value alongside the review grade, so we
         // need it now.
-        //TODO refactor this into reviews module... _ui shouldnt need to know about currentCard etc
+        //TODO-OLD refactor this into reviews module... _ui shouldnt need to know about currentCard etc
         var card = this.currentCard;
 
         // Stop the card timer
@@ -338,7 +338,7 @@ dojo.declare('reviews.Session', null, {
         if (grade == reviews.grades.GRADE_NONE) {
             //in case a prefetch request was made and has not been returned yet from the server
             this.failsSincePrefetchRequest++;
-            //TODO don't keep showing this card if it's failed and it's the last card for the session
+            //TODO-OLD don't keep showing this card if it's failed and it's the last card for the session
             this.emptyPrefetchProducer = false;
         }
 
@@ -381,7 +381,7 @@ dojo.declare('reviews.Session', null, {
 
         var url = this.nextCardsForReviewUrl;
         var query = {count: count};
-        //TODO refactor
+        //TODO-OLD refactor
         if (sessionStart) { query.session_start = true; }
         if (excludedIds.length > 0) { query.excluded_cards = excludedIds.join('+'); }
         if (this.deckId != '-1' && this.deckId !== null) { query.deck = this.deckId; }
@@ -415,7 +415,7 @@ dojo.declare('reviews.Session', null, {
                 }
                 this._prefetchInProgress = false;
             })
-            //on error //TODO it should redo the request
+            //on error //TODO-OLD it should redo the request
         });
 
         this.failsSincePrefetchRequest = 0;
@@ -438,7 +438,7 @@ dojo.declare('reviews.Session', null, {
             //`timeLimit` is in minutes. `duration()` is ms.
             if (this.timeLimit && this.timeLimit * 60000 <= this.duration()) {
                 //this._stopSessionTimer();
-                //TODO: need something which tells the session to end after the current card
+                //TODO-OLD: need something which tells the session to end after the current card
                 //without actually stopping the timer until the session is actually fully over.
                 //We don't actually use this yet.
             } else {
@@ -482,7 +482,7 @@ dojo.declare('reviews.Session', null, {
     nextCard: function() {
         //Returns a deferred.
 
-        //TODO -?-(done?)dont prefetch more cards if a prefetch is already in progress
+        //TODO-OLD -?-(done?)dont prefetch more cards if a prefetch is already in progress
         var nextCardDef = new dojo.Deferred();
 
         if (this.cards.length > 0) {
@@ -514,7 +514,7 @@ dojo.declare('reviews.Session', null, {
     },
 
     reloadCurrentCard: function() {
-        //TODO refresh the card inside this.cards, instead of just setting current_cards
+        //TODO-OLD refresh the card inside this.cards, instead of just setting current_cards
         var xhrArgs = mixinDefaultXhrArgs({
             url: this.currentCard.url,
             handleAs: 'json',

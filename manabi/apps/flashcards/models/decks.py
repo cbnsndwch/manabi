@@ -45,7 +45,7 @@ class Deck(models.Model):
     textbook_source = models.ForeignKey(Textbook, null=True, blank=True)
 
     picture = models.FileField(upload_to='/deck_media/', null=True, blank=True) 
-    #TODO upload to user directory, using .storage
+    #TODO-OLD upload to user directory, using .storage
 
     priority = models.IntegerField(default=0, blank=True)
 
@@ -70,7 +70,7 @@ class Deck(models.Model):
     class Meta:
         app_label = 'flashcards'
         ordering = ('name',)
-        #TODO unique_together = (('owner', 'name'), )
+        #TODO-OLD unique_together = (('owner', 'name'), )
     
     def get_absolute_url(self):
         return reverse('deck_detail', kwargs={'deck_id': self.id})
@@ -136,6 +136,7 @@ class Deck(models.Model):
         if subscriber_decks.exists():
             return subscriber_decks[0]
 
+    #TODO implement subscribing with new stuff.
     @transaction.commit_on_success
     def subscribe(self, user):
         '''
@@ -160,14 +161,14 @@ class Deck(models.Model):
         if self.synchronized_with:
             raise TypeError('Cannot share a deck that is already synchronized to a shared deck.')
 
-        #TODO dont allow multiple subscriptions to same deck by same user
+        #TODO-OLD dont allow multiple subscriptions to same deck by same user
 
         # copy the deck
         deck = Deck(
             synchronized_with=self,
             name=self.name,
             description=self.description,
-            #TODO implement textbook=shared_deck.textbook, #picture too...
+            #TODO-OLD implement textbook=shared_deck.textbook, #picture too...
             priority=self.priority,
             textbook_source=self.textbook_source,
             owner_id=user.id)
@@ -178,14 +179,14 @@ class Deck(models.Model):
 
         # copy the facts - just the first few as a buffer
         shared_fact_to_fact = {}
-        #TODO dont hardcode value here #chain(self.fact_set.all(), Fact.objects.filter(parent_fact__deck=self)):
+        #TODO-OLD dont hardcode value here #chain(self.fact_set.all(), Fact.objects.filter(parent_fact__deck=self)):
         for shared_fact in self.fact_set.filter(active=True, parent_fact__isnull=True).order_by('new_fact_ordinal')[:10]: 
             #FIXME get the child facts for this fact too
             #if shared_fact.parent_fact:
             #    #child fact
             #    fact = Fact(
             #        fact_type=shared_fact.fact_type,
-            #        active=shared_fact.active) #TODO should it be here?
+            #        active=shared_fact.active) #TODO-OLD should it be here?
             #    fact.parent_fact = shared_fact_to_fact[shared_fact.parent_fact]
             #    fact.save()
             #else:
@@ -194,7 +195,7 @@ class Deck(models.Model):
                 deck=deck,
                 fact_type_id=shared_fact.fact_type_id,
                 synchronized_with=shared_fact,
-                active=True, #shared_fact.active, #TODO should it be here?
+                active=True, #shared_fact.active, #TODO-OLD should it be here?
                 priority=shared_fact.priority,
                 new_fact_ordinal=shared_fact.new_fact_ordinal,
                 notes=shared_fact.notes)
@@ -214,7 +215,7 @@ class Deck(models.Model):
     def card_count(self):
         return cards.Card.objects.of_deck(self, with_upstream=True).available().count()
 
-    #TODO kill - unused?
+    #TODO-OLD kill - unused?
     #@property
     #def new_card_count(self):
     #    return Card.objects.approx_new_count(deck=self)
@@ -222,7 +223,7 @@ class Deck(models.Model):
     #    return cards.Card.objects.cards_new_count(
     #            self.owner, deck=self, active=True, suspended=False)
 
-    #TODO kill - unused?
+    #TODO-OLD kill - unused?
     #@property
     #def due_card_count(self):
     #    return cards.Card.objects.cards_due_count(

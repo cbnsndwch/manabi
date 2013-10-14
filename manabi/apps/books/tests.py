@@ -6,7 +6,7 @@ class SimpleTest(TestCase):
     def setUp(self):
         self.book = Textbook(isbn='4789011623') # Genki textbook
 
-    #TODO
+    #TODO-OLD
     #def test_get_image_url(self):
     #    urls = self.book.get_image_urls()
     #    self.assertTrue(urls)

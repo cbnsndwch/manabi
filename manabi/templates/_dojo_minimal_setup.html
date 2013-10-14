@@ -58,7 +58,7 @@
 
     // Fact editor grid
     //
-    //TODO: This is really old code that needs to be cleaned up.
+    //TODO-OLD: This is really old code that needs to be cleaned up.
     //
     //defaultCell: { width: 8, editable: false, type: dojox.grid.cells._Widget },
     var cards_editRow = function(row_index) {
@@ -83,7 +83,7 @@
                     'id' + field_content_type_item.get('value'), 
                     new_value);
             });
-            cards_factsGrid.store.save(); //TODO handle errors
+            cards_factsGrid.store.save(); //TODO-OLD handle errors
         }, row_index);
     
         fact_ui.showFactEditForm(selected_fact_id, success_callback);

@@ -67,7 +67,7 @@
                             store.fetch();
                             cards_factsGrid.sort(); //forces a refresh
                             //add closable tag div
-                            //TODO implement this
+                            //TODO-OLD implement this
                             //for now, we'll only allow 1 tag filter at a time
                             //cards_clearTagFiltersButton.domNode.style.visibility = '';
                         } else { //if (fact_ui.facts_url_query['tag']) {
@@ -128,7 +128,7 @@
                     var delete_response = window.confirm('Really delete this flashcard? This cannot be undone.');
                     if (delete_response) {
                         var grid_item = cards_factsGrid.selection.getSelected()[0];
-                        var fact_id = grid_item['fact-id'][0]; //TODO allow multiple selections
+                        var fact_id = grid_item['fact-id'][0]; //TODO-OLD allow multiple selections
                         var deferred = dojo.xhrPost({
                             url: '{% url "api-facts" %}' + fact_id + '/',
                             handleAs: 'text',
@@ -155,7 +155,7 @@
                     // Suspends this fact's cards.
                     var suspend = this.get('checked');
                     var grid_item = cards_factsGrid.selection.getSelected()[0];
-                    var fact_id = grid_item['fact-id'][0]; //TODO allow multiple selections
+                    var fact_id = grid_item['fact-id'][0]; //TODO-OLD allow multiple selections
                     var url = '{% url "api-facts" %}' + fact_id;
                     url += suspend ? '/suspend/' : '/unsuspend/';
 
@@ -167,7 +167,7 @@
                             if (data.success) {
                                 // update the suspended status in the grid
                                 cards_factsGrid.store.setValue(grid_item, 'suspended', suspend);
-                                cards_factsGrid.store.save(); //TODO handle errors
+                                cards_factsGrid.store.save(); //TODO-OLD handle errors
                             } else { //FIXME try again on failure, or something
                             }
                         }, grid_item, suspend)

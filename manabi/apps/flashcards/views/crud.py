@@ -94,7 +94,7 @@ def fact_update(request, fact_id):
                                     in fact.card_set.filter(active=True)]
 
         for card_template in fact_type.cardtemplate_set.all():
-            #TODO only send the id(uri)/name/status
+            #TODO-OLD only send the id(uri)/name/status
             #card_templates.append({'card_template': card_template,
             #'activated_for_fact': (card_template in activated_card_templates)})
             card_template.activated_for_fact = (card_template
@@ -122,7 +122,7 @@ def fact_update(request, fact_id):
 
 
 #CRUD forms
-#TODO refactor into HTML/AJAX CRUD pattern
+#TODO-OLD refactor into HTML/AJAX CRUD pattern
 @login_required
 def deck_list(request):
     decks = Deck.objects.filter(owner=request.user, active=True).order_by('name')

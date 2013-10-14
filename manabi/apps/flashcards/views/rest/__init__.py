@@ -51,13 +51,13 @@ class CardQueryFiltersMixin(object):
 
     def get_tags(self):
         try:
-            #TODO support for multiple tags
+            #TODO-OLD support for multiple tags
             tag_id = int(self.request.GET.get('tags',
                     self.request.GET.get('tag', -1)))
         except ValueError:
             tag_id = -1
         if tag_id != -1:
-            tag_ids = [tag_id] #TODO support multiple tags
+            tag_ids = [tag_id] #TODO-OLD support multiple tags
             return usertagging.models.Tag.objects.filter(
                     id__in=tag_ids)
 

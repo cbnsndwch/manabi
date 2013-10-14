@@ -53,7 +53,7 @@ class Card(models.Model):
     last_review_grade = models.PositiveIntegerField(null=True, blank=True)
     last_failed_at = models.DateTimeField(null=True, blank=True)
 
-    #TODO use this for is_new
+    #TODO-OLD use this for is_new
     review_count = models.PositiveIntegerField(default=0, editable=False) 
 
     new_card_ordinal = models.PositiveIntegerField(null=True, blank=True)
@@ -67,14 +67,14 @@ class Card(models.Model):
     #TODELETE
     legacy_template = models.ForeignKey(CardTemplate, blank=True, null=True, db_index=False)
     
-    leech = models.BooleanField(default=False) #TODO add leech handling
+    leech = models.BooleanField(default=False) #TODO-OLD add leech handling
     
 
     #for owner cards, part of synchronized decks, not used yet
     #synchronized_with = models.ForeignKey('self', null=True, blank=True) 
 
     class Meta:
-        #TODO unique_together = (('fact', 'template'), )
+        #TODO-OLD unique_together = (('fact', 'template'), )
         app_label = 'flashcards'
 
     def __unicode__(self):
@@ -158,7 +158,7 @@ class Card(models.Model):
 
     def is_due(self, time=None):
         '''Returns True if this card's due date is in the past.'''
-        #TODO why would is_new ever be True and self.due_at be none?
+        #TODO-OLD why would is_new ever be True and self.due_at be none?
         if time is None: time = datetime.utcnow()
 
         if self.is_new() or not self.due_at:
@@ -222,8 +222,8 @@ class Card(models.Model):
 
         Returns a timedelta.
 
-        TODO: maybe this should be more dependent on each card or something
-        TODO: also maybe a max space if dependent on other cards' intervals
+        TODO-OLD: maybe this should be more dependent on each card or something
+        TODO-OLD: also maybe a max space if dependent on other cards' intervals
         '''
         space_factor  = self.fact.fact_type.space_factor
         min_card_space = self.fact.fact_type.min_card_space
@@ -272,7 +272,7 @@ class Card(models.Model):
         and `question_duration`.
         '''
         from cardhistory import CardHistory
-        #TODO update CardStatistics
+        #TODO-OLD update CardStatistics
         was_new = self.is_new()
 
         card_history_item = CardHistory(

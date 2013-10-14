@@ -78,7 +78,7 @@ def rest_card(request, card_id):
     Used for retrieving a specific card for reviewing it,
     or for submitting the grade of a card that has just been reviewed.
     '''
-    #TODO refactor into facts (or no???)
+    #TODO-OLD refactor into facts (or no???)
     if request.method == 'GET':
         card = get_object_or_404(Card, pk=card_id)
         return card.to_api_dict()

@@ -159,7 +159,7 @@ def rest_card_templates_for_fact(request, fact_id):
 
     card_templates = []
     for card_template in fact.fact_type.cardtemplate_set.all():
-        #TODO only send the id(uri)/name/status
+        #TODO-OLD only send the id(uri)/name/status
         card_templates.append({
             'card_template': card_template,
             'activated_for_fact': 
@@ -179,7 +179,7 @@ def rest_facts_tags(request):
     ret = [tag.name for tag in tags if (term and tag.name.startswith(term))]
     return HttpResponse(simplejson.dumps(ret), mimetype='application/json')
 
-    #TODO we can use `term` which jquery's autocomplete gives us to search prefixes -- an optimization
+    #TODO-OLD we can use `term` which jquery's autocomplete gives us to search prefixes -- an optimization
     #for now we just give back all the tags
     #term = request.GET.get('term', None)
 
@@ -198,7 +198,7 @@ def rest_facts_tags(request):
 @api_dojo_data
 @has_card_query_filters
 def rest_facts(request, deck=None, tags=None): 
-    #TODO refactor into facts (no???)
+    #TODO-OLD refactor into facts (no???)
     if request.method == 'GET':
         ret = []
         if request.GET['fact_type']:
@@ -226,7 +226,7 @@ def rest_facts(request, deck=None, tags=None):
 
                 ident, name = '', ''
                 for field_content in fact.field_contents:
-                    #TODO rename to be clearer, like field_id, or ???
+                    #TODO-OLD rename to be clearer, like field_id, or ???
                     key = 'id{0}'.format(field_content.field_type_id) 
 
                     if not ident:
@@ -247,10 +247,10 @@ def rest_facts(request, deck=None, tags=None):
             return ret
     elif request.method == 'POST':
         # Create fact in deck, including its fields and cards. POST method.
-        #TODO refactor into other module probably
+        #TODO-OLD refactor into other module probably
         ret = {}
 
-        #TODO just get this from the form object.
+        #TODO-OLD just get this from the form object.
         deck = get_deck_or_404(request.user, request.POST['fact-deck'],
                                must_own=True)
 
@@ -261,7 +261,7 @@ def rest_facts(request, deck=None, tags=None):
     
         #todo: refactor this into model code
     
-        #CardFormset = modelformset_factory(Card, exclude=('fact', 'ease_factor', )) #TODO make from CardForm
+        #CardFormset = modelformset_factory(Card, exclude=('fact', 'ease_factor', )) #TODO-OLD make from CardForm
         #card_formset = CardFormset(post_data, prefix='card')
         card_templates = CardTemplate.objects.filter(
                 id__in=[e[1] for e in post_data.items()
@@ -276,7 +276,7 @@ def rest_facts(request, deck=None, tags=None):
         fact_form = FactForm(post_data, prefix='fact')
     
         if field_content_formset.is_valid() and fact_form.is_valid():
-            #TODO automate the tag saving in forms.py
+            #TODO-OLD automate the tag saving in forms.py
             new_fact = fact_form.save() 
             new_fact.active = True
             new_fact.save()
@@ -284,7 +284,7 @@ def rest_facts(request, deck=None, tags=None):
             # maps subfact group numbers to the subfact object
             group_to_subfact = {} 
             for field_content_form in field_content_formset.forms:
-                #TODO don't create fieldcontent objects for 
+                #TODO-OLD don't create fieldcontent objects for 
                 # optional fields which were left blank.
                 new_field_content = field_content_form.save(commit=False)
                 # is this a field of the parent fact, or a subfact?
@@ -360,7 +360,7 @@ def rest_fact(request, fact_id): #todo:refactor into facts
                 post_data, prefix='fact',
                 queryset=Fact.objects.filter(id=fact.id)|fact.subfacts)
         
-        #TODO make from CardForm
+        #TODO-OLD make from CardForm
         CardFormset = modelformset_factory(
                 Card, exclude=('fact', 'ease_factor', )) 
         card_formset = CardFormset(
@@ -380,7 +380,7 @@ def rest_fact(request, fact_id): #todo:refactor into facts
         if (card_formset.is_valid()
                 and field_content_formset.is_valid()
                 and fact_formset.is_valid()):
-            #fact = fact_form.save() #TODO needed in future?
+            #fact = fact_form.save() #TODO-OLD needed in future?
             
             #update the fact's assigned deck
             #FIXME catch error if does not exist
@@ -415,7 +415,7 @@ def rest_fact(request, fact_id): #todo:refactor into facts
 
                         if (field_content_form.cleaned_data['id'].fact.owner
                                 == request.user):
-                            #TODO is this necessary? vvv
+                            #TODO-OLD is this necessary? vvv
                             field_content.fact = \
                                     field_content_form.cleaned_data['id'].fact
                             field_content.save()

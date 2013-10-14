@@ -13,7 +13,7 @@ urlpatterns = patterns('manabi.apps.flashcards.views.crud',
     url(r'^add/$', 'add_decks',
         name='add_decks'),
 
-    #TODO add permissions enforcement for viewing
+    #TODO-OLD add permissions enforcement for viewing
     url(r'^decks/(?P<deck_id>\d+)/$', 'deck_detail',
         name='deck_detail'), 
     url(r'^decks/$', 'deck_list',
@@ -74,7 +74,7 @@ internal_api_urlpatterns = patterns('manabi.apps.flashcards.views.api',
     url(r'^facts/(\w+)/unsuspend/$', 'rest_fact_unsuspend'),
 
 
-    #TODO should be a query on /card_templates instead? ?fact=1&activated=true
+    #TODO-OLD should be a query on /card_templates instead? ?fact=1&activated=true
     url(r'^facts/(\w+)/card_templates/$',
         'rest_card_templates_for_fact'), 
     url(r'^cards/$', 'rest_cards',

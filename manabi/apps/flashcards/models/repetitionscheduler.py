@@ -48,7 +48,7 @@ class RepetitionAlgo(object):
     # These are the precomputed values, so that we can modify them 
     # independently later to test their effectiveness.
     EASE_FACTOR_MODIFIERS = {
-        GRADE_NONE: -0.3, #TODO more accurate grade_none value
+        GRADE_NONE: -0.3, #TODO-OLD more accurate grade_none value
         GRADE_HARD: -0.1401,
         GRADE_GOOD:  0.0,
         GRADE_EASY:  0.1,
@@ -74,9 +74,9 @@ class RepetitionAlgo(object):
     # days
     MATURE_FAILURE_INTERVAL = 1.0 
 
-    #TODO MATURE_FAILURE_INTERVAL should not be a constant value, 
+    #TODO-OLD MATURE_FAILURE_INTERVAL should not be a constant value, 
     #     but dependent on other factors of a given card
-    #TODO 'tomorrow' should also be dependent on the current time, 
+    #TODO-OLD 'tomorrow' should also be dependent on the current time, 
     #     instead of just 1 day from now
 
     # Ease Factor to use temporarily when penalizing for "hard" grades,
@@ -118,7 +118,7 @@ class RepetitionAlgo(object):
 
     def _next_interval(self, failure_interval=0):
         ''' Returns an interval, measured in days. '''
-        #TODO fuzz the results
+        #TODO-OLD fuzz the results
         current_interval = self.card.interval
         ease_factor = self.card.ease_factor
 
@@ -126,11 +126,11 @@ class RepetitionAlgo(object):
         if self.grade == GRADE_NONE:
             # Reset the interval to an initial value.
             next_interval = failure_interval
-            #TODO how to handle failures on new cards? should it keep its
+            #TODO-OLD how to handle failures on new cards? should it keep its
             # 'new' status, and should the EF change?
-            #TODO handle failures of cards that are reviewed early
+            #TODO-OLD handle failures of cards that are reviewed early
             # differently somehow
-            #TODO penalize even worse if it was reviewed early 
+            #TODO-OLD penalize even worse if it was reviewed early 
             # and still failed
         # Successful review.
         else:
@@ -271,7 +271,7 @@ class RepetitionAlgo(object):
         if percentage > 1.0:
             raise ValueError('Does not work with percentages > 1.0')
 
-        #TODO refactor magic numbers
+        #TODO-OLD refactor magic numbers
         # ((1-cos(.88*pi*.79))/2)/((1-cos(pi*.79))/2)
         upper_x_bound = .79 #midpoint is around .88
         max_value = ((1 - cos(pi * upper_x_bound)))
@@ -287,7 +287,7 @@ class RepetitionAlgo(object):
 
         # Fuzz less for early reviews.
         if self._is_early_review():
-            #TODO refactor / DRY all these early review calculations
+            #TODO-OLD refactor / DRY all these early review calculations
             if self.last_reviewed_at:
                 last_effective_interval = timedelta_to_float(
                     self.due_at - self.last_reviewed_at)
@@ -347,7 +347,7 @@ class YoungCardAlgo(RepetitionAlgo):
 
         # Only make the ease factor harder if the last review grade was 
         # better than this review.
-        #TODO implement this?
+        #TODO-OLD implement this?
 
         return super(YoungCardAlgo, self)._next_ease_factor()
 
@@ -363,13 +363,13 @@ class NewCardAlgo(RepetitionAlgo):
         #FIXME, do_fuzz=do_fuzz)
         interval = initial_interval(self.card.fact.deck, self.grade)
 
-        #TODO Lessen interval if reviewed too soon after a sibling card.
+        #TODO-OLD Lessen interval if reviewed too soon after a sibling card.
         return interval
 
     def _next_ease_factor(self):
-        #TODO lower it if graded soon after a sibling, but lower than the
+        #TODO-OLD lower it if graded soon after a sibling, but lower than the
         # sibling's grade.
-        #TODO don't add modifier if rated well soon after a sibling
+        #TODO-OLD don't add modifier if rated well soon after a sibling
         # Default to the average for this deck
         ease_factor = (self.card.deck.average_ease_factor() 
                        + self.EASE_FACTOR_MODIFIERS[self.grade])
@@ -401,7 +401,7 @@ class FailedCardAlgo(RepetitionAlgo):
         #FIXME, do_fuzz=do_fuzz)
         interval = initial_interval(self.card.fact.deck, self.grade)
 
-        #TODO lessen effect if reviewed successfully very soon after a 
+        #TODO-OLD lessen effect if reviewed successfully very soon after a 
         # failed review.
 
         return interval

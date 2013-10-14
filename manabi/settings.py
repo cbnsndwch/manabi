@@ -185,9 +185,9 @@ INSTALLED_APPS = (
     'manabi.apps.jdic',
     'kanjivg',
     'manabi.apps.stats',
-    #TODO 'mobileaccount',
+    #TODO-OLD 'mobileaccount',
     'manabi.apps.importer',
-    #TODO 'popups',
+    #TODO-OLD 'popups',
     'manabi.apps.manabi_redis',
 
     'gunicorn',
@@ -327,7 +327,7 @@ else:
 
 # JDic audio server root URL - the directory containing the mp3s.
 # Must end in '/'
-#TODO
+#TODO-OLD
 JDIC_AUDIO_SERVER_URL = 'http://jdic.manabi.org/audio/'
 JDIC_AUDIO_SERVER_TIMEOUT = 6 # seconds
 

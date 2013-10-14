@@ -14,7 +14,7 @@ dojo.declare('reviews.SessionOverDialog', [dijit._Widget, dijit._Templated], {
     constructor: function(session) {
         this.session = session;
         this.deckId = session.deckId;
-        //TODO tags too
+        //TODO-OLD tags too
     },
 
     /*_getSchedulingSummaryData: function() {
@@ -27,7 +27,7 @@ dojo.declare('reviews.SessionOverDialog', [dijit._Widget, dijit._Templated], {
     _showSchedulingSummary: function(summaryData) {
         // show the summary data which is computed server-side
         // (which is not particular to this review session)
-        //TODO we don't actually use these yet...
+        //TODO-OLD we don't actually use these yet...
         this._getSchedulingSummaryData().then(dojo.hitch(this, function(data){
             //this.
         }));

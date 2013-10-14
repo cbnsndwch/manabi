@@ -1,4 +1,4 @@
-#TODO from account.models import Account
+#TODO-OLD from account.models import Account
 import pytz
 import datetime
 
@@ -14,7 +14,7 @@ def start_and_end_of_day(user, date=None):
     Takes the user's preferred start of day (usually a default of 4am) into account.
     '''
     #account = Account.objects.get(user=user)
-    #TODO timezone = pytz.timezone(unicode(account.timezone))
+    #TODO-OLD timezone = pytz.timezone(unicode(account.timezone))
     timezone = pytz.timezone(unicode('New York'))
 
     if date is None:

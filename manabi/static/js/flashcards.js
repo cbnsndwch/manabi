@@ -17,7 +17,7 @@
 
 
 
-//TODO all this code and globals really need to be encapsulated
+//TODO-OLD all this code and globals really need to be encapsulated
 //this is a start on encapsulating new stuff I add:
 //object to hold things for the Fact Add dialog.
 var fact_add_ui = {};
@@ -94,7 +94,7 @@ function factFormSubmit(submitSuccessCallback, submitErrorCallback, _factAddForm
             }
         }, tempCardCounter),
         error: function(error){
-            submitErrorCallback(data, tempCardCounter); //TODO other callback
+            submitErrorCallback(data, tempCardCounter); //TODO-OLD other callback
         }
     };
     dojo.xhrPost(xhrArgs);
@@ -143,7 +143,7 @@ function createFieldInputsForUpdate(domNode, factTypeId, factFieldValues, cardTe
     if (factTypeId) {
         //add card template options
         var cardUpdateTemplatesStore = new dojo.data.ItemFileReadStore({url: '/flashcards/internal-api/facts/'+factFieldValues['fact-id'][0]+'/card_templates/'});
-        var cardUpdateTemplatesButton = new DropDownMultiSelect({inputId: 'cardUpdateTemplatesInput'+factTypeId});//TODO counter suffix
+        var cardUpdateTemplatesButton = new DropDownMultiSelect({inputId: 'cardUpdateTemplatesInput'+factTypeId});//TODO-OLD counter suffix
         var cardUpdateTemplatesInput = dijit.byId('cardUpdateTemplatesInput'+factTypeId);
         
         //hidden form elements, for fact id
@@ -189,7 +189,7 @@ function createFieldInputsForUpdate(domNode, factTypeId, factFieldValues, cardTe
                     style: "width:300px;",
                     rows: '2'
                 }).placeAt(domNode, 'last');
-                fieldTextarea.set('gridStoreItemId', 'id'+fieldsStore.getValue(item, 'id')); //TODO this is a hack - all this code needs to be refactored
+                fieldTextarea.set('gridStoreItemId', 'id'+fieldsStore.getValue(item, 'id')); //TODO-OLD this is a hack - all this code needs to be refactored
                 
                 new dijit.form.TextBox({
                     name: 'field_content-'+tempFieldCounter+'-field_type',
@@ -279,7 +279,7 @@ fact_add_ui.factAddFormSubmit = function() {
 fact_ui = {};
 
 dojo.addOnLoad(function() {
-    fact_ui.facts_grid_normal_height = '300px'; //TODO figure out how to make the height as tall as window
+    fact_ui.facts_grid_normal_height = '300px'; //TODO-OLD figure out how to make the height as tall as window
     fact_ui.facts_grid_minimized_height = '145px';
 });
 
@@ -290,7 +290,7 @@ fact_ui.showFactEditForm = function(fact_id, submit_success_callback) {
 
     //cards_factsGrid.domNode.style.height = fact_ui.facts_grid_minimized_height;
     //cards_factsGrid.resize();
-    //cards_factsGrid.scrollToRow(row_index); //TODO this can be a little awkward, moving too often
+    //cards_factsGrid.scrollToRow(row_index); //TODO-OLD this can be a little awkward, moving too often
     cards_factEditorContainer.set('href', 'flashcards/facts/' + fact_id + '/update/');
     //cards_factEditorContainer.domNode.style.display = '';
     cards_factEditorContainer.show();
@@ -310,7 +310,7 @@ fact_ui.submitFactForm = function(fact_form, fact_id) {
     // currently used for updating facts
     //factForm must be a dijit form
     //fact_id is optional - if specified, it means we're updating a fact
-    //TODO return a deferred instead of taking in success/error callbacks
+    //TODO-OLD return a deferred instead of taking in success/error callbacks
 
     //disable the submit button while processing
     submit_button = dijit.getEnclosingWidget(dojo.query('input[type=submit]', fact_form.domNode)[0]);
@@ -340,7 +340,7 @@ fact_ui.submitFactForm = function(fact_form, fact_id) {
     field_count = dojo.query('.cards_fieldContent', fact_form.domNode).length;
 
     //assemble the form submission values
-    //form_values['fact-fact_type'] = '1'; //TODO temp hack - assume Japanese
+    //form_values['fact-fact_type'] = '1'; //TODO-OLD temp hack - assume Japanese
     form_values['card-TOTAL_FORMS'] = card_counter.toString();
     form_values['card-INITIAL_FORMS'] = '0';
     form_values['field_content-TOTAL_FORMS'] = field_count.toString();
@@ -377,7 +377,7 @@ fact_ui.submitFactForm = function(fact_form, fact_id) {
             submit_button.set('disabled', false);
         },
         error: function(error){
-            submit_error_callback(data, card_counter); //TODO other callback for this
+            submit_error_callback(data, card_counter); //TODO-OLD other callback for this
             submit_button.set('disabled', false);
         }
     };
@@ -439,7 +439,7 @@ fact_ui._generateReading = function(expression) {
 
 fact_ui.generateReading = function(expression, reading_field, show_standby) {
     reading_field = dijit.byId(reading_field);
-    //TODO why is this duplicated in the arguments?
+    //TODO-OLD why is this duplicated in the arguments?
     if (expression.trim() !== '') {
         reading_field.set('disabled', true);        
 

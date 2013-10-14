@@ -89,7 +89,7 @@ class FactForm(forms.ModelForm):
 class FieldContentForm(forms.ModelForm):
     subfact_group = forms.IntegerField(required=False)
 
-    def clean(self): #TODO if any(self.errors):return NO:thats just for formsets
+    def clean(self): #TODO-OLD if any(self.errors):return NO:thats just for formsets
         cleaned_data = self.cleaned_data
         content = cleaned_data.get('content') or ''
         field_type = cleaned_data.get('field_type')#FieldType.objects.get(id=field_type_id)
@@ -106,16 +106,16 @@ class FieldContentForm(forms.ModelForm):
             msg = u'This is a single-line field.'
             error_list.append(msg)
             if 'content' in cleaned_data:
-              del cleaned_data['content'] #TODO why do I do this?
+              del cleaned_data['content'] #TODO-OLD why do I do this?
         if not blank and not content.strip():
             msg = u'This field is required.'
             #self._errors['content'] = ErrorList([msg])
             error_list.append(msg)
             if 'content' in cleaned_data:
                 del cleaned_data['content']
-        elif field_type: #TODO why check if field_type?
+        elif field_type: #TODO-OLD why check if field_type?
             if content.strip(): #if it's blank, don't bother checking if it's unique
-                if unique: #TODO can a field be blank and unique? probably yes, since blank is like null
+                if unique: #TODO-OLD can a field be blank and unique? probably yes, since blank is like null
                     #dirty hack to get this deck's owner
                     if 'fact-deck' in self.data:
                         deck_id = self.data['fact-deck']

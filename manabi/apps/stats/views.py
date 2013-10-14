@@ -148,7 +148,7 @@ def daily_repetition_history(request, deck=None, tags=None):
 #
 ########################################
 
-#TODO needed? so far, unused.
+#TODO-OLD needed? so far, unused.
 #@api
 #@require_GET
 #@has_card_query_filters

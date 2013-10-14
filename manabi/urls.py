@@ -3,7 +3,7 @@ from django.conf.urls import *
 from django.conf import settings
 from django.contrib import admin
 
-#TODO from forms import SignupForm
+#TODO-OLD from forms import SignupForm
 from manabi.apps.utils.views import direct_to_template
 from manabi.apps.utils.urldecorators import decorated_patterns
 from manabi.apps.flashcards.urls import rest_api_urlpatterns
@@ -14,18 +14,18 @@ admin.autodiscover()
 
 urlpatterns = patterns('',
     # Use our customized form
-    #TODO url(r'^account/signup/$', 'account.views.signup',
+    #TODO-OLD url(r'^account/signup/$', 'account.views.signup',
     #    name="acct_signup", kwargs={'form_class': SignupForm}), 
 
     url(r'convert/', include('lazysignup.urls')),
 
-    #TODO (r'^account/', include('account.urls')),
+    #TODO-OLD (r'^account/', include('account.urls')),
     (r'^admin/', include(admin.site.urls)),
     #(r'^sentry/', include('sentry.web.urls')),
 
-    #TODO (r'^mobile-account/', include('mobileaccount.urls')),
+    #TODO-OLD (r'^mobile-account/', include('mobileaccount.urls')),
 
-    #TODO url(r'^popups/login/$', 'account.views.login', name='popup_acct_login', kwargs={
+    #TODO-OLD url(r'^popups/login/$', 'account.views.login', name='popup_acct_login', kwargs={
         #'template_name': 'popups/login.html',}),
 
     (r'^popups/', include('manabi.apps.popups.urls')),
@@ -70,7 +70,7 @@ urlpatterns = patterns('',
 
 #if settings.SERVE_MEDIA:
 #    urlpatterns += patterns('',
-#TODO        (r'^favicon\.ico$', 'manabi.apps.utils.views.redirect_to', {'url': '/site_media/static/favicon.ico'}),
+#TODO-OLD        (r'^favicon\.ico$', 'manabi.apps.utils.views.redirect_to', {'url': '/site_media/static/favicon.ico'}),
 #    )
 
 #    from django.contrib.staticfiles.urls import staticfiles_urlpatterns

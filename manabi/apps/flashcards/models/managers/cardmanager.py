@@ -118,7 +118,7 @@ class SchedulerMixin(object):
             last_review_grade=GRADE_NONE).filter(
             due_at__isnull=False,
             due_at__lte=review_time).order_by('-interval')
-        #TODO Also get cards that aren't quite due yet, but will be soon,
+        #TODO-OLD Also get cards that aren't quite due yet, but will be soon,
         # and depending on their maturity
         # (i.e. only mature cards due soon).
         # Figure out some kind of way to prioritize these too.
@@ -129,12 +129,12 @@ class SchedulerMixin(object):
             early_review=False, deck=None, tags=None, **kwargs):
         if not count:
             return []
-        #TODO prioritize certain failed cards, not just by due date
+        #TODO-OLD prioritize certain failed cards, not just by due date
         # We'll show failed cards even if they've been reviewed recently.
         # This is because failed cards are set to be shown 'soon' and not
         # just in 10 minutes. Special rules.
-        #TODO we shouldn't show mature failed cards so soon though!
-        #TODO randomize the order (once we fix the Undo)
+        #TODO-OLD we shouldn't show mature failed cards so soon though!
+        #TODO-OLD randomize the order (once we fix the Undo)
         card_query = initial_query.filter(last_review_grade=GRADE_NONE, \
                 due_at__gt=review_time).order_by('due_at') 
         return card_query[:count]
@@ -278,11 +278,11 @@ class SchedulerMixin(object):
         "Due soon" cards won't be chosen in this case,
         contrary to early_review's normal behavior.
 
-        (#TODO consider changing this to have a separate option)
+        (#TODO-OLD consider changing this to have a separate option)
         '''
-        #TODO somehow spread some new cards into the early review 
+        #TODO-OLD somehow spread some new cards into the early review 
         # cards if early_review==True
-        #TODO use args instead, like *kwargs etc for these funcs
+        #TODO-OLD use args instead, like *kwargs etc for these funcs
         now = datetime.datetime.utcnow()
         card_funcs = self._next_cards(
             early_review=early_review, learn_more=learn_more)
@@ -309,7 +309,7 @@ class SchedulerMixin(object):
             if len(cards):
                 card_queries.append(cards)
 
-        #TODO decide what to do with this #if session_start:
+        #TODO-OLD decide what to do with this #if session_start:
         #FIXME add new cards into the mix when there's a defined 
         # new card per day limit
         #for now, we'll add new ones to the end
@@ -339,7 +339,7 @@ class CommonFiltersMixin(object):
     def of_user(self, user, with_upstream=False):
         from manabi.apps.flashcards.models.facts import Fact
 
-        #TODO this is probably really slow
+        #TODO-OLD this is probably really slow
         facts = Fact.objects.with_upstream(user)
         user_cards = self.filter(fact__in=facts)
 
@@ -432,7 +432,7 @@ class CommonFiltersMixin(object):
         Works properly with upstream cards.
         '''
         local_query = self.new(user)
-        desired_count = 999999 #TODO use more elegant solution.
+        desired_count = 999999 #TODO-OLD use more elegant solution.
         now = datetime.datetime.utcnow()
         local = self._next_new_cards(user, local_query, desired_count, now,
                 add_upstream_facts_as_needed=False).count()

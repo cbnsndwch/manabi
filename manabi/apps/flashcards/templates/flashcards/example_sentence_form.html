@@ -22,7 +22,7 @@
                         var field_widget = dijit.byId('id_field_content-{{ forloop.counter0 }}-content');
                         dojo.connect(field_widget, 'onBlur', function() {
                             //automatically generate this kanji field's reading
-                            //TODO unless the newly focused field is the reading field (how to detect new focus?)
+                            //TODO-OLD unless the newly focused field is the reading field (how to detect new focus?)
                             var reading_field_node = dojo.query('.reading_field'))[0];
                             if (reading_field_node) {
                                 fact_ui.generateReading(

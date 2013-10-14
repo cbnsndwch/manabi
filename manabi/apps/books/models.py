@@ -8,7 +8,7 @@ from manabi.apps.utils.slugs import slugify
 from django.conf import settings
 
 
-#TODO find different way.
+#TODO-OLD find different way.
 #amazon_api = AmazonAPI(settings.AWS_KEY, settings.AWS_SECRET_KEY, 'us')
 
 
@@ -36,7 +36,7 @@ class Textbook(models.Model):
     custom_title = models.CharField(max_length=200, blank=True,
             help_text='Set this to override the Amazon product name.')
 
-    #TODO student level field
+    #TODO-OLD student level field
 
     class Meta:
         app_label = 'flashcards'
@@ -75,7 +75,7 @@ class Textbook(models.Model):
 
     def _item_lookup(self, **kwargs):
         return
-        #TODO fix
+        #TODO-OLD fix
         return amazon_api.item_lookup(
                 self.cleaned_isbn, IdType='ISBN', SearchIndex='Books', **kwargs)
 

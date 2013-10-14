@@ -51,8 +51,8 @@ reviews_ui.endSession = function() {
     dojo.byId('tabhead').style.display = '';
 
     dojo.byId('reviews_fullscreenContainer').style.display = 'none';
-    //TODO fade out, less harsh
-    //TODO show review session results
+    //TODO-OLD fade out, less harsh
+    //TODO-OLD show review session results
     //var reviewCount = reviews_ui.session.reviewCount;
     reviews_ui.session.endSession();
 
@@ -313,7 +313,7 @@ reviews_ui._unsubscribeFromSessionEvents = function() {
 };
 
 reviews_ui.startSession = function(args) { 
-    // raise error (TODO we just ignore it for now) if the session is already
+    // raise error (TODO-OLD we just ignore it for now) if the session is already
     // in progress
     if (reviews_ui.sessionStarted) {
         return;
@@ -359,7 +359,7 @@ reviews_ui.startSession = function(args) {
                 reviews_ui.displayCard(nextCard);
             } else {
                 //no cards are due
-                //TODO show an error here, since this should not ever happen now in the new site design.
+                //TODO-OLD show an error here, since this should not ever happen now in the new site design.
             }
         }, initialCardPrefetch));
     });
@@ -376,7 +376,7 @@ reviews_ui.submitReviewOptionsDialog = function(earlyReview, learnMore) {
     //hide this options screen
     //dojo.byId('reviews_reviewOptions').style.display = 'none';//({display: 'none'});
 
-    //TODO add a loading screen
+    //TODO-OLD add a loading screen
 
     //disable the submit button while it processes
     reviews_beginReviewButton.set('disabled', true);
@@ -384,7 +384,7 @@ reviews_ui.submitReviewOptionsDialog = function(earlyReview, learnMore) {
     reviews_beginEarlyReviewButton.set('disabled', true);
 
     var decksGridItem = reviews_decksGrid.selection.getSelected()[0];
-    var deckId = decksGridItem.id[0]; //TODO allow multiple selections
+    var deckId = decksGridItem.id[0]; //TODO-OLD allow multiple selections
     var timeLimit = reviews_timeLimitInput.set('value');
     var cardLimit = reviews_cardLimitInput.set('value');
     //var dailyNewCardLimt = reviews_newCardLimitInput.set('value');

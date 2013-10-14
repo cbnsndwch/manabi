@@ -21,12 +21,12 @@ def seconds_to_days(s):
 
 
 
-#TODO 
+#TODO-OLD 
 # separate the cards of this fact initially
 # not used for child fact types (?)
 #min_card_space = models.FloatField(default=seconds_to_days(600),
 #        help_text='Duration expressed in (partial) days.')
-#TODO
+#TODO-OLD
 # minimal interval multiplier between two cards of the same fact
 #space_factor = models.FloatField(default=.1) 
 
@@ -40,12 +40,12 @@ class FactManager(models.Manager):
         return usertagging.models.Tag.objects.usage_for_queryset(
                 user_facts)
     
-    #TODO
+    #TODO-OLD
     def search(self, fact_type, query, query_set=None):
         '''Returns facts which have FieldContents containing the query.
         `query` is a substring to match on
         '''
-        #TODO or is in_bulk() faster?
+        #TODO-OLD or is in_bulk() faster?
         query = query.strip()
         if not query_set:
             query_set = self.filter(parent_fact__isnull=True)
@@ -60,7 +60,7 @@ class FactManager(models.Manager):
                | Q(fact__synchronized_with__in=subscriber_facts)))
             #& Q(fact__fact_type=fact_type)).all()
 
-        #TODO use values_list to be faster
+        #TODO-OLD use values_list to be faster
         match_ids = matches.values_list('fact', flat=True)
         return query_set.filter(Q(id__in=match_ids) |
                                 Q(synchronized_with__in=match_ids))
@@ -129,8 +129,8 @@ class Fact(models.Model):
     reading = models.CharField(max_length=1500, blank=True)
     meaning = models.CharField(max_length=1000)
 
-    created_at = models.DateTimeField()
-    modified_at = models.DateTimeField()
+    created_at = models.DateTimeField(auto_now_add=True, editable=False)
+    modified_at = models.DateTimeField(blank=True, null=True)
 
     def roll_ordinal(self):
         if not self.new_fact_ordinal:
@@ -167,7 +167,7 @@ class Fact(models.Model):
         if self.synchronized_with:
             # first see if the user has updated this fact's contents.
             # this would override the synced fact's.
-            #TODO only override on a per-field basis when the 
+            #TODO-OLD only override on a per-field basis when the 
             #user updates field contents
             if not field_contents:
                 field_contents = self.synchronized_with.fieldcontent_set.all().order_by('field_type__ordinal')
@@ -231,7 +231,7 @@ class Fact(models.Model):
                 field_content.copy_to_fact(subfact_copy)
         return subfact_copy
 
-    #TODO
+    #TODO-OLD
     def copy_to_deck(self, deck, copy_field_contents=False, copy_subfacts=False,
                      synchronize=False):
         '''
@@ -257,7 +257,7 @@ class Fact(models.Model):
                 raise TypeError('Cannot synchronize with a fact that is already a synchronized fact.')
             elif not self.deck.shared_at:
                 raise TypeError('This is not a shared fact - cannot synchronize with it.')
-            #TODO enforce deck synchronicity too
+            #TODO-OLD enforce deck synchronicity too
             else:
                 copy.synchronized_with = self
 
@@ -350,7 +350,7 @@ class FactType(models.Model):
 #    '''
 #    Proxy model for subfacts (like example sentences).
 #    '''
-#    #TODO use this!
+#    #TODO-OLD use this!
 
 #    class Meta:
 #        app_label = 'flashcards'

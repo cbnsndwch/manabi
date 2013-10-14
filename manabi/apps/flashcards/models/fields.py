@@ -140,7 +140,7 @@ class FieldContent(models.Model):
     content = models.CharField(max_length=1000, blank=True) 
     
     media_uri = models.URLField(blank=True)
-    #TODO upload to user directory, using .storage
+    #TODO-OLD upload to user directory, using .storage
     media_file = models.FileField(
         upload_to='/card_media/', null=True, blank=True) 
 
@@ -247,7 +247,7 @@ class FieldContent(models.Model):
         super(FieldContent, self).save(*args, **kwargs)
 
     class Meta:
-        #TODO unique_together = (('fact', 'field_type'), )
+        #TODO-OLD unique_together = (('fact', 'field_type'), )
         # one field content per field per fact
         app_label = 'flashcards'
 
@@ -257,7 +257,7 @@ class FieldContent(models.Model):
         to the given fact.
         Returns None if a corresponding FieldContent already exists.
         '''
-        #TODO use meta fields instead
+        #TODO-OLD use meta fields instead
         if fact.fieldcontent_set.filter(field_type=self.field_type):
             return None
         copy = FieldContent(
