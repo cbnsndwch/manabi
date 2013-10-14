@@ -6,13 +6,14 @@ from django.contrib import admin
 #TODO-OLD from forms import SignupForm
 from manabi.apps.utils.views import direct_to_template
 from manabi.apps.utils.urldecorators import decorated_patterns
-from manabi.apps.flashcards.urls import rest_api_urlpatterns
+#from manabi.apps.flashcards.urls import rest_api_urlpatterns
 
 admin.autodiscover()
 
 
 
-urlpatterns = patterns('',
+urlpatterns = patterns(
+    '',
     # Use our customized form
     #TODO-OLD url(r'^account/signup/$', 'account.views.signup',
     #    name="acct_signup", kwargs={'form_class': SignupForm}), 
@@ -28,7 +29,7 @@ urlpatterns = patterns('',
     #TODO-OLD url(r'^popups/login/$', 'account.views.login', name='popup_acct_login', kwargs={
         #'template_name': 'popups/login.html',}),
 
-    (r'^popups/', include('manabi.apps.popups.urls')),
+    #(r'^popups/', include('manabi.apps.popups.urls')),
 
     url(r'^terms-of-service/$', direct_to_template,
         {'template': 'tos.html'}, name='terms_of_service'),
@@ -36,6 +37,8 @@ urlpatterns = patterns('',
         {'template': 'privacy.html'}, name='privacy_policy'),
     url(r'^credits/$', direct_to_template,
         {'template': 'credits.html'}, name='credits'),
+
+    url(r'^api/', include('manabi.apps.flashcards.api_urls')),
 
     #url(r'^flashcards/api/', include(rest_api_urlpatterns)),
 
@@ -61,11 +64,11 @@ urlpatterns = patterns('',
     #(r'^reports/', include('reports.urls')),
 
     (r'^flashcards/', include('manabi.apps.flashcards.urls')),
-    (r'^textbooks/', include('manabi.apps.books.urls')),
+    #(r'^textbooks/', include('manabi.apps.books.urls')),
     (r'^importer/', include('manabi.apps.importer.urls')),
-    (r'^jdic/', include('manabi.apps.jdic.urls')),
+    #(r'^jdic/', include('manabi.apps.jdic.urls')),
     (r'^kanjivg/', include('kanjivg.urls')),
-    (r'^stats/', include('manabi.apps.stats.urls')),
+    #(r'^stats/', include('manabi.apps.stats.urls')),
 )
 
 #if settings.SERVE_MEDIA:

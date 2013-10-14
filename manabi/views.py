@@ -6,7 +6,6 @@ from django.core.urlresolvers import resolve
 from django.db.models import F
 from django.shortcuts import render_to_response, redirect
 from django.template import RequestContext
-from manabi.apps.flashcards.contextprocessors import subfact_form_context
 from manabi.apps.flashcards.contextprocessors import deck_count_context, card_existence_context
 from django.views.decorators.cache import cache_page
 
@@ -28,9 +27,6 @@ def index(request):
             'card_templates': card_templates,
             'field_types': field_types,
         }
-
-        context.update(subfact_form_context(request))
-        
 
     return render_to_response('homepage.html', 
                               context, 

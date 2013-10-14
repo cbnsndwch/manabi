@@ -1,6 +1,13 @@
 from catnap.restviews import (JsonEmitterMixin, AutoContentTypeMixin,
                               RestView, ListView, DetailView, DeletionMixin)
 from catnap.auth import BasicAuthentication, DjangoContribAuthentication
+from manabi.apps.utils import japanese, query_cleaner
+from manabi.apps.utils.query_cleaner import clean_query
+from manabi.apps.flashcards.models import Card
+from manabi.apps.flashcards.models.undo import UndoCardReview
+from manabi.apps.flashcards.restresources import UserResource, DeckResource, CardResource
+from manabi.apps.flashcards import models
+from manabi.apps.utils.shortcuts import get_deck_or_404
 
 
 class ManabiRestView(JsonEmitterMixin, AutoContentTypeMixin, RestView):
@@ -26,8 +33,6 @@ class NextCardsForReview(CardQueryMixin, ManabiRestView):
     Accepts some query parameters for filtering and influencing what
     cards will be selected.
     '''
-    content_subtype = 'CardList'
-
     query_structure = {
         'count': int,
         'early_review': bool,
@@ -47,7 +52,6 @@ class NextCardsForReview(CardQueryMixin, ManabiRestView):
             excluded_ids=params.get('excluded_cards', []),
             session_start=params.get('session_start'),
             deck=self.get_deck(),
-            tags=self.get_tags(),
             early_review=params.get('early_review'),
             learn_more=params.get('learn_more'),
         )

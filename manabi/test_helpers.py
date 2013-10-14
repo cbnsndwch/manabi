@@ -118,7 +118,7 @@ class APIShortcuts(object):
         return self.get(reverse('rest-deck_list'), user=user).json['deck_list']
 
     def next_cards_for_review(self, user):
-        return self.get(reverse('rest-next_cards_for_review'), user=user).json['card_list']
+        return self.get('/api/next_cards_for_review/', user=user).json['card_list']
 
     def review_card(self, user, card, grade):
         return self.post(card['reviews_url'], {'grade': grade}, user=user)

@@ -122,13 +122,15 @@ TEMPLATE_CONTEXT_PROCESSORS = (
     'django.core.context_processors.media',
     'django.core.context_processors.static',
     'django.contrib.messages.context_processors.messages',
+
     #'staticfiles.context_processors.static_url',
     #"pinax.core.context_processors.pinax_settings",
     #'pinax.apps.account.context_processors.account',
-    'notification.context_processors.notification',
-    'announcements.context_processors.site_wide_announcements',
+    #'notification.context_processors.notification',
+    #'announcements.context_processors.site_wide_announcements',
+
     'dojango.context_processors.config',
-    'manabi.context_processors.site_base_extender',
+    #'manabi.context_processors.site_base_extender',
 )
 
 INSTALLED_APPS = (

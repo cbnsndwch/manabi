@@ -25,11 +25,9 @@ from manabi.apps.flashcards import models
 from manabi.apps.flashcards.contextprocessors import review_start_context
 from manabi.apps.flashcards.forms import DeckForm, FactForm, FieldContentForm, CardForm
 from manabi.apps.flashcards.models import Card
-from manabi.apps.flashcards.models.constants import MAX_NEW_CARD_ORDINAL
 from manabi.apps.flashcards.models.undo import UndoCardReview
 from manabi.apps.flashcards.restresources import (
         UserResource, DeckResource, CardResource)
-from manabi.apps.flashcards.views.decorators import has_card_query_filters
 from manabi.apps.flashcards.views.shortcuts import get_deck_or_404
 
 

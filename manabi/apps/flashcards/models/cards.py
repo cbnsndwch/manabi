@@ -34,6 +34,7 @@ CARD_TEMPLATE_CHOICES = (
 class Card(models.Model):
     objects = PassThroughManager.for_queryset_class(CardQuerySet)()
 
+    deck = models.ForeignKey('flashcards.Deck', null=True, db_index=True)
     fact = models.ForeignKey('flashcards.Fact', db_index=True)
 
     template = models.SmallIntegerField(choices=CARD_TEMPLATE_CHOICES, blank=False)
@@ -96,10 +97,6 @@ class Card(models.Model):
     @property
     def owner(self):
         return self.fact.owner
-
-    @property
-    def deck(self):
-        return self.fact.deck
 
     @property
     def siblings(self):
