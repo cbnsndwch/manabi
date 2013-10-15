@@ -1,9 +1,10 @@
 import datetime
+from datetime import timedelta
 from itertools import chain
 
 from django.db import models
 from django.db.models.query import QuerySet
-from django.db.models import Avg, Max, Min, Count
+from django.db.models import Q, F, Avg, Max, Min, Count
 from model_utils.managers import PassThroughManager
 
 from manabi.apps.manabi_redis.models import redis
@@ -140,6 +141,44 @@ class SchedulerMixin(object):
         return card_query[:count]
 
     def _next_new_cards(self, user, initial_query, count, review_time,
+                        excluded_ids=[], early_review=False, learn_more=False, deck=None):
+        from manabi.apps.flashcards.models.facts import Fact
+
+        if not count:
+            return []
+
+        due_facts = Fact.objects.filter(card__due_at__isnull=True)
+
+        # Exclude buried facts - cards buried due to siblings.
+        #TODO abstract following min space computation (see sibling_spacing)
+        unburied_due_facts = due_facts.exclude(
+            # Sibling is due.
+            Q(card__due_at__lt=review_time) | 
+            # Sibling was reviewed too recently.
+            Q(card__last_reviewed_at__gte=(review_time
+                                            - timedelta(days=max(MIN_CARD_SPACE,
+                                                                 SPACE_FACTOR
+                                                                 * (F('interval') or 0))))) |
+            # Sibling is currently in the client-side review queue.
+            Q(card__id__in=excluded_ids) |
+            # Sibling is failed. (Sibling's due, or it's not due and it's shown before new cards.)
+            Q(card__last_review_grade=GRADE_NONE)
+        )
+
+        cards = initial_query.filter(fact__in=unburied_due_facts, due_at__isnull=True)
+        cards = cards.order_by('new_card_ordinal')
+        cards = list(cards[:count])
+
+        # Add spaced cards if in early review/learn more mode and we haven't supplied enough.
+        #TODO should early_review be here?
+        if (early_review or learn_more) and len(cards) < count:
+            buried_cards = initial_query.exclude(fact__in=unburied_due_facts)
+            buried_cards = buried_cards.filter(due_at__isnull=True)
+            cards.extend(list(buried_cards[:count - len(cards)]))
+
+        return cards
+        
+    def _OLD_next_new_cards(self, user, initial_query, count, review_time,
             excluded_ids=[], early_review=False, learn_more=False,
             deck=None, tags=None,
             add_upstream_facts_as_needed=True, **kwargs):

@@ -6,12 +6,9 @@ from django.db import models
 from django.db.models import Count, Min, Max, Sum, Avg
 from cachecow.decorators import cached_function
 
-from constants import (GRADE_NONE, GRADE_HARD, GRADE_GOOD, GRADE_EASY,
-                       MAX_NEW_CARD_ORDINAL, EASE_FACTOR_MODIFIERS,
-                       YOUNG_FAILURE_INTERVAL, MATURE_FAILURE_INTERVAL,
-                       MATURE_INTERVAL_MIN, GRADE_EASY_BONUS_FACTOR,
-                       DEFAULT_EASE_FACTOR, INTERVAL_FUZZ_MAX,
-                       ALL_GRADES, GRADE_NAMES)
+from constants import (GRADE_NONE, ALL_GRADES, GRADE_NAMES,
+                       MAX_NEW_CARD_ORDINAL, MATURE_INTERVAL_MIN,
+                       MIN_CARD_SPACE)
 from cardtemplates import CardTemplate
 from manabi.apps.flashcards.cachenamespaces import (deck_review_stats_namespace,
                                         fact_grid_namespace)

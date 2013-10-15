@@ -257,11 +257,17 @@ else:
 
 #DISABLE_QUERYSET_CACHE = not LIVE_HOST
 
+#TODELETE?
 SEND_BROKEN_LINK_EMAILS = True
 IGNORABLE_404_ENDS = ('.php', '.cgi')
 IGNORABLE_404_STARTS = ('/phpmyadmin/',)
 
+#TODO fix, not working
+SHELL_PLUS_POST_IMPORTS = (
+    ('django.db.models', 'Q'),
+)
 
+#TODELETE
 ABSOLUTE_URL_OVERRIDES = {
     'auth.user': lambda o: '/profiles/profile/%s/' % o.username,
 }

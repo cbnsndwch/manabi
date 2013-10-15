@@ -16,9 +16,6 @@ from manabi.apps import usertagging
 from manabi.apps.usertagging.models import UserTaggedItem
 
 
-def seconds_to_days(s):
-    return s / 86400.0
-
 
 
 #TODO-OLD 

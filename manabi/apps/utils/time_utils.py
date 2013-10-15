@@ -5,6 +5,10 @@ import datetime
 from django.conf import settings
 
 
+def seconds_to_days(s):
+    return s / 86400.
+
+
 def start_and_end_of_day(user, date=None):
     '''
     `date` is a datetime.date object.

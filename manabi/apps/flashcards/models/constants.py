@@ -1,3 +1,5 @@
+from manabi.apps.utils.time_utils import seconds_to_days
+
 
 # Grade IDs (don't change these once they're set)
 GRADE_NONE = 0
@@ -13,7 +15,7 @@ GRADE_NAMES = {
     GRADE_EASY: 'Too Easy',
 }
 
-
+#TODELETE
 ISO_639_2_LANGUAGES = (
     ('eng', 'English',),
     ('jpn', 'Japanese',),
@@ -99,5 +101,8 @@ INTERVAL_FUZZ_MAX = 0.035
 # 1: mature due (-interval)
 # 2: young due
 # 3: failed, not due
-#
-#
+
+# Sibling spacing.
+MIN_CARD_SPACE = seconds_to_days(600)
+SPACE_FACTOR = .1
+
