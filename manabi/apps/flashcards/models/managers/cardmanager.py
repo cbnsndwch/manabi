@@ -93,7 +93,7 @@ class SchedulerMixin(object):
 
     def _next_failed_due_cards(self, user, initial_query, count,
             review_time, excluded_ids=[],
-            early_review=False, deck=None, tags=None, **kwargs):
+            early_review=False, deck=None, **kwargs):
         if not count:
             return []
         cards = initial_query.filter(
@@ -105,7 +105,7 @@ class SchedulerMixin(object):
 
     def _next_not_failed_due_cards(self, user, initial_query, count,
             review_time, excluded_ids=[],
-            early_review=False, deck=None, tags=None, **kwargs):
+            early_review=False, deck=None, **kwargs):
         '''
         Returns the first [count] cards from initial_query which are due,
         weren't failed the last review, and  taking spacing of cards from
@@ -127,7 +127,7 @@ class SchedulerMixin(object):
 
     def _next_failed_not_due_cards(self, user, initial_query, count,
             review_time, excluded_ids=[], 
-            early_review=False, deck=None, tags=None, **kwargs):
+            early_review=False, deck=None, **kwargs):
         if not count:
             return []
         #TODO-OLD prioritize certain failed cards, not just by due date
@@ -180,7 +180,7 @@ class SchedulerMixin(object):
         
     def _next_due_soon_cards(self, user, initial_query, count,
             review_time, excluded_ids=[], 
-            early_review=False, deck=None, tags=None, **kwargs):
+            early_review=False, deck=None, **kwargs):
         '''
         Used for early review.
         Ordered by due date.
@@ -198,7 +198,7 @@ class SchedulerMixin(object):
 
     def _next_due_soon_cards2(self, user, initial_query, count,
             review_time, excluded_ids=[], 
-            early_review=False, deck=None, tags=None, **kwargs):
+            early_review=False, deck=None, **kwargs):
         if not count:
             return []
         priority_cutoff = review_time - datetime.timedelta(minutes=60)
@@ -234,7 +234,7 @@ class SchedulerMixin(object):
         return card_funcs
 
     def next_cards(self, user, count, excluded_ids=[],
-            session_start=False, deck=None, tags=None,
+            session_start=False, deck=None,
             early_review=False, learn_more=False):
         '''
         Returns `count` cards to be reviewed, in order.
@@ -258,7 +258,7 @@ class SchedulerMixin(object):
             early_review=early_review, learn_more=learn_more)
 
         user_cards = self.common_filters(user,
-            deck=deck, excluded_ids=excluded_ids, tags=tags)
+            deck=deck, excluded_ids=excluded_ids)
 
         cards_left = count
         card_queries = []
@@ -271,8 +271,7 @@ class SchedulerMixin(object):
                 user, user_cards, cards_left, now, excluded_ids,
                 early_review=early_review,
                 learn_more=learn_more,
-                deck=deck,
-                tags=tags)
+                deck=deck)
 
             cards_left -= len(cards)
 
@@ -288,7 +287,7 @@ class SchedulerMixin(object):
 
 class CommonFiltersMixin(object):
     '''
-    Provides filters for decks, tags, maturity level, etc.
+    Provides filters for decks, maturity level, etc.
 
     This is particularly useful with view URLs which take query params for 
     these things.
@@ -309,13 +308,6 @@ class CommonFiltersMixin(object):
     def of_user(self, user):
         return self.filter(deck__owner=user)
 
-    def with_tags(self, tags):
-        from manabi.apps.flashcards.models.facts import Fact
-        from manabi.apps.usertagging.models import UserTaggedItem
-
-        facts = UserTaggedItem.objects.get_by_model(Fact, tags)
-        return self.filter(fact__in=facts)
-
     def exclude_ids(self, excluded_ids):
         return self.exclude(id__in=excluded_ids)
 
@@ -323,7 +315,7 @@ class CommonFiltersMixin(object):
         return self.filter(suspended=False)
 
     def common_filters(self, user,
-            deck=None, tags=None, excluded_ids=None):
+            deck=None, excluded_ids=None):
         cards = self.of_user(user).unsuspended().filter(active=True)
 
         if deck:
@@ -334,8 +326,6 @@ class CommonFiltersMixin(object):
 
         if excluded_ids:
             cards = cards.exclude_ids(excluded_ids)
-        if tags:
-            cards = cards.with_tags(tags)
         return cards
 
     def new(self, user):
