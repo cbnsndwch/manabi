@@ -9,10 +9,7 @@ from model_utils.managers import PassThroughManager
 
 from manabi.apps.manabi_redis.models import redis
 from manabi.apps.flashcards.models.constants import (
-    GRADE_NONE, GRADE_HARD, GRADE_GOOD, GRADE_EASY,
-    MAX_NEW_CARD_ORDINAL, EASE_FACTOR_MODIFIERS,
-    YOUNG_FAILURE_INTERVAL, MATURE_FAILURE_INTERVAL, MATURE_INTERVAL_MIN,
-    GRADE_EASY_BONUS_FACTOR, DEFAULT_EASE_FACTOR, INTERVAL_FUZZ_MAX)
+    GRADE_NONE, MIN_CARD_SPACE, SPACE_FACTOR, MATURE_INTERVAL_MIN)
 
 
 class SchedulerMixin(object):
