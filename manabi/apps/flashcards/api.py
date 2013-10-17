@@ -74,7 +74,7 @@ class NextCardsForReview(CardQueryMixin, ManabiRestView):
 
         # Assemble a list of the cards to be serialized.
         return self.render_to_response({
-            'card_list': [CardResource(card).get_data() for card in next_cards],
+            'cards': [CardResource(card).get_data() for card in next_cards],
         })
 
 
