@@ -139,6 +139,7 @@ class SchedulerMixin(object):
 
     def _next_new_cards(self, user, initial_query, count, review_time,
                         excluded_ids=[], early_review=False, learn_more=False, deck=None):
+        from manabi.apps.flashcards.models.cards import  CARD_TEMPLATE_CHOICES
         from manabi.apps.flashcards.models.facts import Fact
 
         if not count:
@@ -164,13 +165,24 @@ class SchedulerMixin(object):
 
         cards = initial_query.filter(fact__in=unburied_due_facts, due_at__isnull=True)
         cards = cards.order_by('new_card_ordinal')
-        cards = list(cards[:count])
+        cards = list(cards[:count * len(CARD_TEMPLATE_CHOICES)])
+
+        
+        # One card per fact.
+        fact_ids = set(card.fact_id for card in cards)
+        unburied_cards = []
+        for card in cards:
+            if card.fact_id in fact_ids:
+                fact_ids.remove(card.fact_id)
+                unburied_cards.append(card)
+        cards = unburied_cards
 
         # Add spaced cards if in early review/learn more mode and we haven't supplied enough.
         #TODO should early_review be here?
         if (early_review or learn_more) and len(cards) < count:
             buried_cards = initial_query.exclude(fact__in=unburied_due_facts)
             buried_cards = buried_cards.filter(due_at__isnull=True)
+            buried_cards = buried_cards.order_by('new_card_ordinal')
             cards.extend(list(buried_cards[:count - len(cards)]))
 
         return cards
@@ -251,11 +263,10 @@ class SchedulerMixin(object):
         # cards if early_review==True
         #TODO-OLD use args instead, like *kwargs etc for these funcs
         now = datetime.datetime.utcnow()
-        card_funcs = self._next_cards(
-            early_review=early_review, learn_more=learn_more)
 
-        user_cards = self.common_filters(user,
-            deck=deck, excluded_ids=excluded_ids)
+        card_funcs = self._next_cards(early_review=early_review, learn_more=learn_more)
+
+        user_cards = self.common_filters(user, deck=deck, excluded_ids=excluded_ids)
 
         cards_left = count
         card_queries = []
@@ -311,18 +322,17 @@ class CommonFiltersMixin(object):
     def unsuspended(self):
         return self.filter(suspended=False)
 
-    def common_filters(self, user,
-            deck=None, excluded_ids=None):
+    def common_filters(self, user, deck=None, excluded_ids=None):
         cards = self.of_user(user).unsuspended().filter(active=True)
 
         if deck:
             cards = cards.of_deck(deck, with_upstream=with_upstream)
         else:
-            cards = cards.exclude(fact__deck__owner=user,
-                                  fact__deck__suspended=True)
+            cards = cards.filter(deck__owner=user).exclude(deck__suspended=True)
 
         if excluded_ids:
             cards = cards.exclude_ids(excluded_ids)
+
         return cards
 
     def new(self, user):

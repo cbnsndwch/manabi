@@ -8,16 +8,14 @@ from django.db import models
 class Migration(SchemaMigration):
 
     def forwards(self, orm):
-        # Removing unique constraint on 'Card', fields ['fact', 'template']
-        #db.delete_unique(u'flashcards_card', ['fact_id', 'template'])
-        pass
 
+        # Changing field 'Card.deck'
+        db.alter_column(u'flashcards_card', 'deck_id', self.gf('django.db.models.fields.related.ForeignKey')(default=None, to=orm['flashcards.Deck']))
 
     def backwards(self, orm):
-        # Adding unique constraint on 'Card', fields ['fact', 'template']
-        #db.create_unique(u'flashcards_card', ['fact_id', 'template'])
-        pass
 
+        # Changing field 'Card.deck'
+        db.alter_column(u'flashcards_card', 'deck_id', self.gf('django.db.models.fields.related.ForeignKey')(to=orm['flashcards.Deck'], null=True))
 
     models = {
         u'auth.group': {
@@ -59,6 +57,7 @@ class Migration(SchemaMigration):
         'flashcards.card': {
             'Meta': {'object_name': 'Card'},
             'active': ('django.db.models.fields.BooleanField', [], {'default': 'True', 'db_index': 'True'}),
+            'deck': ('django.db.models.fields.related.ForeignKey', [], {'to': "orm['flashcards.Deck']"}),
             'due_at': ('django.db.models.fields.DateTimeField', [], {'db_index': 'True', 'null': 'True', 'blank': 'True'}),
             'ease_factor': ('django.db.models.fields.FloatField', [], {'null': 'True', 'blank': 'True'}),
             'fact': ('django.db.models.fields.related.ForeignKey', [], {'to': "orm['flashcards.Fact']"}),
@@ -130,12 +129,12 @@ class Migration(SchemaMigration):
         'flashcards.fact': {
             'Meta': {'unique_together': "(('deck', 'synchronized_with'),)", 'object_name': 'Fact'},
             'active': ('django.db.models.fields.BooleanField', [], {'default': 'True'}),
-            'created_at': ('django.db.models.fields.DateTimeField', [], {}),
+            'created_at': ('django.db.models.fields.DateTimeField', [], {'auto_now_add': 'True', 'blank': 'True'}),
             'deck': ('django.db.models.fields.related.ForeignKey', [], {'to': "orm['flashcards.Deck']", 'null': 'True', 'blank': 'True'}),
             'expression': ('django.db.models.fields.CharField', [], {'max_length': '500'}),
             u'id': ('django.db.models.fields.AutoField', [], {'primary_key': 'True'}),
             'meaning': ('django.db.models.fields.CharField', [], {'max_length': '1000'}),
-            'modified_at': ('django.db.models.fields.DateTimeField', [], {}),
+            'modified_at': ('django.db.models.fields.DateTimeField', [], {'null': 'True', 'blank': 'True'}),
             'new_fact_ordinal': ('django.db.models.fields.PositiveIntegerField', [], {'null': 'True', 'blank': 'True'}),
             'reading': ('django.db.models.fields.CharField', [], {'max_length': '1500', 'blank': 'True'}),
             'synchronized_with': ('django.db.models.fields.related.ForeignKey', [], {'blank': 'True', 'related_name': "'subscriber_facts'", 'null': 'True', 'to': "orm['flashcards.Fact']"})

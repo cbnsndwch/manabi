@@ -3,7 +3,7 @@ from django.core.urlresolvers import reverse
 
 
 class UserResource(RestModelResource):
-    fields = ('id', 'username', 'first_name', 'last_name', 'date_joined',)
+    fields = ['id', 'username', 'first_name', 'last_name', 'date_joined']
 
     def get_data(self):
         data = super(UserResource, self).get_data()
@@ -12,8 +12,16 @@ class UserResource(RestModelResource):
 
 
 class DeckResource(RestModelResource):
-    fields = ('id', 'name', 'description', 'owner',
-              'shared', 'shared_at', 'created_at', 'modified_at',)
+    fields = [
+        'id',
+        'name',
+        'description',
+        'owner',
+        'shared',
+        'shared_at',
+        'created_at',
+        'modified_at',
+    ]
 
     def get_url_path(self):
         return reverse('rest-deck', args=[self.obj.id])
@@ -33,28 +41,34 @@ class CardReviewsResource(RestResource):
         self.card = card
 
     def get_url_path(self):
-        return reverse('rest-card_reviews', args=[self.card.obj.id])
+        return reverse('api_card_review', args=[self.card.obj.id])
 
 
 class CardResource(RestModelResource):
-    fields = ('id', 'fact_id', 'ease_factor', 'interval', 'due_at',
-              'last_ease_factor', 'last_interval', 'last_due_at',
-              'review_count')
+    fields = [
+        'id',
+        'fact_id',
+        'ease_factor',
+        'interval',
+        'due_at',
+        'last_ease_factor',
+        'last_interval',
+        'last_due_at',
+        'review_count',
+    ]
 
     def get_url_path(self):
-        return reverse('rest-card', args=[self.obj.id])
+        return reverse('api_card', args=[self.obj.id])
 
     def get_data(self):
         data = super(CardResource, self).get_data()
-        data.update({
-            'front': self.obj.render_front(),
-            'back': self.obj.render_back(),
-            'next_due_at_per_grade':
-                dict((grade, rep.due_at)
-                     for (grade, rep)
-                     in self.obj.next_repetition_per_grade().items()),
 
-            'reviews_url': CardReviewsResource(self).get_url()
+        data.update({
+            'reviews_url': CardReviewsResource(self).get_url(),
+            'next_due_at_per_grade': dict((grade, rep.due_at)
+                                          for (grade, rep)
+                                          in self.obj.next_repetition_per_grade().items()),
         })
+
         return data
 

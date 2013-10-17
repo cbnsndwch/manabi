@@ -89,7 +89,6 @@ class ManabiTestCase(TestCase):
         cards = self.api.next_cards_for_review(user)
         for card in cards:
             self.api.review_card(self.user, card, GRADE_GOOD)
-        import sys
         return cards
 
 
@@ -165,6 +164,7 @@ def create_fact(user=None, deck=None):
 
     for template, template_name in CARD_TEMPLATE_CHOICES:
         card = Card(
+            deck=deck,
             fact=fact,
             template=template,
         )

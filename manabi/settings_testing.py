@@ -2,12 +2,12 @@ from manabi.settings import *
 
 DATABASES = {
     'default': {
-        'ENGINE': 'django.db.backends.sqlite3',
-        'NAME': 'testing.db',
-        'USER': '',
-        'PASSWORD': '',
-        'HOST': '',
-        'PORT': '',
+        'ENGINE': 'django.db.backends.postgresql_psycopg2',
+        'NAME': 'manabi_testing',
+        'USER': 'testing',
+        'PASSWORD': 'testing',
+        'HOST': 'localhost',
+        'PORT': '5432',
     }
 }
 

@@ -12,7 +12,7 @@ from constants import (GRADE_NONE, ALL_GRADES, GRADE_NAMES,
 from cardtemplates import CardTemplate
 from manabi.apps.flashcards.cachenamespaces import (deck_review_stats_namespace,
                                         fact_grid_namespace)
-from managers.cardmanager import CardQuerySet
+from manabi.apps.flashcards.models.cardmanager import CardQuerySet
 from repetitionscheduler import repetition_algo_dispatcher
 from undo import UndoCardReview
 from model_utils.managers import PassThroughManager
@@ -31,7 +31,7 @@ CARD_TEMPLATE_CHOICES = (
 class Card(models.Model):
     objects = PassThroughManager.for_queryset_class(CardQuerySet)()
 
-    deck = models.ForeignKey('flashcards.Deck', null=True, db_index=True)
+    deck = models.ForeignKey('flashcards.Deck', null=False, db_index=True)
     fact = models.ForeignKey('flashcards.Fact', db_index=True)
 
     template = models.SmallIntegerField(choices=CARD_TEMPLATE_CHOICES, blank=False)
