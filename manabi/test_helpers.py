@@ -110,7 +110,9 @@ class APIShortcuts(object):
         return self.call(*args, **kwargs)
 
     def decks(self, user):
-        return self.get(reverse('api_decks'), user=user).json['decks']
+        resp = self.get('/api/decks/', user=user)
+        print resp.json
+        return resp.json['decks']
 
     def next_cards_for_review(self, user):
         return self.get('/api/next_cards_for_review/', user=user).json['cards']

@@ -24,14 +24,14 @@ class DeckResource(RestModelResource):
     ]
 
     def get_url_path(self):
-        return reverse('rest-deck', args=[self.obj.id])
+        return ''#TODO reverse('rest-deck', args=[self.obj.id])
 
     def get_data(self):
         data = super(DeckResource, self).get_data()
         data.update({
             'owner': UserResource(self.obj.owner).get_data(),
             'card_count': self.obj.card_count(),
-            'status_url': reverse('rest-deck_status', args=[self.obj.id]),
+            'status_url': '',#TODO reverse('rest-deck_status', args=[self.obj.id]),
         })
         return data
 

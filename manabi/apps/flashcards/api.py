@@ -1,14 +1,16 @@
+from django.core.urlresolvers import reverse
 from django.shortcuts import get_object_or_404
 
 from catnap.restviews import (JsonEmitterMixin, AutoContentTypeMixin,
                               RestView, ListView, DetailView, DeletionMixin)
 from catnap.auth import BasicAuthentication, DjangoContribAuthentication
-from manabi.apps.utils import japanese, query_cleaner
-from manabi.apps.utils.query_cleaner import clean_query
+
+from manabi.apps.flashcards import models
 from manabi.apps.flashcards.models import Card
 from manabi.apps.flashcards.models.undo import UndoCardReview
 from manabi.apps.flashcards.restresources import UserResource, DeckResource, CardResource
-from manabi.apps.flashcards import models
+from manabi.apps.utils import japanese, query_cleaner
+from manabi.apps.utils.query_cleaner import clean_query
 from manabi.apps.utils.shortcuts import get_deck_or_404
 
 
@@ -30,15 +32,30 @@ class CardQueryMixin(object):
         return get_object_or_404(models.Deck, pk=self.request.GET['deck'])
 
     def get_card(self):
-        if 'card' not in self.request.REQUEST:
+        if 'card' not in self.request.REQUEST and 'card' not in self.kwargs:
             return
 
-        card = get_object_or_404(models.Card, pk=self.kwargs.get('card'))
+        card_id = self.kwargs.get('card') or self.request.REQUEST.get('card')
+        card = get_object_or_404(models.Card, pk=card_id)
 
         if card.owner != self.request.user:
             raise PermissionDenied('You do not own this flashcard.')
 
         return card
+
+
+class Decks(ListView, ManabiRestView):
+    '''
+    List of the logged-in user's decks.
+    '''
+    resource_class = DeckResource
+    context_object_name = 'decks'
+
+    def get_queryset(self):
+        return models.Deck.objects.filter(owner=self.request.user, active=True).order_by('name')
+
+    def get_url(self):
+        return reverse('api_decks')
 
 
 class NextCardsForReview(CardQueryMixin, ManabiRestView):
@@ -93,15 +110,14 @@ class CardReview(CardQueryMixin, ManabiRestView):
         params = clean_query(request.POST, {
             'grade': int,
             'duration': float,
-            'question_duration': float
+            'question_duration': float,
         })
 
         card = self.get_object()
 
-        card.review(
-            params['grade'],
-            duration=params.get('duration'),
-            question_duration=params.get('question_duration'))
+        card.review(params['grade'],
+                    duration=params.get('duration'),
+                    question_duration=params.get('question_duration'))
 
         return self.responses.no_content()
 

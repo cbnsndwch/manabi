@@ -1,6 +1,4 @@
-from manabi.apps.flashcards.models import (FactType, Fact, Deck, CardTemplate,
-    FieldType, FieldContent, Card,
-    GRADE_NONE, GRADE_HARD, GRADE_GOOD, GRADE_EASY)
+from manabi.apps.flashcards.models import FactType, Deck, Card
 from django.template.loader import render_to_string
 import datetime
 

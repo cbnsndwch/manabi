@@ -46,7 +46,7 @@ class SchedulerMixin(object):
             due_at__isnull=False,
             due_at__lte=review_time)
         cards = cards.exclude(fact__in=buried_facts)
-        cards = due_cards.order_by('-interval')
+        cards = cards.order_by('-interval')
 
         #TODO-OLD Also get cards that aren't quite due yet, but will be soon,
         # and depending on their maturity
@@ -72,7 +72,7 @@ class SchedulerMixin(object):
         cards = cards.exclude(fact__in=buried_facts)
         cards = cards.order_by('due_at') 
 
-        return card_query[:count]
+        return cards[:count]
 
     def _next_new_cards(self, user, initial_query, count, review_time, buried_facts,
                         learn_more=False, **kwargs):
@@ -182,6 +182,8 @@ class SchedulerMixin(object):
 
         (#TODO-OLD consider changing this to have a separate option)
         '''
+        from manabi.apps.flashcards.models.facts import Fact
+
         #TODO-OLD somehow spread some new cards into the early review 
         # cards if early_review==True
         #TODO-OLD use args instead, like *kwargs etc for these funcs
@@ -192,7 +194,7 @@ class SchedulerMixin(object):
         user_cards = self.common_filters(user, deck=deck, excluded_ids=excluded_ids)
 
         facts = Fact.objects.with_upstream(user=user, deck=deck)
-        buried_facts = facts.buried(user, review_time=review_time, excluded_card_ids=excluded_ids)
+        buried_facts = facts.buried(user, review_time=now, excluded_card_ids=excluded_ids)
 
         cards_left = count
         card_queries = []
