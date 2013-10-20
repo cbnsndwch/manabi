@@ -1,24 +1,17 @@
 import datetime
-import random
 
 from cachecow.decorators import cached_function
 from django.contrib.auth.models import User
 from django.core.urlresolvers import reverse
 from django.db import models
 from django.db import transaction
-from django.db.models import Avg
-from django.forms import ModelForm
-from django.forms.util import ErrorList
 from django.db.models.query import QuerySet
 from model_utils.managers import PassThroughManager
 
 from manabi.apps.manabi_redis.models import redis
 from manabi.apps.books.models import Textbook
 from constants import DEFAULT_EASE_FACTOR
-from constants import GRADE_NONE, GRADE_HARD, GRADE_GOOD, GRADE_EASY
 from manabi.apps.flashcards.cachenamespaces import deck_review_stats_namespace
-from manabi.apps.flashcards.models.intervals import initial_interval
-from itertools import chain
 import cards
 from manabi.apps import usertagging
 
@@ -35,7 +28,6 @@ class DeckQuerySet(QuerySet):
 
 
 class Deck(models.Model):
-    #manager
     objects = PassThroughManager.for_queryset_class(DeckQuerySet)()
 
     name = models.CharField(max_length=100)

@@ -8,101 +8,29 @@ from django.db.models import Q, F, Avg, Max, Min, Count
 from model_utils.managers import PassThroughManager
 
 from manabi.apps.manabi_redis.models import redis
-from manabi.apps.flashcards.models.constants import (
-    GRADE_NONE, MIN_CARD_SPACE, SPACE_FACTOR, MATURE_INTERVAL_MIN)
+from manabi.apps.flashcards.models.constants import GRADE_NONE, MATURE_INTERVAL_MIN
 
 
 class SchedulerMixin(object):
     '''
-    Contains the functions for retrieving the next cards that are 
-    ready to be reviewed.
+    Methods for retrieving the next cards that are ready to be reviewed.
     '''
-    def _space_cards(self, card_query, count, review_time,
-            excluded_ids=[], early_review=False):
-        '''
-        Check if any of these are from the same fact,
-        or if other cards from their facts have been
-        reviewed recently. If so, push their due date up.
-
-        `excluded_ids` is included for avoiding showing sibling 
-        cards of cards which the user is already currently reviewing.
-
-        if `early_review` == True:
-        Doesn't actually delay cards.
-        If all cards in query end up being "spaced", then 
-        it will return the spaced cards, since early review
-        shouldn't ever run out of cards.
-        '''
-        # Keep track of new cards we want to skip,
-        # since we shouldn't set their due_at (via delay())
-        delayed_cards = [] 
-
-        # REDIS WIP
-        #while True:
-        #    cards = card_query.exclude(
-        #        id__in=[card.id for card in delayed_cards])
-        #    card_ids = cards[:count].values_list('id', flat=True)
-
-        #    if early_review and len(cards) == 0:
-        #        return delayed_cards[:count]
-
-        #    # get cards to delay.
-        #    # get fact IDs
-        #    # get zrange of score > 
-        #    for card in cards:
-        #        min_space = card.sibling_spacing()
-        #        fact_id = card.fact_id
-        #        if redis.zrangebyscore()
-
-        while True:
-            cards_delayed = 0
-            cards = card_query.exclude(
-                id__in=[card.id
-                        for card
-                        in delayed_cards]).select_related()
-            cards = cards[:count]
-
-            if early_review and len(cards) == 0:
-                return delayed_cards[:count]
-
-            for card in cards:
-                min_space = card.sibling_spacing()
-                for sibling in card.siblings:
-                    if sibling.is_due(review_time) \
-                            or sibling.id in excluded_ids \
-                            or (sibling.last_reviewed_at \
-                                and abs(card.due_at
-                                        - sibling.last_reviewed_at)
-                                <= min_space):
-                        # Delay the card. It's already sorted by priority,
-                        # so we delay this one instead of its sibling.
-                        if card.is_new() or early_review:
-                            delayed_cards.append(card)
-                        else:
-                            card.delay(min_space)
-                            card.save()
-
-                        cards_delayed += 1
-                        break
-            if not cards_delayed:
-                break
-        return cards
-
-    def _next_failed_due_cards(self, user, initial_query, count,
-            review_time, excluded_ids=[],
-            early_review=False, deck=None, **kwargs):
+    def _next_failed_due_cards(self, user, initial_query, count, review_time, buried_facts,
+                               **kwargs):
         if not count:
             return []
+
+        # Don't space/bury these (Or should we?)
         cards = initial_query.filter(
             last_review_grade=GRADE_NONE,
             due_at__isnull=False,
-            due_at__lte=review_time).order_by('due_at')
-        # Don't space these #self._space_cards(cards, count, review_time)
+            due_at__lte=review_time)
+        cards = cards.order_by('due_at')
+
         return cards[:count] 
 
-    def _next_not_failed_due_cards(self, user, initial_query, count,
-            review_time, excluded_ids=[],
-            early_review=False, deck=None, **kwargs):
+    def _next_not_failed_due_cards(self, user, initial_query, count, review_time, buried_facts,
+                                   **kwargs):
         '''
         Returns the first [count] cards from initial_query which are due,
         weren't failed the last review, and  taking spacing of cards from
@@ -112,63 +40,55 @@ class SchedulerMixin(object):
         '''
         if not count:
             return []
-        due_cards = initial_query.exclude(
+
+        cards = initial_query.exclude(
             last_review_grade=GRADE_NONE).filter(
             due_at__isnull=False,
-            due_at__lte=review_time).order_by('-interval')
+            due_at__lte=review_time)
+        cards = cards.exclude(fact__in=buried_facts)
+        cards = due_cards.order_by('-interval')
+
         #TODO-OLD Also get cards that aren't quite due yet, but will be soon,
         # and depending on their maturity
         # (i.e. only mature cards due soon).
         # Figure out some kind of way to prioritize these too.
-        return self._space_cards(due_cards, count, review_time)
 
-    def _next_failed_not_due_cards(self, user, initial_query, count,
-            review_time, excluded_ids=[], 
-            early_review=False, deck=None, **kwargs):
+        return cards[:count]
+
+    def _next_failed_not_due_cards(self, user, initial_query, count, review_time, buried_facts,
+                                   **kwargs):
         if not count:
             return []
+
         #TODO-OLD prioritize certain failed cards, not just by due date
         # We'll show failed cards even if they've been reviewed recently.
         # This is because failed cards are set to be shown 'soon' and not
         # just in 10 minutes. Special rules.
         #TODO-OLD we shouldn't show mature failed cards so soon though!
         #TODO-OLD randomize the order (once we fix the Undo)
-        card_query = initial_query.filter(last_review_grade=GRADE_NONE, \
-                due_at__gt=review_time).order_by('due_at') 
+
+        # Don't space/bury these (Or should we?)
+        cards = initial_query.filter(last_review_grade=GRADE_NONE, due_at__gt=review_time)
+        cards = cards.exclude(fact__in=buried_facts)
+        cards = cards.order_by('due_at') 
+
         return card_query[:count]
 
-    def _next_new_cards(self, user, initial_query, count, review_time,
-                        excluded_ids=[], early_review=False, learn_more=False, deck=None):
-        from manabi.apps.flashcards.models.cards import  CARD_TEMPLATE_CHOICES
+    def _next_new_cards(self, user, initial_query, count, review_time, buried_facts,
+                        learn_more=False, **kwargs):
+        from manabi.apps.flashcards.models.cards import CARD_TEMPLATE_CHOICES
         from manabi.apps.flashcards.models.facts import Fact
 
         if not count:
             return []
 
-        due_facts = Fact.objects.filter(card__due_at__isnull=True)
-
-        # Exclude buried facts - cards buried due to siblings.
-        #TODO abstract following min space computation (see sibling_spacing)
-        unburied_due_facts = due_facts.exclude(
-            # Sibling is due.
-            Q(card__due_at__lt=review_time) | 
-            # Sibling was reviewed too recently.
-            Q(card__last_reviewed_at__gte=(review_time
-                                            - timedelta(days=max(MIN_CARD_SPACE,
-                                                                 SPACE_FACTOR
-                                                                 * (F('interval') or 0))))) |
-            # Sibling is currently in the client-side review queue.
-            Q(card__id__in=excluded_ids) |
-            # Sibling is failed. (Sibling's due, or it's not due and it's shown before new cards.)
-            Q(card__last_review_grade=GRADE_NONE)
-        )
-
-        cards = initial_query.filter(fact__in=unburied_due_facts, due_at__isnull=True)
+        cards = initial_query.filter(due_at__isnull=True)
+        cards = cards.exclude(fact__in=buried_facts)
         cards = cards.order_by('new_card_ordinal')
         cards = list(cards[:count * len(CARD_TEMPLATE_CHOICES)])
 
-        
         # One card per fact.
+        #TODO have this elsewhere too?
         fact_ids = set(card.fact_id for card in cards)
         unburied_cards = []
         for card in cards:
@@ -178,8 +98,7 @@ class SchedulerMixin(object):
         cards = unburied_cards
 
         # Add spaced cards if in early review/learn more mode and we haven't supplied enough.
-        #TODO should early_review be here?
-        if (early_review or learn_more) and len(cards) < count:
+        if learn_more and len(cards) < count:
             buried_cards = initial_query.exclude(fact__in=unburied_due_facts)
             buried_cards = buried_cards.filter(due_at__isnull=True)
             buried_cards = buried_cards.order_by('new_card_ordinal')
@@ -187,64 +106,68 @@ class SchedulerMixin(object):
 
         return cards
         
-    def _next_due_soon_cards(self, user, initial_query, count,
-            review_time, excluded_ids=[], 
-            early_review=False, deck=None, **kwargs):
+    def _next_due_soon_cards(self, user, initial_query, count, review_time, buried_facts,
+                             **kwargs):
         '''
         Used for early review.
         Ordered by due date.
         '''
         if not count:
             return []
-        priority_cutoff = review_time - datetime.timedelta(minutes=60)
-        cards = initial_query.exclude(
-            last_review_grade=GRADE_NONE).filter(
-            due_at__gt=review_time).order_by('due_at')
-        staler_cards = cards.filter(
-            last_reviewed_at__gt=priority_cutoff).order_by('due_at')
-        return self._space_cards(
-            staler_cards, count, review_time, early_review=True)
 
-    def _next_due_soon_cards2(self, user, initial_query, count,
-            review_time, excluded_ids=[], 
-            early_review=False, deck=None, **kwargs):
+        cards = initial_query.exclude(last_review_grade=GRADE_NONE)
+        cards = cards.filter(due_at__gt=review_time)
+
+        priority_cutoff = review_time - datetime.timedelta(minutes=60)
+        staler_cards = cards.filter(last_reviewed_at__gt=priority_cutoff)
+        staler_cards = staler_cards.exclude(fact__in=buried_facts)
+        staler_cards = staler_cards.order_by('due_at')
+
+        return staler_cards[:count]
+
+    def _next_due_soon_cards2(self, user, initial_query, count, review_time, buried_facts,
+                              **kwargs):
         if not count:
             return []
+
+        cards = initial_query.exclude(last_review_grade=GRADE_NONE)
+        cards = cards.filter(due_at__gt=review_time)
+
         priority_cutoff = review_time - datetime.timedelta(minutes=60)
-        cards = initial_query.exclude(
-            last_review_grade=GRADE_NONE).filter(
-            due_at__gt=review_time).order_by('due_at')
         fresher_cards = cards.filter(
             last_reviewed_at__isnull=False,
-            last_reviewed_at__lte=priority_cutoff).order_by('due_at')
-        return self._space_cards(
-            fresher_cards, count, review_time, early_review=True)
+            last_reviewed_at__lte=priority_cutoff)
+        fresher_cards = fresher_cards.exclude(fact__in=buried_facts)
+        fresher_cards = fresher_cards.order_by('due_at')
 
-    def _next_cards(self, early_review=False, learn_more=False):
+        return fresher_cards[:count]
+
+    def _next_card_funcs(self, early_review=False, learn_more=False):
+        if early_review and learn_more:
+            raise ValueError("Cannot set both early_review and learn_more together.")
+
         card_funcs = [
             self._next_failed_due_cards,        # due, failed
             self._next_not_failed_due_cards,    # due, not failed
-            self._next_failed_not_due_cards]    # failed, not due
-
-        if early_review and learn_more:
-            raise Exception(
-                    'Cannot set both early_review and learn_more together.')
+            self._next_failed_not_due_cards,    # failed, not due
+        ]
 
         if early_review:
             card_funcs.extend([
                 self._next_due_soon_cards,
-                # due soon, not yet, but next in the future
-                self._next_due_soon_cards2]) 
+                self._next_due_soon_cards2, # Due soon, not yet, but next in the future.
+            ])
         elif learn_more:
             # Only new cards, and ignore spacing.
             card_funcs = [self._next_new_cards]
         else:
-            card_funcs.extend([self._next_new_cards]) # new cards at end
+            card_funcs.extend([self._next_new_cards]) # New cards at end.
+
         return card_funcs
 
-    def next_cards(self, user, count, excluded_ids=[],
-            session_start=False, deck=None,
-            early_review=False, learn_more=False):
+    def next_cards(self, user, count,
+                   deck=None, excluded_ids=[],
+                   session_start=False, early_review=False, learn_more=False):
         '''
         Returns `count` cards to be reviewed, in order.
         count should not be any more than a short session of cards
@@ -264,9 +187,12 @@ class SchedulerMixin(object):
         #TODO-OLD use args instead, like *kwargs etc for these funcs
         now = datetime.datetime.utcnow()
 
-        card_funcs = self._next_cards(early_review=early_review, learn_more=learn_more)
+        card_funcs = self._next_card_funcs(early_review=early_review, learn_more=learn_more)
 
         user_cards = self.common_filters(user, deck=deck, excluded_ids=excluded_ids)
+
+        facts = Fact.objects.with_upstream(user=user, deck=deck)
+        buried_facts = facts.buried(user, review_time=review_time, excluded_card_ids=excluded_ids)
 
         cards_left = count
         card_queries = []
@@ -275,11 +201,10 @@ class SchedulerMixin(object):
             if not cards_left:
                 break
 
-            cards = card_func(
-                user, user_cards, cards_left, now, excluded_ids,
-                early_review=early_review,
-                learn_more=learn_more,
-                deck=deck)
+            cards = card_func(user, user_cards, cards_left, now,
+                              early_review=early_review,
+                              learn_more=learn_more,
+                              buried_facts=buried_facts)
 
             cards_left -= len(cards)
 

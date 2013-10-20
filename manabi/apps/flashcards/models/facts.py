@@ -1,10 +1,12 @@
+import datetime
+from datetime import timedelta
 import pickle
 import random
 
 from django.db.models.query import QuerySet
 from django.contrib.auth.models import User
 from django.db import models, transaction
-from django.db.models import Q
+from django.db.models import Q, F
 from django.forms import ModelForm
 from django.forms.util import ErrorList
 from model_utils.managers import PassThroughManager
@@ -14,6 +16,7 @@ from fields import FieldContent
 from manabi.apps.flashcards.signals import fact_suspended, fact_unsuspended
 from manabi.apps import usertagging
 from manabi.apps.usertagging.models import UserTaggedItem
+from manabi.apps.flashcards.models.constants import GRADE_NONE, MIN_CARD_SPACE, CARD_SPACE_FACTOR
 
 
 
@@ -28,15 +31,45 @@ from manabi.apps.usertagging.models import UserTaggedItem
 #space_factor = models.FloatField(default=.1) 
 
 
-class FactManager(models.Manager):
-    def all_tags_per_user(self, user):
-        '''
-        Includes tags on facts made on subscribed facts.
-        '''
-        user_facts = self.with_upstream(user)
-        return usertagging.models.Tag.objects.usage_for_queryset(
-                user_facts)
-    
+class FactQuerySet(QuerySet):
+    def with_upstream(self, user=None, deck=None):
+        if deck is not None and user is not None and deck.owner != user:
+            raise ValueError("Provided contradictory deck and user.")
+        elif deck is None and user is None:
+            raise ValueError("Must provide either deck or user.")
+
+        if deck is not None:
+            if deck.synchronized_with:
+                return self.filter(Q(deck=deck) | Q(deck=deck.synchronized_with))
+
+            return self.filter(deck=deck)
+
+        return self.filter(
+            Q(deck__owner=user) |
+            Q(deck__subscriber_decks__owner=user)
+        )
+
+    def buried(self, user, review_time=None, excluded_card_ids=[]):
+        ''' Facts with cards buried due to siblings. '''
+        if review_time is None:
+            review_time = datetime.datetime.utcnow()
+
+        return self.filter(
+            Q(card__deck__owner=user) & (
+                # Sibling is due.
+                Q(card__due_at__lt=review_time) | 
+                # Sibling was reviewed too recently.
+                Q(card__last_reviewed_at__gte=(review_time
+                                               - timedelta(days=max(MIN_CARD_SPACE,
+                                                                    CARD_SPACE_FACTOR
+                                                                    * (F('interval') or 0))))) |
+                # Sibling is currently in the client-side review queue.
+                Q(card__id__in=excluded_card_ids) |
+                # Sibling is failed. (Either sibling's due, or it's shown before new cards.)
+                Q(card__last_review_grade=GRADE_NONE)
+            )
+        )
+
     #TODO-OLD
     def search(self, fact_type, query, query_set=None):
         '''Returns facts which have FieldContents containing the query.
@@ -113,7 +146,7 @@ class FactManager(models.Manager):
 
 
 class Fact(models.Model):
-    objects = FactManager()
+    objects = PassThroughManager.for_queryset_class(FactQuerySet)()
 
     deck = models.ForeignKey('flashcards.Deck', blank=True, null=True, db_index=True)
 

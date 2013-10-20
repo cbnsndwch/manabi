@@ -11,7 +11,6 @@ from django.utils import simplejson as json
 
 from manabi.apps.flashcards.models.constants import (
     GRADE_NONE, GRADE_HARD, GRADE_GOOD, GRADE_EASY)
-from manabi.apps.flashcards.management.commands.flashcards_init import create_initial_data
 from manabi.apps.flashcards.models import (Deck, Card, Fact, FactType, FieldType,
                                            FieldContent, CardTemplate)
 from manabi.apps.flashcards.models.cards import CARD_TEMPLATE_CHOICES
@@ -26,13 +25,10 @@ class ManabiTestCase(TestCase):
     @classmethod
     def setUpClass(cls):
         user = create_user()
-        create_initial_data()
 
     @classmethod
     def tearDownClass(cls):
-        FactType.objects.get(name='Japanese').delete()
-        FieldType.objects.all().delete()
-        CardTemplate.objects.all().delete()
+        pass
 
     def setUp(self):
         self.api = APIShortcuts(self)

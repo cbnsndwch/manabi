@@ -15,49 +15,6 @@ GRADE_NAMES = {
     GRADE_EASY: 'Too Easy',
 }
 
-#TODELETE
-ISO_639_2_LANGUAGES = (
-    ('eng', 'English',),
-    ('jpn', 'Japanese',),
-    
-    ('ara', 'Arabic',),
-    ('zho', 'Chinese',),
-    ('dan', 'Danish',),
-    ('nld', 'Dutch',),
-    ('epo', 'Esperanto',),
-    ('fra', 'French',),
-    ('deu', 'German',),
-    ('ell', 'Greek',),
-    ('heb', 'Hebrew',),
-    ('hin', 'Hindi',),
-    ('hun', 'Hungarian',),
-    ('isl', 'Icelandic',),
-    ('ind', 'Indonesia',),
-    ('ita', 'Italian',),
-    ('kor', 'Korean',),
-    ('lat', 'Latin',),
-    ('jbo', 'Lojban',),
-    ('mal', 'Malay',),
-    ('nor', 'Norwegian',),
-    ('pol', 'Polish',),
-    ('por', 'Portuguese',),
-    ('ron', 'Romanian',),
-    ('srp', 'Seberian',),
-    ('slv', 'Slovenian',),
-    ('rus', 'Russian',),
-    ('san', 'Sanskrit',),
-    ('spa', 'Spanish',),
-    ('swa', 'Swahili',),
-    ('tgl', 'Tagalog',),
-    ('tha', 'Thai',),
-    ('tur', 'Turkish',),
-    ('ukr', 'Ukranian',),
-    ('urd', 'Urdu',),
-    ('vie', 'Vietnamese',),
-    ('cym', 'Welsh',),
-    ('yid', 'Yiddish',),
-)
-
 
 # used for randomizing new card insertion
 MAX_NEW_CARD_ORDINAL = 10000000
@@ -103,6 +60,6 @@ INTERVAL_FUZZ_MAX = 0.035
 # 3: failed, not due
 
 # Sibling spacing.
-MIN_CARD_SPACE = seconds_to_days(600)
-SPACE_FACTOR = .1
+MIN_CARD_SPACE = seconds_to_days(60*60*8)
+CARD_SPACE_FACTOR = .1 # * interval, used for card spacing if greater than MIN_CARD_SPACE.
 

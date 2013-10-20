@@ -6,7 +6,6 @@ from django.db.models.query import QuerySet
 from model_utils.managers import PassThroughManager
 
 from manabi.apps.utils.templatetags.japanese import strip_ruby_bottom, strip_ruby_text
-from constants import ISO_639_2_LANGUAGES
 
 
 OPTIONAL_CHARACTER_RESTRICTIONS = (
@@ -69,7 +68,10 @@ class FieldType(models.Model):
     help_text = models.CharField(blank=True, max_length=500)
 
     language = models.CharField(
-        max_length=3, choices=ISO_639_2_LANGUAGES, blank=True, null=True)
+        max_length=3, choices=(
+            ('eng', 'English',),
+            ('jpn', 'Japanese',),
+        ), blank=True, null=True)
 
     character_restriction = models.CharField(
         max_length=3, choices=OPTIONAL_CHARACTER_RESTRICTIONS,

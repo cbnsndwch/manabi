@@ -186,7 +186,7 @@ INSTALLED_APPS = (
     'manabi.apps.usertagging', #fork of django-tagging, which is isolated per-user
     'manabi.apps.jdic',
     'kanjivg',
-    'manabi.apps.stats',
+    #'manabi.apps.stats',
     #TODO-OLD 'mobileaccount',
     'manabi.apps.importer',
     #TODO-OLD 'popups',
