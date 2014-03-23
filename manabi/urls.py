@@ -38,7 +38,8 @@ urlpatterns = patterns(
     url(r'^credits/$', direct_to_template,
         {'template': 'credits.html'}, name='credits'),
 
-    url(r'^api/', include('manabi.apps.flashcards.api_urls')),
+    url(r'^api/auth/', include('manabi.apps.manabi_auth.api_urls')),
+    url(r'^api/flashcards/', include('manabi.apps.flashcards.api_urls')),
 
     #url(r'^flashcards/api/', include(rest_api_urlpatterns)),
 

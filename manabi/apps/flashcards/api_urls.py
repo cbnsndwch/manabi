@@ -1,4 +1,3 @@
-from django.conf import settings
 from django.conf.urls import *
 
 from manabi.apps.flashcards import api
@@ -12,5 +11,6 @@ urlpatterns = patterns(
     url(r'^cards/(?P<card>\w+)/review/$', api.CardReview.as_view(), name='api_card_review'),
 
     url(r'^decks/$', api.Decks.as_view(), name='api_decks'),
+    url(r'^shared_decks/$', api.SharedDecks.as_view(), name='api_shared_decks'),
 )
 

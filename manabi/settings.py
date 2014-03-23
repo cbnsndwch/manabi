@@ -90,12 +90,16 @@ MIDDLEWARE_CLASSES = (
     'django.contrib.sessions.middleware.SessionMiddleware',
     'django.middleware.transaction.TransactionMiddleware',
     'django.middleware.csrf.CsrfViewMiddleware',
+
+    'catnap.basic_auth.BasicAuthMiddleware',
     'django.contrib.auth.middleware.AuthenticationMiddleware',
+
     'django.contrib.messages.middleware.MessageMiddleware',
     #'account.middleware.LocaleMiddleware', #Enable when we add more translations.
     #'django.middleware.doc.XViewMiddleware',
     #'pagination.middleware.PaginationMiddleware',
     #'pinax.middleware.security.HideSensistiveFieldsMiddleware',
+    'manabi.apps.utils.middleware.WakeRequestUserMiddleware',
     'catnap.middleware.HttpAcceptMiddleware',
     'catnap.middleware.HttpMethodsFallbackMiddleware',
 )
@@ -297,7 +301,8 @@ AUTHENTICATION_BACKENDS = [
     'lazysignup.backends.LazySignupBackend',
 ]
 
-#LAZYSIGNUP_ENABLE = True
+BASIC_AUTH_REALM = 'manabi'
+
 LAZYSIGNUP_ENABLE = False
 
 SITE_NAME = 'Manabi'

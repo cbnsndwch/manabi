@@ -11,7 +11,7 @@ class CardAdmin(admin.ModelAdmin):
     list_display = ('__unicode__', 'last_due_at', 'due_at', 'last_reviewed_at',)
 
 class FactAdmin(admin.ModelAdmin):
-    raw_id_fields = ('synchronized_with', 'parent_fact',)
+    raw_id_fields = ('synchronized_with',)
     list_display = ('__unicode__', 'owner',)
     list_filter = ('deck',)
     readonly_fields = ('created_at', 'modified_at',)

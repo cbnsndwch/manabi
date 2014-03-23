@@ -1,4 +1,4 @@
-from catnap.exceptions import HttpForbiddenException
+from django.core.exceptions import PermissionDenied
 from django.shortcuts import get_object_or_404
 
 from manabi.apps.flashcards.models import Deck
@@ -16,7 +16,7 @@ def get_deck_or_404(user, pk, must_own=False):
         msg = 'You do not have permission to access this deck.'
         if not must_own:
             msg += ' This deck is not shared.'
-        raise HttpForbiddenException(msg)
+        raise PermissionDenied(msg)
 
     return deck
 

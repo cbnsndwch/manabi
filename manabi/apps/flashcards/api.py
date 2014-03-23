@@ -1,9 +1,8 @@
 from django.core.urlresolvers import reverse
 from django.shortcuts import get_object_or_404
 
-from catnap.restviews import (JsonEmitterMixin, AutoContentTypeMixin,
-                              RestView, ListView, DetailView, DeletionMixin)
-from catnap.auth import BasicAuthentication, DjangoContribAuthentication
+import catnap.permissions
+from catnap.rest_views import ListView, DetailView, DeletionMixin
 
 from manabi.apps.flashcards import models
 from manabi.apps.flashcards.models import Card
@@ -12,16 +11,7 @@ from manabi.apps.flashcards.restresources import UserResource, DeckResource, Car
 from manabi.apps.utils import japanese, query_cleaner
 from manabi.apps.utils.query_cleaner import clean_query
 from manabi.apps.utils.shortcuts import get_deck_or_404
-
-
-class ManabiRestView(JsonEmitterMixin, AutoContentTypeMixin, RestView):
-    '''
-    Our JSON-formatted response base class.
-    '''
-    content_type_template_string = 'application/vnd.org.manabi.{0}+json'
-
-    authenticators = (DjangoContribAuthentication(),
-                      BasicAuthentication(realm='manabi'))
+from manabi.rest import ManabiRestView
 
 
 class CardQueryMixin(object):
@@ -44,18 +34,47 @@ class CardQueryMixin(object):
         return card
 
 
+class AuthenticationStatus(ManabiRestView):
+    '''
+    Returns whether the user is authenticated.
+    '''
+    def get(self, request, **kwargs):
+        return self.render_to_response({
+            'is_authenticated': request.user.is_authenticated(),
+        })
+
 class Decks(ListView, ManabiRestView):
     '''
     List of the logged-in user's decks.
     '''
     resource_class = DeckResource
     context_object_name = 'decks'
+    permissions = catnap.permissions.IsAuthenticated()
 
     def get_queryset(self):
         return models.Deck.objects.filter(owner=self.request.user, active=True).order_by('name')
 
     def get_url(self):
         return reverse('api_decks')
+
+
+class SharedDecks(ListView, ManabiRestView):
+    '''
+    List of decks people have shared.
+    '''
+    resource_class = DeckResource
+    context_object_name = 'decks'
+
+    def get_queryset(self):
+        decks = models.Deck.objects.filter(active=True, shared=True)
+        
+        if self.request.user.is_authenticated():
+            decks = decks.exclude(owner=self.request.user)
+        
+        return decks.order_by('name')
+
+    def get_url(self):
+        return reverse('api_shared_decks')
 
 
 class NextCardsForReview(CardQueryMixin, ManabiRestView):
