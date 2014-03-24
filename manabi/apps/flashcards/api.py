@@ -34,15 +34,6 @@ class CardQueryMixin(object):
         return card
 
 
-class AuthenticationStatus(ManabiRestView):
-    '''
-    Returns whether the user is authenticated.
-    '''
-    def get(self, request, **kwargs):
-        return self.render_to_response({
-            'is_authenticated': request.user.is_authenticated(),
-        })
-
 class Decks(ListView, ManabiRestView):
     '''
     List of the logged-in user's decks.

@@ -1,8 +1,11 @@
 from collections import defaultdict
 
+from catnap.rest_forms import ModelFormViewMixin
 from django.http import HttpResponseBadRequest
 
+from manabi.apps.utils import query_cleaner
 from manabi.apps.manabi_auth.rest_resources import UserResource
+from manabi.apps.manabi_auth.forms import UserCreationForm
 from manabi.rest import ManabiRestView
 
 
@@ -16,23 +19,10 @@ class AuthenticationStatus(ManabiRestView):
         })
 
 
-class User(ManabiRestView):
+class User(ModelFormViewMixin, ManabiRestView):
     '''
     Used for signup.
     '''
     resource_class = UserResource
+    form_class = UserCreationForm
 
-    def post(self, request, **kwargs):
-        if kwargs.get('user'):
-            return HttpResponseBadRequest()
-
-        params = clean_query(request.POST, {
-            'username': unicode,
-            'email': unicode,
-            'password': unicode,
-        })
-
-        errors = defaultdict()
-
-        #if not 
-        
