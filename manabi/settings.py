@@ -276,15 +276,6 @@ ABSOLUTE_URL_OVERRIDES = {
     'auth.user': lambda o: '/profiles/profile/%s/' % o.username,
 }
 
-#MARKUP_FILTER_FALLBACK = 'none'
-#MARKUP_CHOICES = (
-#    ('restructuredtext', u'reStructuredText'),
-#    ('textile', u'Textile'),
-#    ('markdown', u'Markdown'),
-#    ('creole', u'Creole'),
-#)
-#WIKI_MARKUP_CHOICES = MARKUP_CHOICES
-
 #AUTH_PROFILE_MODULE = "profiles.Profile"
 #NOTIFICATION_LANGUAGE_MODULE = 'account.Account'
 
@@ -301,6 +292,7 @@ AUTHENTICATION_BACKENDS = [
     'lazysignup.backends.LazySignupBackend',
 ]
 
+BASIC_AUTH_CHALLENGE = 'Manabi'
 BASIC_AUTH_REALM = 'manabi'
 
 LAZYSIGNUP_ENABLE = False
