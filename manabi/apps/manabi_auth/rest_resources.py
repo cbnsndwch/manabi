@@ -9,4 +9,3 @@ class UserResource(RestModelResource):
         data = super(UserResource, self).get_data()
         data['full_name'] = self.obj.get_full_name()
         return data
-

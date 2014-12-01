@@ -25,4 +25,3 @@ class User(ModelFormViewMixin, ManabiRestView):
     '''
     resource_class = UserResource
     form_class = UserCreationForm
-
