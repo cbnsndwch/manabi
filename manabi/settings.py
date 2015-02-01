@@ -133,7 +133,7 @@ TEMPLATE_CONTEXT_PROCESSORS = (
     #'notification.context_processors.notification',
     #'announcements.context_processors.site_wide_announcements',
 
-    'dojango.context_processors.config',
+    #'dojango.context_processors.config',
     #'manabi.context_processors.site_base_extender',
 )
 
@@ -181,11 +181,11 @@ INSTALLED_APPS = (
     # internal (for now)
     #'profiles',
     #'about',
-  
+
     # my own
     'manabi.apps.flashcards',
     'manabi.apps.books',
-    'dojango',
+    #'dojango',
     'manabi.apps.utils',
     'manabi.apps.usertagging', #fork of django-tagging, which is isolated per-user
     'manabi.apps.jdic',
@@ -312,22 +312,22 @@ FIXTURE_DIRS = (
 )
 
 #dojango
-if LIVE_HOST:
-    DOJANGO_DOJO_PROFILE = 'google'
-    DOJANGO_DOJO_VERSION = '1.6' # was .0
-else:
-    DOJANGO_DOJO_PROFILE = 'local'#'google'
-    DOJANGO_DOJO_VERSION = '1.6'
-    DOJANGO_DOJO_SECURE_JSON = False
-if LIVE_HOST:
-    DOJANGO_DOJO_THEME_URL = 'http://ajax.googleapis.com/ajax/libs/dojo/1.6/dijit/themes'
-    DOJANGO_DOJO_THEME = 'tundra'
-    DOJANGO_BASE_MEDIA_URL = STATIC_URL
-    DOJO_BASE_PATH = './'#STATIC_URL + 'js'
-else:
-    DOJANGO_DOJO_THEME_URL = STATIC_URL + 'css/dojo_themes'
-    DOJANGO_DOJO_THEME = 'tundra'
-    DOJANGO_BASE_MEDIA_URL = STATIC_URL
+#if LIVE_HOST:
+#    DOJANGO_DOJO_PROFILE = 'google'
+#    DOJANGO_DOJO_VERSION = '1.6' # was .0
+#else:
+#    DOJANGO_DOJO_PROFILE = 'local'#'google'
+#    DOJANGO_DOJO_VERSION = '1.6'
+#    DOJANGO_DOJO_SECURE_JSON = False
+#if LIVE_HOST:
+#    DOJANGO_DOJO_THEME_URL = 'http://ajax.googleapis.com/ajax/libs/dojo/1.6/dijit/themes'
+#    DOJANGO_DOJO_THEME = 'tundra'
+#    DOJANGO_BASE_MEDIA_URL = STATIC_URL
+#    DOJO_BASE_PATH = './'#STATIC_URL + 'js'
+#else:
+#    DOJANGO_DOJO_THEME_URL = STATIC_URL + 'css/dojo_themes'
+#    DOJANGO_DOJO_THEME = 'tundra'
+#    DOJANGO_BASE_MEDIA_URL = STATIC_URL
 
 
 # JDic audio server root URL - the directory containing the mp3s.
@@ -345,7 +345,7 @@ KANJI_SVGS_PATH = os.path.join(_kanjivg_static_path, 'svgs')
 
 
 START_OF_DAY = 5 # hour of day most likely to be while the user is asleep, localized
- 
+
 MECAB_ENCODING = 'utf8'
 
 

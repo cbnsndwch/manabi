@@ -16,7 +16,7 @@ urlpatterns = patterns(
     '',
     # Use our customized form
     #TODO-OLD url(r'^account/signup/$', 'account.views.signup',
-    #    name="acct_signup", kwargs={'form_class': SignupForm}), 
+    #    name="acct_signup", kwargs={'form_class': SignupForm}),
 
     url(r'convert/', include('lazysignup.urls')),
 
@@ -51,8 +51,8 @@ urlpatterns = patterns(
 
     url(r'^home/$', 'views.home', name='home_inline'),
 
-    (r'^dojango/', include('dojango.urls')),
-    
+    #(r'^dojango/', include('dojango.urls')),
+
     #url(r'^admin/invite_user/$', 'signup_codes.views.admin_invite_user',
         #name="admin_invite_user"),
 
@@ -60,7 +60,7 @@ urlpatterns = patterns(
     #url(r'^profiles/', include('idios.urls')),
 
     (r'^about/', include('manabi.apps.about.urls')),
-    
+
     # my own
     #(r'^reports/', include('reports.urls')),
 
@@ -80,7 +80,7 @@ urlpatterns = patterns(
 #    from django.contrib.staticfiles.urls import staticfiles_urlpatterns
 #    urlpatterns += staticfiles_urlpatterns()
 
-#    #urlpatterns += patterns('', 
+#    #urlpatterns += patterns('',
 #    #    #(r'^site_media/', include('staticfiles.urls')),
 #    #    url(r'', include('staticfiles.urls')),
 #    #)
