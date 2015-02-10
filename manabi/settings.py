@@ -30,9 +30,25 @@ MANAGERS = ADMINS
 
 import logging
 if DEBUG:
-    logging.basicConfig(
-        level=logging.ERROR,
-        format='%(asctime)s %(levelname)s %(message)s')
+    LOGGING = {
+        'version': 1,
+        'handlers': {
+            'console': {
+                'level': 'DEBUG',
+                'class': 'logging.StreamHandler',
+            },
+        },
+        'loggers': {
+            'django.request': {
+                'handlers': ['console'],
+                'propagate': True,
+                'level': 'DEBUG',
+            }
+        },
+    }
+    #logging.basicConfig(
+    #    level=logging.ERROR,
+    #    format='%(asctime)s %(levelname)s %(message)s')
 else:
     logging.basicConfig(
         level=logging.ERROR,
@@ -146,6 +162,14 @@ INSTALLED_APPS = (
     'django.contrib.sites',
     'django.contrib.messages',
     'django.contrib.humanize',
+)
+
+if DEBUG:
+    INSTALLED_APPS += (
+        'devserver',
+    )
+
+INSTALLED_APPS += (
     'django.contrib.staticfiles',
 
     # external
@@ -200,11 +224,6 @@ INSTALLED_APPS = (
 )
 
 
-if DEBUG:
-    INSTALLED_APPS += (
-        #'debug_toolbar',
-        #'devserver',
-    )
 
 TEST_RUNNER = 'django_nose.NoseTestSuiteRunner'
 NOSE_PLUGINS = [
