@@ -196,7 +196,7 @@ INSTALLED_APPS += (
 
     # Other
     #'template_repl',
-    'south',
+    #'south',
     'django_nose', # Must come after south.
     'lazysignup',
     'catnap',
