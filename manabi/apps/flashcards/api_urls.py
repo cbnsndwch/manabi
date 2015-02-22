@@ -11,6 +11,8 @@ urlpatterns = patterns(
     url(r'^cards/(?P<card>\w+)/review/$', api.CardReview.as_view(), name='api_card_review'),
 
     url(r'^decks/$', api.Decks.as_view(), name='api_decks'),
+    url(r'^decks/(?P<deck>\w+)/cards/$', api.DeckCards.as_view(), name='api_deck_cards'),
+
     url(r'^shared_decks/$', api.SharedDecks.as_view(), name='api_shared_decks'),
 )
 

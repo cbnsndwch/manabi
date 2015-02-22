@@ -1,4 +1,3 @@
-
 from django.core.management.base import BaseCommand
 
 from manabi.apps.flashcards.models.constants import (
@@ -8,7 +7,7 @@ from manabi.apps.flashcards.models.constants import (
     MATURE_INTERVAL_MIN, GRADE_EASY_BONUS_FACTOR,
     DEFAULT_EASE_FACTOR, INTERVAL_FUZZ_MAX,
     ALL_GRADES, GRADE_NAMES)
-from manabi.apps.flashcards.models import (FactType, Fact, Deck, CardTemplate, Card)
+from manabi.apps.flashcards.models import Card
 from manabi.apps.manabi_redis.models import redis
 
 

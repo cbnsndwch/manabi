@@ -11,7 +11,7 @@ DATABASES = {
 
 REDIS = {
     'host': 'localhost',
-    'port': 6378,
+    'port': 6379,
     'db'  : 0,
 }
 

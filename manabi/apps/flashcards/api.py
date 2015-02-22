@@ -16,10 +16,16 @@ from manabi.rest import ManabiRestView
 
 class CardQueryMixin(object):
     def get_deck(self):
-        if 'deck' not in self.request.REQUEST:
+        if 'deck' not in self.request.REQUEST and 'deck' not in self.kwargs:
             return
 
-        return get_object_or_404(models.Deck, pk=self.request.GET['deck'])
+        deck_id = self.kwargs.get('deck') or self.request.REQUEST.get('deck')
+        deck = get_object_or_404(models.Deck, pk=deck_id)
+
+        if not deck.shared or deck.owner != self.request.user:
+            raise PermissionDenied('You do not own this deck.')
+
+        return deck
 
     def get_card(self):
         if 'card' not in self.request.REQUEST and 'card' not in self.kwargs:
@@ -58,19 +64,31 @@ class SharedDecks(ListView, ManabiRestView):
 
     def get_queryset(self):
         decks = models.Deck.objects.filter(active=True, shared=True)
-        
+
         if self.request.user.is_authenticated():
             decks = decks.exclude(owner=self.request.user)
-        
+
         return decks.order_by('name')
 
     def get_url(self):
         return reverse('api_shared_decks')
 
 
+class DeckCards(CardQueryMixin, ListView, ManabiRestView):
+    '''
+    List of cards in a deck.
+    '''
+    resource_class = CardResource
+    context_object_name = 'cards'
+
+    def get_queryset(self):
+        deck = self.get_deck()
+        cards = models.Card.objects.of_deck(deck, with_upstream=True)
+
+
 class NextCardsForReview(CardQueryMixin, ManabiRestView):
     '''
-    Returns a list of Card resources -- the next cards up for review.  
+    Returns a list of Card resources -- the next cards up for review.
     Accepts some query parameters for filtering and influencing what
     cards will be selected.
     '''
@@ -78,7 +96,7 @@ class NextCardsForReview(CardQueryMixin, ManabiRestView):
         'count': int,
         'early_review': bool,
         'learn_more': bool,
-        'session_start': bool, # Beginning of review session?
+        'session_start': bool,  # Beginning of review session?
         'excluded_cards': query_cleaner.int_list,
     }
 
@@ -97,7 +115,7 @@ class NextCardsForReview(CardQueryMixin, ManabiRestView):
             learn_more=params.get('learn_more'),
         )
 
-        #FIXME need to account for 0 cards returned 
+        #FIXME need to account for 0 cards returned
 
         # Assemble a list of the cards to be serialized.
         return self.render_to_response({
@@ -115,7 +133,7 @@ class CardReview(CardQueryMixin, ManabiRestView):
         return self.get_card()
 
     def post(self, request, **kwargs):
-        # `duration` is in seconds (the time taken from viewing the card 
+        # `duration` is in seconds (the time taken from viewing the card
         # to clicking Show Answer).
         params = clean_query(request.POST, {
             'grade': int,
