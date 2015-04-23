@@ -27,7 +27,7 @@ class SchedulerMixin(object):
             due_at__lte=review_time)
         cards = cards.order_by('due_at')
 
-        return cards[:count] 
+        return cards[:count]
 
     def _next_not_failed_due_cards(self, user, initial_query, count, review_time, buried_facts,
                                    **kwargs):
@@ -35,7 +35,7 @@ class SchedulerMixin(object):
         Returns the first [count] cards from initial_query which are due,
         weren't failed the last review, and  taking spacing of cards from
         the same fact into account.
-        
+
         review_time should be datetime.datetime.utcnow()
         '''
         if not count:
@@ -70,7 +70,7 @@ class SchedulerMixin(object):
         # Don't space/bury these (Or should we?)
         cards = initial_query.filter(last_review_grade=GRADE_NONE, due_at__gt=review_time)
         cards = cards.exclude(fact__in=buried_facts)
-        cards = cards.order_by('due_at') 
+        cards = cards.order_by('due_at')
 
         return cards[:count]
 
@@ -105,7 +105,7 @@ class SchedulerMixin(object):
             cards.extend(list(buried_cards[:count - len(cards)]))
 
         return cards
-        
+
     def _next_due_soon_cards(self, user, initial_query, count, review_time, buried_facts,
                              **kwargs):
         '''
@@ -171,7 +171,7 @@ class SchedulerMixin(object):
         '''
         Returns `count` cards to be reviewed, in order.
         count should not be any more than a short session of cards
-        set `early_review` to True for reviewing cards early 
+        set `early_review` to True for reviewing cards early
         (following any due cards)
 
         If learn_more is True, only new cards will be chosen,
@@ -184,7 +184,7 @@ class SchedulerMixin(object):
         '''
         from manabi.apps.flashcards.models.facts import Fact
 
-        #TODO-OLD somehow spread some new cards into the early review 
+        #TODO-OLD somehow spread some new cards into the early review
         # cards if early_review==True
         #TODO-OLD use args instead, like *kwargs etc for these funcs
         now = datetime.datetime.utcnow()
@@ -214,7 +214,7 @@ class SchedulerMixin(object):
                 card_queries.append(cards)
 
         #TODO-OLD decide what to do with this #if session_start:
-        #FIXME add new cards into the mix when there's a defined 
+        #FIXME add new cards into the mix when there's a defined
         # new card per day limit
         #for now, we'll add new ones to the end
         return chain(*card_queries)
@@ -224,7 +224,7 @@ class CommonFiltersMixin(object):
     '''
     Provides filters for decks, maturity level, etc.
 
-    This is particularly useful with view URLs which take query params for 
+    This is particularly useful with view URLs which take query params for
     these things.
     '''
     def available(self):
@@ -265,7 +265,7 @@ class CommonFiltersMixin(object):
     def new(self, user):
         return self.filter(
                 last_reviewed_at__isnull=True).without_upstream(user)
-    
+
     def new_count(self, user):
         '''
         Use this rather than `new(user).count()`, since this will
@@ -289,7 +289,7 @@ class CommonFiltersMixin(object):
 
     def unspaced_new_count(self, user):
         '''
-        Same as `new_count`, except it subtracts new cards that 
+        Same as `new_count`, except it subtracts new cards that
         will be delayed due to sibling spacing (cards which haven't
         been spaced.)
 
@@ -343,7 +343,7 @@ class CommonFiltersMixin(object):
 
     def count_of_cards_due_tomorrow(self, user):
         '''
-        Returns the number of cards due by tomorrow at the same time 
+        Returns the number of cards due by tomorrow at the same time
         as now. Doesn't take future spacing into account though, so it's
         a somewhat rough estimate.
 
@@ -393,7 +393,7 @@ class CardStatsMixin(object):
 
     def with_due_dates(self):
         '''
-        Adds a `due_on` DateField-like value. Same as `due_at` minus its 
+        Adds a `due_on` DateField-like value. Same as `due_at` minus its
         time information -- so just the day.
         '''
         return self.extra(select={'due_on': 'date(due_at)'})

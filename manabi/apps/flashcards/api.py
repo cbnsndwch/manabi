@@ -1,3 +1,4 @@
+from django.core.exceptions import PermissionDenied
 from django.core.urlresolvers import reverse
 from django.shortcuts import get_object_or_404
 
@@ -7,7 +8,12 @@ from catnap.rest_views import ListView, DetailView, DeletionMixin
 from manabi.apps.flashcards import models
 from manabi.apps.flashcards.models import Card
 from manabi.apps.flashcards.models.undo import UndoCardReview
-from manabi.apps.flashcards.restresources import UserResource, DeckResource, CardResource
+from manabi.apps.flashcards.restresources import (
+    UserResource,
+    DeckResource,
+    CardResource,
+    FactResource,
+)
 from manabi.apps.utils import japanese, query_cleaner
 from manabi.apps.utils.query_cleaner import clean_query
 from manabi.apps.utils.shortcuts import get_deck_or_404
@@ -22,7 +28,7 @@ class CardQueryMixin(object):
         deck_id = self.kwargs.get('deck') or self.request.REQUEST.get('deck')
         deck = get_object_or_404(models.Deck, pk=deck_id)
 
-        if not deck.shared or deck.owner != self.request.user:
+        if not deck.shared and deck.owner.id != self.request.user.id:
             raise PermissionDenied('You do not own this deck.')
 
         return deck
@@ -34,7 +40,7 @@ class CardQueryMixin(object):
         card_id = self.kwargs.get('card') or self.request.REQUEST.get('card')
         card = get_object_or_404(models.Card, pk=card_id)
 
-        if card.owner != self.request.user:
+        if card.owner.id != self.request.user.id:
             raise PermissionDenied('You do not own this flashcard.')
 
         return card
@@ -74,6 +80,19 @@ class SharedDecks(ListView, ManabiRestView):
         return reverse('api_shared_decks')
 
 
+class DeckFacts(CardQueryMixin, ListView, ManabiRestView):
+    '''
+    List of facts in a deck.
+    '''
+    resource_class = FactResource
+    context_object_name = 'facts'
+
+    def get_queryset(self):
+        deck = self.get_deck()
+        facts = models.Fact.objects.deck_facts(deck)
+        return facts
+
+
 class DeckCards(CardQueryMixin, ListView, ManabiRestView):
     '''
     List of cards in a deck.
@@ -84,6 +103,7 @@ class DeckCards(CardQueryMixin, ListView, ManabiRestView):
     def get_queryset(self):
         deck = self.get_deck()
         cards = models.Card.objects.of_deck(deck, with_upstream=True)
+        return cards
 
 
 class NextCardsForReview(CardQueryMixin, ManabiRestView):
@@ -148,4 +168,3 @@ class CardReview(CardQueryMixin, ManabiRestView):
                     question_duration=params.get('question_duration'))
 
         return self.responses.no_content()
-

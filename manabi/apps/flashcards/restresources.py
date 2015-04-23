@@ -29,6 +29,41 @@ class DeckResource(RestModelResource):
         return data
 
 
+class FactResource(RestModelResource):
+    fields = [
+        'id',
+        'deck_id',
+
+        'active',
+
+        'expression',
+        'reading',
+        'meaning',
+
+        'created_at',
+        'modified_at',
+    ]
+
+    def get_url_path(self):
+        return ''  # TODO return reverse('api_fact', args=[self.obj.id])
+
+    def get_data(self):
+        data = super(FactResource, self).get_data()
+
+        data.update({
+            'card_count': self.obj.card_set.filter(active=True).count(),
+        })
+
+        if self.obj.pulls_from_upstream:
+            data.update({
+                'expression': self.obj.synchronized_with.expression,
+                'reading': self.obj.synchronized_with.reading,
+                'meaning': self.obj.synchronized_with.meaning,
+            })
+
+        return data
+
+
 class CardReviewsResource(RestResource):
     def __init__(self, card):
         self.card = card
@@ -40,6 +75,7 @@ class CardReviewsResource(RestResource):
 class CardResource(RestModelResource):
     fields = [
         'id',
+        'deck_id',
         'fact_id',
         'ease_factor',
         'interval',
@@ -48,6 +84,7 @@ class CardResource(RestModelResource):
         'last_interval',
         'last_due_at',
         'review_count',
+        'template',
     ]
 
     def get_url_path(self):
@@ -56,12 +93,17 @@ class CardResource(RestModelResource):
     def get_data(self):
         data = super(CardResource, self).get_data()
 
+        fact = self.obj.fact
+
         data.update({
-            'reviews_url': CardReviewsResource(self).get_url(),
-            'next_due_at_per_grade': dict((grade, rep.due_at)
-                                          for (grade, rep)
-                                          in self.obj.next_repetition_per_grade().items()),
+            #'reviews_url': CardReviewsResource(self).get_url(),
+            #'next_due_at_per_grade': dict((grade, rep.due_at)
+            #                              for (grade, rep)
+            #                              in self.obj.next_repetition_per_grade().items()),
+
+            'expression': fact.expression,
+            'reading': fact.reading,
+            'meaning': fact.meaning,
         })
 
         return data
-

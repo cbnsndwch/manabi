@@ -36,7 +36,7 @@ class Card(models.Model):
 
     template = models.SmallIntegerField(choices=CARD_TEMPLATE_CHOICES, blank=False)
 
-    # False when the card is removed from the Fact. This way, we can keep 
+    # False when the card is removed from the Fact. This way, we can keep
     # card statistics if enabled later.
     active = models.BooleanField(default=True, db_index=True)
 
@@ -52,11 +52,11 @@ class Card(models.Model):
     last_failed_at = models.DateTimeField(null=True, blank=True)
 
     #TODO-OLD use this for is_new
-    review_count = models.PositiveIntegerField(default=0, editable=False) 
+    review_count = models.PositiveIntegerField(default=0, editable=False)
 
     new_card_ordinal = models.PositiveIntegerField(null=True, blank=True)
-    
-    suspended = models.BooleanField(default=False, db_index=True) 
+
+    suspended = models.BooleanField(default=False, db_index=True)
 
 
     ######################
@@ -64,12 +64,12 @@ class Card(models.Model):
 
     #TODELETE
     legacy_template = models.ForeignKey(CardTemplate, blank=True, null=True, db_index=False)
-    
+
     leech = models.BooleanField(default=False) #TODO-OLD add leech handling
-    
+
 
     #for owner cards, part of synchronized decks, not used yet
-    #synchronized_with = models.ForeignKey('self', null=True, blank=True) 
+    #synchronized_with = models.ForeignKey('self', null=True, blank=True)
 
     class Meta:
         #TODO-OLD unique_together = (('fact', 'template'), )
@@ -179,7 +179,7 @@ class Card(models.Model):
     @cached_function(namespace=deck_review_stats_namespace)
     def average_question_duration(self):
         '''
-        Returns the average duration spent looking at the question side of 
+        Returns the average duration spent looking at the question side of
         this card before viewing the answer (in seconds, floating point).
         '''
         return self.cardhistory_set.aggregate(
@@ -195,7 +195,7 @@ class Card(models.Model):
 
     def calculated_interval(self):
         '''
-        The `interval` property of a card doesn't necessarily decide the 
+        The `interval` property of a card doesn't necessarily decide the
         time between the review and the due date - it's used as a basis
         for calculating the due date, but other factors may apply.
 
@@ -208,10 +208,10 @@ class Card(models.Model):
     def sibling_spacing(self):
         '''
         Calculate the minimum space between this card and its siblings
-        that should be enforced (not necessarily actual, 
+        that should be enforced (not necessarily actual,
         if the user chooses to review early).
 
-        The space is `space_factor` times this card's interval, 
+        The space is `space_factor` times this card's interval,
         or `min_card_space` at minimum.
 
         Returns a timedelta.
@@ -222,7 +222,7 @@ class Card(models.Model):
         space_factor  = self.fact.fact_type.space_factor
         min_card_space = self.fact.fact_type.min_card_space
 
-        min_space = max(min_card_space, 
+        min_space = max(min_card_space,
                         space_factor * (self.interval or 0))
 
         return timedelta(days=min_space)
@@ -231,8 +231,8 @@ class Card(models.Model):
         '''
         This card's due date becomes `duration` (a timedelta) days from
         now, or from its due date if not yet due.
-        
-        This is for when this card is due at the same time as a sibling 
+
+        This is for when this card is due at the same time as a sibling
         card (a card from the same fact).
         '''
         now = datetime.utcnow()
@@ -257,12 +257,12 @@ class Card(models.Model):
         '''
         Updates this card's stats. Call this for each review,
         before applying the new review. After applying the new review,
-        some other CardHistory fields can be filled in. The reason we do 
-        this in 2 parts is that our undo system needs to know about this 
-        object, but it creates the undo object before the card object gets 
+        some other CardHistory fields can be filled in. The reason we do
+        this in 2 parts is that our undo system needs to know about this
+        object, but it creates the undo object before the card object gets
         updated with the new review stats, so that we can rollback to it.
 
-        See the `self.review` docstring for info on `duration` 
+        See the `self.review` docstring for info on `duration`
         and `question_duration`.
         '''
         from cardhistory import CardHistory
@@ -299,12 +299,12 @@ class Card(models.Model):
         '''
         Commits a review rated with `grade`.
 
-        `question_duration` is an optional parameter which contains the 
-        time (in seconds, floating point) that the user spent looking at the 
-        question/front side of the card, before hitting "Show Answer" to 
+        `question_duration` is an optional parameter which contains the
+        time (in seconds, floating point) that the user spent looking at the
+        question/front side of the card, before hitting "Show Answer" to
         see the back. It is in effect the time spent thinking of the answer.
 
-        `duration` is the same, but for each entire duration of viewing 
+        `duration` is the same, but for each entire duration of viewing
         this card (so, the time taken for the front and back of the card.)
         '''
         from manabi.apps.flashcards.signals import pre_card_reviewed, post_card_reviewed

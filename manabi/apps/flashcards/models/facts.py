@@ -21,17 +21,26 @@ from manabi.apps.flashcards.models.constants import GRADE_NONE, MIN_CARD_SPACE, 
 
 
 
-#TODO-OLD 
+#TODO-OLD
 # separate the cards of this fact initially
 # not used for child fact types (?)
 #min_card_space = models.FloatField(default=seconds_to_days(600),
 #        help_text='Duration expressed in (partial) days.')
 #TODO-OLD
 # minimal interval multiplier between two cards of the same fact
-#space_factor = models.FloatField(default=.1) 
+#space_factor = models.FloatField(default=.1)
 
 
 class FactQuerySet(QuerySet):
+    def deck_facts(self, deck):
+        '''
+        Purposed for the API. Deduplicates downstream facts.
+        '''
+        facts = self.with_upstream(user=deck.owner, deck=deck)
+        facts = facts.exclude(id__in=facts.exclude(synchronized_with__isnull=True).values_list('synchronized_with_id', flat=True))
+        return facts
+
+
     def with_upstream(self, user=None, deck=None):
         if deck is not None and user is not None and deck.owner != user:
             raise ValueError("Provided contradictory deck and user.")
@@ -57,7 +66,7 @@ class FactQuerySet(QuerySet):
         return self.filter(
             Q(card__deck__owner=user) & (
                 # Sibling is due.
-                Q(card__due_at__lt=review_time) | 
+                Q(card__due_at__lt=review_time) |
                 # Sibling was reviewed too recently.
                 Q(card__last_reviewed_at__gte=(review_time
                                                - timedelta(days=max(MIN_CARD_SPACE,
@@ -94,7 +103,7 @@ class FactQuerySet(QuerySet):
         match_ids = matches.values_list('fact', flat=True)
         return query_set.filter(Q(id__in=match_ids) |
                                 Q(synchronized_with__in=match_ids))
-        #return query_set.filter(id__in=set(field_content.fact_id 
+        #return query_set.filter(id__in=set(field_content.fact_id
         #for field_content in matches))
 
     #TODELETE, legacy.
@@ -102,7 +111,7 @@ class FactQuerySet(QuerySet):
         '''
         Returns a Fact object of the given id,
         or if the user is a subscriber to the deck of that fact,
-        returns the subscriber's copy of that fact, which it 
+        returns the subscriber's copy of that fact, which it
         creates if necessary.
         It will also create the associated cards.
         '''
@@ -137,7 +146,7 @@ class FactQuerySet(QuerySet):
         new_shared_facts = new_shared_facts.order_by('new_fact_ordinal')
         new_shared_facts = new_shared_facts[:count]
         #FIXME handle 0 ret
-        
+
         # copy each fact
         for shared_fact in new_shared_facts:
             shared_fact.copy_to_deck(deck, synchronize=True)
@@ -183,6 +192,11 @@ class Fact(models.Model):
         return self.deck.owner
 
     @property
+    def pulls_from_upstream(self):
+        return (not any([self.expression, self.reading, self.meaning]) and
+                self.synchronized_with_id is not None)
+
+    @property
     def field_contents(self):
         '''
         Returns a queryset of field contents for this fact.
@@ -197,7 +211,7 @@ class Fact(models.Model):
         if self.synchronized_with:
             # first see if the user has updated this fact's contents.
             # this would override the synced fact's.
-            #TODO-OLD only override on a per-field basis when the 
+            #TODO-OLD only override on a per-field basis when the
             #user updates field contents
             if not field_contents:
                 field_contents = self.synchronized_with.fieldcontent_set.all().order_by('field_type__ordinal')
@@ -214,7 +228,7 @@ class Fact(models.Model):
             card.suspended = True
             card.save()
             fact_suspended.send(sender=self, instance=self)
-        
+
     def unsuspend(self):
         for card in self.card_set.all():
             card.suspended = False
@@ -337,10 +351,10 @@ usertagging.register(Fact)
 class FactTypeQuerySet(QuerySet):
     @property
     def japanese(self):
-        # Unfortunately hard-coded for now, since we only have 2 types, and 
+        # Unfortunately hard-coded for now, since we only have 2 types, and
         # this is a relic of an old abandoned design that should be refactored.
         return self.get(id=1)
-    
+
     def example_sentences(self):
         return self.get(id=2)
 
@@ -360,16 +374,16 @@ class FactType(models.Model):
 
     #TODELETE
     # minimal interval multiplier between two cards of the same fact
-    space_factor = models.FloatField(default=.1) 
-    
+    space_factor = models.FloatField(default=.1)
+
     created_at = models.DateTimeField(auto_now_add=True, editable=False)
     modified_at = models.DateTimeField(auto_now=True, editable=False)
-    
+
     def __unicode__(self):
         if self.parent_fact_type:
             return self.parent_fact_type.name + ' - ' + self.name
         return self.name
-    
+
     class Meta:
         app_label = 'flashcards'
 

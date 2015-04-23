@@ -7,7 +7,7 @@ from model_utils.managers import PassThroughManager
 
 
 class CardTemplateQuerySet(QuerySet):
-    # Unfortunately hard-coded for now, since we have a ton of 
+    # Unfortunately hard-coded for now, since we have a ton of
     # extensability built into the system, but very little usage of it.
     @property
     def recognition(self):
@@ -26,6 +26,7 @@ class CardTemplateQuerySet(QuerySet):
         return self.get(name='Kanji Writing')
 
 
+# TODO delete
 class CardTemplate(models.Model):
     objects = PassThroughManager.for_queryset_class(CardTemplateQuerySet)()
 
@@ -48,7 +49,7 @@ class CardTemplate(models.Model):
     #can show validation errors to the user based on this (e.g. "Enter a reading if you want to do kanji writing")
     requisite_field_types = models.ManyToManyField('flashcards.FieldType',
         blank=True) #TODO-OLD implement
-    
+
     #sometimes multiple cards should share intervals if they're similar enough.
     #use this group ID (not a foreignkey though) to synchronize among other cards within a fact.
     #this group is per fact type.
@@ -62,10 +63,10 @@ class CardTemplate(models.Model):
 
     created_at = models.DateTimeField(auto_now_add=True, editable=False)
     modified_at = models.DateTimeField(auto_now=True, editable=False)
-    
+
     def __unicode__(self):
         return self.name
-    
+
     class Meta:
         app_label = 'flashcards'
         unique_together = (('name', 'fact_type'), ('ordinal', 'fact_type'), )
