@@ -100,11 +100,12 @@ else:
 
 MIDDLEWARE_CLASSES = (
     'django.middleware.gzip.GZipMiddleware',
-
+    'django.middleware.http.ConditionalGetMiddleware',
     'django.middleware.common.CommonMiddleware',
+
     'catnap.middleware.HttpExceptionMiddleware',
+
     'django.contrib.sessions.middleware.SessionMiddleware',
-    'django.middleware.transaction.TransactionMiddleware',
     'django.middleware.csrf.CsrfViewMiddleware',
 
     'catnap.basic_auth.BasicAuthMiddleware',
@@ -119,6 +120,12 @@ MIDDLEWARE_CLASSES = (
     'catnap.middleware.HttpAcceptMiddleware',
     'catnap.middleware.HttpMethodsFallbackMiddleware',
 )
+
+
+# Potentially too slow at scale, but we used to have this via
+# TransactionMiddleware.
+ATOMIC_REQUESTS = True
+
 
 if DEBUG:
     MIDDLEWARE_CLASSES += (

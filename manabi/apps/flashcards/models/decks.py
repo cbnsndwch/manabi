@@ -6,7 +6,6 @@ from django.core.urlresolvers import reverse
 from django.db import models
 from django.db import transaction
 from django.db.models.query import QuerySet
-from model_utils.managers import PassThroughManager
 
 from manabi.apps.manabi_redis.models import redis
 from manabi.apps.books.models import Textbook
@@ -28,7 +27,7 @@ class DeckQuerySet(QuerySet):
 
 
 class Deck(models.Model):
-    objects = PassThroughManager.for_queryset_class(DeckQuerySet)()
+    objects = DeckQuerySet.as_manager()
 
     name = models.CharField(max_length=100)
     description = models.TextField(max_length=2000, blank=True)

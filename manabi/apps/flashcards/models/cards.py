@@ -15,7 +15,6 @@ from manabi.apps.flashcards.cachenamespaces import (deck_review_stats_namespace,
 from manabi.apps.flashcards.models.cardmanager import CardQuerySet
 from repetitionscheduler import repetition_algo_dispatcher
 from undo import UndoCardReview
-from model_utils.managers import PassThroughManager
 
 
 PRODUCTION, RECOGNITION, KANJI_READING, KANJI_WRITING = range(4)
@@ -29,7 +28,7 @@ CARD_TEMPLATE_CHOICES = (
 
 
 class Card(models.Model):
-    objects = PassThroughManager.for_queryset_class(CardQuerySet)()
+    objects = CardQuerySet.as_manager()
 
     deck = models.ForeignKey('flashcards.Deck', null=False, db_index=True)
     fact = models.ForeignKey('flashcards.Fact', db_index=True)
@@ -41,10 +40,10 @@ class Card(models.Model):
     active = models.BooleanField(default=True, db_index=True)
 
     ease_factor = models.FloatField(null=True, blank=True)
-    interval = models.FloatField(null=True, blank=True, db_index=True) #days
+    interval = models.DurationField(null=True, blank=True, db_index=True)
     due_at = models.DateTimeField(null=True, blank=True, db_index=True)
     last_ease_factor = models.FloatField(null=True, blank=True)
-    last_interval = models.FloatField(null=True, blank=True)
+    last_interval = models.DurationField(null=True, blank=True)
     last_due_at = models.DateTimeField(null=True, blank=True)
 
     last_reviewed_at = models.DateTimeField(null=True, blank=True)

@@ -6,7 +6,6 @@ from django.db.models.query import QuerySet
 from django.contrib.auth.models import User
 from django.db import models, transaction
 from django.db.models import Q, F
-from model_utils.managers import PassThroughManager
 
 from constants import MAX_NEW_CARD_ORDINAL
 from fields import FieldContent
@@ -56,7 +55,9 @@ class FactQuerySet(QuerySet):
         )
 
     def buried(self, user, review_time=None, excluded_card_ids=[]):
-        ''' Facts with cards buried due to siblings. '''
+        '''
+        Facts with cards buried due to siblings.
+        '''
         if review_time is None:
             review_time = datetime.datetime.utcnow()
 
@@ -78,7 +79,8 @@ class FactQuerySet(QuerySet):
 
     #TODO-OLD
     def search(self, fact_type, query, query_set=None):
-        '''Returns facts which have FieldContents containing the query.
+        '''
+        Returns facts which have FieldContents containing the query.
         `query` is a substring to match on
         '''
         #TODO-OLD or is in_bulk() faster?
@@ -153,7 +155,7 @@ class FactQuerySet(QuerySet):
 
 
 class Fact(models.Model):
-    objects = PassThroughManager.for_queryset_class(FactQuerySet)()
+    objects = FactQuerySet.as_manager()
 
     deck = models.ForeignKey('flashcards.Deck', blank=True, null=True, db_index=True)
 
@@ -359,7 +361,7 @@ class FactTypeQuerySet(QuerySet):
 
 #TODELETE
 class FactType(models.Model):
-    objects = PassThroughManager.for_queryset_class(FactTypeQuerySet)()
+    objects = FactTypeQuerySet.as_manager()
 
     name = models.CharField(max_length=50)
     active = models.BooleanField(default=True, blank=True)

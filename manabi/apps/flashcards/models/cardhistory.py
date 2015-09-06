@@ -1,7 +1,6 @@
 from django.db.models.query import QuerySet
 from django.db import models
 from django.db.models import Count, Min, Max, Sum, Avg
-from model_utils.managers import PassThroughManager
 
 from manabi.apps.utils.time_utils import start_and_end_of_day
 from constants import MATURE_INTERVAL_MIN
@@ -68,7 +67,7 @@ class CardHistoryQuerySet(CardHistoryManagerMixin, CardHistoryStatsMixin, QueryS
 
 
 class CardHistory(models.Model):
-    objects = PassThroughManager.for_queryset_class(CardHistoryQuerySet)()
+    objects = CardHistoryQuerySet.as_manager()
 
     card = models.ForeignKey('Card')
 

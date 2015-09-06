@@ -5,7 +5,6 @@ from itertools import chain
 from django.db import models
 from django.db.models.query import QuerySet
 from django.db.models import Q, F, Avg, Max, Min, Count
-from model_utils.managers import PassThroughManager
 
 from manabi.apps.manabi_redis.models import redis
 from manabi.apps.flashcards.models.constants import GRADE_NONE, MATURE_INTERVAL_MIN
@@ -388,6 +387,7 @@ class CommonFiltersMixin(object):
         #new_cards_count = self.new_cards(user, deck).exclude(fact__in=facts).count()
         #return new_cards_count
 
+
 class CardStatsMixin(object):
     '''Stats data methods, primarily used for graphs and things.'''
 
@@ -418,4 +418,3 @@ class CardStatsMixin(object):
 
 class CardQuerySet(CommonFiltersMixin, SchedulerMixin, CardStatsMixin, QuerySet):
     pass
-

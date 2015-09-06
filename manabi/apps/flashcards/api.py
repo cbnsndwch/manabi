@@ -22,10 +22,17 @@ from manabi.rest import ManabiRestView
 
 class CardQueryMixin(object):
     def get_deck(self):
-        if 'deck' not in self.request.REQUEST and 'deck' not in self.kwargs:
+        if (
+            'deck' not in self.request.GET and
+            'deck' not in self.request.POST and
+            'deck' not in self.kwargs
+        ):
             return
 
-        deck_id = self.kwargs.get('deck') or self.request.REQUEST.get('deck')
+        deck_id = (
+            self.kwargs.get('deck') or
+            self.request.GET.get('deck') or
+            self.request.POST.get('deck'))
         deck = get_object_or_404(models.Deck, pk=deck_id)
 
         if not deck.shared and deck.owner.id != self.request.user.id:
@@ -34,10 +41,17 @@ class CardQueryMixin(object):
         return deck
 
     def get_card(self):
-        if 'card' not in self.request.REQUEST and 'card' not in self.kwargs:
+        if (
+            'card' not in self.request.GET and
+            'card' not in self.request.POST and
+            'card' not in self.kwargs
+        ):
             return
 
-        card_id = self.kwargs.get('card') or self.request.REQUEST.get('card')
+        card_id = (
+            self.kwargs.get('card') or
+            self.request.GET.get('card') or
+            self.request.POST.get('card'))
         card = get_object_or_404(models.Card, pk=card_id)
 
         if card.owner.id != self.request.user.id:

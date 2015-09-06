@@ -1,6 +1,5 @@
 from django.db import models
 from django.db.models.query import QuerySet
-from model_utils.managers import PassThroughManager
 
 
 class CardTemplateQuerySet(QuerySet):
@@ -25,7 +24,7 @@ class CardTemplateQuerySet(QuerySet):
 
 # TODO delete
 class CardTemplate(models.Model):
-    objects = PassThroughManager.for_queryset_class(CardTemplateQuerySet)()
+    objects = CardTemplateQuerySet.as_manager()
 
     fact_type = models.ForeignKey('flashcards.FactType')
 
