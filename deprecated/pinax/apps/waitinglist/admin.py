@@ -7,4 +7,4 @@ class WaitingListEntryAdmin(admin.ModelAdmin):
     list_display = ["email", "created"]
 
 
-admin.site.register(WaitingListEntry, WaitingListEntryAdmin)
+#TODO admin.site.register(WaitingListEntry, WaitingListEntryAdmin)

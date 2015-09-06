@@ -5,8 +5,8 @@ from manabi.apps.usertagging.forms import TagAdminForm
 class TagAdmin(admin.ModelAdmin):
     form = TagAdminForm
 
-admin.site.register(UserTaggedItem)
-admin.site.register(Tag, TagAdmin)
+#TODO admin.site.register(UserTaggedItem)
+#TODO admin.site.register(Tag, TagAdmin)
 
 
 

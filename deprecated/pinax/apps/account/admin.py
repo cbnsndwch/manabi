@@ -7,5 +7,5 @@ class PasswordResetAdmin(admin.ModelAdmin):
     list_display = ["user", "temp_key", "timestamp", "reset"]
 
 
-admin.site.register(Account)
-admin.site.register(PasswordReset, PasswordResetAdmin)
+#TODO admin.site.register(Account)
+#TODO admin.site.register(PasswordReset, PasswordResetAdmin)

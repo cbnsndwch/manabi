@@ -31,13 +31,13 @@ class TextbookAdmin(admin.ModelAdmin):
     pass
 
 
-admin.site.register(Deck, DeckAdmin)
-admin.site.register(CardHistory)
-admin.site.register(FactType, FactTypeAdmin)
-admin.site.register(Fact, FactAdmin)
-admin.site.register(CardTemplate)
-admin.site.register(FieldType, FieldTypeAdmin)
-admin.site.register(Card, CardAdmin)
-admin.site.register(FieldContent)
-admin.site.register(Textbook)
+#TODO admin.site.register(Deck, DeckAdmin)
+#TODO admin.site.register(CardHistory)
+#TODO admin.site.register(FactType, FactTypeAdmin)
+#TODO admin.site.register(Fact, FactAdmin)
+#TODO admin.site.register(CardTemplate)
+#TODO admin.site.register(FieldType, FieldTypeAdmin)
+#TODO admin.site.register(Card, CardAdmin)
+#TODO admin.site.register(FieldContent)
+#TODO admin.site.register(Textbook)
 

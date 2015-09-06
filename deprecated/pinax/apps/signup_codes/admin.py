@@ -9,4 +9,4 @@ class SignupCodeAdmin(admin.ModelAdmin):
     list_filter = ["created"]
 
 
-admin.site.register(SignupCode, SignupCodeAdmin)
+#TODO admin.site.register(SignupCode, SignupCodeAdmin)
