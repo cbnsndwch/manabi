@@ -1,7 +1,4 @@
 from django.db import models
-from django.contrib.auth.models import User
-from django.forms import ModelForm
-from django.forms.util import ErrorList
 from django.db.models.query import QuerySet
 from model_utils.managers import PassThroughManager
 
@@ -71,4 +68,3 @@ class CardTemplate(models.Model):
         app_label = 'flashcards'
         unique_together = (('name', 'fact_type'), ('ordinal', 'fact_type'), )
         ordering = ['ordinal']
-

@@ -28,12 +28,12 @@ class UndoCardReviewManager(models.Manager):
             return None
         return last_undo
 
-    @transaction.commit_on_success
+    @transaction.atomic
     def reset(self, user):
         '''Clears the Undo stack for `user`.'''
         self.of_user(user).delete()
 
-    @transaction.commit_on_success
+    @transaction.atomic
     def add_undo(self, card_history):
         '''
         Only keeps 1 level undo for now, to simplify things.
@@ -53,7 +53,7 @@ class UndoCardReviewManager(models.Manager):
 
         undo.save()
 
-    @transaction.commit_on_success
+    @transaction.atomic
     def undo(self, user):
         '''
         Undoes the last review for `user`.

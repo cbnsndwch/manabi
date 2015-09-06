@@ -1,21 +1,18 @@
 import datetime
 from datetime import timedelta
-import pickle
 import random
 
 from django.db.models.query import QuerySet
 from django.contrib.auth.models import User
 from django.db import models, transaction
 from django.db.models import Q, F
-from django.forms import ModelForm
-from django.forms.util import ErrorList
 from model_utils.managers import PassThroughManager
 
 from constants import MAX_NEW_CARD_ORDINAL
 from fields import FieldContent
 from manabi.apps.flashcards.signals import fact_suspended, fact_unsuspended
-from manabi.apps import usertagging
-from manabi.apps.usertagging.models import UserTaggedItem
+#from manabi.apps import usertagging
+#from manabi.apps.usertagging.models import UserTaggedItem
 from manabi.apps.flashcards.models.constants import GRADE_NONE, MIN_CARD_SPACE, CARD_SPACE_FACTOR
 
 
@@ -118,7 +115,7 @@ class FactQuerySet(QuerySet):
         return Fact.objects.get(id=fact_id)
 
     #TODELETE, legacy.
-    @transaction.commit_on_success
+    @transaction.atomic
     def add_new_facts_from_synchronized_decks(self, user, count, deck=None, tags=None):
         '''
         Returns a limited queryset of the new facts added,
@@ -137,8 +134,9 @@ class FactQuerySet(QuerySet):
         user_facts = self.filter(deck__owner=user, deck__in=decks, active=True, parent_fact__isnull=True)
 
         if tags:
-            tagged_facts = UserTaggedItem.objects.get_by_model(Fact, tags)
-            user_facts = user_facts.filter(fact__in=tagged_facts)
+            raise Exception("user tagging disabled")
+            #tagged_facts = UserTaggedItem.objects.get_by_model(Fact, tags)
+            #user_facts = user_facts.filter(fact__in=tagged_facts)
 
         #shared_deck_ids = [deck.synchronized_with_id for deck in decks if deck.synchronized_with_id]
         new_shared_facts = self.filter(active=True, deck__in=decks.filter(
@@ -319,7 +317,7 @@ class Fact(models.Model):
             card.save()
 
         # copy the tags too
-        copy.tags = usertagging.utils.edit_string_for_tags(self.tags)
+        #copy.tags = usertagging.utils.edit_string_for_tags(self.tags)
 
         # copy any subfacts
         if copy_subfacts or not synchronize:
@@ -338,7 +336,7 @@ class Fact(models.Model):
             field_content_contents.append(field_content.content)
         return u' - '.join(field_content_contents)
 
-usertagging.register(Fact)
+# TODO usertagging.register(Fact)
 
 
 

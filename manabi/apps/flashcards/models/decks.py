@@ -13,7 +13,7 @@ from manabi.apps.books.models import Textbook
 from constants import DEFAULT_EASE_FACTOR
 from manabi.apps.flashcards.cachenamespaces import deck_review_stats_namespace
 import cards
-from manabi.apps import usertagging
+#from manabi.apps import usertagging
 
 
 class DeckQuerySet(QuerySet):
@@ -36,7 +36,7 @@ class Deck(models.Model):
 
     textbook_source = models.ForeignKey(Textbook, null=True, blank=True)
 
-    picture = models.FileField(upload_to='/deck_media/', null=True, blank=True) 
+    picture = models.FileField(upload_to='/deck_media/', null=True, blank=True)
     #TODO-OLD upload to user directory, using .storage
 
     priority = models.IntegerField(default=0, blank=True)
@@ -51,19 +51,19 @@ class Deck(models.Model):
     synchronized_with = models.ForeignKey('self',
             null=True, blank=True, related_name='subscriber_decks')
 
-    # "active" is just a soft deletion flag. "suspended" is temporarily 
+    # "active" is just a soft deletion flag. "suspended" is temporarily
     # disabled.
-    suspended = models.BooleanField(default=False, db_index=True) 
+    suspended = models.BooleanField(default=False, db_index=True)
     active = models.BooleanField(default=True, blank=True, db_index=True)
 
     def __unicode__(self):
         return u'{0} ({1})'.format(self.name, self.owner)
-    
+
     class Meta:
         app_label = 'flashcards'
         ordering = ('name',)
         #TODO-OLD unique_together = (('owner', 'name'), )
-    
+
     def get_absolute_url(self):
         return reverse('deck_detail', kwargs={'deck_id': self.id})
 
@@ -93,7 +93,7 @@ class Deck(models.Model):
         '''
         return self.subscriber_decks.filter(active=True).exists()
 
-    @transaction.commit_on_success    
+    @transaction.atomic
     def share(self):
         '''
         Shares this deck publicly.
@@ -105,7 +105,7 @@ class Deck(models.Model):
         self.shared_at = datetime.datetime.utcnow()
         self.save()
 
-    @transaction.commit_on_success
+    @transaction.atomic
     def unshare(self):
         '''
         Unshares this deck.
@@ -129,16 +129,16 @@ class Deck(models.Model):
             return subscriber_decks[0]
 
     #TODO implement subscribing with new stuff.
-    @transaction.commit_on_success
+    @transaction.atomic
     def subscribe(self, user):
         '''
         Subscribes to this shared deck for the given user.
-        They will study this deck as their own, but will 
+        They will study this deck as their own, but will
         still receive updates to content.
 
         Returns the newly created deck.
 
-        If the user was already subscribed to this deck, 
+        If the user was already subscribed to this deck,
         returns the existing deck.
         '''
         from facts import Fact
@@ -167,12 +167,12 @@ class Deck(models.Model):
         deck.save()
 
         # copy the tags
-        deck.tags = usertagging.utils.edit_string_for_tags(self.tags)
+        # deck.tags = usertagging.utils.edit_string_for_tags(self.tags)
 
         # copy the facts - just the first few as a buffer
         shared_fact_to_fact = {}
         #TODO-OLD dont hardcode value here #chain(self.fact_set.all(), Fact.objects.filter(parent_fact__deck=self)):
-        for shared_fact in self.fact_set.filter(active=True, parent_fact__isnull=True).order_by('new_fact_ordinal')[:10]: 
+        for shared_fact in self.fact_set.filter(active=True, parent_fact__isnull=True).order_by('new_fact_ordinal')[:10]:
             #FIXME get the child facts for this fact too
             #if shared_fact.parent_fact:
             #    #child fact
@@ -194,7 +194,7 @@ class Deck(models.Model):
             fact.save()
             shared_fact_to_fact[shared_fact] = fact
 
-            # don't copy the field contents for this fact - we'll get them from 
+            # don't copy the field contents for this fact - we'll get them from
             # the shared fact later
 
             # copy the cards
@@ -233,7 +233,7 @@ class Deck(models.Model):
             return sum(score for val,score in ease_factors) / cardinality
         return DEFAULT_EASE_FACTOR
 
-    @transaction.commit_on_success    
+    @transaction.atomic
     def delete_cascading(self):
         #FIXME if this is a shared/synced deck
         for fact in self.fact_set.all():
@@ -295,7 +295,7 @@ class Deck(models.Model):
                 self.stream.write(data)
                 # empty queue
                 self.queue.truncate(0)
-            
+
             def writerows(self, rows):
                 for row in rows:
                     self.writerow(row)
@@ -308,7 +308,7 @@ class Deck(models.Model):
         if not filename:
             filename = 'manabi_deck'
         filename += '.csv'
-        
+
         # Create the HttpResponse object with the appropriate CSV header.
         response = HttpResponse(mimetype='text/csv')
         response['Content-Disposition'] = 'attachment; filename={0}'.format(filename)
@@ -344,5 +344,5 @@ class Deck(models.Model):
 
         return response
 
-usertagging.register(Deck)
+#usertagging.register(Deck)
 

@@ -6,14 +6,22 @@ lxml==3.4.4
 jcconv==0.2.3
 gunicorn==19.3
 redis==2.10.3
-hiredis==0.1.1
+hiredis==0.2.0
 pytz==2013d
 django-allauth==0.18.0
-django-nose==1.2
+django-nose==1.4.1
 django-lazysignup==0.12.2
 django-model-utils==1.5.0
 rq==0.5.5
 rq-dashboard
+
+# django-devserver + optional dependencies
+https://github.com/dcramer/django-devserver/archive/master.zip
+#django_devserver
+sqlparse
+werkzeug
+guppy
+line_profiler
 
 bpython
 psycopg2

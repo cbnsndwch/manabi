@@ -164,9 +164,9 @@ INSTALLED_APPS = (
     'django.contrib.humanize',
 )
 
-if DEBUG:
+if False and DEBUG:
     INSTALLED_APPS += (
-        'devserver',
+        # brken in 1.9? 'devserver',
     )
 
 INSTALLED_APPS += (
@@ -211,7 +211,7 @@ INSTALLED_APPS += (
     'manabi.apps.books',
     #'dojango',
     'manabi.apps.utils',
-    'manabi.apps.usertagging', #fork of django-tagging, which is isolated per-user
+    #'manabi.apps.usertagging', #fork of django-tagging, which is isolated per-user
     'manabi.apps.jdic',
     'kanjivg',
     #'manabi.apps.stats',
@@ -233,13 +233,14 @@ NOSE_ARGS = ['--logging-level=WARNING']
 
 DEVSERVER_MODULES = (
     #'devserver.modules.sql.SQLRealTimeModule',
-    'devserver.modules.sql.SQLSummaryModule',
+    #'devserver.modules.sql.SQLSummaryModule',
     'devserver.modules.profile.ProfileSummaryModule',
 
     ## Modules not enabled by default
-    ##'devserver.modules.ajax.AjaxDumpModule',
+    #'devserver.modules.ajax.AjaxDumpModule',
     #'devserver.modules.profile.MemoryUseModule',
     'devserver.modules.cache.CacheSummaryModule',
+    #'devserver.modules.profile.LineProfilerModule',
 )
 #DEVSERVER_IGNORED_PREFIXES = ['/site_media', '/uploads', '/static', '/media']
 DEVSERVER_IGNORED_PREFIXES = []

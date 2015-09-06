@@ -8,8 +8,8 @@ from manabi.apps.utils.views import direct_to_template
 from manabi.apps.utils.urldecorators import decorated_patterns
 #from manabi.apps.flashcards.urls import rest_api_urlpatterns
 
-admin.autodiscover()
 
+# TODO admin.autodiscover()
 
 
 urlpatterns = patterns(
