@@ -1,8 +1,9 @@
-from django.db import models
-from django.contrib.auth.models import User
-from picklefield import PickledObjectField
 import datetime
+
+from django.contrib.auth.models import User
+from django.db import models
 from django.db import transaction
+from picklefield import PickledObjectField
 
 
 def _get_model_fields(model_instance, excluded_field_types=['AutoField', 'ForeignKey']):
@@ -12,7 +13,7 @@ def _get_model_fields(model_instance, excluded_field_types=['AutoField', 'Foreig
             continue
         field_names.append(field.name)
     return field_names
-    
+
 
 class UndoCardReviewManager(models.Manager):
     def of_user(self, user):
@@ -27,7 +28,7 @@ class UndoCardReviewManager(models.Manager):
             return None
         return last_undo
 
-    @transaction.commit_on_success    
+    @transaction.commit_on_success
     def reset(self, user):
         '''Clears the Undo stack for `user`.'''
         self.of_user(user).delete()
@@ -46,22 +47,24 @@ class UndoCardReviewManager(models.Manager):
             pickled_card = card_history.card,
         )
 
-        # Delete previous undo if it exists
+        # Delete previous undo if it exists.
         for user_undo in self.of_user(user):
             user_undo.delete()
 
         undo.save()
 
-    @transaction.commit_on_success    
+    @transaction.commit_on_success
     def undo(self, user):
         '''
         Undoes the last review for `user`.
-        Returns False if there wasn't anything in the undo stack,
-        otherwise returns True.
+
+        Returns the undone review's card, or None if there wasn't
+        anything in the undo stack.
         '''
         last_undo = self._last_undo(user)
         if not last_undo:
-            return False
+            return
+
         card = last_undo.card
         card_history = last_undo.card_history
         undone_card = last_undo.pickled_card
@@ -77,18 +80,17 @@ class UndoCardReviewManager(models.Manager):
 
         # Delete this undo now that it's done
         last_undo.delete()
-        return True
+        return card
 
 
 class UndoCardReview(models.Model):
     objects = UndoCardReviewManager()
 
     timestamp = models.DateTimeField(auto_now_add=True, editable=False)
-    user = models.ForeignKey(User) # Denormalization optimization
+    user = models.ForeignKey(User)  # Denormalization optimization
     card = models.ForeignKey('Card')
     card_history = models.ForeignKey('CardHistory')
     pickled_card = PickledObjectField()
 
     class Meta:
         app_label = 'flashcards'
-

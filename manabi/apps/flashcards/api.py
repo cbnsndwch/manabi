@@ -1,13 +1,13 @@
+from catnap.rest_views import ListView, DetailView, DeletionMixin
 from django.core.exceptions import PermissionDenied
 from django.core.urlresolvers import reverse
+from django.http import Http404
 from django.shortcuts import get_object_or_404
-
 import catnap.permissions
-from catnap.rest_views import ListView, DetailView, DeletionMixin
 
 from manabi.apps.flashcards import models
 from manabi.apps.flashcards.models import Card
-from manabi.apps.flashcards.models.undo import UndoCardReview
+from manabi.apps.flashcards.models import undo
 from manabi.apps.flashcards.restresources import (
     UserResource,
     DeckResource,
@@ -168,3 +168,23 @@ class CardReview(CardQueryMixin, ManabiRestView):
                     question_duration=params.get('question_duration'))
 
         return self.responses.no_content()
+
+
+class UndoCardReview(ManabiRestView):
+    def post(self, request, **kwargs):
+        return self.render_to_response({
+            'card': CardResource([c for c in models.Card.objects.next_cards(
+                request.user,
+                1,
+            )][0]).get_data(),
+        })
+
+        # FIXME
+        card = undo.UndoCardReview.objects.undo(request.user)
+
+        if card is None:
+            raise Http404("Nothing to undo.")
+
+        return self.render_to_response({
+            'card': CardResource(card).get_data(),
+        })
