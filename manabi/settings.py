@@ -197,23 +197,18 @@ INSTALLED_APPS += (
 
     'django_extensions',
 
-    # Sentry
-    #'raven.contrib.django',
-    #'sentry',
-
     # Other
-    #'template_repl',
-    #'south',
     'django_nose', # Must come after south.
     'lazysignup',
     'catnap',
     'cachecow',
+    'django_rq',
 
     # internal (for now)
     #'profiles',
     #'about',
 
-    # my own
+    # My own.
     'manabi.apps.flashcards',
     'manabi.apps.books',
     #'dojango',
@@ -226,6 +221,8 @@ INSTALLED_APPS += (
     'manabi.apps.importer',
     #TODO-OLD 'popups',
     'manabi.apps.manabi_redis',
+    'manabi.apps.reading_level',
+    'manabi.apps.twitter_usages',
 
     'gunicorn',
 )
@@ -283,6 +280,16 @@ else:
            'BACKEND': 'django.core.cache.backends.dummy.DummyCache',
        }
    }
+
+RQ_QUEUES = {
+    'default': {
+        'HOST': 'localhost',
+        'PORT': 6379,
+        'DB': 9,  # kyuu
+        'PASSWORD': 'some-password',
+        'DEFAULT_TIMEOUT': 360,
+    },
+}
 
 #JOHNNY_MIDDLEWARE_KEY_PREFIX='jc_manabi'
 
@@ -396,6 +403,6 @@ if LIVE_HOST:
 else:
     try:
         from manabi.settings_development import *
+        from manabi.settings_development_secrets import *
     except ImportError:
         pass
-

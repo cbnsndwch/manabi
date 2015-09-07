@@ -8,4 +8,3 @@ class ManabiRedis(StrictRedis):
 
 
 redis = ManabiRedis(host=settings.REDIS['host'], port=settings.REDIS['port'], db=settings.REDIS['db'])
-

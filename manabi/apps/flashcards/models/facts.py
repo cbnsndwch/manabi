@@ -6,14 +6,12 @@ from django.db.models.query import QuerySet
 from django.contrib.auth.models import User
 from django.db import models, transaction
 from django.db.models import Q, F
+from natto import MeCab
 
 from constants import MAX_NEW_CARD_ORDINAL
 from fields import FieldContent
 from manabi.apps.flashcards.signals import fact_suspended, fact_unsuspended
-#from manabi.apps import usertagging
-#from manabi.apps.usertagging.models import UserTaggedItem
 from manabi.apps.flashcards.models.constants import GRADE_NONE, MIN_CARD_SPACE, CARD_SPACE_FACTOR
-
 
 
 
@@ -66,10 +64,12 @@ class FactQuerySet(QuerySet):
                 # Sibling is due.
                 Q(card__due_at__lt=review_time) |
                 # Sibling was reviewed too recently.
-                Q(card__last_reviewed_at__gte=(review_time
-                                               - timedelta(days=max(MIN_CARD_SPACE,
-                                                                    CARD_SPACE_FACTOR
-                                                                    * (F('interval') or 0))))) |
+                (
+                    Q(card__last_reviewed_at__gte=(
+                        review_time - timedelta(days=MIN_CARD_SPACE))) &
+                    Q(card__last_reviewed_at__gte=(
+                        review_time - F('card__interval') * CARD_SPACE_FACTOR))
+                ) |
                 # Sibling is currently in the client-side review queue.
                 Q(card__id__in=excluded_card_ids) |
                 # Sibling is failed. (Either sibling's due, or it's shown before new cards.)

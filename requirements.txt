@@ -13,7 +13,10 @@ django-nose==1.4.1
 django-lazysignup==0.12.2
 django-model-utils==2.3.1
 rq==0.5.5
+django-rq==0.8.0
 rq-dashboard
+natto-py==0.6.0
+twython==3.3.0
 
 # django-devserver + optional dependencies
 https://github.com/dcramer/django-devserver/archive/master.zip
