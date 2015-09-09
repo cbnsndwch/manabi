@@ -17,4 +17,3 @@ urlpatterns = patterns(
 
     url(r'^shared_decks/$', api.SharedDecks.as_view(), name='api_shared_decks'),
 )
-

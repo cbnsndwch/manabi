@@ -26,6 +26,8 @@ class FactTweets(ListView, ManabiRestView):
         if fact.deck.owner_id != self.request.user.id:
             raise PermissionDenied('You do not own this fact.')
 
-        return ExpressionTweet.objects.filter(
+        tweets = ExpressionTweet.objects.filter(
             search_expression__in = search_expressions(fact),
-        )[:MAX_COUNT]
+        )
+        tweets = tweets.order_by('-average_word_frequency')
+        return tweets[:self.MAX_COUNT]
