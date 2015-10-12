@@ -42,6 +42,19 @@ def _cull_spammy_tweets(tweets, desired_count):
     return good_tweets
 
 
+def sorted_by_usefulness_estimate(tweets_with_frequencies):
+    def sort_key(item):
+        frequency, tweet = item
+
+        maybe_spam = '|' in tweet['text']
+
+        return (0 if maybe_spam else 1, -frequency)
+
+    return sorted(
+        tweets_with_frequencies,
+        key=sort_key)
+
+
 def word_frequencies(text):
     from manabi.apps.reading_level.word_frequencies import WORD_FREQUENCIES
 
@@ -83,9 +96,8 @@ def harvest_tweets(fact_count, tweets_per_fact=10):
                     average = 0
                 tweets_with_frequencies.append((average, tweet))
 
-            sorted_tweets = sorted(
-                tweets_with_frequencies,
-                key=lambda e: -e[0])
+            sorted_tweets = sorted_by_usefulness_estimate(
+                tweets_with_frequencies)
 
             top_tweets = sorted_tweets[:tweets_per_fact]
 

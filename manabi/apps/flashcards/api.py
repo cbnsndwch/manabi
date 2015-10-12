@@ -126,6 +126,8 @@ class NextCardsForReview(CardQueryMixin, ManabiRestView):
     Accepts some query parameters for filtering and influencing what
     cards will be selected.
     '''
+    permissions = catnap.permissions.IsAuthenticated()
+
     query_structure = {
         'count': int,
         'early_review': bool,
@@ -163,6 +165,8 @@ class Card(CardQueryMixin, DetailView, ManabiRestView):
 
 
 class CardReview(CardQueryMixin, ManabiRestView):
+    permissions = catnap.permissions.IsAuthenticated()
+
     def get_object(self):
         return self.get_card()
 
@@ -185,6 +189,8 @@ class CardReview(CardQueryMixin, ManabiRestView):
 
 
 class UndoCardReview(ManabiRestView):
+    permissions = catnap.permissions.IsAuthenticated()
+
     def post(self, request, **kwargs):
         return self.render_to_response({
             'card': CardResource([c for c in models.Card.objects.next_cards(

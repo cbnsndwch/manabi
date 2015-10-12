@@ -16,5 +16,3 @@ def search_expressions(fact):
     given fact.
     '''
     return [fact.expression]
-
-

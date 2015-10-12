@@ -1,8 +1,9 @@
-from catnap.rest_views import JsonEmitterMixin, AutoContentTypeMixin, RestView
-from catnap.permissions import PermissionsMixin
-import catnap.permissions
 from django.utils.decorators import method_decorator
 from django.views.decorators.csrf import csrf_exempt
+
+import catnap.permissions
+from catnap.permissions import PermissionsMixin
+from catnap.rest_views import AutoContentTypeMixin, JsonEmitterMixin, RestView
 
 
 class ManabiRestView(PermissionsMixin, JsonEmitterMixin, RestView):

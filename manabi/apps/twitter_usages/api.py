@@ -4,10 +4,12 @@ from django.core.urlresolvers import reverse
 from django.shortcuts import get_object_or_404
 
 from manabi.apps.flashcards.models import Fact
+from manabi.apps.twitter_usages.api_resources import TweetResource
 from manabi.apps.twitter_usages.models import (
     ExpressionTweet,
     search_expressions,
 )
+from manabi.rest import ManabiRestView
 
 
 class FactTweets(ListView, ManabiRestView):
