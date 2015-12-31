@@ -6,17 +6,10 @@ from socket import gethostname
 
 LIVE_HOST = (gethostname() == 'aehlke.xen.prgmr.com')
 
-#PINAX_ROOT = os.path.abspath(os.path.dirname(pinax.__file__))
 PROJECT_ROOT = os.path.abspath(os.path.dirname(__file__))
-
-# tells Pinax to use the default theme
-#PINAX_THEME = 'default'
 
 DEBUG = not LIVE_HOST
 TEMPLATE_DEBUG = not LIVE_HOST #DEBUG
-
-# tells Pinax to serve media through django.views.static.serve.
-#SERVE_MEDIA = not LIVE_HOST  #DEBUG
 
 INTERNAL_IPS = (
     '127.0.0.1',
@@ -161,7 +154,6 @@ TEMPLATE_CONTEXT_PROCESSORS = (
 )
 
 INSTALLED_APPS = (
-    # included
     'django.contrib.admin',
     'django.contrib.auth',
     'django.contrib.contenttypes',
@@ -345,25 +337,6 @@ FIXTURE_DIRS = (
     'fixtures/',
 )
 
-#dojango
-#if LIVE_HOST:
-#    DOJANGO_DOJO_PROFILE = 'google'
-#    DOJANGO_DOJO_VERSION = '1.6' # was .0
-#else:
-#    DOJANGO_DOJO_PROFILE = 'local'#'google'
-#    DOJANGO_DOJO_VERSION = '1.6'
-#    DOJANGO_DOJO_SECURE_JSON = False
-#if LIVE_HOST:
-#    DOJANGO_DOJO_THEME_URL = 'http://ajax.googleapis.com/ajax/libs/dojo/1.6/dijit/themes'
-#    DOJANGO_DOJO_THEME = 'tundra'
-#    DOJANGO_BASE_MEDIA_URL = STATIC_URL
-#    DOJO_BASE_PATH = './'#STATIC_URL + 'js'
-#else:
-#    DOJANGO_DOJO_THEME_URL = STATIC_URL + 'css/dojo_themes'
-#    DOJANGO_DOJO_THEME = 'tundra'
-#    DOJANGO_BASE_MEDIA_URL = STATIC_URL
-
-
 # JDic audio server root URL - the directory containing the mp3s.
 # Must end in '/'
 #TODO-OLD
@@ -388,10 +361,6 @@ if LIVE_HOST:
 else:
     #DEFAULT_URL_PREFIX = 'http://192.168.2.127:8000'
     DEFAULT_URL_PREFIX = 'http://192.168.0.1:8000'
-
-
-# KISSmetrics
-#KISS_KEY = ''
 
 #sudo su postgres -c psql template1
 
