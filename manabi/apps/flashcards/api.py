@@ -62,7 +62,7 @@ class CardQueryMixin(object):
 
 class Decks(ListView, ManabiRestView):
     '''
-    List of the logged-in user's decks.
+    List of the logged-in user's decks, including suspended ones.
     '''
     resource_class = DeckResource
     context_object_name = 'decks'

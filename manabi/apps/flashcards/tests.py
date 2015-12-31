@@ -1,9 +1,10 @@
 # -*- coding: utf-8 -*-
+
+import json
 import urllib
 
 from django.test import Client, TestCase
 from django.core.urlresolvers import reverse
-from django.utils import simplejson
 from django.contrib.auth.models import User
 from django.conf import settings
 
@@ -39,4 +40,3 @@ class TestAPI(ManabiTestCase):
             for card in next_cards:
                 self.assertFalse(card['id'] in card_ids)
         self.assertTrue(count)
-

@@ -1,6 +1,7 @@
 # -*- coding: utf-8 -*-
 
 from django.test import TestCase
+
 from japanese import (
         generate_reading, _furiganaize, _furiganaize_complex_compound_word)
 
@@ -9,6 +10,7 @@ class ReadingGenerationTest(TestCase):
     def test_compound_word(self):
         word = u'曲がり角'
         reading = generate_reading(word)
+        import sys
         print reading
         self.assertTrue(u'かど' in reading)
         self.assertEqual(u'曲[ま]がり　角[かど]', reading)
@@ -25,6 +27,3 @@ class ReadingGenerationTest(TestCase):
         reading = u'まがりかど'
         ret = _furiganaize_complex_compound_word(word, reading)
         self.assertEqual(u'曲[ま]がり　角[かど]', ret)
-
-
-

@@ -2,10 +2,10 @@ from django.db import models
 from django.contrib.auth.models import User
 from django import forms
 from django.forms.util import ErrorList
-from django.db.models.signals import post_save  
+from django.db.models.signals import post_save
 
-from manabi.apps import usertagging
-from manabi.apps.usertagging.forms import TagField
+# from manabi.apps import usertagging
+# from manabi.apps.usertagging.forms import TagField
 
 
 from models import Card, CardHistory, Fact, FactType, FieldType, FieldContent, Deck, CardTemplate
@@ -19,7 +19,7 @@ class CardForm(forms.ModelForm):
     class Meta:
         model = Card
         exclude = ('fact', 'ease_factor', )
-        
+
 
 class DeckForm(forms.ModelForm):
     #tags = usertagging.forms.TagField(required=False)
@@ -28,8 +28,8 @@ class DeckForm(forms.ModelForm):
         super(DeckForm, self).__init__(*args, **kwargs)
         if 'id' in self.initial and self.initial['id']: #deck object already exists
             deck = Deck.objects.get(id=self.initial['id'])
-            self.initial['tags'] = usertagging.utils.edit_string_for_tags(deck.tags)
-    
+            # self.initial['tags'] = usertagging.utils.edit_string_for_tags(deck.tags)
+
     def save(self, force_insert=False, force_update=False, commit=True):
         m = super(DeckForm, self).save(commit=False)
         # do custom stuff
@@ -37,12 +37,12 @@ class DeckForm(forms.ModelForm):
             m.save()
             m.tags = self.cleaned_data['tags']
         return m
-    
+
     class Meta:
         model = Deck
         fields = ('name','description',)
         #exclude = ('owner', 'description', 'priority', 'textbook_source', 'picture',)
-        
+
 
 class TextbookSourceForm(forms.ModelForm):
     '''
@@ -68,7 +68,7 @@ class FactTypeForm(forms.ModelForm):
 class CardTemplateForm(forms.ModelForm):
     class Meta:
         model = CardTemplate
-        
+
 
 class FactForm(forms.ModelForm):
     tags = TagField(required=False)

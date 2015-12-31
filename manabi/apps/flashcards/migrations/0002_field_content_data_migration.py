@@ -12,9 +12,13 @@ def forwards(apps, schema_editor):
 
     print FactType.objects.all().values()
 
-    e = FieldType.objects.get(name='expression', fact_type_id=1)
-    r = FieldType.objects.get(name='reading', fact_type_id=1)
-    m = FieldType.objects.get(name='meaning', fact_type_id=1)
+    try:
+        e = FieldType.objects.get(name='expression', fact_type_id=1)
+        r = FieldType.objects.get(name='reading', fact_type_id=1)
+        m = FieldType.objects.get(name='meaning', fact_type_id=1)
+    except FieldType.DoesNotExist:
+        print 'Missing FieldType rows; skipping migration.'
+        return
 
     print "Migrating {} facts".format(Fact.objects.all().count())
     i = 0

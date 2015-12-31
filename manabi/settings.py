@@ -131,7 +131,6 @@ ROOT_URLCONF = 'manabi.urls'
 
 TEMPLATE_DIRS = (
     os.path.join(PROJECT_ROOT, 'templates'),
-    #os.path.join(PINAX_ROOT, 'templates', PINAX_THEME),
 )
 
 TEMPLATE_CONTEXT_PROCESSORS = (
@@ -181,16 +180,11 @@ INSTALLED_APPS += (
     #'ajax_validation',
     #'uni_form',
 
-    # Pinax
-    #'pinax.templatetags',
-    #'pinax.apps.account',
-    #'pinax.apps.signup_codes',
-    #'pinax.apps.analytics',
-
     'django_extensions',
 
     # Other
-    'django_nose', # Must come after south.
+    'rest_framework',
+    'django_nose',
     'lazysignup',
     'catnap',
     'cachecow',
@@ -205,7 +199,6 @@ INSTALLED_APPS += (
     'manabi.apps.books',
     #'dojango',
     'manabi.apps.utils',
-    #'manabi.apps.usertagging', #fork of django-tagging, which is isolated per-user
     'manabi.apps.jdic',
     'kanjivg',
     #'manabi.apps.stats',

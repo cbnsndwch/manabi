@@ -1,20 +1,19 @@
+import json
 import random
 import string
 import sys
-from django.conf import settings
 
+from django.conf import settings
 from django.contrib.auth.models import User
 from django.core.urlresolvers import reverse
 from django.http import HttpResponse
 from django.test import Client, TestCase
-from django.utils import simplejson as json
 
-from manabi.apps.flashcards.models.constants import (
-    GRADE_NONE, GRADE_HARD, GRADE_GOOD, GRADE_EASY)
-from manabi.apps.flashcards.models import (Deck, Card, Fact, FactType, FieldType,
-                                           FieldContent, CardTemplate)
+from manabi.apps.flashcards.models import (Card, CardTemplate, Deck, Fact,
+                                           FactType, FieldContent, FieldType)
 from manabi.apps.flashcards.models.cards import CARD_TEMPLATE_CHOICES
-
+from manabi.apps.flashcards.models.constants import (GRADE_EASY, GRADE_GOOD,
+                                                     GRADE_HARD, GRADE_NONE)
 
 PASSWORD = 'whatever'
 
@@ -79,7 +78,7 @@ class ManabiTestCase(TestCase):
         if isinstance(response, HttpResponse):
             response = json.loads(response.content)
         self.assertTrue(response.get('success'))
- 
+
     def review_cards(self, user):
         ''' Returns the cards that were reviewed. '''
         cards = self.api.next_cards_for_review(user)
