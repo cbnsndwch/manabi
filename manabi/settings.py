@@ -39,9 +39,6 @@ if DEBUG:
             }
         },
     }
-    #logging.basicConfig(
-    #    level=logging.ERROR,
-    #    format='%(asctime)s %(levelname)s %(message)s')
 else:
     logging.basicConfig(
         level=logging.ERROR,
@@ -54,7 +51,6 @@ SITE_ID = 1
 USE_I18N = False
 
 if LIVE_HOST:
-    #SITE_MEDIA_ROOT = '/var/www/manabi/site_media'
     SITE_MEDIA_ROOT = os.path.join(PROJECT_ROOT, 'site_media')
 else:
     SITE_MEDIA_ROOT = os.path.join(PROJECT_ROOT, 'site_media')
@@ -295,14 +291,8 @@ ABSOLUTE_URL_OVERRIDES = {
     'auth.user': lambda o: '/profiles/profile/%s/' % o.username,
 }
 
-#AUTH_PROFILE_MODULE = "profiles.Profile"
-#NOTIFICATION_LANGUAGE_MODULE = 'account.Account'
 
-#ACCOUNT_OPEN_SIGNUP = True
-#ACCOUNT_REQUIRED_EMAIL = LIVE_HOST
 ACCOUNT_EMAIL_VERIFICATION = False
-#ACCOUNT_EMAIL_AUTHENTICATION = False
-#ACCOUNT_UNIQUE_EMAIL = EMAIL_CONFIRMATION_UNIQUE_EMAIL = False
 
 AUTHENTICATION_BACKENDS = [
     #'pinax.apps.account.auth_backends.AuthenticationBackend',
@@ -321,9 +311,6 @@ SITE_NAME = 'Manabi'
 LOGIN_URL = '/account/login/'
 LOGIN_REDIRECT_URLNAME = 'home'
 
-#EMAIL_CONFIRMATION_DAYS = 7
-#EMAIL_DEBUG = DEBUG
-#CONTACT_EMAIL = 'support@manabi.org'
 DEFAULT_FROM_EMAIL = 'Manabi <support@manabi.org>'
 
 FIXTURE_DIRS = (
@@ -356,6 +343,16 @@ else:
     DEFAULT_URL_PREFIX = 'http://192.168.0.1:8000'
 
 #sudo su postgres -c psql template1
+
+
+REST_FRAMEWORK = {
+    # Use Django's standard `django.contrib.auth` permissions,
+    # or allow read-only access for unauthenticated users.
+    'DEFAULT_PERMISSION_CLASSES': [
+        'rest_framework.permissions.DjangoModelPermissionsOrAnonReadOnly'
+    ],
+}
+
 
 if LIVE_HOST:
     try:
