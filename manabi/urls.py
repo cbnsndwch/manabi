@@ -2,11 +2,26 @@ from django.conf import settings
 from django.conf.urls import *
 from django.contrib import admin
 from lazysignup.decorators import allow_lazy_user
+from rest_framework import routers
 
 from manabi.apps.utils.urldecorators import decorated_patterns
 from manabi.apps.utils.views import direct_to_template
+from manabi.apps.flashcards.api_views import (
+    DeckViewSet,
+    SharedDeckViewSet,
+    NextCardForReviewViewSet,
+)
 
 # TODO admin.autodiscover()
+
+
+router = routers.DefaultRouter()
+router.register(r'flashcards/decks', DeckViewSet,
+                base_name='deck')
+router.register(r'flashcards/shared_decks', SharedDeckViewSet,
+                base_name='shared-deck')
+router.register(r'flashcards/next_cards_for_review', NextCardForReviewViewSet,
+                base_name='next-card-for-review')
 
 
 urlpatterns = patterns(
@@ -22,6 +37,8 @@ urlpatterns = patterns(
 
     # API URLs.
     url(r'^api-auth/', include('rest_framework.urls', namespace='rest_framework')),
+    url(r'^api/', include(router.urls, namespace='api')),
+
     url(r'^api/auth/', include('manabi.apps.manabi_auth.api_urls')),
     url(r'^api/flashcards/', include('manabi.apps.flashcards.api_urls')),
     url(r'^api/twitter_usages/', include('manabi.apps.twitter_usages.api_urls')),
@@ -35,4 +52,3 @@ urlpatterns = patterns(
     (r'^importer/', include('manabi.apps.importer.urls')),
     (r'^kanjivg/', include('kanjivg.urls')),
 )
-

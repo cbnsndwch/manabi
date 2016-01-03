@@ -31,7 +31,7 @@ class Deck(models.Model):
 
     name = models.CharField(max_length=100)
     description = models.TextField(max_length=2000, blank=True)
-    owner = models.ForeignKey(User, db_index=True)
+    owner = models.ForeignKey(User, db_index=True, editable=False)
 
     textbook_source = models.ForeignKey(Textbook, null=True, blank=True)
 
@@ -45,7 +45,7 @@ class Deck(models.Model):
 
     # whether this is a publicly shared deck
     shared = models.BooleanField(default=False, blank=True)
-    shared_at = models.DateTimeField(null=True, blank=True)
+    shared_at = models.DateTimeField(null=True, blank=True, editable=False)
     # or if not, whether it's synchronized with a shared deck
     synchronized_with = models.ForeignKey('self',
             null=True, blank=True, related_name='subscriber_decks')

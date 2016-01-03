@@ -180,6 +180,7 @@ INSTALLED_APPS += (
 
     # Other
     'rest_framework',
+    'crispy_forms',  # For browsable API.
     'django_nose',
     'lazysignup',
     'catnap',
@@ -346,11 +347,16 @@ else:
 
 
 REST_FRAMEWORK = {
+    'DEFAULT_AUTHENTICATION_CLASSES': [
+        'rest_framework.authentication.BasicAuthentication',
+        'rest_framework.authentication.SessionAuthentication',
+    ],
     # Use Django's standard `django.contrib.auth` permissions,
     # or allow read-only access for unauthenticated users.
     'DEFAULT_PERMISSION_CLASSES': [
         'rest_framework.permissions.DjangoModelPermissionsOrAnonReadOnly'
     ],
+    # 'PAGE_SIZE': 100,
 }
 
 

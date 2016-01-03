@@ -197,6 +197,10 @@ class Fact(models.Model):
                 self.synchronized_with_id is not None)
 
     @property
+    def card_count(self):
+        return self.card_set.filter(active=True).count()
+
+    @property
     def field_contents(self):
         '''
         Returns a queryset of field contents for this fact.
