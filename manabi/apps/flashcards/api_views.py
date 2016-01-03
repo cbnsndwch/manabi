@@ -21,6 +21,13 @@ class DeckViewSet(viewsets.ModelViewSet):
         user = self.request.user
         return Deck.objects.filter(owner=user, active=True).order_by('name')
 
+    def perform_create(self, serializer):
+        instance = serializer.save(owner=self.request.user)
+
+    def perform_destroy(self, instance):
+        instance.active = False
+        instance.save()
+
     @detail_route()
     def cards(self, request, pk=None):
         deck = self.get_object()
