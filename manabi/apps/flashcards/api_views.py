@@ -1,7 +1,9 @@
 from rest_framework import viewsets
 from rest_framework.decorators import detail_route, list_route
 from rest_framework.response import Response
+from rest_framework.permissions import IsAuthenticated
 
+from manabi.api.viewsets import MultiSerializerViewSetMixin
 from manabi.apps.flashcards.models import (
     Deck,
     Fact,
@@ -10,6 +12,7 @@ from manabi.apps.flashcards.models import (
 from manabi.apps.flashcards.serializers import (
     DeckSerializer,
     FactSerializer,
+    DetailedFactSerializer,
     CardSerializer,
 )
 
@@ -19,6 +22,8 @@ class DeckViewSet(viewsets.ModelViewSet):
 
     def get_queryset(self):
         user = self.request.user
+        if not user.is_authenticated():
+            return Deck.objects.none()
         return Deck.objects.filter(owner=user, active=True).order_by('name')
 
     def perform_create(self, serializer):
@@ -59,8 +64,24 @@ class SharedDeckViewSet(viewsets.ModelViewSet):
         return decks.order_by('name')
 
 
+class FactViewSet(viewsets.ModelViewSet):
+    serializer_class = FactSerializer
+    serializer_action_classes = {
+        'retrieve': DetailedFactSerializer,
+    }
+    permissions_classes = [IsAuthenticated]
+
+    def get_queryset(self):
+        facts = Fact.objects.with_upstream(user=self.request.user)
+        facts = facts.filter(active=True).distinct()
+        return facts
+
+    # TODO Special code for getting a specific object, for speed.
+
+
 class NextCardForReviewViewSet(viewsets.ModelViewSet):
     serializer_class = CardSerializer
+    permission_classes = [IsAuthenticated]
 
     def get_queryset(self):
         count = 5

@@ -54,6 +54,20 @@ class FactSerializer(ManabiModelSerializer):
         )
 
 
+class DetailedFactSerializer(FactSerializer):
+    deck = DeckSerializer()
+    active_card_templates = serializers.MultipleChoiceField(
+        source='active_card_templates',
+        choices=['recognition', 'kanji_reading', 'kanji_writing'],
+        allow_empty=True,
+    )
+
+    def create(self, validated_data):
+        # fact = Fact(
+        print validated_data
+        return
+
+
 class CardSerializer(ManabiModelSerializer):
     expression = serializers.CharField(source='fact.expression')
     reading = serializers.CharField(source='fact.reading')

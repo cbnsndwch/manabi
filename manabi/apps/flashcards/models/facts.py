@@ -157,10 +157,11 @@ class FactQuerySet(QuerySet):
 class Fact(models.Model):
     objects = FactQuerySet.as_manager()
 
-    deck = models.ForeignKey('flashcards.Deck', blank=True, null=True, db_index=True)
+    deck = models.ForeignKey('flashcards.Deck', db_index=True)
 
     synchronized_with = models.ForeignKey(
         'self', null=True, blank=True, related_name='subscriber_facts')
+
     new_fact_ordinal = models.PositiveIntegerField(null=True, blank=True)
     active = models.BooleanField(default=True, blank=True)
 
@@ -199,6 +200,23 @@ class Fact(models.Model):
     @property
     def card_count(self):
         return self.card_set.filter(active=True).count()
+
+    @property
+    def active_card_templates(self):
+        from manabi.apps.flashcards.models import (
+            PRODUCTION, RECOGNITION, KANJI_READING, KANJI_WRITING)
+
+        template_ids = self.card_set.filter(active=True).values_list(
+            'template', flat=True)
+
+        return {
+            {
+                PRODUCTION: 'production',
+                RECOGNITION: 'recognition',
+                KANJI_READING: 'kanji_reading',
+                KANJI_WRITING: 'kanji_writing',
+            }[id_] for id_ in template_ids
+        }
 
     @property
     def field_contents(self):
@@ -342,9 +360,6 @@ class Fact(models.Model):
             field_content_contents.append(field_content.content)
         return u' - '.join(field_content_contents)
 
-# TODO usertagging.register(Fact)
-
-
 
 
 #############
@@ -390,18 +405,3 @@ class FactType(models.Model):
 
     class Meta:
         app_label = 'flashcards'
-
-
-
-
-#class SubFact(Fact):
-#    '''
-#    Proxy model for subfacts (like example sentences).
-#    '''
-#    #TODO-OLD use this!
-
-#    class Meta:
-#        app_label = 'flashcards'
-#        proxy = True
-
-

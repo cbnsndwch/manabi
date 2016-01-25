@@ -9,6 +9,7 @@ from manabi.apps.utils.views import direct_to_template
 from manabi.apps.flashcards.api_views import (
     DeckViewSet,
     SharedDeckViewSet,
+    FactViewSet,
     NextCardForReviewViewSet,
 )
 
@@ -20,6 +21,8 @@ router.register(r'flashcards/decks', DeckViewSet,
                 base_name='deck')
 router.register(r'flashcards/shared_decks', SharedDeckViewSet,
                 base_name='shared-deck')
+router.register(r'flashcards/facts', FactViewSet,
+                base_name='fact')
 router.register(r'flashcards/next_cards_for_review', NextCardForReviewViewSet,
                 base_name='next-card-for-review')
 

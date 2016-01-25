@@ -41,11 +41,6 @@ class CardTemplate(models.Model):
     # This is fed through dojo.string.substitute
     js_template = models.TextField(max_length=600, blank=True)
 
-    #used for generating/enabling cards for a fact which is missing certain fields
-    #can show validation errors to the user based on this (e.g. "Enter a reading if you want to do kanji writing")
-    requisite_field_types = models.ManyToManyField('flashcards.FieldType',
-        blank=True) #TODO-OLD implement
-
     #sometimes multiple cards should share intervals if they're similar enough.
     #use this group ID (not a foreignkey though) to synchronize among other cards within a fact.
     #this group is per fact type.
