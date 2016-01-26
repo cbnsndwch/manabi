@@ -259,28 +259,6 @@ class Fact(models.Model):
                 new_card_ordinal=Card.random_card_ordinal(),
             )
 
-    @property
-    def field_contents(self):
-        '''
-        Returns a queryset of field contents for this fact.
-        ?dict of {field_type_id: field_content}
-        Includes field contents of any subfacts of this fact.
-        '''
-        fact = self
-        field_contents = \
-            self.fieldcontent_set.all().order_by('field_type__ordinal')
-        #sub_field_contents = \
-        #    FieldContent.objects.filter(fact__in=self.child_facts.all())
-        if self.synchronized_with:
-            # first see if the user has updated this fact's contents.
-            # this would override the synced fact's.
-            #TODO-OLD only override on a per-field basis when the
-            #user updates field contents
-            if not field_contents:
-                field_contents = self.synchronized_with.fieldcontent_set.all().order_by('field_type__ordinal')
-        #return dict((field_content.field_type_id, field_content) for field_content in field_contents)
-        return field_contents
-
     def suspended(self):
         '''Returns whether this fact's cards are all suspended.'''
         cards = self.card_set.filter(active=True)
