@@ -77,34 +77,6 @@ class FactQuerySet(QuerySet):
             )
         )
 
-    #TODO-OLD
-    def search(self, fact_type, query, query_set=None):
-        '''
-        Returns facts which have FieldContents containing the query.
-        `query` is a substring to match on
-        '''
-        #TODO-OLD or is in_bulk() faster?
-        query = query.strip()
-        if not query_set:
-            query_set = self.filter(parent_fact__isnull=True)
-
-        subscriber_facts = Fact.objects.filter(
-                synchronized_with__in=query_set)
-
-        matches = FieldContent.objects.filter(
-            Q(content__icontains=query)
-            | Q(cached_transliteration_without_markup__icontains=query)
-            & (Q(fact__in=query_set)
-               | Q(fact__synchronized_with__in=subscriber_facts)))
-            #& Q(fact__fact_type=fact_type)).all()
-
-        #TODO-OLD use values_list to be faster
-        match_ids = matches.values_list('fact', flat=True)
-        return query_set.filter(Q(id__in=match_ids) |
-                                Q(synchronized_with__in=match_ids))
-        #return query_set.filter(id__in=set(field_content.fact_id
-        #for field_content in matches))
-
     #TODELETE, legacy.
     def get_for_owner_or_subscriber(self, fact_id, user):
         '''
@@ -286,7 +258,7 @@ class Fact(models.Model):
                 + [d for d in self.deck.subscriber_decks.filter(active=True)])
 
     #TODELETE
-    def copy_to_parent_fact(self, parent_fact, copy_field_contents=False):
+    def copy_to_parent_fact(self, parent_fact):
         '''
         Copies a subfact to a parent fact.
         Returns the new copy, or the already existant one.
@@ -310,14 +282,10 @@ class Fact(models.Model):
                 subfact_copy.synchronized_with = self
             subfact_copy.save()
 
-        # copy the field contents
-        if copy_field_contents or not synchronize:
-            for field_content in self.fieldcontent_set.all():
-                field_content.copy_to_fact(subfact_copy)
         return subfact_copy
 
     #TODO-OLD
-    def copy_to_deck(self, deck, copy_field_contents=False, copy_subfacts=False,
+    def copy_to_deck(self, deck, copy_subfacts=False,
                      synchronize=False):
         '''
         Creates a copy of this fact and its cards and (optionally, if
@@ -348,11 +316,6 @@ class Fact(models.Model):
 
         copy.save()
 
-        # copy the field contents
-        if copy_field_contents or not synchronize:
-            for field_content in self.fieldcontent_set.all():
-                field_content.copy_to_fact(copy)
-
         # copy the cards
         from cards import Card
         for shared_card in self.card_set.filter(active=True):
@@ -365,7 +328,7 @@ class Fact(models.Model):
         # copy any subfacts
         if copy_subfacts or not synchronize:
             for subfact in self.child_facts.filter(active=True):
-                subfact.copy_to_parent_fact(copy, copy_field_contents=True)
+                subfact.copy_to_parent_fact(copy)
         return copy
 
     class Meta:
@@ -374,10 +337,6 @@ class Fact(models.Model):
 
     def __unicode__(self):
         return unicode(self.id)
-        field_content_contents = []
-        for field_content in self.fieldcontent_set.all():
-            field_content_contents.append(field_content.content)
-        return u' - '.join(field_content_contents)
 
 
 
