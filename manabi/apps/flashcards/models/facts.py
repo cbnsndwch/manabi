@@ -237,16 +237,12 @@ class Fact(models.Model):
         return cards.exists() and not cards.filter(suspended=False).exists()
 
     def suspend(self):
-        for card in self.card_set.all():
-            card.suspended = True
-            card.save()
-            fact_suspended.send(sender=self, instance=self)
+        self.card_set.update(suspended=True)
+        fact_suspended.send(sender=self, instance=self)
 
     def unsuspend(self):
-        for card in self.card_set.all():
-            card.suspended = False
-            card.save()
-            fact_unsuspended.send(sender=self, instance=self)
+        self.card_set.update(suspended=False)
+        fact_unsuspended.send(sender=self, instance=self)
 
     #TODELETE?
     def all_owner_decks(self):
