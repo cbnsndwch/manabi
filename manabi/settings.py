@@ -1,5 +1,6 @@
 # -*- coding: utf-8 -*-
 
+import logging
 import os.path
 import posixpath
 from socket import gethostname
@@ -21,17 +22,32 @@ ADMINS = (
 
 MANAGERS = ADMINS
 
-import logging
 if DEBUG:
     LOGGING = {
         'version': 1,
+        'formatters': {
+            'verbose': {
+                'format': '%(levelname)s %(asctime)s %(module)s %(process)d %(thread)d %(message)s',
+            },
+            'simple': {
+                'format': '%(levelname)s %(message)s',
+            },
+        },
         'handlers': {
             'console': {
                 'level': 'DEBUG',
                 'class': 'logging.StreamHandler',
             },
         },
+         'root': {
+             'handlers': ['console'],
+             'level': 'DEBUG',
+        },
         'loggers': {
+            # 'manabi': {
+            #     'handlers': ['console'],
+            #     'level': 'DEBUG',
+            # },
             'django.request': {
                 'handlers': ['console'],
                 'propagate': True,
@@ -158,11 +174,6 @@ INSTALLED_APPS = (
     'django.contrib.humanize',
 )
 
-if False and DEBUG:
-    INSTALLED_APPS += (
-        # brken in 1.9? 'devserver',
-    )
-
 INSTALLED_APPS += (
     'django.contrib.staticfiles',
 
@@ -217,19 +228,6 @@ NOSE_PLUGINS = [
 ]
 NOSE_ARGS = ['--logging-level=WARNING']
 
-DEVSERVER_MODULES = (
-    #'devserver.modules.sql.SQLRealTimeModule',
-    #'devserver.modules.sql.SQLSummaryModule',
-    'devserver.modules.profile.ProfileSummaryModule',
-
-    ## Modules not enabled by default
-    #'devserver.modules.ajax.AjaxDumpModule',
-    #'devserver.modules.profile.MemoryUseModule',
-    'devserver.modules.cache.CacheSummaryModule',
-    #'devserver.modules.profile.LineProfilerModule',
-)
-#DEVSERVER_IGNORED_PREFIXES = ['/site_media', '/uploads', '/static', '/media']
-DEVSERVER_IGNORED_PREFIXES = []
 
 #DEBUG_TOOLBAR_PANELS = (
 #    'debug_toolbar.panels.version.VersionDebugPanel',

@@ -12,6 +12,7 @@ from manabi.apps.flashcards.models import (
 from manabi.apps.flashcards.serializers import (
     DeckSerializer,
     FactSerializer,
+    FactWithCardsSerializer,
     DetailedFactSerializer,
     CardSerializer,
 )
@@ -64,10 +65,11 @@ class SharedDeckViewSet(viewsets.ModelViewSet):
         return decks.order_by('name')
 
 
-class FactViewSet(viewsets.ModelViewSet):
+class FactViewSet(MultiSerializerViewSetMixin, viewsets.ModelViewSet):
     serializer_class = FactSerializer
     serializer_action_classes = {
         'retrieve': DetailedFactSerializer,
+        'create': FactWithCardsSerializer,
     }
     permissions_classes = [IsAuthenticated]
 

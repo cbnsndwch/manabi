@@ -121,11 +121,15 @@ class Card(models.Model):
         else:
             self.due_at = due_at
 
+    @classmethod
+    def random_card_ordinal(cls):
+        return random.randrange(0, MAX_NEW_CARD_ORDINAL)
+
     def randomize_new_order(self):
         '''
         Randomizes the order of this card, for selecting new cards.
         '''
-        self.new_card_ordinal = random.randrange(0, MAX_NEW_CARD_ORDINAL)
+        self.new_card_ordinal = self.random_card_ordinal()
         self.save()
 
     def activate(self):

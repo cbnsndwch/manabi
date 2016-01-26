@@ -1,3 +1,5 @@
+import logging
+
 from rest_framework import serializers
 
 from manabi.api.serializers import ManabiModelSerializer
@@ -54,18 +56,29 @@ class FactSerializer(ManabiModelSerializer):
         )
 
 
-class DetailedFactSerializer(FactSerializer):
-    deck = DeckSerializer()
+class FactWithCardsSerializer(FactSerializer):
     active_card_templates = serializers.MultipleChoiceField(
-        source='active_card_templates',
         choices=['recognition', 'kanji_reading', 'kanji_writing'],
         allow_empty=True,
     )
 
+    class Meta(FactSerializer.Meta):
+        fields = FactSerializer.Meta.fields + (
+            'active_card_templates',
+        )
+
     def create(self, validated_data):
-        # fact = Fact(
-        print validated_data
-        return
+        active_card_templates = validated_data.pop('active_card_templates')
+
+        fact = super(FactWithCardsSerializer, self).create(validated_data)
+
+        fact.set_active_card_templates(active_card_templates)
+
+        return fact
+
+
+class DetailedFactSerializer(FactWithCardsSerializer):
+    deck = DeckSerializer()
 
 
 class CardSerializer(ManabiModelSerializer):

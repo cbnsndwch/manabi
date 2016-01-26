@@ -154,6 +154,30 @@ class FactQuerySet(QuerySet):
         return new_shared_facts
 
 
+def _card_template_id_to_string(card_template_id):
+    from manabi.apps.flashcards.models import (
+        PRODUCTION, RECOGNITION, KANJI_READING, KANJI_WRITING)
+
+    return {
+        PRODUCTION: 'production',
+        RECOGNITION: 'recognition',
+        KANJI_READING: 'kanji_reading',
+        KANJI_WRITING: 'kanji_writing',
+    }[card_template_id]
+
+
+def _card_template_string_to_id(card_template):
+    from manabi.apps.flashcards.models import (
+        PRODUCTION, RECOGNITION, KANJI_READING, KANJI_WRITING)
+
+    return {
+        'production': PRODUCTION,
+        'recognition': RECOGNITION,
+        'kanji_reading': KANJI_READING,
+        'kanji_writing': KANJI_WRITING,
+    }[card_template]
+
+
 class Fact(models.Model):
     objects = FactQuerySet.as_manager()
 
@@ -203,20 +227,37 @@ class Fact(models.Model):
 
     @property
     def active_card_templates(self):
-        from manabi.apps.flashcards.models import (
-            PRODUCTION, RECOGNITION, KANJI_READING, KANJI_WRITING)
-
         template_ids = self.card_set.filter(active=True).values_list(
             'template', flat=True)
 
         return {
-            {
-                PRODUCTION: 'production',
-                RECOGNITION: 'recognition',
-                KANJI_READING: 'kanji_reading',
-                KANJI_WRITING: 'kanji_writing',
-            }[id_] for id_ in template_ids
+            _card_template_id_to_string(id_) for id_ in template_ids
         }
+
+    def set_active_card_templates(self, card_templates):
+        '''
+        Creates or updates associated `Card`s.
+        '''
+        from manabi.apps.flashcards.models import Card
+
+        template_ids = {
+            _card_template_string_to_id(template)
+            for template in card_templates
+        }
+
+        self.card_set.filter(template__in=template_ids).update(suspended=False)
+        self.card_set.exclude(template__in=template_ids).update(suspended=True)
+
+        existing_template_ids = set(self.card_set.values_list(
+            'template', flat=True))
+
+        for template_id in template_ids - existing_template_ids:
+            Card.objects.create(
+                deck=self.deck,
+                fact=self,
+                template=template_id,
+                new_card_ordinal=Card.random_card_ordinal(),
+            )
 
     @property
     def field_contents(self):
