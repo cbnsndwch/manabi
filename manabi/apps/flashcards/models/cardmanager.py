@@ -231,13 +231,19 @@ class CommonFiltersMixin(object):
         return self.filter(active=True, suspended=False)
 
     def of_deck(self, deck, with_upstream=False):
-        deck_key = 'cards:deck:{0}'.format(deck.id)
-        if with_upstream and deck.synchronized_with:
-            sync_deck_key = 'cards:deck:{0}'.format(deck.synchronized_with_id)
-            card_ids = redis.sunion(deck_key, sync_deck_key)
-        else:
-            card_ids = redis.smembers(deck_key)
-        return self.filter(id__in=card_ids)
+        if with_upstream and deck.synchronized_with_id:
+            return self.filter(deck_id__in={deck.id, deck.synchronized_with_id})
+
+        return self.filter(deck=deck)
+
+        # TODO Remove Redis for this?
+        # deck_key = 'cards:deck:{0}'.format(deck.id)
+        # if with_upstream and deck.synchronized_with:
+        #     sync_deck_key = 'cards:deck:{0}'.format(deck.synchronized_with_id)
+        #     card_ids = redis.sunion(deck_key, sync_deck_key)
+        # else:
+        #     card_ids = redis.smembers(deck_key)
+        # return self.filter(id__in=card_ids)
 
     def of_user(self, user):
         return self.filter(deck__owner=user)
