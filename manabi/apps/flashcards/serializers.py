@@ -69,11 +69,8 @@ class FactWithCardsSerializer(FactSerializer):
 
     def create(self, validated_data):
         active_card_templates = validated_data.pop('active_card_templates')
-
         fact = super(FactWithCardsSerializer, self).create(validated_data)
-
         fact.set_active_card_templates(active_card_templates)
-
         return fact
 
 

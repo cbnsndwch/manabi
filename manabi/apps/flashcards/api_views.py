@@ -44,7 +44,9 @@ class DeckViewSet(viewsets.ModelViewSet):
     def facts(self, request, pk=None):
         deck = self.get_object()
         facts = Fact.objects.deck_facts(deck)
-        return Response(FactSerializer(facts, many=True).data)
+        facts = facts.select_related('deck')
+        facts = facts.prefetch_related('card_set')
+        return Response(DetailedFactSerializer(facts, many=True).data)
 
 
 class SharedDeckViewSet(viewsets.ModelViewSet):
@@ -65,17 +67,19 @@ class SharedDeckViewSet(viewsets.ModelViewSet):
         return decks.order_by('name')
 
 
-class FactViewSet(MultiSerializerViewSetMixin, viewsets.ModelViewSet):
-    serializer_class = FactSerializer
-    serializer_action_classes = {
-        'retrieve': DetailedFactSerializer,
-        'create': FactWithCardsSerializer,
-    }
+class FactViewSet(viewsets.ModelViewSet):  #MultiSerializerViewSetMixin,
+    serializer_class = DetailedFactSerializer
+    # serializer_action_classes = {
+    #     'retrieve': DetailedFactSerializer,
+    #     'create': FactWithCardsSerializer,
+    # }
     permissions_classes = [IsAuthenticated]
 
     def get_queryset(self):
         facts = Fact.objects.with_upstream(user=self.request.user)
         facts = facts.filter(active=True).distinct()
+        facts = facts.select_related('deck')
+        facts = facts.prefetch_related('card_set')
         return facts
 
     # TODO Special code for getting a specific object, for speed.
