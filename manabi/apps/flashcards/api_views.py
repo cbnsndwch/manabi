@@ -67,12 +67,12 @@ class SharedDeckViewSet(viewsets.ModelViewSet):
         return decks.order_by('name')
 
 
-class FactViewSet(viewsets.ModelViewSet):  #MultiSerializerViewSetMixin,
+class FactViewSet(MultiSerializerViewSetMixin, viewsets.ModelViewSet):
     serializer_class = DetailedFactSerializer
-    # serializer_action_classes = {
-    #     'retrieve': DetailedFactSerializer,
-    #     'create': FactWithCardsSerializer,
-    # }
+    serializer_action_classes = {
+        'create': FactWithCardsSerializer,
+        'update': FactWithCardsSerializer,
+    }
     permissions_classes = [IsAuthenticated]
 
     def get_queryset(self):

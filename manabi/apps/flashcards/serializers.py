@@ -28,6 +28,7 @@ class DeckSerializer(ManabiModelSerializer):
 
 class FactSerializer(ManabiModelSerializer):
     card_count = serializers.ReadOnlyField()
+    suspended = serializers.BooleanField()
 
     def to_representation(self, obj):
         data = super(FactSerializer, self).to_representation(obj)
@@ -47,6 +48,7 @@ class FactSerializer(ManabiModelSerializer):
             'id',
             'deck',
             'active',
+            'suspended',
             'expression',
             'card_count',
             'reading',
@@ -54,6 +56,19 @@ class FactSerializer(ManabiModelSerializer):
             'created_at',
             'modified_at',
         )
+
+    def update(self, instance, validated_data):
+        suspended = validated_data.pop('suspended', None)
+
+        fact = super(FactSerializer, self).update(instance, validated_data)
+
+        if suspended is not None and suspended != fact.suspended():
+            if suspended:
+                fact.suspend()
+            else:
+                fact.unsuspend()
+
+        return fact
 
 
 class FactWithCardsSerializer(FactSerializer):
@@ -71,6 +86,16 @@ class FactWithCardsSerializer(FactSerializer):
         active_card_templates = validated_data.pop('active_card_templates')
         fact = super(FactWithCardsSerializer, self).create(validated_data)
         fact.set_active_card_templates(active_card_templates)
+        return fact
+
+    def update(self, instance, validated_data):
+        active_card_templates = validated_data.pop('active_card_templates', None)
+
+        fact = super(FactWithCardsSerializer, self).update(instance, validated_data)
+
+        if active_card_templates is not None:
+            fact.set_active_card_templates(active_card_templates)
+
         return fact
 
 

@@ -199,8 +199,9 @@ class Fact(models.Model):
 
     @property
     def active_card_templates(self):
-        template_ids = self.card_set.filter(active=True).values_list(
-            'template', flat=True)
+        template_ids = (
+            self.card_set.available().values_list('template', flat=True)
+        )
 
         return {
             _card_template_id_to_string(id_) for id_ in template_ids
@@ -217,8 +218,8 @@ class Fact(models.Model):
             for template in card_templates
         }
 
-        self.card_set.filter(template__in=template_ids).update(suspended=False)
-        self.card_set.exclude(template__in=template_ids).update(suspended=True)
+        self.card_set.filter(template__in=template_ids).update(active=True)
+        self.card_set.exclude(template__in=template_ids).update(active=False)
 
         existing_template_ids = set(self.card_set.values_list(
             'template', flat=True))
@@ -233,8 +234,10 @@ class Fact(models.Model):
 
     def suspended(self):
         '''Returns whether this fact's cards are all suspended.'''
-        cards = self.card_set.filter(active=True)
-        return cards.exists() and not cards.filter(suspended=False).exists()
+        return not (
+            self.card_set.filter(active=True)
+            .exclude(suspended=True).exists()
+        )
 
     def suspend(self):
         self.card_set.update(suspended=True)
