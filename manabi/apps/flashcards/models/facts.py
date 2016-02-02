@@ -234,13 +234,6 @@ class Fact(models.Model):
                 new_card_ordinal=Card.random_card_ordinal(),
             )
 
-    # def suspended(self):
-    #     '''Returns whether this fact's cards are all suspended.'''
-    #     return not (
-    #         self.card_set.filter(active=True)
-    #         .exclude(suspended=True).exists()
-    #     )
-
     def suspend(self):
         self.card_set.update(suspended=True)
         self.suspended = True
