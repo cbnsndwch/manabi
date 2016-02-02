@@ -62,7 +62,7 @@ class FactSerializer(ManabiModelSerializer):
 
         fact = super(FactSerializer, self).update(instance, validated_data)
 
-        if suspended is not None and suspended != fact.suspended():
+        if suspended is not None and suspended != fact.suspended:
             if suspended:
                 fact.suspend()
             else:
