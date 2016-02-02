@@ -55,7 +55,6 @@ class Card(models.Model):
 
     new_card_ordinal = models.PositiveIntegerField(null=True, blank=True)
 
-    #TODO Remove? Don't need this in addition to active.
     suspended = models.BooleanField(default=False, db_index=True)
 
 

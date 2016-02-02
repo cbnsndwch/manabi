@@ -168,6 +168,8 @@ class Fact(models.Model):
     created_at = models.DateTimeField(auto_now_add=True, editable=False)
     modified_at = models.DateTimeField(blank=True, null=True)
 
+    suspended = models.BooleanField(default=False)
+
     def roll_ordinal(self):
         if not self.new_fact_ordinal:
             self.new_fact_ordinal = random.randrange(0, MAX_NEW_CARD_ORDINAL)
@@ -232,19 +234,23 @@ class Fact(models.Model):
                 new_card_ordinal=Card.random_card_ordinal(),
             )
 
-    def suspended(self):
-        '''Returns whether this fact's cards are all suspended.'''
-        return not (
-            self.card_set.filter(active=True)
-            .exclude(suspended=True).exists()
-        )
+    # def suspended(self):
+    #     '''Returns whether this fact's cards are all suspended.'''
+    #     return not (
+    #         self.card_set.filter(active=True)
+    #         .exclude(suspended=True).exists()
+    #     )
 
     def suspend(self):
         self.card_set.update(suspended=True)
+        self.suspended = True
+        self.save()
         fact_suspended.send(sender=self, instance=self)
 
     def unsuspend(self):
         self.card_set.update(suspended=False)
+        self.suspended = False
+        self.save()
         fact_unsuspended.send(sender=self, instance=self)
 
     #TODELETE?
