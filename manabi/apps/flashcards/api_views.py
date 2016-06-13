@@ -1,13 +1,16 @@
+from django.conf import settings
 from rest_framework import viewsets
 from rest_framework.decorators import detail_route, list_route
-from rest_framework.response import Response
 from rest_framework.permissions import IsAuthenticated
+from rest_framework.response import Response
+from rest_framework.views import APIView
 
 from manabi.api.viewsets import MultiSerializerViewSetMixin
 from manabi.apps.flashcards.models import (
     Deck,
     Fact,
     Card,
+    NextCardsForReview,
 )
 from manabi.apps.flashcards.serializers import (
     DeckSerializer,
@@ -15,6 +18,8 @@ from manabi.apps.flashcards.serializers import (
     FactWithCardsSerializer,
     DetailedFactSerializer,
     CardSerializer,
+    NextCardsForReviewSerializer,
+    ReviewInterstitialSerializer,
 )
 
 
@@ -85,16 +90,22 @@ class FactViewSet(MultiSerializerViewSetMixin, viewsets.ModelViewSet):
     # TODO Special code for getting a specific object, for speed.
 
 
-class NextCardForReviewViewSet(viewsets.ModelViewSet):
-    serializer_class = CardSerializer
+class NextCardsForReviewViewSet(viewsets.ViewSet):
     permission_classes = [IsAuthenticated]
 
-    def get_queryset(self):
-        count = 5
-        next_cards = Card.objects.next_cards(
+    def _test_helper_get(self, request, format=None):
+        from manabi.apps.flashcards.test_stubs import NEXT_CARDS_TO_REVIEW_STUB
+        return Response(NEXT_CARDS_TO_REVIEW_STUB)
+
+    def list(self, request, format=None):
+        if settings.DEBUG:
+            return self._test_helper_get(request, format=format)
+
+        next_cards_for_review = NextCardsForReview(
             self.request.user,
-            count,
-            #TODO
+            5, # FIXME
         )
-        # FIXME Properly support this endpoint, incl filtering.
-        return Card.objects.filter(pk__in=[card.pk for card in next_cards])
+        serializer = NextCardsForReviewSerializer(
+            next_cards_for_review)
+
+        return Response(serializer.data)

@@ -5,4 +5,4 @@ from fields import *
 from cardhistory import *
 from cardtemplates import *
 from undo import *
-
+from next_cards_for_review import *
