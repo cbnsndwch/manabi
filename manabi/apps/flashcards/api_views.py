@@ -94,8 +94,14 @@ class NextCardsForReviewViewSet(viewsets.ViewSet):
     permission_classes = [IsAuthenticated]
 
     def _test_helper_get(self, request, format=None):
+        import random
         from manabi.apps.flashcards.test_stubs import NEXT_CARDS_TO_REVIEW_STUB
-        return Response(NEXT_CARDS_TO_REVIEW_STUB)
+
+        cards_to_review = NEXT_CARDS_TO_REVIEW_STUB.copy()
+        cards_to_review['interstitial']['more_cards_ready_for_review'] = (
+            random.choice([True, False])
+        )
+        return Response(cards_to_review)
 
     def list(self, request, format=None):
         if settings.DEBUG:

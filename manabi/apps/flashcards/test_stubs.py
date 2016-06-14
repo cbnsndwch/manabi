@@ -36,7 +36,7 @@ NEXT_CARDS_TO_REVIEW_STUB = {
         },
     ],
     "interstitial": {
-        "ready_for_review": True,
+        "more_cards_ready_for_review": True,
         "next_new_cards_count": 10,
     },
 }
