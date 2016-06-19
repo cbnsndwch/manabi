@@ -98,9 +98,12 @@ class NextCardsForReviewViewSet(viewsets.ViewSet):
         from manabi.apps.flashcards.test_stubs import NEXT_CARDS_TO_REVIEW_STUB
 
         cards_to_review = NEXT_CARDS_TO_REVIEW_STUB.copy()
-        cards_to_review['interstitial']['more_cards_ready_for_review'] = (
-            random.choice([True, False])
-        )
+        if random.choice([True, False]):
+            cards_to_review['interstitial'] = None
+        else:
+            cards_to_review['interstitial']['more_cards_ready_for_review'] = (
+                random.choice([True, False])
+            )
         return Response(cards_to_review)
 
     def list(self, request, format=None):
