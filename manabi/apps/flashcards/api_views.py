@@ -103,11 +103,12 @@ class NextCardsForReviewViewSet(viewsets.ViewSet):
         from manabi.apps.flashcards.test_stubs import NEXT_CARDS_TO_REVIEW_STUBS
 
         STUBS = NEXT_CARDS_TO_REVIEW_STUBS
-
         if not excluded_card_ids:
             cards_to_review = STUBS[0].copy()
-        if excluded_card_ids == set(c['id'] for c in STUBS[0]['cards']):
+        elif excluded_card_ids == set(c['id'] for c in STUBS[0]['cards']):
             cards_to_review = STUBS[1].copy()
+        else:
+            cards_to_review = STUBS[2].copy()
 
         if cards_to_review['interstitial']:
             if random.choice([True, False]):
