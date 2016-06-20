@@ -12,10 +12,11 @@ class ReviewInterstitial(object):
 
 
 class NextCardsForReview(object):
-    def __init__(self, user, count):
+    def __init__(self, user, count, excluded_card_ids=set()):
         next_cards = Card.objects.next_cards(
             user,
             count,
+            excluded_ids=excluded_ids,
             #TODO
         )
         # FIXME don't need 2 queries here...

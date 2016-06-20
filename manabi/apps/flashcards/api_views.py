@@ -3,6 +3,7 @@ from rest_framework import viewsets
 from rest_framework.decorators import detail_route, list_route
 from rest_framework.permissions import IsAuthenticated
 from rest_framework.response import Response
+from rest_framework.serializers import ValidationError
 from rest_framework.views import APIView
 
 from manabi.api.viewsets import MultiSerializerViewSetMixin
@@ -93,27 +94,55 @@ class FactViewSet(MultiSerializerViewSetMixin, viewsets.ModelViewSet):
 class NextCardsForReviewViewSet(viewsets.ViewSet):
     permission_classes = [IsAuthenticated]
 
-    def _test_helper_get(self, request, format=None):
+    def _test_helper_get(
+        self, request,
+        format=None,
+        excluded_card_ids=set(),
+    ):
         import random
-        from manabi.apps.flashcards.test_stubs import NEXT_CARDS_TO_REVIEW_STUB
+        from manabi.apps.flashcards.test_stubs import NEXT_CARDS_TO_REVIEW_STUBS
 
-        cards_to_review = NEXT_CARDS_TO_REVIEW_STUB.copy()
-        if random.choice([True, False]):
-            cards_to_review['interstitial'] = None
-        else:
-            cards_to_review['interstitial']['more_cards_ready_for_review'] = (
-                random.choice([True, False])
-            )
+        STUBS = NEXT_CARDS_TO_REVIEW_STUBS
+
+        if not excluded_card_ids:
+            cards_to_review = STUBS[0].copy()
+        if excluded_card_ids == set(c['id'] for c in STUBS[0]['cards']):
+            cards_to_review = STUBS[1].copy()
+
+        if cards_to_review['interstitial']:
+            if random.choice([True, False]):
+                cards_to_review['interstitial'] = None
+            else:
+                cards_to_review['interstitial']['more_cards_ready_for_review'] = (
+                    random.choice([True, False])
+                )
+
         return Response(cards_to_review)
 
+    def _get_excluded_card_ids(self, request):
+        try:
+            return set(
+                int(id_) for id_ in
+                request.query_params['excluded_card_ids'].split(',')
+            )
+        except KeyError:
+            return set()
+        except TypeError:
+            raise ValidationError("Couldn't parse card IDs.")
+
     def list(self, request, format=None):
+        excluded_card_ids = self._get_excluded_card_ids(request)
+
         if settings.DEBUG:
-            return self._test_helper_get(request, format=format)
+            return self._test_helper_get(
+                request, format=format, excluded_card_ids=excluded_card_ids)
 
         next_cards_for_review = NextCardsForReview(
             self.request.user,
             5, # FIXME
+            excluded_card_ids=excluded_card_ids,
         )
+
         serializer = NextCardsForReviewSerializer(
             next_cards_for_review)
 
