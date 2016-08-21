@@ -20,7 +20,7 @@ from manabi.apps.flashcards.serializers import (
     DetailedFactSerializer,
     CardSerializer,
     NextCardsForReviewSerializer,
-    ReviewInterstitialSerializer,
+    ReviewAvailabilitiesSerializer,
 )
 
 
@@ -91,6 +91,9 @@ class FactViewSet(MultiSerializerViewSetMixin, viewsets.ModelViewSet):
     # TODO Special code for getting a specific object, for speed.
 
 
+class ReviewAvailabilitiesViewSet(viewsets.ViewSet):
+
+
 class NextCardsForReviewViewSet(viewsets.ViewSet):
     permission_classes = [IsAuthenticated]
 
@@ -109,9 +112,10 @@ class NextCardsForReviewViewSet(viewsets.ViewSet):
             cards_to_review = STUBS[1].copy()
         else:
             cards_to_review = STUBS[2].copy()
+        cards_to_review = STUBS[2].copy()
 
         if cards_to_review['interstitial']:
-            if random.choice([True, False]):
+            if False: #random.choice([True, False, False, False]):
                 cards_to_review['interstitial'] = None
             else:
                 cards_to_review['interstitial']['more_cards_ready_for_review'] = (

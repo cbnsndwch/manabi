@@ -128,7 +128,7 @@ class CardSerializer(ManabiModelSerializer):
         )
 
 
-class ReviewInterstitialSerializer(serializers.Serializer):
+class ReviewAvailabilitiesSerializer(serializers.Serializer):
     ready_for_review = serializers.BooleanField()
     next_new_cards_count = serializers.IntegerField()
     # new_cards_available = serializers.BooleanField()
@@ -145,7 +145,7 @@ class NextCardsForReviewSerializer(serializers.Serializer):
 
     # `None` means it should not display an interstitial, and should continue
     # requesting the next cards for review.
-    interstitial = ReviewInterstitialSerializer(required=False)
+    interstitial = ReviewAvailabilitiesSerializer(required=False)
 
     class Meta:
         read_only_fields = (

@@ -91,7 +91,7 @@ NEXT_CARDS_TO_REVIEW_STUBS = [
                 "last_interval": None,
                 "last_due_at": None,
                 "review_count": 0,
-                "template": 0,
+                "template": 3,
                 "expression": u"[5] 背を寄せる",
                 "reading": u"｜背《せ》を｜寄《よ》せる",
                 "meaning": "lean one's back (against)",
