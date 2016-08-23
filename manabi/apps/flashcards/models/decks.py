@@ -1,4 +1,6 @@
+from collections import defaultdict
 import datetime
+import itertools
 
 from cachecow.decorators import cached_function
 from django.contrib.auth.models import User
@@ -139,7 +141,7 @@ class Deck(models.Model):
         If the user was already subscribed to this deck,
         returns the existing deck.
         '''
-        from facts import Fact
+        from manabi.apps.flashcards.models import Card, Fact
 
         # check if the user is already subscribed to this deck
         subscriber_deck = self.get_subscriber_deck_for_user(user)
@@ -159,32 +161,36 @@ class Deck(models.Model):
             name=self.name,
             description=self.description,
             #TODO-OLD implement textbook=shared_deck.textbook, #picture too...
-            priority=self.priority,
+            priority=self.priority,  # TODO: Remove.
             textbook_source=self.textbook_source,
             owner_id=user.id)
         deck.save()
 
         # copy all facts
         copied_facts = []
-        copied_cards = {}
+        copied_cards = defaultdict(list)  # Copied fact index as key.
         for shared_fact in self.fact_set.filter(active=True).order_by('new_fact_ordinal'):
             copy_attrs = [
-                'deck', 'synchronized_with', 'active', 'new_fact_ordinal',
+                'synchronized_with', 'active', 'new_fact_ordinal',
                 'expression', 'reading', 'meaning', 'suspended',
             ]
             fact_kwargs = {attr: getattr(shared_fact, attr) for attr in copy_attrs}
-            fact = Fact(fact_kwargs)
+            fact = Fact(deck=deck, **fact_kwargs)
             copied_facts.append(fact)
 
-            # copy the cards
+            # Copy the cards.
             for shared_card in shared_fact.card_set.filter(active=True):
-                copied_cards[fact] = shared_card.copy(fact)
+                card = shared_card.copy(fact)
+                copied_cards[len(copied_facts) - 1].append(card)
 
         # Persist everything.
-        Fact.objects.bulk_create(copied_facts)
-        Card.objects.bulk_create(copied_cards)
+        created_facts = Fact.objects.bulk_create(copied_facts)
+        for offset, fact in enumerate(created_facts):
+            for copied_card in copied_cards[offset]:
+                copied_card.fact_id = fact.id
+        Card.objects.bulk_create(itertools.chain.from_iterable(copied_cards.itervalues()))
 
-        #done!
+        # Done!
         return deck
 
     def card_count(self):

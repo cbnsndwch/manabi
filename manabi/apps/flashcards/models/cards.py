@@ -85,9 +85,9 @@ class Card(models.Model):
         Returns a new Card object. Copies for the purpose of subscribing.
         '''
         return Card(
+            deck=target_fact.deck,
             fact=target_fact,
-            template_id=self.template_id,
-            priority=self.priority,
+            template=self.template,
             leech=False,
             active=True,
             suspended=False,
