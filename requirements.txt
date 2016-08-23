@@ -1,4 +1,4 @@
-Django==1.9
+Django==1.10
 Fabric==1.8.0
 django-extensions==1.6.1
 lxml==3.5.0
@@ -8,7 +8,7 @@ redis==2.10.5
 hiredis==0.2.0
 pytz==2013d
 django-allauth==0.18.0
-django-nose==1.4.3
+django-nose==1.4.4
 django-lazysignup==1.0.2  # TODO Remove?
 django-model-utils==2.4
 rq==0.5.6
@@ -16,7 +16,7 @@ django-rq==0.9.0
 rq-dashboard
 natto-py==0.7.0
 twython==3.3.0
-djangorestframework==3.3.2
+djangorestframework==3.4.5
 django-filter==0.11.0
 markdown==2.6.5
 django-crispy-forms==1.5.2
@@ -46,7 +46,6 @@ WebOb==1.0.3
 
 
 # Deprecated, but used for migration to v2:
-django-picklefield==0.3.0
 django-timezones==0.2
 BeautifulSoup==3.2.0
 https://github.com/aehlke/django-catnap/archive/master.zip

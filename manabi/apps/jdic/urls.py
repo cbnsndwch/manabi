@@ -1,7 +1,8 @@
 from django.conf.urls import *
 
-urlpatterns = patterns('manabi.apps.jdic.views',
+
+urlpatterns = [
     url(r'^audio-file-exists/$',
-        'audio_file_exists',
+        'manabi.apps.stats.views.audio_file_exists',
         name='jdic_audio_file_exists'),
-)
+]

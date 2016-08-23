@@ -1,5 +1,6 @@
 import logging
 
+from django.shortcuts import get_object_or_404
 from rest_framework import serializers
 
 from manabi.api.serializers import ManabiModelSerializer
@@ -24,6 +25,27 @@ class DeckSerializer(ManabiModelSerializer):
             'modified_at',
             'suspended',
         )
+
+
+class SynchronizedDeckSerializer(ManabiModelSerializer):
+    owner = UserSerializer(read_only=True)
+    synchronized_with = serializers.PrimaryKeyRelatedField(
+        queryset=Deck.objects.shared_decks()
+    )
+
+    class Meta:
+        model = Deck
+        fields = (
+            'owner',
+            'synchronized_with',
+        )
+
+    def create(self, validated_data):
+        upstream_deck = validated_data['synchronized_with']
+        # upstream_deck = get_object_or_404(
+        #     Deck, pk=validated_data['synchronized_with'].id)
+        new_deck = upstream_deck.subscribe(validated_data['owner'])
+        return new_deck
 
 
 class FactSerializer(ManabiModelSerializer):
@@ -131,12 +153,23 @@ class CardSerializer(ManabiModelSerializer):
 class ReviewAvailabilitiesSerializer(serializers.Serializer):
     ready_for_review = serializers.BooleanField()
     next_new_cards_count = serializers.IntegerField()
+    early_review_available = serializers.BooleanField()
     # new_cards_available = serializers.BooleanField()
 
     class Meta:
         read_only_fields = (
             'ready_for_review',
             'next_new_cards_count',
+            'early_review_available',
+        )
+
+
+class ReviewInterstitialSerializer(serializers.Serializer):
+    review_availabilities = ReviewAvailabilitiesSerializer(required=True)
+
+    class Meta:
+        read_only_fields = (
+            'review_availabilities',
         )
 
 
@@ -145,7 +178,7 @@ class NextCardsForReviewSerializer(serializers.Serializer):
 
     # `None` means it should not display an interstitial, and should continue
     # requesting the next cards for review.
-    interstitial = ReviewAvailabilitiesSerializer(required=False)
+    interstitial = ReviewInterstitialSerializer(required=False)
 
     class Meta:
         read_only_fields = (

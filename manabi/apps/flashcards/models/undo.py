@@ -1,9 +1,11 @@
 import datetime
 
 from django.contrib.auth.models import User
-from django.db import models
-from django.db import transaction
-from picklefield import PickledObjectField
+from django.contrib.postgres.fields import JSONField
+from django.db import (
+    models,
+    transaction,
+)
 
 
 def _get_model_fields(model_instance, excluded_field_types=['AutoField', 'ForeignKey']):
@@ -21,7 +23,9 @@ class UndoCardReviewManager(models.Manager):
         return undos
 
     def _last_undo(self, user):
-        '''Returns the last undo for `user`.'''
+        '''
+        Returns the last undo for `user`.
+        '''
         try:
             last_undo = self.of_user(user).order_by('timestamp')[0]
         except IndexError:
@@ -30,7 +34,9 @@ class UndoCardReviewManager(models.Manager):
 
     @transaction.atomic
     def reset(self, user):
-        '''Clears the Undo stack for `user`.'''
+        '''
+        Clears the Undo stack for `user`.
+        '''
         self.of_user(user).delete()
 
     @transaction.atomic
@@ -40,11 +46,16 @@ class UndoCardReviewManager(models.Manager):
         '''
         user = card_history.card.fact.deck.owner
 
+        snapshot = {
+            getattr(card_history.card, field_name)
+            for fieldname in _get_model_fields(card_history.card)
+        }
+
         undo = UndoCardReview(
             user = user,
             card = card_history.card,
             card_history = card_history,
-            pickled_card = card_history.card,
+            card_snapshot = snapshot,
         )
 
         # Delete previous undo if it exists.
@@ -67,19 +78,20 @@ class UndoCardReviewManager(models.Manager):
 
         card = last_undo.card
         card_history = last_undo.card_history
-        undone_card = last_undo.pickled_card
 
         # Overwrite the card model with its pickled counterpart
-        for from_model, to_model in [(undone_card, card,)]:
-            for field_name in _get_model_fields(from_model):
-                setattr(to_model, field_name, getattr(from_model, field_name))
-            to_model.save()
+        for field_name in _get_model_fields(card):
+            try:
+                setattr(card, field_name, last_undo.card_snapshot[field_name])
+            except KeyError:
+                continue
+        card.save()
 
-        # Delete the card history item
         card_history.delete()
 
         # Delete this undo now that it's done
         last_undo.delete()
+
         return card
 
 
@@ -90,7 +102,8 @@ class UndoCardReview(models.Model):
     user = models.ForeignKey(User)  # Denormalization optimization
     card = models.ForeignKey('Card')
     card_history = models.ForeignKey('CardHistory')
-    pickled_card = PickledObjectField()
+
+    card_snapshot = JSONField()
 
     class Meta:
         app_label = 'flashcards'

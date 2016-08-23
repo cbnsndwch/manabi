@@ -13,8 +13,12 @@ from manabi.apps.flashcards.models import (
     Card,
     NextCardsForReview,
 )
+from manabi.apps.flashcards.permissions import (
+    DeckSynchronizationPermission,
+)
 from manabi.apps.flashcards.serializers import (
     DeckSerializer,
+    SynchronizedDeckSerializer,
     FactSerializer,
     FactWithCardsSerializer,
     DetailedFactSerializer,
@@ -55,6 +59,23 @@ class DeckViewSet(viewsets.ModelViewSet):
         return Response(DetailedFactSerializer(facts, many=True).data)
 
 
+class SynchronizedDeckViewSet(viewsets.ModelViewSet):
+    serializer_class = SynchronizedDeckSerializer
+
+    permission_classes = [
+        IsAuthenticated,
+        DeckSynchronizationPermission,
+    ]
+
+    def get_queryset(self):
+        if not self.request.user.is_authenticated():
+            return Deck.objects.none()
+        return Deck.objects.synchronized_decks(self.request.user)
+
+    def perform_create(self, serializer):
+        instance = serializer.save(owner=self.request.user)
+
+
 class SharedDeckViewSet(viewsets.ModelViewSet):
     serializer_class = DeckSerializer
 
@@ -92,6 +113,22 @@ class FactViewSet(MultiSerializerViewSetMixin, viewsets.ModelViewSet):
 
 
 class ReviewAvailabilitiesViewSet(viewsets.ViewSet):
+    permission_classes = [IsAuthenticated]
+
+    def _test_helper_get(self, request, format=None):
+        from manabi.apps.flashcards.test_stubs import NEXT_CARDS_TO_REVIEW_STUBS
+
+        return Response(NEXT_CARDS_TO_REVIEW_STUBS[1]['interstitial'])
+
+    def list(self, request, format=None):
+        if settings.DEBUG:
+            return self._test_helper_get(request, format=format)
+
+        # FIXME
+        serializer = ReviewAvailabilitiesSerializer(
+            )
+
+        return Response(serializer.data)
 
 
 class NextCardsForReviewViewSet(viewsets.ViewSet):

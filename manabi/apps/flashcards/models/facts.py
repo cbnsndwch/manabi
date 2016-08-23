@@ -207,11 +207,6 @@ class Fact(models.Model):
             self.card_set.available().values_list('template', flat=True)
         )
 
-        # template_ids = [
-        #     id_ for id_ in template_ids
-        #     if id_ != PRODUCTION
-        # ]
-
         return {
             _card_template_id_to_string(id_) for id_ in template_ids
         }

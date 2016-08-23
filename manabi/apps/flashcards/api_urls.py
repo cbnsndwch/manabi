@@ -3,10 +3,7 @@ from django.conf.urls import *
 from manabi.apps.flashcards import api
 
 
-urlpatterns = patterns(
-    'manabi.apps.flashcards.api',
-
-
+urlpatterns = [
     # url(r'^next_cards_for_review/$', api.NextCardsForReview.as_view()),
     # url(r'^undo_card_review/$', api.UndoCardReview.as_view()),
     # url(r'^cards/(?P<card>\w+)/$', api.Card.as_view(), name='api_card'),
@@ -17,4 +14,4 @@ urlpatterns = patterns(
     # url(r'^decks/(?P<deck>\w+)/cards/$', api.DeckCards.as_view(), name='api_deck_cards'),
 
     # url(r'^shared_decks/$', api.SharedDecks.as_view(), name='api_shared_decks'),
-)
+]

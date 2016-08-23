@@ -4,6 +4,6 @@ from django.conf import settings
 from manabi.apps.utils.views import direct_to_template
 
 
-urlpatterns = patterns('manabi.apps.reports',
-    url(r'^spring_break_usage$', 'views.spring_break_usage'),
-)
+urlpatterns = [
+    url(r'^spring_break_usage$', 'manabi.apps.reports.views.spring_break_usage'),
+]

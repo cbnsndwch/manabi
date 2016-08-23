@@ -76,6 +76,7 @@ NEXT_CARDS_TO_REVIEW_STUBS = [
         "interstitial": {
             "more_cards_ready_for_review": True,
             "next_new_cards_count": 2,
+            "early_review_available": False,
         },
     },
     {
@@ -116,6 +117,7 @@ NEXT_CARDS_TO_REVIEW_STUBS = [
         "interstitial": {
             "more_cards_ready_for_review": True,
             "next_new_cards_count": 0,
+            "early_review_available": True,
         },
     },
 ]

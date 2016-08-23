@@ -4,12 +4,13 @@ from django.contrib import admin
 from lazysignup.decorators import allow_lazy_user
 from rest_framework import routers
 
-from manabi.apps.utils.urldecorators import decorated_patterns
 from manabi.apps.utils.views import direct_to_template
 from manabi.apps.flashcards.api_views import (
     DeckViewSet,
+    SynchronizedDeckViewSet,
     SharedDeckViewSet,
     FactViewSet,
+    ReviewAvailabilitiesViewSet,
     NextCardsForReviewViewSet,
 )
 
@@ -17,19 +18,28 @@ from manabi.apps.flashcards.api_views import (
 
 
 router = routers.DefaultRouter()
-router.register(r'flashcards/decks', DeckViewSet,
-                base_name='deck')
-router.register(r'flashcards/shared_decks', SharedDeckViewSet,
-                base_name='shared-deck')
-router.register(r'flashcards/facts', FactViewSet,
-                base_name='fact')
-router.register(r'flashcards/next_cards_for_review', NextCardsForReviewViewSet,
-                base_name='next-card-for-review')
+router.register(r'flashcards/decks',
+    DeckViewSet,
+    base_name='deck')
+router.register(r'flashcards/synchronized_decks',
+    SynchronizedDeckViewSet,
+    base_name='synchronized-deck')
+router.register(r'flashcards/shared_decks',
+    SharedDeckViewSet,
+    base_name='shared-deck')
+router.register(r'flashcards/facts',
+    FactViewSet,
+    base_name='fact')
+router.register(r'flashcards/review_availabilities',
+    ReviewAvailabilitiesViewSet,
+    base_name='review-availabilities')
+router.register(r'flashcards/next_cards_for_review',
+    NextCardsForReviewViewSet,
+    base_name='next-card-for-review')
 
 
-urlpatterns = patterns(
-    '',
-    (r'^admin/', include(admin.site.urls)),
+urlpatterns = [
+    url(r'^admin/', include(admin.site.urls)),
 
     url(r'^terms-of-service/$', direct_to_template,
         {'template': 'tos.html'}, name='terms_of_service'),
@@ -47,11 +57,13 @@ urlpatterns = patterns(
     url(r'^api/twitter_usages/', include('manabi.apps.twitter_usages.api_urls')),
 
     #url(r'^flashcards/api/', include(rest_api_urlpatterns)),
+]
 
-) + decorated_patterns('', allow_lazy_user,
-    url(r'^$', 'views.index', name='home'),
+# TODELETE: LEGACY
+# + decorated_patterns('', allow_lazy_user,
+#     url(r'^$', 'views.index', name='home'),
 
-    (r'^flashcards/', include('manabi.apps.flashcards.urls')),
-    (r'^importer/', include('manabi.apps.importer.urls')),
-    (r'^kanjivg/', include('kanjivg.urls')),
-)
+#     (r'^flashcards/', include('manabi.apps.flashcards.urls')),
+#     (r'^importer/', include('manabi.apps.importer.urls')),
+#     (r'^kanjivg/', include('kanjivg.urls')),
+# )

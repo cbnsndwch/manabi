@@ -28,6 +28,9 @@ CARD_TEMPLATE_CHOICES = (
 
 
 class Card(models.Model):
+    '''
+    Remember to migrate undo histories with Card migrations.
+    '''
     objects = CardQuerySet.as_manager()
 
     deck = models.ForeignKey('flashcards.Deck', null=False, db_index=True)
@@ -78,12 +81,18 @@ class Card(models.Model):
         return u'{} | {}'.format(self.fact.expression, self.fact.meaning)
 
     def copy(self, target_fact):
-        ''' Returns a new Card object. '''
-        return Card(fact=target_fact,
-                    template_id=self.template_id,
-                    priority=self.priority,
-                    leech=False, active=True, suspended=False,
-                    new_card_ordinal=self.new_card_ordinal)
+        '''
+        Returns a new Card object. Copies for the purpose of subscribing.
+        '''
+        return Card(
+            fact=target_fact,
+            template_id=self.template_id,
+            priority=self.priority,
+            leech=False,
+            active=True,
+            suspended=False,
+            new_card_ordinal=self.new_card_ordinal,
+        )
 
     @property
     def redis(self):

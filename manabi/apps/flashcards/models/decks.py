@@ -12,7 +12,6 @@ from manabi.apps.books.models import Textbook
 from constants import DEFAULT_EASE_FACTOR
 from manabi.apps.flashcards.cachenamespaces import deck_review_stats_namespace
 import cards
-#from manabi.apps import usertagging
 
 
 class DeckQuerySet(QuerySet):
@@ -165,41 +164,26 @@ class Deck(models.Model):
             owner_id=user.id)
         deck.save()
 
-        # copy the tags
-        # deck.tags = usertagging.utils.edit_string_for_tags(self.tags)
-
-        # copy the facts - just the first few as a buffer
-        shared_fact_to_fact = {}
-        #TODO-OLD dont hardcode value here #chain(self.fact_set.all(), Fact.objects.filter(parent_fact__deck=self)):
-        for shared_fact in self.fact_set.filter(active=True, parent_fact__isnull=True).order_by('new_fact_ordinal')[:10]:
-            #FIXME get the child facts for this fact too
-            #if shared_fact.parent_fact:
-            #    #child fact
-            #    fact = Fact(
-            #        fact_type=shared_fact.fact_type,
-            #        active=shared_fact.active) #TODO-OLD should it be here?
-            #    fact.parent_fact = shared_fact_to_fact[shared_fact.parent_fact]
-            #    fact.save()
-            #else:
-            #   #regular fact
-            fact = Fact(
-                deck=deck,
-                fact_type_id=shared_fact.fact_type_id,
-                synchronized_with=shared_fact,
-                active=True, #shared_fact.active, #TODO-OLD should it be here?
-                priority=shared_fact.priority,
-                new_fact_ordinal=shared_fact.new_fact_ordinal,
-                notes=shared_fact.notes)
-            fact.save()
-            shared_fact_to_fact[shared_fact] = fact
-
-            # don't copy the field contents for this fact - we'll get them from
-            # the shared fact later
+        # copy all facts
+        copied_facts = []
+        copied_cards = {}
+        for shared_fact in self.fact_set.filter(active=True).order_by('new_fact_ordinal'):
+            copy_attrs = [
+                'deck', 'synchronized_with', 'active', 'new_fact_ordinal',
+                'expression', 'reading', 'meaning', 'suspended',
+            ]
+            fact_kwargs = {attr: getattr(shared_fact, attr) for attr in copy_attrs}
+            fact = Fact(fact_kwargs)
+            copied_facts.append(fact)
 
             # copy the cards
             for shared_card in shared_fact.card_set.filter(active=True):
-                card = shared_card.copy(fact)
-                card.save()
+                copied_cards[fact] = shared_card.copy(fact)
+
+        # Persist everything.
+        Fact.objects.bulk_create(copied_facts)
+        Card.objects.bulk_create(copied_cards)
+
         #done!
         return deck
 

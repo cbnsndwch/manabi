@@ -3,7 +3,6 @@ from __future__ import unicode_literals
 
 from django.db import models, migrations
 from django.conf import settings
-import picklefield.fields
 
 
 class Migration(migrations.Migration):
@@ -198,7 +197,7 @@ class Migration(migrations.Migration):
             fields=[
                 ('id', models.AutoField(verbose_name='ID', serialize=False, auto_created=True, primary_key=True)),
                 ('timestamp', models.DateTimeField(auto_now_add=True)),
-                ('pickled_card', picklefield.fields.PickledObjectField(editable=False)),
+                ('pickled_card', models.CharField()),  # picklefield.fields.PickledObjectField(editable=False)),
                 ('card', models.ForeignKey(to='flashcards.Card')),
                 ('card_history', models.ForeignKey(to='flashcards.CardHistory')),
                 ('user', models.ForeignKey(to=settings.AUTH_USER_MODEL)),
