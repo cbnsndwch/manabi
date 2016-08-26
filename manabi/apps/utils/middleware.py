@@ -17,5 +17,3 @@ class JsonDebugMiddleware(object):
 class WakeRequestUserMiddleware(object):
     def process_request(self, request):
         user = request.user._wrapped if hasattr(request.user,'_wrapped') else request.user
-        print request.user.pk
-

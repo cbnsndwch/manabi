@@ -64,6 +64,5 @@ urlpatterns = [
 #     url(r'^$', 'views.index', name='home'),
 
 #     (r'^flashcards/', include('manabi.apps.flashcards.urls')),
-#     (r'^importer/', include('manabi.apps.importer.urls')),
 #     (r'^kanjivg/', include('kanjivg.urls')),
 # )

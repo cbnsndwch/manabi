@@ -9,7 +9,6 @@ from django.db.models import Q, F
 from natto import MeCab
 
 from constants import MAX_NEW_CARD_ORDINAL
-from fields import FieldContent
 from manabi.apps.flashcards.signals import fact_suspended, fact_unsuspended
 from manabi.apps.flashcards.models.constants import GRADE_NONE, MIN_CARD_SPACE, CARD_SPACE_FACTOR
 
@@ -187,43 +186,3 @@ class Fact(models.Model):
 
     def __unicode__(self):
         return unicode(self.id)
-
-
-
-#############
-# OLD:
-
-
-#TODELETE
-class FactTypeQuerySet(QuerySet):
-    @property
-    def japanese(self):
-        # Unfortunately hard-coded for now, since we only have 2 types, and
-        # this is a relic of an old abandoned design that should be refactored.
-        return self.get(id=1)
-
-    def example_sentences(self):
-        return self.get(id=2)
-
-
-#TODELETE
-class FactType(models.Model):
-    objects = FactTypeQuerySet.as_manager()
-
-    name = models.CharField(max_length=50)
-    active = models.BooleanField(default=True, blank=True)
-
-    many_children_per_fact = models.NullBooleanField(blank=True, null=True)
-
-    #TODELETE
-    # minimal interval multiplier between two cards of the same fact
-    space_factor = models.FloatField(default=.1)
-
-    created_at = models.DateTimeField(auto_now_add=True, editable=False)
-    modified_at = models.DateTimeField(auto_now=True, editable=False)
-
-    def __unicode__(self):
-        return self.name
-
-    class Meta:
-        app_label = 'flashcards'

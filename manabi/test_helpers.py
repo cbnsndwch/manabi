@@ -7,13 +7,23 @@ from django.conf import settings
 from django.contrib.auth.models import User
 from django.core.urlresolvers import reverse
 from django.http import HttpResponse
-from django.test import Client, TestCase
+from django.test import (
+    Client,
+    TestCase,
+)
 
-from manabi.apps.flashcards.models import (Card, Deck, Fact,
-                                           FactType, FieldContent, FieldType)
+from manabi.apps.flashcards.models import (
+    Card,
+    Deck,
+    Fact,
+)
 from manabi.apps.flashcards.models.cards import CARD_TEMPLATE_CHOICES
-from manabi.apps.flashcards.models.constants import (GRADE_EASY, GRADE_GOOD,
-                                                     GRADE_HARD, GRADE_NONE)
+from manabi.apps.flashcards.models.constants import (
+    GRADE_EASY,
+    GRADE_GOOD,
+    GRADE_HARD,
+    GRADE_NONE,
+)
 
 PASSWORD = 'whatever'
 

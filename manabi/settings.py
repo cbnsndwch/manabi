@@ -211,7 +211,6 @@ INSTALLED_APPS += (
     'kanjivg',
     #'manabi.apps.stats',
     #TODO-OLD 'mobileaccount',
-    'manabi.apps.importer',
     #TODO-OLD 'popups',
     'manabi.apps.manabi_redis',
     'manabi.apps.reading_level',

@@ -1,7 +1,6 @@
 import django.dispatch
 from django.dispatch import receiver
 from django.db.models.signals import post_save, post_delete, pre_delete
-from models.fields import FieldContent
 from manabi.apps.flashcards.models import Card
 
 fact_suspended = django.dispatch.Signal()
@@ -16,13 +15,6 @@ fact_grid_updated = django.dispatch.Signal(providing_args=['decks'])
 
 
 # Below are the listeners which will send `fact_grid_updated`.
-@receiver(post_save,
-          sender=FieldContent, dispatch_uid='fact_grid_updated_fc_ps')
-@receiver(pre_delete,
-          sender=FieldContent, dispatch_uid='fact_grid_updated_fc_pd')
-def field_content_updated(sender, instance, **kwargs):
-    fact_grid_updated.send(sender=sender,
-                          decks=instance.fact.all_owner_decks())
 
 @receiver(fact_suspended, dispatch_uid='fact_grid_updated_f_s')
 @receiver(fact_unsuspended, dispatch_uid='fact_grid_updated_f_us')

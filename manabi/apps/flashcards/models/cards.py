@@ -1,20 +1,36 @@
-from datetime import timedelta, datetime
 import random
+from datetime import (
+    datetime,
+    timedelta,
+)
 
+from cachecow.decorators import cached_function
 from django.core.cache import cache
 from django.db import models
-from django.db.models import Count, Min, Max, Sum, Avg
-from cachecow.decorators import cached_function
+from django.db.models import (
+    Avg,
+    Count,
+    Max,
+    Min,
+    Sum,
+)
 
-from constants import (GRADE_NONE, ALL_GRADES, GRADE_NAMES,
-                       MAX_NEW_CARD_ORDINAL, MATURE_INTERVAL_MIN,
-                       MIN_CARD_SPACE)
-from manabi.apps.flashcards.cachenamespaces import (deck_review_stats_namespace,
-                                        fact_grid_namespace)
+from constants import (
+    ALL_GRADES,
+    GRADE_NAMES,
+    GRADE_NONE,
+    MATURE_INTERVAL_MIN,
+    MAX_NEW_CARD_ORDINAL,
+    MIN_CARD_SPACE,
+    CARD_SPACE_FACTOR,
+)
+from manabi.apps.flashcards.cachenamespaces import (
+    deck_review_stats_namespace,
+    fact_grid_namespace,
+)
 from manabi.apps.flashcards.models.cardmanager import CardQuerySet
-from repetitionscheduler import repetition_algo_dispatcher
 from manabi.apps.flashcards.models.undo import UndoCardReview
-
+from repetitionscheduler import repetition_algo_dispatcher
 
 PRODUCTION, RECOGNITION, KANJI_READING, KANJI_WRITING = range(4)
 
@@ -228,11 +244,8 @@ class Card(models.Model):
         TODO-OLD: maybe this should be more dependent on each card or something
         TODO-OLD: also maybe a max space if dependent on other cards' intervals
         '''
-        space_factor  = self.fact.fact_type.space_factor
-        min_card_space = self.fact.fact_type.min_card_space
-
-        min_space = max(min_card_space,
-                        space_factor * (self.interval or 0))
+        min_space = max(MIN_CARD_SPACE,
+                        CARD_SPACE_FACTOR * (self.interval or 0))
 
         return timedelta(days=min_space)
 
