@@ -55,13 +55,6 @@ class FactResource(RestModelResource):
             'card_count': self.obj.card_set.filter(active=True).count(),
         })
 
-        if self.obj.pulls_from_upstream:
-            data.update({
-                'expression': self.obj.synchronized_with.expression,
-                'reading': self.obj.synchronized_with.reading,
-                'meaning': self.obj.synchronized_with.meaning,
-            })
-
         return data
 
 

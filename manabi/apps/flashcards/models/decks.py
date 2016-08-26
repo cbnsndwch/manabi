@@ -80,8 +80,7 @@ class Deck(models.Model):
         #return usertagging.models.Tag.objects.usage_for_queryset(
             #self.facts())
         from facts import Fact
-        deck_facts = Fact.objects.with_upstream(
-            self.owner, deck=self)
+        deck_facts = Fact.objects.deck_facts(self)
         return usertagging.models.Tag.objects.usage_for_queryset(
             deck_facts)
 
@@ -206,7 +205,7 @@ class Deck(models.Model):
         return deck
 
     def card_count(self):
-        return cards.Card.objects.of_deck(self, with_upstream=True).available().count()
+        return cards.Card.objects.of_deck(self).available().count()
 
     #TODO-OLD kill - unused?
     #@property

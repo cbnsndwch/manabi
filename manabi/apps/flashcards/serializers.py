@@ -52,18 +52,6 @@ class FactSerializer(ManabiModelSerializer):
     card_count = serializers.ReadOnlyField()
     suspended = serializers.BooleanField()
 
-    def to_representation(self, obj):
-        data = super(FactSerializer, self).to_representation(obj)
-
-        if obj.pulls_from_upstream:
-            data.update({
-                'expression': obj.synchronized_with.expression,
-                'reading': obj.synchronized_with.reading,
-                'meaning': obj.synchronized_with.meaning,
-            })
-
-        return data
-
     class Meta:
         model = Fact
         fields = (

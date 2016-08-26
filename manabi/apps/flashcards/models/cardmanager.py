@@ -192,7 +192,7 @@ class SchedulerMixin(object):
 
         user_cards = self.common_filters(user, deck=deck, excluded_ids=excluded_ids)
 
-        facts = Fact.objects.with_upstream(user=user, deck=deck)
+        facts = Fact.objects.deck_facts(deck)
         buried_facts = facts.buried(user, review_time=now, excluded_card_ids=excluded_ids)
 
         cards_left = count
@@ -230,20 +230,8 @@ class CommonFiltersMixin(object):
         ''' Cards which are active and unsuspended. '''
         return self.filter(active=True, suspended=False)
 
-    def of_deck(self, deck, with_upstream=False):
-        if with_upstream and deck.synchronized_with_id:
-            return self.filter(deck_id__in={deck.id, deck.synchronized_with_id})
-
+    def of_deck(self, deck):
         return self.filter(deck=deck)
-
-        # TODO Remove Redis for this?
-        # deck_key = 'cards:deck:{0}'.format(deck.id)
-        # if with_upstream and deck.synchronized_with:
-        #     sync_deck_key = 'cards:deck:{0}'.format(deck.synchronized_with_id)
-        #     card_ids = redis.sunion(deck_key, sync_deck_key)
-        # else:
-        #     card_ids = redis.smembers(deck_key)
-        # return self.filter(id__in=card_ids)
 
     def of_user(self, user):
         return self.filter(deck__owner=user)
@@ -258,7 +246,7 @@ class CommonFiltersMixin(object):
         cards = self.of_user(user).unsuspended().filter(active=True)
 
         if deck:
-            cards = cards.of_deck(deck, with_upstream=with_upstream)
+            cards = cards.of_deck(deck)
         else:
             cards = cards.filter(deck__owner=user).exclude(deck__suspended=True)
 
@@ -268,17 +256,13 @@ class CommonFiltersMixin(object):
         return cards
 
     def new(self, user):
-        return self.filter(
-                last_reviewed_at__isnull=True).without_upstream(user)
+        return self.filter(last_reviewed_at__isnull=True)
 
     def new_count(self, user):
         '''
-        Use this rather than `new(user).count()`, since this will
-        count upstream cards properly.
-
-        Any uncopied upstream cards are to be considered "new".
+        Use this rather than `new(user).count()` for future-proofing.
         '''
-        return self.new(user).count() + self.of_upstream(user).count()
+        return self.new(user).count()
 
     def approx_new_count(self, user=None, deck=None):
         '''
@@ -289,53 +273,41 @@ class CommonFiltersMixin(object):
         cards = self.available()
         if deck:
             cards = cards.of_deck(deck)
-        return (cards.new(user).values_list('fact_id').distinct().count() +
-                cards.of_upstream(user).values_list('fact_id').distinct().count())
+        return cards.new(user).values_list('fact_id').distinct().count()
 
     def unspaced_new_count(self, user):
         '''
         Same as `new_count`, except it subtracts new cards that
         will be delayed due to sibling spacing (cards which haven't
         been spaced.)
-
-        Works properly with upstream cards.
         '''
         local_query = self.new(user)
         desired_count = 999999 #TODO-OLD use more elegant solution.
         now = datetime.datetime.utcnow()
-        local = self._next_new_cards(user, local_query, desired_count, now,
-                add_upstream_facts_as_needed=False).count()
-
-        # Count the number of upstream cards -- they are all "new".
-        # But only count one card per distinct fact, to simulate
-        # the effect of sibling spacing.
-        upstream = self.of_upstream(user).values('fact_id').distinct().count()
-
-        return local + upstream
+        return self._next_new_cards(user, local_query, desired_count, now).count()
 
     def young(self, user):
         return self.filter(
-                last_reviewed_at__isnull=False,
-                interval__isnull=False,
-                interval__lt=MATURE_INTERVAL_MIN
-                ).without_upstream(user)
+            last_reviewed_at__isnull=False,
+            interval__isnull=False,
+            interval__lt=MATURE_INTERVAL_MIN
+        )
 
     def mature(self, user):
         return self.filter(
-                interval__gte=MATURE_INTERVAL_MIN
-                ).without_upstream(user)
+            interval__gte=MATURE_INTERVAL_MIN
+        )
 
     def due(self, user, _space_cards=True):
         '''
         `_space_cards` is whether to space out due cards before returning
         them (which can result in fewer being returned).
-
-        Excludes upstream cards that the user doesn't own.
         '''
         now = datetime.datetime.utcnow()
         due_cards = self.filter(
             due_at__isnull=False,
-            due_at__lte=now).without_upstream(user)
+            due_at__lte=now,
+        )
 
         if _space_cards:
             self._space_cards(due_cards, due_cards.count(), now)
@@ -367,12 +339,13 @@ class CommonFiltersMixin(object):
                               + datetime.timedelta(days=1))
         cards = self.filter(
             due_at__isnull=False,
-            due_at__lt=this_time_tomorrow).without_upstream(user)
+            due_at__lt=this_time_tomorrow,
+        )
         due_count = cards.count()
 
         #new_count = self.new().count()
         #new_count = self.common_filters(
-                #user, deck=deck, tags=tags, with_upstream=True).new().count()
+                #user, deck=deck, tags=tags).new().count()
         #new_count = min(
             #NEW_CARDS_PER_DAY,
             #self.new_cards_count(user, [], deck=deck, tags=tags))

@@ -47,7 +47,7 @@ class DeckViewSet(viewsets.ModelViewSet):
     @detail_route()
     def cards(self, request, pk=None):
         deck = self.get_object()
-        cards = Card.objects.of_deck(deck, with_upstream=True)
+        cards = Card.objects.of_deck(deck)
         return Response(CardSerializer(cards, many=True).data)
 
     @detail_route()
@@ -103,7 +103,7 @@ class FactViewSet(MultiSerializerViewSetMixin, viewsets.ModelViewSet):
     permissions_classes = [IsAuthenticated]
 
     def get_queryset(self):
-        facts = Fact.objects.with_upstream(user=self.request.user)
+        facts = Fact.objects.filter(deck__owner=self.request.user)
         facts = facts.filter(active=True).distinct()
         facts = facts.select_related('deck')
         facts = facts.prefetch_related('card_set')

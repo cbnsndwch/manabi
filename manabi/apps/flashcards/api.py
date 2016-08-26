@@ -116,7 +116,7 @@ class DeckCards(CardQueryMixin, ListView, ManabiRestView):
 
     def get_queryset(self):
         deck = self.get_deck()
-        cards = models.Card.objects.of_deck(deck, with_upstream=True)
+        cards = models.Card.objects.of_deck(deck)
         return cards
 
 

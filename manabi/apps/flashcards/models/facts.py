@@ -27,33 +27,7 @@ from manabi.apps.flashcards.models.constants import GRADE_NONE, MIN_CARD_SPACE, 
 
 class FactQuerySet(QuerySet):
     def deck_facts(self, deck):
-        '''
-        Purposed for the API. Deduplicates downstream facts.
-        '''
-        facts = self.with_upstream(user=deck.owner, deck=deck)
-        facts = facts.exclude(id__in=facts.exclude(synchronized_with__isnull=True).values_list('synchronized_with_id', flat=True))
-        return facts
-
-
-    def with_upstream(self, user=None, deck=None):
-        '''
-        **WIP**: Was intended for use with lazy fact cloning.
-        '''
-        if deck is not None and user is not None and deck.owner != user:
-            raise ValueError("Provided contradictory deck and user.")
-        elif deck is None and user is None:
-            raise ValueError("Must provide either deck or user.")
-
-        if deck is not None:
-            if deck.synchronized_with:
-                return self.filter(Q(deck=deck) | Q(deck=deck.synchronized_with))
-
-            return self.filter(deck=deck)
-
-        return self.filter(
-            Q(deck__owner=user) |
-            Q(deck__subscriber_decks__owner=user)
-        )
+        return self.filter(deck=deck)
 
     def buried(self, user, review_time=None, excluded_card_ids=[]):
         '''
@@ -192,11 +166,6 @@ class Fact(models.Model):
     @property
     def owner(self):
         return self.deck.owner
-
-    @property
-    def pulls_from_upstream(self):
-        return (not any([self.expression, self.reading, self.meaning]) and
-                self.synchronized_with_id is not None)
 
     @property
     def card_count(self):
