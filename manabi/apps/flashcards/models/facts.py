@@ -108,7 +108,7 @@ class FactQuerySet(QuerySet):
         else:
             decks = Deck.objects.synchronized_decks(user)
 
-        user_facts = self.filter(deck__owner=user, deck__in=decks, active=True, parent_fact__isnull=True)
+        user_facts = self.filter(deck__owner=user, deck__in=decks, active=True)
 
         if tags:
             raise Exception("user tagging disabled")
@@ -260,35 +260,8 @@ class Fact(models.Model):
         return ([self.deck]
                 + [d for d in self.deck.subscriber_decks.filter(active=True)])
 
-    #TODELETE
-    def copy_to_parent_fact(self, parent_fact):
-        '''
-        Copies a subfact to a parent fact.
-        Returns the new copy, or the already existant one.
-        If it already existed, it still copies the field contents,
-        if needed.
-        '''
-        if not self.parent_fact:
-            raise TypeError('This is not a subfact, so it cannot be copied to a parent fact.')
-        # only copy if it doesn't already exist
-        synchronize = parent_fact.synchronized_with == self.parent_fact
-        if parent_fact.child_facts.filter(synchronized_with=self):
-            subfact_copy = parent_fact.child_facts.get(synchronized_with=self)
-        else:
-            subfact_copy = Fact(
-                    parent_fact=parent_fact,
-                    fact_type=self.fact_type,
-                    active=True,
-                    notes=self.notes,
-                    new_fact_ordinal=self.new_fact_ordinal)
-            if synchronize:
-                subfact_copy.synchronized_with = self
-            subfact_copy.save()
-
-        return subfact_copy
-
     #TODO-OLD
-    def copy_to_deck(self, deck, copy_subfacts=False,
+    def copy_to_deck(self, deck,
                      synchronize=False):
         '''
         Creates a copy of this fact and its cards and (optionally, if
@@ -299,9 +272,6 @@ class Fact(models.Model):
 
         Returns the newly copied fact.
         '''
-        if self.parent_fact:
-            raise TypeError('Cannot call this on a subfact.')
-
         copy = Fact(deck=deck,
                     fact_type=self.fact_type,
                     active=self.active,
@@ -327,11 +297,6 @@ class Fact(models.Model):
 
         # copy the tags too
         #copy.tags = usertagging.utils.edit_string_for_tags(self.tags)
-
-        # copy any subfacts
-        if copy_subfacts or not synchronize:
-            for subfact in self.child_facts.filter(active=True):
-                subfact.copy_to_parent_fact(copy)
         return copy
 
     class Meta:
@@ -380,8 +345,6 @@ class FactType(models.Model):
     modified_at = models.DateTimeField(auto_now=True, editable=False)
 
     def __unicode__(self):
-        if self.parent_fact_type:
-            return self.parent_fact_type.name + ' - ' + self.name
         return self.name
 
     class Meta:
