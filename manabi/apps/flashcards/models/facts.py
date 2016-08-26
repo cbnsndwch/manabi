@@ -213,11 +213,7 @@ class FactType(models.Model):
     name = models.CharField(max_length=50)
     active = models.BooleanField(default=True, blank=True)
 
-    #e.g. for Example Sentences for Japanese facts
-    parent_fact_type = models.ForeignKey('self',
-            blank=True, null=True, related_name='child_fact_types')
     many_children_per_fact = models.NullBooleanField(blank=True, null=True)
-
 
     #TODELETE
     # minimal interval multiplier between two cards of the same fact

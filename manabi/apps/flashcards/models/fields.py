@@ -42,8 +42,6 @@ class FieldTypeQuerySet(QuerySet):
 class FieldType(models.Model):
     objects = FieldTypeQuerySet.as_manager()
 
-    fact_type = models.ForeignKey('flashcards.FactType')
-
     # Used for referencing fields by name in code, instead of by id
     name = models.CharField(max_length=50, blank=False)
 
@@ -127,9 +125,6 @@ class FieldType(models.Model):
         return self.fact_type.name + u': ' + self.name
 
     class Meta:
-        unique_together = (('name', 'fact_type'),
-                           ('ordinal', 'fact_type'),
-                           ('display_name', 'fact_type'),)
         app_label = 'flashcards'
 
 
