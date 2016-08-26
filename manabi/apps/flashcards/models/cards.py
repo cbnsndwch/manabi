@@ -79,10 +79,6 @@ class Card(models.Model):
     ######################
     # OLD:
 
-    #TODELETE
-    leech = models.BooleanField(default=False) #TODO-OLD add leech handling
-
-
     #for owner cards, part of synchronized decks, not used yet
     #synchronized_with = models.ForeignKey('self', null=True, blank=True)
 
@@ -101,7 +97,6 @@ class Card(models.Model):
             deck=target_fact.deck,
             fact=target_fact,
             template=self.template,
-            leech=False,
             active=self.active,
             suspended=self.suspended,
             new_card_ordinal=self.new_card_ordinal,
