@@ -54,54 +54,6 @@ class FactQuerySet(QuerySet):
             )
         )
 
-    #TODELETE, legacy.
-    def get_for_owner_or_subscriber(self, fact_id, user):
-        '''
-        Returns a Fact object of the given id,
-        or if the user is a subscriber to the deck of that fact,
-        returns the subscriber's copy of that fact, which it
-        creates if necessary.
-        It will also create the associated cards.
-        '''
-        return Fact.objects.get(id=fact_id)
-
-    #TODELETE, legacy.
-    @transaction.atomic
-    def add_new_facts_from_synchronized_decks(self, user, count, deck=None, tags=None):
-        '''
-        Returns a limited queryset of the new facts added,
-        after adding them for the user.
-        '''
-        from cards import Card
-        from decks import Deck
-
-        if deck:
-            if not deck.synchronized_with:
-                return self.none()
-            decks = Deck.objects.filter(id=deck.synchronized_with_id)
-        else:
-            decks = Deck.objects.synchronized_decks(user)
-
-        user_facts = self.filter(deck__owner=user, deck__in=decks, active=True)
-
-        if tags:
-            raise Exception("user tagging disabled")
-            #tagged_facts = UserTaggedItem.objects.get_by_model(Fact, tags)
-            #user_facts = user_facts.filter(fact__in=tagged_facts)
-
-        #shared_deck_ids = [deck.synchronized_with_id for deck in decks if deck.synchronized_with_id]
-        new_shared_facts = self.filter(active=True, deck__in=decks.filter(
-                synchronized_with__isnull=False)).exclude(id__in=user_facts)
-        new_shared_facts = new_shared_facts.order_by('new_fact_ordinal')
-        new_shared_facts = new_shared_facts[:count]
-        #FIXME handle 0 ret
-
-        # copy each fact
-        for shared_fact in new_shared_facts:
-            shared_fact.copy_to_deck(deck, synchronize=True)
-
-        return new_shared_facts
-
 
 def _card_template_id_to_string(card_template_id):
     from manabi.apps.flashcards.models import (
@@ -223,50 +175,11 @@ class Fact(models.Model):
     #TODELETE?
     def all_owner_decks(self):
         '''
-        Returns a list of all the deck this object belongs to,
+        Returns a list of all the decks this object belongs to,
         including subscriber decks.
         '''
         return ([self.deck]
                 + [d for d in self.deck.subscriber_decks.filter(active=True)])
-
-    #TODO-OLD
-    def copy_to_deck(self, deck,
-                     synchronize=False):
-        '''
-        Creates a copy of this fact and its cards and (optionally, if
-        `synchronize` is False) field contents.
-
-        If `synchronize` is True, the new fact will be subscribed to this one.
-        Also copies its tags.
-
-        Returns the newly copied fact.
-        '''
-        copy = Fact(deck=deck,
-                    fact_type=self.fact_type,
-                    active=self.active,
-                    notes=self.notes,
-                    new_fact_ordinal=self.new_fact_ordinal)
-
-        if synchronize:
-            if self.synchronized_with:
-                raise TypeError('Cannot synchronize with a fact that is already a synchronized fact.')
-            elif not self.deck.shared_at:
-                raise TypeError('This is not a shared fact - cannot synchronize with it.')
-            #TODO-OLD enforce deck synchronicity too
-            else:
-                copy.synchronized_with = self
-
-        copy.save()
-
-        # copy the cards
-        from cards import Card
-        for shared_card in self.card_set.filter(active=True):
-            card = shared_card.copy(copy)
-            card.save()
-
-        # copy the tags too
-        #copy.tags = usertagging.utils.edit_string_for_tags(self.tags)
-        return copy
 
     class Meta:
         app_label = 'flashcards'

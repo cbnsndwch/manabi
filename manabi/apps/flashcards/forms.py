@@ -53,13 +53,6 @@ class TextbookSourceForm(forms.ModelForm):
         fields = ('textbook_source',)
 
 
-class SubfactForm(forms.ModelForm):
-
-    class Meta:
-        model = Fact
-        exclude = ('active', 'synchronized_with', 'new_fact_ordinal', 'parent_fact', 'suspended',)
-
-
 class FactTypeForm(forms.ModelForm):
     class Meta:
         model = FactType
