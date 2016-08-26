@@ -41,7 +41,7 @@ class DeckForm(forms.ModelForm):
     class Meta:
         model = Deck
         fields = ('name','description',)
-        #exclude = ('owner', 'description', 'priority', 'textbook_source', 'picture',)
+        #exclude = ('owner', 'description', 'priority', 'textbook_source',)
 
 
 class TextbookSourceForm(forms.ModelForm):

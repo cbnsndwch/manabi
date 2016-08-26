@@ -79,11 +79,7 @@ class Card(models.Model):
     ######################
     # OLD:
 
-    #for owner cards, part of synchronized decks, not used yet
-    #synchronized_with = models.ForeignKey('self', null=True, blank=True)
-
     class Meta:
-        #TODO-OLD unique_together = (('fact', 'template'), )
         app_label = 'flashcards'
 
     def __unicode__(self):

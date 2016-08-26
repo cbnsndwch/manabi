@@ -36,9 +36,6 @@ class Deck(models.Model):
 
     textbook_source = models.ForeignKey(Textbook, null=True, blank=True)
 
-    picture = models.FileField(upload_to='/deck_media/', null=True, blank=True)
-    #TODO-OLD upload to user directory, using .storage
-
     priority = models.IntegerField(default=0, blank=True)
 
     created_at = models.DateTimeField(auto_now_add=True, editable=False)
@@ -188,18 +185,10 @@ class Deck(models.Model):
 
         # Persist everything.
         created_facts = Fact.objects.bulk_create(copied_facts)
-        # for fact, fact_cards in zip(created_facts, copied_cards):
-        #     for fact_card in fact_cards:
-        #         fact_card.fact_id = fact.id
-        # import sys
-        # print >>sys.stderr, "Copying a deck..."
-        # print >>sys.stderr, "Fact IDs:", [f.id for f in copied_facts]
-        # print >>sys.stderr, "Fact IDs created:", [f.id for f in created_facts]
-        # print >>sys.stderr, "Fact IDs created:", created_facts
-        # print >>sys.stderr, "copied cards: ", copied_cards
-        # print >>sys.stderr, "copied cards: ", [[c2.fact_id for c2 in c] for c in copied_cards]
-        # Card.objects.bulk_create(itertools.chain.from_iterable(copied_cards))
-        # raise Exception()
+        for fact, fact_cards in zip(created_facts, copied_cards):
+            for fact_card in fact_cards:
+                fact_card.fact_id = fact.id
+        Card.objects.bulk_create(itertools.chain.from_iterable(copied_cards))
 
         # Done!
         return deck
@@ -235,7 +224,6 @@ class Deck(models.Model):
 
     @transaction.atomic
     def delete_cascading(self):
-        #FIXME if this is a shared/synced deck
         for fact in self.fact_set.all():
             for card in fact.card_set.all():
                 card.delete()
