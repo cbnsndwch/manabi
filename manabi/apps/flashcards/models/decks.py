@@ -168,7 +168,7 @@ class Deck(models.Model):
 
         # copy all facts
         copied_facts = []
-        copied_cards = defaultdict(list)  # Copied fact index as key.
+        copied_cards = []
         for shared_fact in self.fact_set.filter(active=True).order_by('new_fact_ordinal'):
             copy_attrs = [
                 'synchronized_with', 'active', 'new_fact_ordinal',
@@ -179,16 +179,28 @@ class Deck(models.Model):
             copied_facts.append(fact)
 
             # Copy the cards.
-            for shared_card in shared_fact.card_set.filter(active=True):
+            copied_cards_for_fact = []
+            for shared_card in shared_fact.card_set.filter(active=True, suspended=False):
+                import sys
+                print >>sys.stderr, "Copying a card...", shared_card, shared_card.id, shared_card.deck_id
                 card = shared_card.copy(fact)
-                copied_cards[len(copied_facts) - 1].append(card)
+                copied_cards_for_fact.append(card)
+            copied_cards.append(copied_cards_for_fact)
 
         # Persist everything.
         created_facts = Fact.objects.bulk_create(copied_facts)
-        for offset, fact in enumerate(created_facts):
-            for copied_card in copied_cards[offset]:
-                copied_card.fact_id = fact.id
-        Card.objects.bulk_create(itertools.chain.from_iterable(copied_cards.itervalues()))
+        # for fact, fact_cards in zip(created_facts, copied_cards):
+        #     for fact_card in fact_cards:
+        #         fact_card.fact_id = fact.id
+        # import sys
+        # print >>sys.stderr, "Copying a deck..."
+        # print >>sys.stderr, "Fact IDs:", [f.id for f in copied_facts]
+        # print >>sys.stderr, "Fact IDs created:", [f.id for f in created_facts]
+        # print >>sys.stderr, "Fact IDs created:", created_facts
+        # print >>sys.stderr, "copied cards: ", copied_cards
+        # print >>sys.stderr, "copied cards: ", [[c2.fact_id for c2 in c] for c in copied_cards]
+        # Card.objects.bulk_create(itertools.chain.from_iterable(copied_cards))
+        # raise Exception()
 
         # Done!
         return deck

@@ -8,7 +8,7 @@ from django.db.models.signals import post_save
 # from manabi.apps.usertagging.forms import TagField
 
 
-from models import Card, CardHistory, Fact, FactType, FieldType, FieldContent, Deck, CardTemplate
+from models import Card, CardHistory, Fact, FactType, FieldType, FieldContent, Deck
 
 #Forms
 #todo:row-level authentication (subclassing formset)
@@ -63,11 +63,6 @@ class SubfactForm(forms.ModelForm):
 class FactTypeForm(forms.ModelForm):
     class Meta:
         model = FactType
-
-
-class CardTemplateForm(forms.ModelForm):
-    class Meta:
-        model = CardTemplate
 
 
 class FactForm(forms.ModelForm):

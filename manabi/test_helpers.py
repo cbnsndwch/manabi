@@ -9,7 +9,7 @@ from django.core.urlresolvers import reverse
 from django.http import HttpResponse
 from django.test import Client, TestCase
 
-from manabi.apps.flashcards.models import (Card, CardTemplate, Deck, Fact,
+from manabi.apps.flashcards.models import (Card, Deck, Fact,
                                            FactType, FieldContent, FieldType)
 from manabi.apps.flashcards.models.cards import CARD_TEMPLATE_CHOICES
 from manabi.apps.flashcards.models.constants import (GRADE_EASY, GRADE_GOOD,

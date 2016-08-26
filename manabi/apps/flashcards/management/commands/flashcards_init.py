@@ -5,10 +5,9 @@ def create_initial_data():
     from django.conf import settings
     from manabi.apps.flashcards.models.facts import FactType
     from manabi.apps.flashcards.models.fields import FieldType
-    from manabi.apps.flashcards.models.cardtemplates import CardTemplate
     import manabi.apps.flashcards.partsofspeech as partsofspeech
     import pickle
-    
+
     #Japanese model
     japanese_fact_type = FactType(name='Japanese')
     japanese_fact_type.save()
@@ -100,61 +99,6 @@ def create_initial_data():
 
     ## templates
 
-    production_card_template = CardTemplate(
-        name='Production',
-        fact_type=japanese_fact_type,
-        front_template_name='flashcards/cards/production_front.html',
-        back_template_name='flashcards/cards/production_back.html',
-        front_prompt=u'What is this in Japanese?',
-        generate_by_default=True,
-        ordinal=0,
-    )
-    production_card_template.save()
-    production_card_template.requisite_field_types.add(
-        meaning_field, reading_field, expression_field)
-    production_card_template.save()
-
-    recognition_card_template = CardTemplate(
-        name='Recognition',
-        fact_type=japanese_fact_type,
-        front_template_name='flashcards/cards/recognition_front.html',
-        back_template_name='flashcards/cards/recognition_back.html',
-        front_prompt=u'What does this expression mean?',
-        generate_by_default=True,
-        ordinal=1,
-    )
-    recognition_card_template.save()
-    recognition_card_template.requisite_field_types.add
-    (meaning_field, reading_field, expression_field)
-    recognition_card_template.save()
-
-    kanji_reading_card_template = CardTemplate(
-        name='Kanji Reading',
-        fact_type=japanese_fact_type,
-        front_template_name='flashcards/cards/kanji_reading_front.html',
-        back_template_name='flashcards/cards/kanji_reading_back.html',
-        front_prompt=u'How do you read this kanji?',
-        generate_by_default=False,
-        ordinal=2,
-    )
-    kanji_reading_card_template.save()
-    kanji_reading_card_template.requisite_field_types.add
-    (meaning_field, reading_field, expression_field)
-    kanji_reading_card_template.save()
-
-    kanji_writing_card_template = CardTemplate(
-        name='Kanji Writing',
-        fact_type=japanese_fact_type,
-        front_template_name='flashcards/cards/kanji_writing_front.html',
-        back_template_name='flashcards/cards/kanji_writing_back.html',
-        front_prompt=u'How do you write this in kanji?',
-        generate_by_default=False,
-        ordinal=3,
-    )
-    kanji_writing_card_template.save()
-    kanji_writing_card_template.requisite_field_types.add(
-        meaning_field, reading_field, expression_field)
-    kanji_writing_card_template.save()
 
 class Command(BaseCommand):
     def handle(self, *args, **options):

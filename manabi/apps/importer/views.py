@@ -6,7 +6,7 @@ from django.shortcuts import get_object_or_404, render_to_response, redirect
 from django.template import RequestContext, loader
 from django.core.urlresolvers import reverse
 
-from manabi.apps.flashcards.models import (Deck, FactType, CardTemplate, Card,
+from manabi.apps.flashcards.models import (Deck, FactType, Card,
                                    FieldContent, FieldType, Fact)
 
 
@@ -45,12 +45,13 @@ def importer(request):
 
         fact_type = FactType.objects.japanese
 
-        card_templates = []
-        card_template_names = ['recognition', 'production',
-                               'kanji_reading', 'kanji_writing']
-        for template in card_template_names:
-            if request.POST.get(template) == 'on':
-                card_templates.append(getattr(CardTemplate.objects, template))
+        # TODO
+        # card_templates = []
+        # card_template_names = ['recognition', 'production',
+        #                        'kanji_reading', 'kanji_writing']
+        # for template in card_template_names:
+        #     if request.POST.get(template) == 'on':
+        #         card_templates.append(getattr(CardTemplate.objects, template))
 
         for import_fact in import_facts:
             fact = Fact(

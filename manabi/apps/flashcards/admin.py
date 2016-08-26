@@ -2,8 +2,14 @@ from django.contrib import admin
 
 from manabi.apps.books.models import Textbook
 from manabi.apps.flashcards.models import (
-    Deck, FactType, Fact, CardTemplate,
-    FieldType, Card, FieldContent, CardHistory)
+    Card,
+    CardHistory,
+    Deck,
+    Fact,
+    FactType,
+    FieldContent,
+    FieldType,
+)
 
 
 class CardAdmin(admin.ModelAdmin):
@@ -35,7 +41,6 @@ class TextbookAdmin(admin.ModelAdmin):
 #TODO admin.site.register(CardHistory)
 #TODO admin.site.register(FactType, FactTypeAdmin)
 #TODO admin.site.register(Fact, FactAdmin)
-#TODO admin.site.register(CardTemplate)
 #TODO admin.site.register(FieldType, FieldTypeAdmin)
 #TODO admin.site.register(Card, CardAdmin)
 #TODO admin.site.register(FieldContent)

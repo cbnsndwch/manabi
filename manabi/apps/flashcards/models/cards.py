@@ -9,12 +9,11 @@ from cachecow.decorators import cached_function
 from constants import (GRADE_NONE, ALL_GRADES, GRADE_NAMES,
                        MAX_NEW_CARD_ORDINAL, MATURE_INTERVAL_MIN,
                        MIN_CARD_SPACE)
-from cardtemplates import CardTemplate
 from manabi.apps.flashcards.cachenamespaces import (deck_review_stats_namespace,
                                         fact_grid_namespace)
 from manabi.apps.flashcards.models.cardmanager import CardQuerySet
 from repetitionscheduler import repetition_algo_dispatcher
-from undo import UndoCardReview
+from manabi.apps.flashcards.models.undo import UndoCardReview
 
 
 PRODUCTION, RECOGNITION, KANJI_READING, KANJI_WRITING = range(4)
@@ -65,8 +64,6 @@ class Card(models.Model):
     # OLD:
 
     #TODELETE
-    legacy_template = models.ForeignKey(CardTemplate, blank=True, null=True, db_index=False)
-
     leech = models.BooleanField(default=False) #TODO-OLD add leech handling
 
 
@@ -78,7 +75,7 @@ class Card(models.Model):
         app_label = 'flashcards'
 
     def __unicode__(self):
-        return u'{} | {}'.format(self.fact.expression, self.fact.meaning)
+        return u'{} | {} [{}]'.format(self.fact.expression, self.fact.meaning, self.template)
 
     def copy(self, target_fact):
         '''
@@ -89,8 +86,8 @@ class Card(models.Model):
             fact=target_fact,
             template=self.template,
             leech=False,
-            active=True,
-            suspended=False,
+            active=self.active,
+            suspended=self.suspended,
             new_card_ordinal=self.new_card_ordinal,
         )
 

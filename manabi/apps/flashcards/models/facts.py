@@ -36,6 +36,9 @@ class FactQuerySet(QuerySet):
 
 
     def with_upstream(self, user=None, deck=None):
+        '''
+        **WIP**: Was intended for use with lazy fact cloning.
+        '''
         if deck is not None and user is not None and deck.owner != user:
             raise ValueError("Provided contradictory deck and user.")
         elif deck is None and user is None:
