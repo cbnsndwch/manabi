@@ -18,12 +18,18 @@ import cards
 
 class DeckQuerySet(QuerySet):
     def of_user(self, user):
+        if not user.is_authenticated():
+            return self.none()
+
         return self.filter(owner=user, active=True)
 
     def shared_decks(self):
         return self.filter(shared=True, active=True)
 
     def synchronized_decks(self, user):
+        if not user.is_authenticated():
+            return self.none()
+
         return self.filter(owner=user, synchronized_with__isnull=False)
 
 
@@ -60,6 +66,10 @@ class Deck(models.Model):
         app_label = 'flashcards'
         ordering = ('name',)
         #TODO-OLD unique_together = (('owner', 'name'), )
+
+    @property
+    def is_synchronized(self):
+        return self.synchronized_with is not None
 
     def get_absolute_url(self):
         return reverse('deck_detail', kwargs={'deck_id': self.id})

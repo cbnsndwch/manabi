@@ -5,13 +5,14 @@ from rest_framework import serializers
 
 from manabi.api.serializers import ManabiModelSerializer
 from manabi.apps.flashcards.models import Deck, Fact, Card
+from manabi.apps.flashcards.serializer_fields import ViewerSynchronizedDeckField
 from manabi.apps.manabi_auth.serializers import UserSerializer
 
 
 class DeckSerializer(ManabiModelSerializer):
     owner = UserSerializer(read_only=True)
 
-    class Meta:
+    class Meta(object):
         model = Deck
         fields = (
             'id',
@@ -24,6 +25,24 @@ class DeckSerializer(ManabiModelSerializer):
             'created_at',
             'modified_at',
             'suspended',
+            'is_synchronized',
+        )
+
+
+class SharedDeckSerializer(DeckSerializer):
+    viewer_synchronized_deck = ViewerSynchronizedDeckField(read_only=True)
+
+    class Meta(object):
+        model = Deck
+        fields = (
+            'id',
+            'name',
+            'description',
+            'owner',
+            'card_count',
+            'created_at',
+            'modified_at',
+            'viewer_synchronized_deck',
         )
 
 
@@ -36,14 +55,13 @@ class SynchronizedDeckSerializer(ManabiModelSerializer):
     class Meta:
         model = Deck
         fields = (
+            'id',
             'owner',
             'synchronized_with',
         )
 
     def create(self, validated_data):
         upstream_deck = validated_data['synchronized_with']
-        # upstream_deck = get_object_or_404(
-        #     Deck, pk=validated_data['synchronized_with'].id)
         new_deck = upstream_deck.subscribe(validated_data['owner'])
         return new_deck
 
@@ -143,6 +161,9 @@ class ReviewAvailabilitiesSerializer(serializers.Serializer):
     next_new_cards_count = serializers.IntegerField()
     early_review_available = serializers.BooleanField()
     # new_cards_available = serializers.BooleanField()
+
+    primary_prompt = serializers.CharField()
+    secondary_prompt = serializers.CharField()
 
     class Meta:
         read_only_fields = (

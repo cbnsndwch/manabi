@@ -355,4 +355,3 @@ class Card(models.Model):
         self.save()
         self.redis.after_review()
         post_card_reviewed.send(self, instance=self)
-

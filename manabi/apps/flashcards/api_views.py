@@ -1,3 +1,5 @@
+# -*- coding: utf-8 -*-
+
 from django.conf import settings
 from rest_framework import viewsets
 from rest_framework.decorators import detail_route, list_route
@@ -18,6 +20,7 @@ from manabi.apps.flashcards.permissions import (
 )
 from manabi.apps.flashcards.serializers import (
     DeckSerializer,
+    SharedDeckSerializer,
     SynchronizedDeckSerializer,
     FactSerializer,
     FactWithCardsSerializer,
@@ -77,7 +80,7 @@ class SynchronizedDeckViewSet(viewsets.ModelViewSet):
 
 
 class SharedDeckViewSet(viewsets.ModelViewSet):
-    serializer_class = DeckSerializer
+    serializer_class = SharedDeckSerializer
 
     @detail_route()
     def facts(self, request, pk=None):
@@ -92,6 +95,15 @@ class SharedDeckViewSet(viewsets.ModelViewSet):
             decks = decks.exclude(owner=self.request.user)
 
         return decks.order_by('name')
+
+    def get_serializer_context(self):
+        context = super(SharedDeckViewSet, self).get_serializer_context()
+
+        context['viewer_synchronized_decks'] = list(
+            Deck.objects.synchronized_decks(self.request.user).filter(active=True)
+        )
+
+        return context
 
 
 class FactViewSet(MultiSerializerViewSetMixin, viewsets.ModelViewSet):
@@ -117,8 +129,11 @@ class ReviewAvailabilitiesViewSet(viewsets.ViewSet):
 
     def _test_helper_get(self, request, format=None):
         from manabi.apps.flashcards.test_stubs import NEXT_CARDS_TO_REVIEW_STUBS
+        interstitial = NEXT_CARDS_TO_REVIEW_STUBS[1]['interstitial']
+        interstitial['primary_prompt'] = "You'll soon forget 19 expressions—now's a good time to review them."
+        interstitial['secondary_prompt'] = "We have 7 more you might have forgotten, plus new ones to learn."
 
-        return Response(NEXT_CARDS_TO_REVIEW_STUBS[1]['interstitial'])
+        return Response(interstitial)
 
     def list(self, request, format=None):
         if settings.DEBUG:
@@ -158,6 +173,10 @@ class NextCardsForReviewViewSet(viewsets.ViewSet):
                 cards_to_review['interstitial']['more_cards_ready_for_review'] = (
                     random.choice([True, False])
                 )
+                cards_to_review['interstitial']['primary_prompt'] = (
+                    "You'll soon forget 19 expressions—now's a good time to review them.")
+                cards_to_review['interstitial']['secondary_prompt'] = (
+                    "We have 7 more you might have forgotten, plus new ones to learn.")
 
         return Response(cards_to_review)
 
