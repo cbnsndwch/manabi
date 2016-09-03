@@ -1,7 +1,7 @@
 # -*- coding: utf-8 -*-
 
 from django.conf import settings
-from rest_framework import viewsets
+from rest_framework import viewsets, status
 from rest_framework.decorators import detail_route, list_route
 from rest_framework.permissions import IsAuthenticated
 from rest_framework.response import Response
@@ -13,21 +13,23 @@ from manabi.apps.flashcards.models import (
     Deck,
     Fact,
     Card,
+    ReviewAvailabilities,
     NextCardsForReview,
 )
 from manabi.apps.flashcards.permissions import (
     DeckSynchronizationPermission,
 )
 from manabi.apps.flashcards.serializers import (
+    CardReviewSerializer,
+    CardSerializer,
     DeckSerializer,
-    SharedDeckSerializer,
-    SynchronizedDeckSerializer,
+    DetailedFactSerializer,
     FactSerializer,
     FactWithCardsSerializer,
-    DetailedFactSerializer,
-    CardSerializer,
     NextCardsForReviewSerializer,
     ReviewAvailabilitiesSerializer,
+    SharedDeckSerializer,
+    SynchronizedDeckSerializer,
 )
 
 
@@ -136,12 +138,13 @@ class ReviewAvailabilitiesViewSet(viewsets.ViewSet):
         return Response(interstitial)
 
     def list(self, request, format=None):
-        if settings.DEBUG:
+        if settings.USE_TEST_STUBS:
             return self._test_helper_get(request, format=format)
 
-        # FIXME
+        availabilities = ReviewAvailabilities()
+
         serializer = ReviewAvailabilitiesSerializer(
-            )
+            availabilities)
 
         return Response(serializer.data)
 
@@ -194,7 +197,7 @@ class NextCardsForReviewViewSet(viewsets.ViewSet):
     def list(self, request, format=None):
         excluded_card_ids = self._get_excluded_card_ids(request)
 
-        if settings.DEBUG:
+        if settings.USE_TEST_STUBS:
             return self._test_helper_get(
                 request, format=format, excluded_card_ids=excluded_card_ids)
 
@@ -208,3 +211,21 @@ class NextCardsForReviewViewSet(viewsets.ViewSet):
             next_cards_for_review)
 
         return Response(serializer.data)
+
+
+class CardViewSet(viewsets.ModelViewSet):
+    serializer_class = CardSerializer
+
+    def get_queryset(self):
+        return Card.objects.of_user(self.request.user)
+
+    @detail_route(methods=['post'], permission_classes=[IsAuthenticated])
+    def reviews(self, request, pk=None):
+        card = self.get_object()
+        serializer = CardReviewSerializer(data=request.data)
+        if serializer.is_valid():
+            card.review(serializer.data['grade'])
+            return Response(status=status.HTTP_201_CREATED)
+        else:
+            return Response(serializer.errors,
+                            status=status.HTTP_400_BAD_REQUEST)

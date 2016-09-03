@@ -48,14 +48,14 @@ class UndoCardReviewManager(models.Manager):
 
         snapshot = {
             getattr(card_history.card, field_name)
-            for fieldname in _get_model_fields(card_history.card)
+            for field_name in _get_model_fields(card_history.card)
         }
 
         undo = UndoCardReview(
             user = user,
             card = card_history.card,
             card_history = card_history,
-            card_snapshot = snapshot,
+            card_snapshot = list(snapshot),
         )
 
         # Delete previous undo if it exists.

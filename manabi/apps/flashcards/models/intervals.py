@@ -1,6 +1,12 @@
 import random
+from datetime import timedelta
 
-from constants import GRADE_NONE, GRADE_HARD, GRADE_GOOD, GRADE_EASY
+from constants import (
+    GRADE_EASY,
+    GRADE_GOOD,
+    GRADE_HARD,
+    GRADE_NONE,
+)
 
 DEFAULT_INTERVALS = {
     GRADE_NONE: (20.0/(24.0*60.0), 25.0/(24.0*60.0)),
@@ -13,15 +19,15 @@ DEFAULT_INTERVALS = {
 
 def _generate_interval(min_duration, max_duration):
     #TODO-OLD favor (random.triangular) conservatism
-    return random.uniform(min_duration, max_duration) 
+    return timedelta(days=random.uniform(min_duration, max_duration))
+
 
 def initial_interval(deck, grade, do_fuzz=True):
     '''
     Generates an initial interval duration for a new card that's been reviewed.
     '''
     min_, max_ = DEFAULT_INTERVALS[grade]
-    
+
     if do_fuzz:
         return _generate_interval(min_, max_)
-    return (min_ + max_) / 2.0
-
+    return timedelta(days=((min_ + max_) / 2.0))

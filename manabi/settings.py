@@ -12,6 +12,8 @@ PROJECT_ROOT = os.path.abspath(os.path.dirname(__file__))
 DEBUG = not LIVE_HOST
 TEMPLATE_DEBUG = not LIVE_HOST #DEBUG
 
+USE_TEST_STUBS = False
+
 INTERNAL_IPS = (
     '127.0.0.1',
 )

@@ -234,6 +234,8 @@ class CommonFiltersMixin(object):
         return self.filter(deck=deck)
 
     def of_user(self, user):
+        if not user.is_authenticated():
+            return self.none()
         return self.filter(deck__owner=user)
 
     def exclude_ids(self, excluded_ids):

@@ -12,6 +12,7 @@ from manabi.apps.flashcards.api_views import (
     FactViewSet,
     ReviewAvailabilitiesViewSet,
     NextCardsForReviewViewSet,
+    CardViewSet,
 )
 
 # TODO admin.autodiscover()
@@ -30,9 +31,12 @@ router.register(r'flashcards/shared_decks',
 router.register(r'flashcards/facts',
     FactViewSet,
     base_name='fact')
+router.register(r'flashcards/cards',
+    CardViewSet,
+    base_name='fact')
 router.register(r'flashcards/review_availabilities',
     ReviewAvailabilitiesViewSet,
-    base_name='review-availabilities')
+    base_name='card')
 router.register(r'flashcards/next_cards_for_review',
     NextCardsForReviewViewSet,
     base_name='next-card-for-review')

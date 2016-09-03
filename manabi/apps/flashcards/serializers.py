@@ -3,6 +3,9 @@ import logging
 from django.shortcuts import get_object_or_404
 from rest_framework import serializers
 
+from manabi.apps.flashcards.models.constants import (
+    ALL_GRADES,
+)
 from manabi.api.serializers import ManabiModelSerializer
 from manabi.apps.flashcards.models import Deck, Fact, Card
 from manabi.apps.flashcards.serializer_fields import ViewerSynchronizedDeckField
@@ -194,3 +197,7 @@ class NextCardsForReviewSerializer(serializers.Serializer):
             'cards',
             'interstitial',
         )
+
+
+class CardReviewSerializer(serializers.Serializer):
+    grade = serializers.ChoiceField(choices=ALL_GRADES)

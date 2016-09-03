@@ -36,7 +36,8 @@ class TestAPI(ManabiTestCase):
             count += 1
             card_ids = map(lambda card: card['id'], cards)
 
-            next_cards = self.api.next_cards_for_review(self.user)
+            next_cards = self.api.next_cards_for_review(self.user)['cards']
+            print next_cards
             for card in next_cards:
                 self.assertFalse(card['id'] in card_ids)
         self.assertTrue(count)

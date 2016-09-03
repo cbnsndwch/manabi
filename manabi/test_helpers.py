@@ -7,10 +7,7 @@ from django.conf import settings
 from django.contrib.auth.models import User
 from django.core.urlresolvers import reverse
 from django.http import HttpResponse
-from django.test import (
-    Client,
-    TestCase,
-)
+from rest_framework.test import APITestCase
 
 from manabi.apps.flashcards.models import (
     Card,
@@ -28,7 +25,7 @@ from manabi.apps.flashcards.models.constants import (
 PASSWORD = 'whatever'
 
 
-class ManabiTestCase(TestCase):
+class ManabiTestCase(APITestCase):
     longMessage = True
 
     @classmethod
@@ -55,12 +52,14 @@ class ManabiTestCase(TestCase):
         pass
 
     def _http_verb(self, verb, url, *args, **kwargs):
-        ''' Defaults to being logged-in with a newly created user. '''
+        '''
+        Defaults to being logged-in with a newly created user.
+        '''
         user = kwargs.pop('user')
         if user is None:
             user = create_user()
         self.client.login(username=user.username, password=PASSWORD)
-        resp = getattr(self.client, verb)(url, user=user, *args, **kwargs)
+        resp = getattr(self.client, verb)(url, user=user, format='json', *args, **kwargs)
         headers = dict(resp.items())
         if 'json' in headers.get('Content-Type', ''):
             resp.json = json.loads(resp.content)
@@ -90,8 +89,10 @@ class ManabiTestCase(TestCase):
         self.assertTrue(response.get('success'))
 
     def review_cards(self, user):
-        ''' Returns the cards that were reviewed. '''
-        cards = self.api.next_cards_for_review(user)
+        '''
+        Returns the cards that were reviewed.
+        '''
+        cards = self.api.next_cards_for_review(user)['cards']
         for card in cards:
             self.api.review_card(self.user, card, GRADE_GOOD)
         return cards
@@ -119,15 +120,19 @@ class APIShortcuts(object):
         return self.call(*args, **kwargs)
 
     def decks(self, user):
-        resp = self.get('/api/decks/', user=user)
-        print resp.json
-        return resp.json['decks']
+        resp = self.get('/api/flashcards/decks/', user=user)
+        return resp.json
 
     def next_cards_for_review(self, user):
-        return self.get('/api/next_cards_for_review/', user=user).json['cards']
+        return self.get('/api/flashcards/next_cards_for_review/', user=user).json
 
     def review_card(self, user, card, grade):
-        return self.post(card['reviews_url'], {'grade': grade}, user=user)
+        return self.post(
+            '/api/flashcards/cards/{}/reviews/'.format(
+                card['id']),
+            {'grade': grade},
+            user=user,
+        )
 
 
 def random_name():
@@ -179,4 +184,3 @@ def create_fact(user=None, deck=None):
         card.save()
 
     return fact
-

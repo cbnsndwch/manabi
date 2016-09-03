@@ -1,14 +1,15 @@
 from manabi.apps.flashcards.models import (
-    Deck,
-    Fact,
     Card,
 )
 
 
 class ReviewInterstitial(object):
     def __init__(self):
-        self.ready_for_review = True
-        self.next_new_cards_count = 10 # FIXME
+        from manabi.apps.flashcards.models.review_availabilities import (
+            ReviewAvailabilities,
+        )
+
+        self.review_availabilities = ReviewAvailabilities()
 
 
 class NextCardsForReview(object):
@@ -16,7 +17,7 @@ class NextCardsForReview(object):
         next_cards = Card.objects.next_cards(
             user,
             count,
-            excluded_ids=excluded_ids,
+            excluded_ids=excluded_card_ids,
             #TODO
         )
         # FIXME don't need 2 queries here...

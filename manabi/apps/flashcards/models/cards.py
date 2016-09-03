@@ -279,6 +279,7 @@ class Card(models.Model):
         and `question_duration`.
         '''
         from cardhistory import CardHistory
+
         #TODO-OLD update CardStatistics
         was_new = self.is_new()
 
@@ -321,6 +322,7 @@ class Card(models.Model):
         this card (so, the time taken for the front and back of the card.)
         '''
         from manabi.apps.flashcards.signals import pre_card_reviewed, post_card_reviewed
+
         pre_card_reviewed.send(self, instance=self)
 
         reviewed_at = datetime.utcnow()
