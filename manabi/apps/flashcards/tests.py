@@ -40,3 +40,6 @@ class TestAPI(ManabiTestCase):
             for card in next_cards:
                 self.assertFalse(card['id'] in card_ids)
         self.assertTrue(count)
+
+    def test_review_availabilities(self):
+        pass

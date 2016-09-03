@@ -8,6 +8,8 @@ from constants import MATURE_INTERVAL_MIN
 
 class CardHistoryManagerMixin(object):
     def of_user(self, user):
+        if not user.is_authenticated():
+            return self.none()
         return self.filter(card__fact__deck__owner=user)
 
     def of_deck(self, deck):
@@ -29,17 +31,15 @@ class CardHistoryManagerMixin(object):
         '''
         return self.extra(select={'reviewed_on': 'date(reviewed_at)'})
 
-    def of_day(self, user, date=None, field_name='reviewed_at'):
+    def of_day(self, user, time_zone, date=None, field_name='reviewed_at'):
         '''
         Filters on the start and end of day for `user` adjusted to UTC.
 
         `date` is a date object. Defaults to today.
         '''
-        start, end = start_and_end_of_day(user, date=None)
-
+        start, end = start_and_end_of_day(user, time_zone, date=date)
         kwargs = {field_name + '__range': (start, end)}
         return self.filter(**kwargs)
-
 
 
 class CardHistoryStatsMixin(object):
@@ -55,6 +55,7 @@ class CardHistoryStatsMixin(object):
 
     def daily_duration(self, user, date=None):
         '''
+
         Returns the time spent reviewing on the given date
         (defaulting to today) for `user`, in seconds.
         '''
@@ -79,9 +80,6 @@ class CardHistory(models.Model):
 
     # Was the card new when it was reviewed this time?
     was_new = models.BooleanField(default=False, db_index=True)
-
-    question_duration = models.FloatField(null=True, blank=True)
-    duration = models.FloatField(null=True, blank=True)
 
     class Meta:
         app_label = 'flashcards'

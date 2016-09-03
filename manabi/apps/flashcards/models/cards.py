@@ -284,8 +284,7 @@ class Card(models.Model):
         was_new = self.is_new()
 
         card_history_item = CardHistory(
-            card=self, response=grade, reviewed_at=reviewed_at, was_new=was_new,
-            duration=duration, question_duration=question_duration)
+            card=self, response=grade, reviewed_at=reviewed_at, was_new=was_new)
         card_history_item.save()
 
         self.review_count += 1

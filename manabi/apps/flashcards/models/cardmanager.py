@@ -73,8 +73,10 @@ class SchedulerMixin(object):
 
         return cards[:count]
 
-    def _next_new_cards(self, user, initial_query, count, review_time, buried_facts,
-                        learn_more=False, **kwargs):
+    def _next_new_cards(
+        self, user, initial_query, count, review_time, buried_facts,
+        learn_more=False, **kwargs
+    ):
         from manabi.apps.flashcards.models.cards import CARD_TEMPLATE_CHOICES
         from manabi.apps.flashcards.models.facts import Fact
 
@@ -202,10 +204,11 @@ class SchedulerMixin(object):
             if not cards_left:
                 break
 
-            cards = card_func(user, user_cards, cards_left, now,
-                              early_review=early_review,
-                              learn_more=learn_more,
-                              buried_facts=buried_facts)
+            cards = card_func(
+                user, user_cards, cards_left, now,
+                early_review=early_review,
+                learn_more=learn_more,
+                buried_facts=buried_facts)
 
             cards_left -= len(cards)
 
@@ -258,7 +261,7 @@ class CommonFiltersMixin(object):
         return cards
 
     def new(self, user):
-        return self.filter(last_reviewed_at__isnull=True)
+        return self.available().filter(last_reviewed_at__isnull=True)
 
     def new_count(self, user):
         '''
@@ -277,16 +280,19 @@ class CommonFiltersMixin(object):
             cards = cards.of_deck(deck)
         return cards.new(user).values_list('fact_id').distinct().count()
 
-    def unspaced_new_count(self, user):
-        '''
-        Same as `new_count`, except it subtracts new cards that
-        will be delayed due to sibling spacing (cards which haven't
-        been spaced.)
-        '''
-        local_query = self.new(user)
-        desired_count = 999999 #TODO-OLD use more elegant solution.
-        now = datetime.datetime.utcnow()
-        return self._next_new_cards(user, local_query, desired_count, now).count()
+    # def unspaced_new_count(self, user):
+    #     '''
+    #     Same as `new_count`, except it subtracts new cards that
+    #     will be delayed due to sibling spacing (cards which haven't
+    #     been spaced.)
+    #     '''
+    #     local_query = self.new(user).available()
+    #     desired_count = 999999 #TODO-OLD use more elegant solution.
+    #     now = datetime.datetime.utcnow()
+
+    #     new_cards = self.new(user)
+
+    #     return self._next_new_cards(user, local_query, desired_count, now).count()
 
     def young(self, user):
         return self.filter(
@@ -300,13 +306,14 @@ class CommonFiltersMixin(object):
             interval__gte=MATURE_INTERVAL_MIN
         )
 
-    def due(self, user, _space_cards=True):
+    def due(self, user, _space_cards=False):
         '''
-        `_space_cards` is whether to space out due cards before returning
+        TODO: `_space_cards` is whether to space out due cards before returning
         them (which can result in fewer being returned).
         '''
+        #TODO: Make _space_cards True by default.
         now = datetime.datetime.utcnow()
-        due_cards = self.filter(
+        due_cards = self.available().filter(
             due_at__isnull=False,
             due_at__lte=now,
         )

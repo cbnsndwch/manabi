@@ -7,6 +7,7 @@ from rest_framework.permissions import IsAuthenticated
 from rest_framework.response import Response
 from rest_framework.serializers import ValidationError
 from rest_framework.views import APIView
+import pytz
 
 from manabi.api.viewsets import MultiSerializerViewSetMixin
 from manabi.apps.flashcards.models import (
@@ -141,11 +142,16 @@ class ReviewAvailabilitiesViewSet(viewsets.ViewSet):
         if settings.USE_TEST_STUBS:
             return self._test_helper_get(request, format=format)
 
-        availabilities = ReviewAvailabilities()
+        time_zone = pytz.timezone(
+            self.request.META.get('HTTP_X_TIME_ZONE', 'New York'))
+
+        availabilities = ReviewAvailabilities(
+            request.user,
+            time_zone=time_zone,
+        )
 
         serializer = ReviewAvailabilitiesSerializer(
             availabilities)
-
         return Response(serializer.data)
 
 
@@ -201,10 +207,15 @@ class NextCardsForReviewViewSet(viewsets.ViewSet):
             return self._test_helper_get(
                 request, format=format, excluded_card_ids=excluded_card_ids)
 
+        time_zone = pytz.timezone(
+            self.request.META.get('HTTP_X_TIME_ZONE', 'New York'))
+
         next_cards_for_review = NextCardsForReview(
             self.request.user,
             5, # FIXME
+            deck=None, #FIXME
             excluded_card_ids=excluded_card_ids,
+            time_zone=time_zone,
         )
 
         serializer = NextCardsForReviewSerializer(

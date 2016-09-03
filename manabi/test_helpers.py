@@ -7,7 +7,7 @@ from django.conf import settings
 from django.contrib.auth.models import User
 from django.core.urlresolvers import reverse
 from django.http import HttpResponse
-from rest_framework.test import APITestCase
+from rest_framework.test import APITestCase, APIClient
 
 from manabi.apps.flashcards.models import (
     Card,
@@ -37,6 +37,9 @@ class ManabiTestCase(APITestCase):
         pass
 
     def setUp(self):
+        self.client = APIClient(
+            HTTP_X_TIME_ZONE='US/Eastern',
+        )
         self.api = APIShortcuts(self)
         settings.DEFAULT_URL_PREFIX = 'http://testserver'
 
@@ -131,6 +134,13 @@ class APIShortcuts(object):
             '/api/flashcards/cards/{}/reviews/'.format(
                 card['id']),
             {'grade': grade},
+            user=user,
+        )
+
+    def review_availabilities(self, user, deck=None):
+        return self.get(
+            '/api/flashcards/review_availabilities/',
+            {'deck': deck},
             user=user,
         )
 
