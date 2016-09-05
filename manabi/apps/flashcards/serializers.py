@@ -156,6 +156,7 @@ class CardSerializer(ManabiModelSerializer):
             'expression',
             'reading',
             'meaning',
+            'is_new',
         )
 
 

@@ -1,3 +1,5 @@
+# -*- coding: utf-8 -*-
+
 from datetime import datetime
 
 from manabi.apps.flashcards.models.constants import (
@@ -47,7 +49,10 @@ class ReviewAvailabilities(object):
         ).exists()
 
     def _prompts(self):
-        return ('Primary', 'Secondary')
+        return (
+            u"This text will tell you about the cards ready for you to learn or review.",
+            u"I haven't built this part of the backend API yet—this is beta, it'll come before release!"
+        )
 
     @property
     def primary_prompt(self):

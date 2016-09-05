@@ -159,6 +159,7 @@ class Card(models.Model):
         self.save()
         card_active_field_changed.send(self, instance=self)
 
+    @property
     def is_new(self):
         '''Returns whether this card has been reviewed before.'''
         return self.last_reviewed_at is None

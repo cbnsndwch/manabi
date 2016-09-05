@@ -17,13 +17,21 @@ class ReviewInterstitial(object):
 
 
 class NextCardsForReview(object):
-    def __init__(self, user, count, deck=None, excluded_card_ids=set(),
-                 time_zone=None):
+    def __init__(
+        self,
+        user,
+        count,
+        deck=None,
+        early_review=False,
+        excluded_card_ids=set(),
+        time_zone=None,
+    ):
         next_cards = Card.objects.next_cards(
             user,
             count,
             excluded_ids=excluded_card_ids,
-            #TODO
+            deck=deck,
+            early_review=early_review,
         )
         # FIXME don't need 2 queries here...
         self.cards = Card.objects.filter(pk__in=[card.pk for card in next_cards])

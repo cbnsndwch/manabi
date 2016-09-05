@@ -168,7 +168,7 @@ class SchedulerMixin(object):
 
     def next_cards(self, user, count,
                    deck=None, excluded_ids=[],
-                   session_start=False, early_review=False, learn_more=False):
+                   early_review=False, learn_more=False):
         '''
         Returns `count` cards to be reviewed, in order.
         count should not be any more than a short session of cards
@@ -215,7 +215,6 @@ class SchedulerMixin(object):
             if len(cards):
                 card_queries.append(cards)
 
-        #TODO-OLD decide what to do with this #if session_start:
         #FIXME add new cards into the mix when there's a defined
         # new card per day limit
         #for now, we'll add new ones to the end
