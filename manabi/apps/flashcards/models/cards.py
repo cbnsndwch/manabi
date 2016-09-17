@@ -75,10 +75,6 @@ class Card(models.Model):
 
     suspended = models.BooleanField(default=False, db_index=True)
 
-
-    ######################
-    # OLD:
-
     class Meta:
         app_label = 'flashcards'
 
@@ -156,7 +152,7 @@ class Card(models.Model):
         from manabi.apps.flashcards.signals import card_active_field_changed
 
         self.active = False
-        self.save()
+        self.save(update_fields=['active'])
         card_active_field_changed.send(self, instance=self)
 
     @property
@@ -172,7 +168,7 @@ class Card(models.Model):
         #TODO-OLD why would is_new ever be True and self.due_at be none?
         if time is None: time = datetime.utcnow()
 
-        if self.is_new() or not self.due_at:
+        if self.is_new or not self.due_at:
             return False
         return self.due_at < time
 
@@ -219,7 +215,7 @@ class Card(models.Model):
         This returns the actual time between last review and due date.
         This is the time the user was supposed to wait.
         '''
-        if not self.is_new() and self.due_at is not None:
+        if not self.is_new and self.due_at is not None:
             return self.due_at - self.last_reviewed_at
 
     def sibling_spacing(self):
@@ -282,7 +278,7 @@ class Card(models.Model):
         from cardhistory import CardHistory
 
         #TODO-OLD update CardStatistics
-        was_new = self.is_new()
+        was_new = self.is_new
 
         card_history_item = CardHistory(
             card=self, response=grade, reviewed_at=reviewed_at, was_new=was_new)
@@ -326,7 +322,7 @@ class Card(models.Model):
         pre_card_reviewed.send(self, instance=self)
 
         reviewed_at = datetime.utcnow()
-        was_new = self.is_new()
+        was_new = self.is_new
 
         # Update this card's statistics
         card_history_item = self._update_statistics(

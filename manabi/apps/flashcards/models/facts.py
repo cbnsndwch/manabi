@@ -1,5 +1,4 @@
-import datetime
-from datetime import timedelta
+from datetime import datetime, timedelta
 import random
 
 from django.db.models.query import QuerySet
@@ -11,7 +10,7 @@ from natto import MeCab
 from constants import MAX_NEW_CARD_ORDINAL
 from manabi.apps.flashcards.signals import fact_suspended, fact_unsuspended
 from manabi.apps.flashcards.models.constants import GRADE_NONE, MIN_CARD_SPACE, CARD_SPACE_FACTOR
-
+from manabi.apps.flashcards.models.synchronization import copy_facts_to_subscribers
 
 
 #TODO-OLD
@@ -33,7 +32,7 @@ class FactQuerySet(QuerySet):
         Facts with cards buried due to siblings.
         '''
         if review_time is None:
-            review_time = datetime.datetime.utcnow()
+            review_time = datetime.utcnow()
 
         return self.filter(
             Q(card__deck__owner=user) & (
@@ -81,7 +80,8 @@ def _card_template_string_to_id(card_template):
 class Fact(models.Model):
     objects = FactQuerySet.as_manager()
 
-    deck = models.ForeignKey('flashcards.Deck', db_index=True)
+    deck = models.ForeignKey(
+        'flashcards.Deck', db_index=True, related_name='facts')
 
     synchronized_with = models.ForeignKey(
         'self', null=True, blank=True, related_name='subscriber_facts')
@@ -99,20 +99,48 @@ class Fact(models.Model):
     suspended = models.BooleanField(default=False)
 
     def roll_ordinal(self):
-        if not self.new_fact_ordinal:
-            self.new_fact_ordinal = random.randrange(0, MAX_NEW_CARD_ORDINAL)
+        if self.new_fact_ordinal:
+            return
+        self.new_fact_ordinal = random.randrange(0, MAX_NEW_CARD_ORDINAL)
 
-    def save(self, *args, **kwargs):
+    def save(self, update_fields=None, *args, **kwargs):
         '''
         Set a random sorting index for new cards.
+
+        Propagates changes down to subscriber facts.
         '''
         self.roll_ordinal()
+
         super(Fact, self).save(*args, **kwargs)
 
+        if update_fields is None or (
+            set(update_fields) & {'expression', 'reading', 'meaning'}
+        ):
+            self.syncing_subscriber_facts.update(
+                expression=self.expression,
+                reading=self.reading,
+                meaning=self.meaning,
+            )
+
+    @transaction.atomic
     def delete(self, *args, **kwargs):
-        self.subscriber_facts.filter(modified_at__gt=self.created_at).delete()
-        self.subscriber_facts.update(synchronized_with=None)
-        super(Fact, self).delete(*args, **kwargs)
+        self.active = False
+        self.save(update_fields=['active'])
+
+        self.new_syncing_subscriber_facts.update(active=False)
+        self.subscriber_facts.clear()
+
+    @property
+    def syncing_subscriber_facts(self):
+        return self.subscriber_facts.exclude(modified_at__gt=self.created_at)
+
+    @property
+    def new_syncing_subscriber_facts(self):
+        '''
+        "New" as in unreviewed.
+        '''
+        return self.syncing_subscriber_facts.exclude(
+            card__last_reviewed_at__isnull=False)
 
     @property
     def owner(self):
@@ -145,8 +173,15 @@ class Fact(models.Model):
             for template in card_templates
         }
 
-        self.card_set.filter(template__in=template_ids).update(active=True)
-        self.card_set.exclude(template__in=template_ids).update(active=False)
+        for activated_card in (
+            self.card_set.filter(template__in=template_ids)
+        ):
+            activated_card.activate()
+
+        for deactivated_card in (
+            self.card_set.exclude(template__in=template_ids)
+        ):
+            deactivated_card.deactivate()
 
         existing_template_ids = set(self.card_set.values_list(
             'template', flat=True))
@@ -159,12 +194,63 @@ class Fact(models.Model):
                 new_card_ordinal=Card.random_card_ordinal(),
             )
 
+        self._set_active_card_templates_for_subscribers(template_ids)
+
+    @transaction.atomic
+    def _set_active_card_templates_for_subscribers(self, template_ids):
+        from manabi.apps.flashcards.models import Card
+
+        subscriber_cards = Card.objects.filter(
+            fact__in=self.syncing_subscriber_facts,
+        )
+        new_subscriber_cards = subscriber_cards.filter(
+            last_reviewed_at__isnull=True,
+        )
+
+        new_subscriber_cards.filter(
+            template__in=template_ids,
+        ).update(active=True)
+        new_subscriber_cards.exclude(
+            template__in=template_ids,
+        ).update(active=False)
+
+        for template_id in template_ids:
+            facts_without_template = self.syncing_subscriber_facts.exclude(
+                card__in=subscriber_cards.filter(template=template_id),
+            )
+
+            missing_cards = [
+                Card(
+                    deck_id=deck_id,
+                    fact_id=fact_id,
+                    template=template_id,
+                    new_card_ordinal=Card.random_card_ordinal(),
+                )
+                for fact_id, deck_id in
+                facts_without_template.values_list('id', 'deck_id').iterator()
+            ]
+
+            Card.objects.bulk_create(missing_cards)
+
+    @transaction.atomic
+    def move_to_deck(self, deck):
+        self.new_syncing_subscriber_facts.update(active=False)
+        self.subscriber_facts.clear()
+
+        self.deck = deck
+        self.modified_at = datetime.utcnow()
+        self.save(update_fields=['deck', 'modified_at'])
+
+        copy_facts_to_subscribers([self])
+
+    @transaction.atomic
     def suspend(self):
         self.card_set.update(suspended=True)
         self.suspended = True
         self.save()
         fact_suspended.send(sender=self, instance=self)
 
+    @transaction.atomic
     def unsuspend(self):
         self.card_set.update(suspended=False)
         self.suspended = False

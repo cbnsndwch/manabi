@@ -51,7 +51,7 @@ DEFAULT_EASE_FACTOR = 2.5
 INTERVAL_FUZZ_MAX = 0.035
 
 #NEW_CARDS_PER_DAY = 200 #TODO-OLD this should at least be an option, but should also scale to use
-NEW_CARDS_PER_DAY_LIMIT = 20
+NEW_CARDS_PER_DAY_LIMIT = 10
 
 #number of failed cards before failed cards are shown earlier than any due cards
 #TODO-OLD MAX_FAILED_CARDS = 20 #TODO should be option.

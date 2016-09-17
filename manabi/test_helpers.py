@@ -126,6 +126,13 @@ class APIShortcuts(object):
         resp = self.get('/api/flashcards/decks/', user=user)
         return resp.json
 
+    def add_shared_deck(self, shared_deck, user):
+        return self.post(
+            '/api/flashcards/synchronized_decks/',
+            {'synchronized_with': shared_deck.id},
+            user=user,
+        ).json
+
     def next_cards_for_review(self, user):
         return self.get('/api/flashcards/next_cards_for_review/', user=user).json
 
@@ -148,9 +155,11 @@ class APIShortcuts(object):
 def random_name():
     return ''.join(random.choice(string.ascii_lowercase) for _ in xrange(5))
 
+
 def create_user():
     username = random_name()
     return User.objects.create_user(username, 'foo@example.com', PASSWORD)
+
 
 def create_staff():
     user = create_user()
@@ -165,6 +174,7 @@ def create_sample_data(user=None, facts=100):
     deck = create_deck(user=user)
     return [create_fact(user=user, deck=deck) for _ in xrange(facts)]
 
+
 def create_deck(user=None):
     owner = user or create_user()
     deck = Deck.objects.create(
@@ -173,6 +183,7 @@ def create_deck(user=None):
         owner=owner,
     )
     return deck
+
 
 def create_fact(user=None, deck=None):
     """ Includes card creation. """

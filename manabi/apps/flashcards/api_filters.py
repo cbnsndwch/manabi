@@ -17,7 +17,18 @@ def _get_bool(request, field_name):
             "Invalid {} value.".format(field_name))
 
 
-def review_filters(request):
+def review_availabilities_filters(request):
+    deck = None
+    deck_id = request.query_params.get('deck_id')
+    if deck_id:
+        deck = get_object_or_404(Deck, pk=deck_id)
+
+    return {
+        'deck': deck,
+    }
+
+
+def next_cards_to_review_filters(request):
     deck = None
     deck_id = request.query_params.get('deck_id')
     if deck_id:

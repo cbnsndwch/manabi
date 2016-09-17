@@ -1,19 +1,20 @@
-from collections import defaultdict
 import datetime
-import itertools
 
 from cachecow.decorators import cached_function
 from django.contrib.auth.models import User
 from django.core.urlresolvers import reverse
-from django.db import models
-from django.db import transaction
+from django.db import (
+    models,
+    transaction,
+)
 from django.db.models.query import QuerySet
 
-from manabi.apps.manabi_redis.models import redis
 from manabi.apps.books.models import Textbook
-from constants import DEFAULT_EASE_FACTOR
 from manabi.apps.flashcards.cachenamespaces import deck_review_stats_namespace
-import cards
+from manabi.apps.flashcards.models import cards
+from manabi.apps.flashcards.models.constants import DEFAULT_EASE_FACTOR
+from manabi.apps.flashcards.models.synchronization import copy_facts_to_subscribers
+from manabi.apps.manabi_redis.models import redis
 
 
 class DeckQuerySet(QuerySet):
@@ -74,22 +75,19 @@ class Deck(models.Model):
     def get_absolute_url(self):
         return reverse('deck_detail', kwargs={'deck_id': self.id})
 
+    @transaction.atomic
     def delete(self, *args, **kwargs):
-        # You shouldn't delete a shared deck - just set active=False
-        self.subscriber_decks.clear()
-        super(Deck, self).delete(*args, **kwargs)
+        '''
+        Soft deletes without propagating anything to subscribers.
+        '''
+        self.active = False
+        self.save(update_fields=['active'])
 
-    def fact_tags(self):
-        '''
-        Returns tags for all facts inside this deck.
-        Includes tags on facts made on subscribed facts.
-        '''
-        #return usertagging.models.Tag.objects.usage_for_queryset(
-            #self.facts())
-        from facts import Fact
-        deck_facts = Fact.objects.deck_facts(self)
-        return usertagging.models.Tag.objects.usage_for_queryset(
-            deck_facts)
+        self.subscriber_decks.clear()
+
+        for fact in facts:
+            fact.subscriber_facts.clear()
+        self.facts.update(active=False)
 
     @property
     def has_subscribers(self):
@@ -105,11 +103,13 @@ class Deck(models.Model):
         Shares this deck publicly.
         '''
         if self.synchronized_with:
-            raise TypeError('Cannot share synchronized decks (decks which are already synchronized with shared decks).')
+            raise TypeError(
+                "Cannot share synchronized decks (decks which are already "
+                "synchronized with shared decks).")
 
         self.shared = True
         self.shared_at = datetime.datetime.utcnow()
-        self.save()
+        self.save(update_fields=['shared', 'shared_at'])
 
     @transaction.atomic
     def unshare(self):
@@ -117,10 +117,10 @@ class Deck(models.Model):
         Unshares this deck.
         '''
         if not self.shared:
-            raise TypeError('This is not a shared deck, so it cannot be unshared.')
+            raise TypeError("This is not a shared deck, so it cannot be unshared.")
 
         self.shared = False
-        self.save()
+        self.save(update_fields=['shared'])
 
     def get_subscriber_deck_for_user(self, user):
         '''
@@ -130,9 +130,7 @@ class Deck(models.Model):
         we just return the first one.
         '''
         subscriber_decks = self.subscriber_decks.filter(owner=user, active=True)
-
-        if subscriber_decks.exists():
-            return subscriber_decks[0]
+        return subscriber_decks.first()
 
     #TODO implement subscribing with new stuff.
     @transaction.atomic
@@ -149,7 +147,7 @@ class Deck(models.Model):
         '''
         from manabi.apps.flashcards.models import Card, Fact
 
-        # check if the user is already subscribed to this deck
+        # Check if the user is already subscribed to this deck.
         subscriber_deck = self.get_subscriber_deck_for_user(user)
         if subscriber_deck:
             return subscriber_deck
@@ -161,46 +159,17 @@ class Deck(models.Model):
 
         #TODO-OLD dont allow multiple subscriptions to same deck by same user
 
-        # copy the deck
-        deck = Deck(
+        deck = Deck.objects.create(
             synchronized_with=self,
             name=self.name,
             description=self.description,
-            #TODO-OLD implement textbook=shared_deck.textbook, #picture too...
             priority=self.priority,  # TODO: Remove.
             textbook_source=self.textbook_source,
-            owner_id=user.id)
-        deck.save()
+            owner_id=user.id,
+        )
 
-        # copy all facts
-        copied_facts = []
-        copied_cards = []
-        for shared_fact in self.fact_set.filter(active=True).order_by('new_fact_ordinal'):
-            copy_attrs = [
-                'synchronized_with', 'active', 'new_fact_ordinal',
-                'expression', 'reading', 'meaning', 'suspended',
-            ]
-            fact_kwargs = {attr: getattr(shared_fact, attr) for attr in copy_attrs}
-            fact = Fact(deck=deck, **fact_kwargs)
-            copied_facts.append(fact)
+        copy_facts_to_subscribers(self.facts.all(), subscribers=[user])
 
-            # Copy the cards.
-            copied_cards_for_fact = []
-            for shared_card in shared_fact.card_set.filter(active=True, suspended=False):
-                import sys
-                print >>sys.stderr, "Copying a card...", shared_card, shared_card.id, shared_card.deck_id
-                card = shared_card.copy(fact)
-                copied_cards_for_fact.append(card)
-            copied_cards.append(copied_cards_for_fact)
-
-        # Persist everything.
-        created_facts = Fact.objects.bulk_create(copied_facts)
-        for fact, fact_cards in zip(created_facts, copied_cards):
-            for fact_card in fact_cards:
-                fact_card.fact_id = fact.id
-        Card.objects.bulk_create(itertools.chain.from_iterable(copied_cards))
-
-        # Done!
         return deck
 
     def card_count(self):
@@ -231,11 +200,3 @@ class Deck(models.Model):
         if cardinality:
             return sum(score for val,score in ease_factors) / cardinality
         return DEFAULT_EASE_FACTOR
-
-    @transaction.atomic
-    def delete_cascading(self):
-        for fact in self.fact_set.all():
-            for card in fact.card_set.all():
-                card.delete()
-            fact.delete()
-        self.delete()

@@ -1,15 +1,19 @@
 import logging
+from datetime import datetime
 
 from django.shortcuts import get_object_or_404
-from rest_framework import serializers
 
-from manabi.apps.flashcards.models.constants import (
-    ALL_GRADES,
-)
 from manabi.api.serializers import ManabiModelSerializer
-from manabi.apps.flashcards.models import Deck, Fact, Card
-from manabi.apps.flashcards.serializer_fields import ViewerSynchronizedDeckField
+from manabi.apps.flashcards.models import (
+    Card,
+    Deck,
+    Fact,
+)
+from manabi.apps.flashcards.models.constants import ALL_GRADES
+from manabi.apps.flashcards.serializer_fields import \
+    ViewerSynchronizedDeckField
 from manabi.apps.manabi_auth.serializers import UserSerializer
+from rest_framework import serializers
 
 
 class DeckSerializer(ManabiModelSerializer):
@@ -19,17 +23,37 @@ class DeckSerializer(ManabiModelSerializer):
         model = Deck
         fields = (
             'id',
-            'name',
-            'description',
             'owner',
-            'card_count',
-            'shared',
             'shared_at',
             'created_at',
             'modified_at',
+            'name',
+            'description',
+            'card_count',
+            'shared',
             'suspended',
             'is_synchronized',
         )
+        read_only_fields = (
+            'id',
+            'owner',
+            'shared_at',
+            'created_at',
+            'modified_at',
+        )
+
+    def update(self, instance, validated_data):
+        shared = validated_data.pop('shared', None)
+
+        deck = super(DeckSerializer, self).update(instance, validated_data)
+
+        if shared is not None and shared != deck.shared:
+            if shared:
+                deck.share()
+            else:
+                deck.unshare()
+
+        return deck
 
 
 class SharedDeckSerializer(DeckSerializer):
@@ -37,15 +61,15 @@ class SharedDeckSerializer(DeckSerializer):
 
     class Meta(object):
         model = Deck
-        fields = (
+        read_only_fields = (
             'id',
+            'owner',
             'name',
             'description',
-            'owner',
+            'viewer_synchronized_deck',
             'card_count',
             'created_at',
             'modified_at',
-            'viewer_synchronized_deck',
         )
 
 
@@ -62,6 +86,10 @@ class SynchronizedDeckSerializer(ManabiModelSerializer):
             'owner',
             'synchronized_with',
         )
+        read_only_fields = (
+            'id',
+            'owner',
+        )
 
     def create(self, validated_data):
         upstream_deck = validated_data['synchronized_with']
@@ -77,20 +105,32 @@ class FactSerializer(ManabiModelSerializer):
         model = Fact
         fields = (
             'id',
-            'deck',
             'active',
+            'card_count',
+            'created_at',
+            'modified_at',
+            'deck',
             'suspended',
             'expression',
-            'card_count',
             'reading',
             'meaning',
+        )
+        read_only_fields = (
+            'id',
+            'active',
+            'card_count',
             'created_at',
             'modified_at',
         )
 
     def update(self, instance, validated_data):
+        deck = validated_data.pop('deck', None)
+        if deck is not None and deck.id != fact.deck_id:
+            fact.move_to_deck(deck)
+
         suspended = validated_data.pop('suspended', None)
 
+        instance.modified_at = datetime.utcnow()
         fact = super(FactSerializer, self).update(instance, validated_data)
 
         if suspended is not None and suspended != fact.suspended:
@@ -141,7 +181,7 @@ class CardSerializer(ManabiModelSerializer):
 
     class Meta:
         model = Card
-        fields = (
+        read_only_fields = (
             'id',
             'deck',
             'fact',
@@ -162,9 +202,11 @@ class CardSerializer(ManabiModelSerializer):
 
 class ReviewAvailabilitiesSerializer(serializers.Serializer):
     ready_for_review = serializers.BooleanField()
-    next_new_cards_count = serializers.IntegerField()
     early_review_available = serializers.BooleanField()
-    # new_cards_available = serializers.BooleanField()
+
+    next_new_cards_count = serializers.IntegerField()
+    new_cards_per_day_limit_reached = serializers.BooleanField()
+    new_cards_per_day_limit_override = serializers.IntegerField()
 
     primary_prompt = serializers.CharField()
     secondary_prompt = serializers.CharField()

@@ -18,7 +18,8 @@ from manabi.apps.flashcards.models import (
     NextCardsForReview,
 )
 from manabi.apps.flashcards.api_filters import (
-    review_filters,
+    review_availabilities_filters,
+    next_cards_to_review_filters,
 )
 from manabi.apps.flashcards.permissions import (
     DeckSynchronizationPermission,
@@ -151,6 +152,7 @@ class ReviewAvailabilitiesViewSet(viewsets.ViewSet):
         availabilities = ReviewAvailabilities(
             request.user,
             time_zone=time_zone,
+            **review_availabilities_filters(self.request)
         )
 
         serializer = ReviewAvailabilitiesSerializer(
@@ -218,7 +220,7 @@ class NextCardsForReviewViewSet(viewsets.ViewSet):
             5, # FIXME
             excluded_card_ids=excluded_card_ids,
             time_zone=time_zone,
-            **review_filters(self.request)
+            **next_cards_to_review_filters(self.request)
         )
 
         serializer = NextCardsForReviewSerializer(

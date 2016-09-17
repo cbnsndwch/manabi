@@ -44,5 +44,6 @@ pre_card_reviewed = django.dispatch.Signal(providing_args=['instance'])
 post_card_reviewed = django.dispatch.Signal(providing_args=['instance'])
 
 # When a card's `active` field changes.
+# DEPRECATED.
 card_active_field_changed = django.dispatch.Signal(providing_args=['instance'])
 
