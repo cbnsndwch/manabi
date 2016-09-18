@@ -126,7 +126,6 @@ class FactSerializer(ManabiModelSerializer):
     def update(self, instance, validated_data):
         deck = validated_data.pop('deck', None)
         if deck is not None and deck.id != instance.deck_id:
-            print 'was in deck', instance.deck
             instance.move_to_deck(deck)
 
         suspended = validated_data.pop('suspended', None)

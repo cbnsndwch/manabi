@@ -6,6 +6,26 @@ from django.contrib.auth import get_user_model
 BULK_BATCH_SIZE = 2000
 
 
+def _subscriber_decks_already_with_facts(subscriber_decks, facts):
+    from manabi.apps.flashcards.models import Fact
+
+    return set(Fact.objects.filter(
+        deck__in=subscriber_decks,
+        synchronized_with__in=facts,
+    ).values_list('deck_id', 'synchronized_with_id'))
+
+
+def _subscriber_deck_already_has_fact(
+    subscriber_deck,
+    shared_fact,
+    subscriber_decks_already_with_facts,
+):
+    return (
+        (subscriber_deck.id, shared_fact.id) in
+        subscriber_decks_already_with_facts
+    )
+
+
 def _copy_facts_to_subscribers(facts, subscribers):
     '''
     The meat-and-potatoes of the copy operation.
@@ -16,6 +36,9 @@ def _copy_facts_to_subscribers(facts, subscribers):
     subscriber_decks = shared_deck.subscriber_decks.filter(
         owner__in=subscribers,
         active=True,
+    )
+    subscriber_decks_already_with_facts = (
+        _subscriber_decks_already_with_facts(subscriber_decks, facts)
     )
 
     try:
@@ -33,6 +56,13 @@ def _copy_facts_to_subscribers(facts, subscribers):
         fact_kwargs = {attr: getattr(shared_fact, attr) for attr in copy_attrs}
 
         for subscriber_deck in subscriber_decks.iterator():
+            if _subscriber_deck_already_has_fact(
+                subscriber_deck,
+                shared_fact,
+                subscriber_decks_already_with_facts,
+            ):
+                continue
+
             fact = Fact(
                 deck=subscriber_deck,
                 synchronized_with=shared_fact,
