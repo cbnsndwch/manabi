@@ -95,6 +95,9 @@ def copy_facts_to_subscribers(facts, subscribers=None):
     '''
     Only call this with facts of the same deck.
 
+    If facts already exist in subscriber decks, this will skip them for those
+    decks. It will not resynchronize their contents if they happen to be stale.
+
     If `subscribers` is `None`, it will copy to all subscribers of the facts'
     decks.
     '''

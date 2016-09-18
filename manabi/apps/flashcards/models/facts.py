@@ -111,6 +111,8 @@ class Fact(models.Model):
         '''
         self.roll_ordinal()
 
+        is_new = self.pk is None
+
         super(Fact, self).save(*args, **kwargs)
 
         if update_fields is None or (
@@ -121,6 +123,9 @@ class Fact(models.Model):
                 reading=self.reading,
                 meaning=self.meaning,
             )
+
+        if is_new and self.deck.shared:
+            copy_facts_to_subscribers([self])
 
     @transaction.atomic
     def delete(self, *args, **kwargs):
