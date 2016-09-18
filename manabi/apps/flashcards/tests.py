@@ -8,10 +8,15 @@ from django.core.urlresolvers import reverse
 from django.contrib.auth.models import User
 from django.conf import settings
 
-from manabi.apps.flashcards.models import Deck
+from manabi.apps.flashcards.models import Deck, Fact
 from manabi.apps.flashcards.models.constants import (
     GRADE_NONE, GRADE_HARD, GRADE_GOOD, GRADE_EASY)
-from manabi.test_helpers import ManabiTestCase, create_sample_data, create_user
+from manabi.test_helpers import (
+    ManabiTestCase,
+    create_sample_data,
+    create_user,
+    create_deck,
+)
 
 
 class DecksAPITest(ManabiTestCase):
@@ -61,10 +66,49 @@ class SynchronizationTest(ManabiTestCase):
 
         self.subscriber = create_user()
 
+    def _subscribe(self, deck):
+        deck_id = self.api.add_shared_deck(deck, self.subscriber)['id']
+        return Deck.objects.get(id=deck_id)
+
     def test_deck_subscription(self):
-        self.api.add_shared_deck(self.shared_deck, self.subscriber)
-        shared_deck = Deck.objects.get(owner=self.subscriber)
+        subscribed_deck = self._subscribe(self.shared_deck)
         self.assertEqual(
-            shared_deck.synchronized_with_id,
+            subscribed_deck.synchronized_with_id,
             self.shared_deck.id,
+        )
+
+    def test_moving_shared_fact_to_another_shared_deck(self):
+        subscribed_deck = self._subscribe(self.shared_deck)
+
+        target_deck = create_deck(user=self.user)
+        target_deck.share()
+        target_subscribed_deck = self._subscribe(target_deck)
+
+        shared_fact = self.shared_deck.facts.first()
+
+        # Subscribed deck got synchronized fact.
+        self.assertEqual(
+            subscribed_deck.facts.count(),
+            self.shared_deck.facts.count(),
+        )
+        subscribed_deck.facts.get(synchronized_with_id=shared_fact.id)
+
+        moved_fact = self.api.move_fact_to_deck(
+            shared_fact, target_deck, self.user)
+
+        with self.assertRaises(Fact.DoesNotExist):
+            self.shared_deck.facts.get(id=moved_fact['id'])
+        with self.assertRaises(Fact.DoesNotExist):
+            subscribed_deck.facts.get(
+                synchronized_with_id=moved_fact['id'])
+
+        # Deck the fact was moved to has the fact.
+        target_deck.facts.get(id=moved_fact['id'])
+
+        # Subscribed deck of deck the fact was moved to has the fact.
+        self.assertEqual(
+            target_subscribed_deck.facts.get(
+                synchronized_with_id=moved_fact['id'],
+            ).expression,
+            shared_fact.expression,
         )

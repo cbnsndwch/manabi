@@ -3,13 +3,20 @@ import itertools
 from django.contrib.auth import get_user_model
 
 
+BULK_BATCH_SIZE = 2000
+
+
 def _copy_facts_to_subscribers(facts, subscribers):
     '''
     The meat-and-potatoes of the copy operation.
     '''
     from manabi.apps.flashcards.models import Card, Fact
 
-    deck = facts[0].deck
+    shared_deck = facts[0].deck
+    subscriber_decks = shared_deck.subscriber_decks.filter(
+        owner__in=subscribers,
+        active=True,
+    )
 
     try:
         facts = facts.filter(active=True).iterator()
@@ -24,29 +31,34 @@ def _copy_facts_to_subscribers(facts, subscribers):
             'expression', 'reading', 'meaning',
         ]
         fact_kwargs = {attr: getattr(shared_fact, attr) for attr in copy_attrs}
-        fact = Fact(
-            deck=deck,
-            synchronized_with=shared_fact,
-            **fact_kwargs
-        )
-        copied_facts.append(fact)
 
-        # Copy the cards.
-        copied_cards_for_fact = []
-        for shared_card in (
-            shared_fact.card_set.filter(active=True, suspended=False)
-            .iterator()
-        ):
-            card = shared_card.copy(fact)
-            copied_cards_for_fact.append(card)
-        copied_cards.append(copied_cards_for_fact)
+        for subscriber_deck in subscriber_decks.iterator():
+            fact = Fact(
+                deck=subscriber_deck,
+                synchronized_with=shared_fact,
+                **fact_kwargs
+            )
+            copied_facts.append(fact)
+
+            # Copy the cards.
+            copied_cards_for_fact = []
+            for shared_card in (
+                shared_fact.card_set.filter(active=True, suspended=False)
+                .iterator()
+            ):
+                card = shared_card.copy(fact)
+                copied_cards_for_fact.append(card)
+            copied_cards.append(copied_cards_for_fact)
 
     # Persist everything.
-    created_facts = Fact.objects.bulk_create(copied_facts)
+    created_facts = Fact.objects.bulk_create(
+        copied_facts, batch_size=BULK_BATCH_SIZE)
     for fact, fact_cards in zip(created_facts, copied_cards):
         for fact_card in fact_cards:
             fact_card.fact_id = fact.id
-    Card.objects.bulk_create(itertools.chain.from_iterable(copied_cards))
+    Card.objects.bulk_create(
+        itertools.chain.from_iterable(copied_cards),
+        batch_size=BULK_BATCH_SIZE)
 
 
 def copy_facts_to_subscribers(facts, subscribers=None):
@@ -66,11 +78,12 @@ def copy_facts_to_subscribers(facts, subscribers=None):
 
     deck = facts[0].deck
 
+    print deck
     if not deck.shared:
         raise TypeError("Facts cannot be copied from an unshared deck.")
 
     if subscribers is None:
-        subscribers = get_user_model().filter(
+        subscribers = get_user_model().objects.filter(
             pk__in=deck.subscriber_decks.values_list('owner'))
 
     _copy_facts_to_subscribers(facts, subscribers=subscribers)

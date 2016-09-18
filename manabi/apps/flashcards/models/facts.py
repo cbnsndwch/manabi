@@ -241,7 +241,8 @@ class Fact(models.Model):
         self.modified_at = datetime.utcnow()
         self.save(update_fields=['deck', 'modified_at'])
 
-        copy_facts_to_subscribers([self])
+        if self.deck.shared:
+            copy_facts_to_subscribers([self])
 
     @transaction.atomic
     def suspend(self):

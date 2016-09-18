@@ -23,6 +23,7 @@ from manabi.apps.flashcards.api_filters import (
 )
 from manabi.apps.flashcards.permissions import (
     DeckSynchronizationPermission,
+    IsOwnerPermission,
 )
 from manabi.apps.flashcards.serializers import (
     CardReviewSerializer,
@@ -118,8 +119,12 @@ class FactViewSet(MultiSerializerViewSetMixin, viewsets.ModelViewSet):
     serializer_action_classes = {
         'create': FactWithCardsSerializer,
         'update': FactWithCardsSerializer,
+        'partial_update': FactWithCardsSerializer,
     }
-    permissions_classes = [IsAuthenticated]
+    permissions_classes = [
+        IsAuthenticated,
+        IsOwnerPermission,
+    ]
 
     def get_queryset(self):
         facts = Fact.objects.filter(deck__owner=self.request.user)

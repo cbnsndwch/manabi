@@ -74,6 +74,9 @@ class ManabiTestCase(APITestCase):
     def post(self, *args, **kwargs):
         return self._http_verb('post', *args, **kwargs)
 
+    def patch(self, *args, **kwargs):
+        return self._http_verb('patch', *args, **kwargs)
+
     #def _api_verb(self, verb, url, user=None, *args, **kwargs):
     #    if user is None:
     #        user = create_user()
@@ -122,6 +125,10 @@ class APIShortcuts(object):
         kwargs['method'] = 'post'
         return self.call(*args, **kwargs)
 
+    def patch(self, *args, **kwargs):
+        kwargs['method'] = 'patch'
+        return self.call(*args, **kwargs)
+
     def decks(self, user):
         resp = self.get('/api/flashcards/decks/', user=user)
         return resp.json
@@ -133,13 +140,20 @@ class APIShortcuts(object):
             user=user,
         ).json
 
+    def move_fact_to_deck(self, fact, deck, user):
+        return self.patch(
+            '/api/flashcards/facts/{}/'.format(fact.id),
+            {'deck': deck.id},
+            user=user,
+        ).json
+
     def next_cards_for_review(self, user):
-        return self.get('/api/flashcards/next_cards_for_review/', user=user).json
+        return self.get(
+            '/api/flashcards/next_cards_for_review/', user=user).json
 
     def review_card(self, user, card, grade):
         return self.post(
-            '/api/flashcards/cards/{}/reviews/'.format(
-                card['id']),
+            '/api/flashcards/cards/{}/reviews/'.format(card['id']),
             {'grade': grade},
             user=user,
         )
