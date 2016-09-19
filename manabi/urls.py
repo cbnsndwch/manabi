@@ -41,7 +41,6 @@ router.register(r'flashcards/next_cards_for_review',
     NextCardsForReviewViewSet,
     base_name='next-card-for-review')
 
-
 urlpatterns = [
     url(r'^admin/', include(admin.site.urls)),
 
@@ -58,7 +57,7 @@ urlpatterns = [
 
     url(r'^api/auth/', include('manabi.apps.manabi_auth.api_urls')),
     url(r'^api/flashcards/', include('manabi.apps.flashcards.api_urls')),
-    url(r'^api/twitter_usages/', include('manabi.apps.twitter_usages.api_urls')),
+    url(r'^api/twitter_usages/', include('manabi.apps.twitter_usages.urls')),
 
     #url(r'^flashcards/api/', include(rest_api_urlpatterns)),
 ]
