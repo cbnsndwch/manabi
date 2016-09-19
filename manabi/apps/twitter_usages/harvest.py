@@ -2,6 +2,7 @@
 import itertools
 
 from django.db import IntegrityError
+from django.db.models import Q
 from django.conf import settings
 from natto import MeCab
 from twython import Twython
@@ -69,22 +70,32 @@ def word_frequencies(text):
 
 
 def harvest_tweets(fact_count, tweets_per_fact=10):
-    facts = Fact.objects.exclude(expression='').order_by('-modified_at')
+    facts = Fact.objects.exclude(expression='').order_by('?')#.order_by('-modified_at')
+    facts = facts.exclude(Q(forked=False) & Q(synchronized_with_id__isnull=False))
 
     # TODO This is probably temporary for initial migration.
-    facts = facts.filter(deck__owner__username='alex')
-    facts = facts.exclude(expression__in=ExpressionTweet.objects.values_list('search_expression').distinct())
+    # facts = facts.filter(deck__owner__username='alex')
+    facts = facts.exclude(
+        expression__in=
+        ExpressionTweet.objects.values_list('search_expression').distinct(),
+    )
     print 'Remaining facts: {}'.format(facts.count())
 
     facts = facts[:fact_count]
 
-    for fact in facts:
+    searched_expressions = set()
+
+    for fact in facts.iterator():
         if not fact.expression:
             continue
 
         for expression in search_expressions(fact):
+            if expression in searched_expressions:
+                continue
+
             SEARCH_COUNT = 100
             tweets = _search_tweets(expression, SEARCH_COUNT)
+            searched_expressions.add(expression)
             tweets = _cull_spammy_tweets(tweets, SEARCH_COUNT)
 
             tweets_with_frequencies = []
@@ -101,7 +112,7 @@ def harvest_tweets(fact_count, tweets_per_fact=10):
 
             top_tweets = sorted_tweets[:tweets_per_fact]
 
-            print expression
+            print u'Fact {}:'.format(fact.id), expression
             for average_word_frequency, tweet in top_tweets:
                 try:
                     ExpressionTweet.objects.create(

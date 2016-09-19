@@ -43,18 +43,18 @@ if DEBUG:
         },
          'root': {
              'handlers': ['console'],
-             'level': 'DEBUG',
+             'level': logging.WARNING,
         },
         'loggers': {
-            # 'manabi': {
-            #     'handlers': ['console'],
-            #     'level': 'DEBUG',
-            # },
+            'manabi': {
+                'handlers': ['console'],
+                'level': 'DEBUG',
+            },
             'django.request': {
                 'handlers': ['console'],
                 'propagate': True,
                 'level': 'DEBUG',
-            }
+            },
         },
     }
 else:
