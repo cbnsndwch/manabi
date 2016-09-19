@@ -20,6 +20,7 @@ djangorestframework==3.4.6
 django-filter==0.14.0
 markdown==2.6.5
 django-crispy-forms==1.5.2
+requests[security]==2.7.0
 
 # django-devserver + optional dependencies
 https://github.com/dcramer/django-devserver/archive/master.zip
