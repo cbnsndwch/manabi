@@ -85,6 +85,7 @@ class Fact(models.Model):
 
     synchronized_with = models.ForeignKey(
         'self', null=True, blank=True, related_name='subscriber_facts')
+    forked = models.BooleanField(default=False, blank=True)
 
     new_fact_ordinal = models.PositiveIntegerField(null=True, blank=True)
     active = models.BooleanField(default=True, blank=True)
@@ -99,9 +100,13 @@ class Fact(models.Model):
     suspended = models.BooleanField(default=False)
 
     def roll_ordinal(self):
+        '''
+        Returns whether a new ordinal was given.
+        '''
         if self.new_fact_ordinal:
-            return
+            return False
         self.new_fact_ordinal = random.randrange(0, MAX_NEW_CARD_ORDINAL)
+        return True
 
     def save(self, update_fields=None, *args, **kwargs):
         '''
@@ -109,7 +114,30 @@ class Fact(models.Model):
 
         Propagates changes down to subscriber facts.
         '''
-        self.roll_ordinal()
+        self.modified_at = datetime.utcnow()
+        also_update_fields = {'modified_at'}
+
+        if self.roll_ordinal():
+            also_update_fields.add('new_fact_ordinal')
+
+        if (
+            not self.forked and
+            (
+                update_fields is None or
+                set(update_fields) & {'expression', 'reading', 'meaning'}
+            ) and
+            self.synchronized_with is not None and
+            (
+                self.synchronized_with.expression != self.expression or
+                self.synchronized_with.reading != self.reading or
+                self.synchronized_with.meaning != self.meaning
+            )
+        ):
+            self.forked = True
+            also_update_fields.add('forked')
+
+        if update_fields is not None:
+            update_fields = list(set(update_fields) | also_update_fields)
 
         is_new = self.pk is None
 
@@ -137,7 +165,7 @@ class Fact(models.Model):
 
     @property
     def syncing_subscriber_facts(self):
-        return self.subscriber_facts.exclude(modified_at__gt=self.created_at)
+        return self.subscriber_facts.exclude(forked=True)
 
     @property
     def new_syncing_subscriber_facts(self):
@@ -243,8 +271,8 @@ class Fact(models.Model):
         self.subscriber_facts.clear()
 
         self.deck = deck
-        self.modified_at = datetime.utcnow()
-        self.save(update_fields=['deck', 'modified_at'])
+        self.synchronized_with = None
+        self.save(update_fields=['deck', 'synchronized_with'])
 
         if self.deck.shared:
             copy_facts_to_subscribers([self])

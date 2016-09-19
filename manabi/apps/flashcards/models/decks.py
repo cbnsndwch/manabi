@@ -100,7 +100,8 @@ class Deck(models.Model):
     @transaction.atomic
     def share(self):
         '''
-        Shares this deck publicly.
+        Shares this deck publicly. Resynchronizes with any preexisting
+        subscribers.
         '''
         if self.synchronized_with:
             raise TypeError(
@@ -110,6 +111,8 @@ class Deck(models.Model):
         self.shared = True
         self.shared_at = datetime.datetime.utcnow()
         self.save(update_fields=['shared', 'shared_at'])
+
+        copy_facts_to_subscribers(self.facts.filter(active=True))
 
     @transaction.atomic
     def unshare(self):

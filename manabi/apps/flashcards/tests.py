@@ -106,9 +106,6 @@ class SynchronizationTest(ManabiTestCase):
         target_deck.facts.get(id=moved_fact['id'])
 
         # Subscribed deck of deck the fact was moved to has the fact.
-        self.assertEqual(
-            target_subscribed_deck.facts.get(
-                synchronized_with_id=moved_fact['id'],
-            ).expression,
-            shared_fact.expression,
+        target_subscribed_deck.facts.get(
+            synchronized_with_id=moved_fact['id'],
         )

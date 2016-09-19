@@ -18,7 +18,7 @@ def new_reading(reading):
 
 def convert(apps, schema_editor):
     Fact = apps.get_model('flashcards', 'Fact')
-    for fact in Fact.objects.all():
+    for fact in Fact.objects.all().iterator():
         reading = new_reading(fact.reading)
         fact.reading = reading
         fact.save()

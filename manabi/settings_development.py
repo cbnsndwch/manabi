@@ -6,7 +6,15 @@ DATABASES = {
         'PASSWORD': 'development',
         'HOST': 'localhost',
         'PORT': '5432',
-    }
+    },
+    'old': {
+        'ENGINE': 'django.db.backends.postgresql_psycopg2',
+        'NAME': 'manabi-pre-data-loss',
+        'USER': 'alex',
+        'PASSWORD': 'development',
+        'HOST': 'localhost',
+        'PORT': '5432',
+    },
 }
 
 REDIS = {

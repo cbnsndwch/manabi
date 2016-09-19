@@ -35,9 +35,9 @@ def forwards(apps, schema_editor):
         print u"Migrating from: {}".format(u' / '.join([f.content for f in field_contents]))
 
 
-        fact.expression = field_contents[0].content
+        fact.meaning = field_contents[0].content
         fact.reading = field_contents[1].content
-        fact.meaning = field_contents[2].content
+        fact.expression = field_contents[2].content
         fact.save()
 
 
