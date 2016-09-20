@@ -1,3 +1,5 @@
+from datetime import timedelta
+
 from manabi.apps.utils.time_utils import seconds_to_days
 
 
@@ -38,9 +40,9 @@ MATURE_FAILURE_INTERVAL = 1.0 #1 day#(1.0 / (24 * 60)) * 10 #10 mins, expressed 
 #TODO-OLD MATURE_FAILURE_INTERVAL should not be a constant value, but dependent on other factors of a given card
 #TODO-OLD 'tomorrow' should also be dependent on the current time, instead of just 1 day from now
 
-# Days an interval is required to meet or exceed for a card to be
-# considered mature.
-MATURE_INTERVAL_MIN = 20.0
+# The interval required to meet or exceed for a card to be
+# considered "mature".
+MATURE_INTERVAL_MIN = timedelta(days=20)
 
 GRADE_EASY_BONUS_FACTOR = 0.2
 DEFAULT_EASE_FACTOR = 2.5
@@ -63,4 +65,3 @@ NEW_CARDS_PER_DAY_LIMIT = 10
 # Sibling spacing.
 MIN_CARD_SPACE = seconds_to_days(60*60*8)
 CARD_SPACE_FACTOR = .1 # * interval, used for card spacing if greater than MIN_CARD_SPACE.
-

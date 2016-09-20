@@ -10,8 +10,9 @@ from manabi.apps.flashcards.models import (
     Fact,
 )
 from manabi.apps.flashcards.models.constants import ALL_GRADES
-from manabi.apps.flashcards.serializer_fields import \
-    ViewerSynchronizedDeckField
+from manabi.apps.flashcards.serializer_fields import (
+    ViewerSynchronizedDeckField,
+)
 from manabi.apps.manabi_auth.serializers import UserSerializer
 from rest_framework import serializers
 
@@ -244,3 +245,6 @@ class NextCardsForReviewSerializer(serializers.Serializer):
 
 class CardReviewSerializer(serializers.Serializer):
     grade = serializers.ChoiceField(choices=ALL_GRADES)
+
+    next_due_at = serializers.DateTimeField(read_only=True)
+    humanized_next_due_in = serializers.CharField(read_only=True)

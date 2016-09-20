@@ -7,10 +7,7 @@ from django.db import migrations
 
 def copy_contents_from_upstream(apps, schema_editor):
     Fact = apps.get_model('flashcards', 'Fact')
-    for fact in Fact.objects.all().iterator():
-        if fact.forked:
-            print 'what'
-            continue
+    for fact in Fact.objects.exclude(forked=True).iterator():
         if fact.synchronized_with is None:
             continue
 

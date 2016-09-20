@@ -8,7 +8,7 @@ from django.core.urlresolvers import reverse
 from django.contrib.auth.models import User
 from django.conf import settings
 
-from manabi.apps.flashcards.models import Deck, Fact
+from manabi.apps.flashcards.models import Deck, Fact, Card
 from manabi.apps.flashcards.models.constants import (
     GRADE_NONE, GRADE_HARD, GRADE_GOOD, GRADE_EASY)
 from manabi.test_helpers import (
@@ -51,6 +51,20 @@ class ReviewsAPITest(ManabiTestCase):
             for card in next_cards:
                 self.assertFalse(card['id'] in card_ids)
         self.assertTrue(count)
+
+    def test_undo_review(self):
+        next_cards = self.api.next_cards_for_review(self.user)['cards']
+        next_card = next_cards[0]
+
+        due_at_before_review = next_card['due_at']
+        card_review = self.api.review_card(self.user, next_card, GRADE_EASY)
+        self.assertNotEqual(card_review['next_due_at'], due_at_before_review)
+
+        undone_card = self.api.undo_review(self.user)
+        self.assertEqual(undone_card['due_at'], due_at_before_review)
+        self.assertEqual(
+            Card.objects.get(id=next_card['id']).due_at,
+            due_at_before_review)
 
     def test_review_availabilities(self):
         pass

@@ -16,10 +16,14 @@ from manabi.apps.flashcards.models import (
     Card,
     ReviewAvailabilities,
     NextCardsForReview,
+    UndoCardReview,
 )
 from manabi.apps.flashcards.api_filters import (
     review_availabilities_filters,
     next_cards_to_review_filters,
+)
+from manabi.apps.flashcards.models.card_review import (
+    CardReview,
 )
 from manabi.apps.flashcards.permissions import (
     DeckSynchronizationPermission,
@@ -243,10 +247,24 @@ class CardViewSet(viewsets.ModelViewSet):
     @detail_route(methods=['post'], permission_classes=[IsAuthenticated])
     def reviews(self, request, pk=None):
         card = self.get_object()
-        serializer = CardReviewSerializer(data=request.data)
-        if serializer.is_valid():
-            card.review(serializer.data['grade'])
-            return Response(status=status.HTTP_201_CREATED)
+        input_serializer = CardReviewSerializer(data=request.data)
+        if input_serializer.is_valid():
+            card_review = CardReview(card, input_serializer.data['grade'])
+            card_review.apply_review()
+            output_serializer = CardReviewSerializer(card_review)
+            return Response(output_serializer.data)
         else:
-            return Response(serializer.errors,
+            return Response(input_serializer.errors,
                             status=status.HTTP_400_BAD_REQUEST)
+
+
+class UndoCardReviewView(APIView):
+    permission_classes = [IsAuthenticated]
+
+    def post(self, request, format=None):
+        card = UndoCardReview.objects.undo(request.user)
+
+        if card is None:
+            return Response("Nothing to undo.", status=status.HTTP_404_NOT_FOUND)
+
+        return Response(CardSerializer(card).data)

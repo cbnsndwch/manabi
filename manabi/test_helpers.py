@@ -156,7 +156,10 @@ class APIShortcuts(object):
             '/api/flashcards/cards/{}/reviews/'.format(card['id']),
             {'grade': grade},
             user=user,
-        )
+        ).json
+
+    def undo_review(self, user):
+        return self.post('/api/flashcards/undo_card_review/', user=user).json
 
     def review_availabilities(self, user, deck=None):
         return self.get(

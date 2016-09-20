@@ -1,5 +1,7 @@
 import datetime
+import time
 
+import dateutil.parser
 from django.contrib.auth.models import User
 from django.contrib.postgres.fields import JSONField
 from django.db import (
@@ -46,16 +48,27 @@ class UndoCardReviewManager(models.Manager):
         '''
         user = card_history.card.fact.deck.owner
 
+        SKIP_FIELDS = {'new_card_ordinal', 'suspended', 'deck', 'fact',
+                       'template'}
+
         snapshot = {
-            getattr(card_history.card, field_name)
+            field_name: getattr(card_history.card, field_name)
             for field_name in _get_model_fields(card_history.card)
+            if field_name not in SKIP_FIELDS
         }
+        for key, value in snapshot.viewitems():
+            # Be sure to update the reverse mapping in `undo`.
+            # If this gets unwieldy, find a 3rd-party lib for this.
+            if isinstance(value, datetime.timedelta):
+                snapshot[key] = value.total_seconds()
+            elif isinstance(value, datetime.datetime):
+                snapshot[key] = value.isoformat()
 
         undo = UndoCardReview(
             user = user,
             card = card_history.card,
             card_history = card_history,
-            card_snapshot = list(snapshot),
+            card_snapshot = snapshot,
         )
 
         # Delete previous undo if it exists.
@@ -80,12 +93,22 @@ class UndoCardReviewManager(models.Manager):
         card_history = last_undo.card_history
 
         # Overwrite the card model with its pickled counterpart
-        for field_name in _get_model_fields(card):
+        card_fields = _get_model_fields(card)
+        for field_name in card_fields:
             try:
-                setattr(card, field_name, last_undo.card_snapshot[field_name])
+                value = last_undo.card_snapshot[field_name]
             except KeyError:
                 continue
-        card.save()
+            field_type = card._meta.get_field(field_name)
+
+            if value is not None:
+                if isinstance(field_type, models.DurationField):
+                    value = datetime.timedelta(seconds=value)
+                elif isinstance(field_type, models.DateTimeField):
+                    value = dateutil.parser.parse(value)
+
+            setattr(card, field_name, value)
+        card.save(update_fields=card_fields)
 
         card_history.delete()
 

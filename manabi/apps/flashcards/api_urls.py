@@ -1,11 +1,11 @@
 from django.conf.urls import *
 
-from manabi.apps.flashcards import api
+from manabi.apps.flashcards import api_views
 
 
 urlpatterns = [
     # url(r'^next_cards_for_review/$', api.NextCardsForReview.as_view()),
-    # url(r'^undo_card_review/$', api.UndoCardReview.as_view()),
+    url(r'^undo_card_review/$', api_views.UndoCardReviewView.as_view()),
     # url(r'^cards/(?P<card>\w+)/$', api.Card.as_view(), name='api_card'),
     # url(r'^cards/(?P<card>\w+)/review/$', api.CardReview.as_view(), name='api_card_review'),
 
