@@ -141,8 +141,6 @@ class FactViewSet(MultiSerializerViewSetMixin, viewsets.ModelViewSet):
 
 
 class ReviewAvailabilitiesViewSet(viewsets.ViewSet):
-    permission_classes = [IsAuthenticated]
-
     def _test_helper_get(self, request, format=None):
         from manabi.apps.flashcards.test_stubs import NEXT_CARDS_TO_REVIEW_STUBS
         interstitial = NEXT_CARDS_TO_REVIEW_STUBS[1]['interstitial']

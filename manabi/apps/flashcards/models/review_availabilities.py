@@ -24,6 +24,9 @@ class ReviewAvailabilities(object):
     @property
     @lru_cache(maxsize=None)
     def ready_for_review(self):
+        if self.user.is_anonymous():
+            return False
+
         cards = Card.objects.all()
         if self.deck:
             cards = cards.of_deck(self.deck)
@@ -38,6 +41,9 @@ class ReviewAvailabilities(object):
     @property
     @lru_cache(maxsize=None)
     def next_new_cards_count(self):
+        if self.user.is_anonymous():
+            return 0
+
         cards = Card.objects.available()
         if self.deck is None:
             cards = cards.of_deck(self.deck)
@@ -71,12 +77,21 @@ class ReviewAvailabilities(object):
     @property
     @lru_cache(maxsize=None)
     def early_review_available(self):
+        if self.user.is_anonymous():
+            return False
+
         return Card.objects.of_user(self.user).available().filter(
             due_at__gt=datetime.utcnow()
         ).exists()
 
     @lru_cache(maxsize=None)
     def _prompts(self):
+        if self.user.is_anonymous():
+            return (
+                u"",
+                u"",
+            )
+
         return (
             u"This text will tell you about the cards ready for you to learn or review.",
             u"I haven't built this part of the backend API yet—this is beta, it'll come before release!"
