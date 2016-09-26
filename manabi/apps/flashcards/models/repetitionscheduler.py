@@ -10,6 +10,11 @@ from manabi.apps.flashcards.models.intervals import initial_interval
 from manabi.apps.utils.utils import timedelta_to_float
 
 
+def _multiply_timedelta(duration, factor):
+    return timedelta(
+        seconds=duration.total_seconds() * factor)
+
+
 def repetition_algo_dispatcher(card, *args, **kwargs):
     '''
     Returns a `RepetitionAlgo` (or one of its subclasses) instance
@@ -157,19 +162,24 @@ class RepetitionAlgo(object):
                 assert bonus_factor >= 1.0
 
                 # Apply the bonus.
-                current_interval *= bonus_factor
+                current_interval = _multiply_timedelta(
+                    current_interval, bonus_factor)
 
             # Penalize hard grades.
             if self.grade == GRADE_HARD:
                 ease_factor = self.HARD_GRADE_PENALTY_EF
 
             # Update interval.
-            next_interval = ease_factor * current_interval
+            next_interval = _multiply_timedelta(
+                current_interval, ease_factor)
 
             # Give a bonus to easy grades.
             if self.grade == GRADE_EASY:
-                next_interval += (next_interval
-                                  * self.GRADE_EASY_BONUS_FACTOR)
+                next_interval += timedelta(
+                    seconds=(
+                        next_interval.total_seconds() *
+                        self.GRADE_EASY_BONUS_FACTOR
+                    ))
 
             # Early review.
             if self.card.due_at and self._percent_waited() < 1.0:
@@ -178,7 +188,8 @@ class RepetitionAlgo(object):
                 # due date. This increase will be `interval_delta`.
                 interval_delta = next_interval - current_interval
                 factor = self._adjustment_curve(self._percent_waited())
-                interval_delta *= factor
+                interval_delta = _multiply_timedelta(
+                    interval_delta, factor)
 
                 # Reset `next_interval` using the new delta.
                 next_interval = current_interval + interval_delta
@@ -194,7 +205,7 @@ class RepetitionAlgo(object):
             # repetition which elapsed.
             delta = next_ease_factor - self.card.ease_factor
             factor = self._adjustment_curve(self._percent_waited())
-            delta *= factor
+            delta = _multiply_timedelta(delta, factor)
 
             # Reset EF using the new delta.
             next_ease_factor = self.card.ease_factor + delta
@@ -316,7 +327,7 @@ class RepetitionAlgo(object):
             #print 'fuzz was to be: ' + str(fuzz)
             fuzz *= self._adjustment_curve(percentage_waited)
             #print 'adjusted fuzz: ' + str(fuzz)
-        next_interval += fuzz
+        next_interval += timedelta(days=fuzz)
         #print 'and after fuzz: ' + str(next_interval)
 
     def fuzz(self, next_repetition):

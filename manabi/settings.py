@@ -199,6 +199,7 @@ INSTALLED_APPS += (
     'catnap',
     'cachecow',
     'django_rq',
+    'djoser',
 
     # internal (for now)
     #'profiles',
