@@ -1,4 +1,5 @@
 from datetime import timedelta
+import pytz
 
 from manabi.apps.utils.time_utils import seconds_to_days
 
@@ -52,8 +53,8 @@ DEFAULT_EASE_FACTOR = 2.5
 # When intervals are set, they are fuzzed by at most this value, -/+
 INTERVAL_FUZZ_MAX = 0.035
 
-#NEW_CARDS_PER_DAY = 200 #TODO-OLD this should at least be an option, but should also scale to use
 NEW_CARDS_PER_DAY_LIMIT = 10
+NEW_CARDS_PER_DAY_LIMIT_OVERRIDE_INCREMENT = 5
 
 #number of failed cards before failed cards are shown earlier than any due cards
 #TODO-OLD MAX_FAILED_CARDS = 20 #TODO should be option.
@@ -65,3 +66,6 @@ NEW_CARDS_PER_DAY_LIMIT = 10
 # Sibling spacing.
 MIN_CARD_SPACE = seconds_to_days(60*60*8)
 CARD_SPACE_FACTOR = .1 # * interval, used for card spacing if greater than MIN_CARD_SPACE.
+
+DEFAULT_TIME_ZONE = pytz.timezone('America/New_York')
+

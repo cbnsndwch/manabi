@@ -154,7 +154,7 @@ class ReviewAvailabilitiesViewSet(viewsets.ViewSet):
             return self._test_helper_get(request, format=format)
 
         time_zone = pytz.timezone(
-            self.request.META.get('HTTP_X_TIME_ZONE', 'New York'))
+            self.request.META.get('HTTP_X_TIME_ZONE', 'America/New_York'))
 
         availabilities = ReviewAvailabilities(
             request.user,
@@ -220,7 +220,7 @@ class NextCardsForReviewViewSet(viewsets.ViewSet):
                 request, format=format, excluded_card_ids=excluded_card_ids)
 
         time_zone = pytz.timezone(
-            self.request.META.get('HTTP_X_TIME_ZONE', 'New York'))
+            self.request.META.get('HTTP_X_TIME_ZONE', 'America/New_York'))
 
         next_cards_for_review = NextCardsForReview(
             self.request.user,

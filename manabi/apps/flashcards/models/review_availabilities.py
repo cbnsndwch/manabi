@@ -5,13 +5,15 @@ from datetime import datetime
 from django.utils.lru_cache import lru_cache
 
 from manabi.apps.flashcards.models.constants import (
-    NEW_CARDS_PER_DAY_LIMIT,
+    NEW_CARDS_PER_DAY_LIMIT_OVERRIDE_INCREMENT,
+)
+from manabi.apps.flashcards.models.new_cards_limit import (
+    NewCardsLimit,
 )
 from manabi.apps.flashcards.models import (
     Deck,
     Fact,
     Card,
-    CardHistory,
 )
 
 
@@ -20,13 +22,34 @@ class ReviewAvailabilities(object):
         self,
         user,
         deck=None,
+        new_cards_per_day_limit_override=None,
+        buffered_new_cards_count=0,
         excluded_card_ids=set(),
         time_zone=None,
+        new_cards_limit=None,
     ):
+        '''
+        `buffered_new_cards_count` are the count of new cards that the user
+        is already about to study (e.g. the cards in front of the appearance
+        of these availabilities, if on an interstitial).
+
+        `new_cards_limit` is an instance of `NewCardsLimit.`
+        '''
         self.user = user
         self.time_zone = time_zone
         self.deck = deck
         self.excluded_card_ids = excluded_card_ids
+        self._buffered_new_cards_count = buffered_new_cards_count
+
+        self._new_cards_limit = (
+            new_cards_limit or
+            NewCardsLimit(
+                user,
+                new_cards_per_day_limit_override = (
+                    new_cards_per_day_limit_override),
+                time_zone=time_zone,
+            )
+        )
 
     @property
     def _base_cards_queryset(self):
@@ -48,31 +71,31 @@ class ReviewAvailabilities(object):
 
         return self._base_cards_queryset.due(self.user).exists()
 
-    @lru_cache(maxsize=None)
-    def _reviewed_today_count(self):
-        return CardHistory.objects.of_day(
-            self.user, self.time_zone).count()
-
     @property
-    @lru_cache(maxsize=None)
     def next_new_cards_count(self):
+        '''
+        If the user is beyond their daily limit, this provides up to the
+        provided override limit, if provided and able.
+        '''
         if self.user.is_anonymous():
             return 0
 
-        new_card_count = self._base_cards_queryset.new_count(self.user)
+        available_count = self._base_cards_queryset.new_count(self.user)
 
-        remaining = max(
-            0, min(
-                new_card_count,
-                NEW_CARDS_PER_DAY_LIMIT - self._reviewed_today_count()
-            ),
+        return max(
+            0,
+            min(
+                available_count,
+                (
+                    self._new_cards_limit.next_new_cards_limit -
+                    self._buffered_new_cards_count
+                ),
+            )
         )
-        return remaining
 
     @property
-    @lru_cache(maxsize=None)
     def new_cards_per_day_limit_reached(self):
-        return NEW_CARDS_PER_DAY_LIMIT - self._reviewed_today_count() <= 0
+        return self._new_cards_limit.new_cards_per_day_limit_reached
 
     @property
     @lru_cache(maxsize=None)
@@ -84,7 +107,10 @@ class ReviewAvailabilities(object):
         '''
         if not self.new_cards_per_day_limit_reached:
             return None
-        return self._reviewed_today_count() + self.next_new_cards_count
+        return (
+            self._new_cards_limit.reviewed_today_count +
+            NEW_CARDS_PER_DAY_LIMIT_OVERRIDE_INCREMENT
+        )
 
     @property
     @lru_cache(maxsize=None)

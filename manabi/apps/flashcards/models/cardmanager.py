@@ -14,6 +14,7 @@ class SchedulerMixin(object):
     '''
     Methods for retrieving the next cards that are ready to be reviewed.
     '''
+
     def _next_failed_due_cards(self, user, initial_query, count, review_time, buried_facts,
                                **kwargs):
         if not count:
@@ -166,9 +167,16 @@ class SchedulerMixin(object):
 
         return card_funcs
 
-    def next_cards(self, user, count,
-                   deck=None, excluded_ids=[],
-                   early_review=False, learn_more=False):
+    def next_cards(
+        self,
+        user,
+        count,
+        deck=None,
+        new_cards_limit=None,
+        excluded_ids=[],
+        early_review=False,
+        learn_more=False,
+    ):
         '''
         Returns `count` cards to be reviewed, in order.
         count should not be any more than a short session of cards
@@ -180,6 +188,8 @@ class SchedulerMixin(object):
 
         "Due soon" cards won't be chosen in this case,
         contrary to early_review's normal behavior.
+
+        `new_cards_limit` is an integer.
 
         (#TODO-OLD consider changing this to have a separate option)
         '''

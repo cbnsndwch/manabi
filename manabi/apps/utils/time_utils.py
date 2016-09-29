@@ -23,8 +23,8 @@ def start_and_end_of_day(user, time_zone, date=None):
         date = datetime.datetime.now(time_zone).date()
 
     start = datetime.datetime.combine(date, datetime.time(
-            hour=settings.START_OF_DAY, minute=0, second=0, tzinfo=time_zone)
-        ).astimezone(pytz.utc)
+        hour=settings.START_OF_DAY, minute=0, second=0, tzinfo=time_zone)
+    ).astimezone(pytz.utc)
 
     #start = datetime.datetime.now(timezone).replace(
     #    hour=settings.START_OF_DAY, minute=0, second=0).astimezone(pytz.utc)

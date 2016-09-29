@@ -10,7 +10,7 @@ def forwards(apps, schema_editor):
     FieldType = apps.get_model('flashcards', 'FieldType')
     FieldContent = apps.get_model('flashcards', 'FieldContent')
 
-    print FactType.objects.all().values()
+    # print FactType.objects.all().values()
 
     try:
         e = FieldType.objects.get(name='expression', fact_type_id=1)
