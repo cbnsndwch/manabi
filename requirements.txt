@@ -24,6 +24,7 @@ requests[security]==2.7.0
 humanize==0.5.1
 python-dateutil==2.5.2
 djoser==0.5.1
+django-silk==0.7.0
 
 # django-devserver + optional dependencies
 https://github.com/dcramer/django-devserver/archive/master.zip

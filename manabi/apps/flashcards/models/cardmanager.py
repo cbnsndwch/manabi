@@ -159,7 +159,7 @@ class SchedulerMixin(object):
                 self._next_due_soon_cards2, # Due soon, not yet, but next in the future.
             ])
         elif learn_more:
-            # Only new cards, and ignore spacing.
+            # TODO: Only new cards, and ignore spacing.
             card_funcs = [self._next_new_cards]
         else:
             card_funcs.extend([self._next_new_cards]) # New cards at end.
@@ -240,7 +240,7 @@ class CommonFiltersMixin(object):
             return self.none()
         return self.filter(deck__owner=user)
 
-    def exclude_ids(self, excluded_ids):
+    def excluding_ids(self, excluded_ids):
         return self.exclude(id__in=excluded_ids)
 
     def unsuspended(self):
@@ -260,7 +260,8 @@ class CommonFiltersMixin(object):
         return cards
 
     def new(self, user):
-        return self.available().filter(last_reviewed_at__isnull=True)
+        user_cards = self.available().of_user(user)
+        return user_cards.filter(last_reviewed_at__isnull=True)
 
     def new_count(self, user):
         '''
@@ -312,7 +313,7 @@ class CommonFiltersMixin(object):
         '''
         #TODO: Make _space_cards True by default.
         now = datetime.datetime.utcnow()
-        due_cards = self.available().filter(
+        due_cards = self.of_user(user).available().filter(
             due_at__isnull=False,
             due_at__lte=now,
         )

@@ -62,6 +62,10 @@ urlpatterns = [
     #url(r'^flashcards/api/', include(rest_api_urlpatterns)),
 ]
 
+# if not settings.LIVE_HOST:
+#    urlpatterns += [url(r'^silk/', include('silk.urls', namespace='silk'))]
+
+
 # TODELETE: LEGACY
 # + decorated_patterns('', allow_lazy_user,
 #     url(r'^$', 'views.index', name='home'),

@@ -16,10 +16,29 @@ from manabi.apps.flashcards.models import (
 
 
 class ReviewAvailabilities(object):
-    def __init__(self, user, deck=None, time_zone=None):
+    def __init__(
+        self,
+        user,
+        deck=None,
+        excluded_card_ids=set(),
+        time_zone=None,
+    ):
         self.user = user
         self.time_zone = time_zone
         self.deck = deck
+        self.excluded_card_ids = excluded_card_ids
+
+    @property
+    def _base_cards_queryset(self):
+        cards = Card.objects.available()
+
+        if self.deck:
+            cards = cards.of_deck(self.deck)
+
+        if self.excluded_card_ids:
+            cards = cards.excluding_ids(self.excluded_card_ids)
+
+        return cards
 
     @property
     @lru_cache(maxsize=None)
@@ -27,11 +46,7 @@ class ReviewAvailabilities(object):
         if self.user.is_anonymous():
             return False
 
-        cards = Card.objects.all()
-        if self.deck:
-            cards = cards.of_deck(self.deck)
-
-        return cards.due(self.user).exists()
+        return self._base_cards_queryset.due(self.user).exists()
 
     @lru_cache(maxsize=None)
     def _reviewed_today_count(self):
@@ -44,10 +59,7 @@ class ReviewAvailabilities(object):
         if self.user.is_anonymous():
             return 0
 
-        cards = Card.objects.available()
-        if self.deck is None:
-            cards = cards.of_deck(self.deck)
-        new_card_count = cards.new_count(self.user)
+        new_card_count = self._base_cards_queryset.new_count(self.user)
 
         remaining = max(
             0, min(
@@ -80,7 +92,7 @@ class ReviewAvailabilities(object):
         if self.user.is_anonymous():
             return False
 
-        return Card.objects.of_user(self.user).available().filter(
+        return self._base_cards_queryset.filter(
             due_at__gt=datetime.utcnow()
         ).exists()
 

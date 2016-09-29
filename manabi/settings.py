@@ -100,14 +100,32 @@ if LIVE_HOST:
         )),
     )
 else:
-    TEMPLATE_LOADERS = (
-        'django.template.loaders.filesystem.Loader',
-        'django.template.loaders.app_directories.Loader',
-    )
+    # TEMPLATE_LOADERS = (
+    #     'django.template.loaders.filesystem.Loader',
+    #     'django.template.loaders.app_directories.Loader',
+    # )
+    TEMPLATES = [
+        {
+            'BACKEND': 'django.template.backends.django.DjangoTemplates',
+            'DIRS': [],
+            'APP_DIRS': True,
+            'OPTIONS': {
+                'context_processors': [
+                    # 'django.template.context_processors.debug',
+                    'django.template.context_processors.request',
+                    'django.contrib.auth.context_processors.auth',
+                    'django.contrib.messages.context_processors.messages',
+                ],
+            },
+        },
+    ]
 
 MIDDLEWARE_CLASSES = (
     'django.middleware.gzip.GZipMiddleware',
     'django.middleware.http.ConditionalGetMiddleware',
+
+    # 'silk.middleware.SilkyMiddleware',
+
     'django.middleware.common.CommonMiddleware',
 
     'catnap.middleware.HttpExceptionMiddleware',
@@ -200,6 +218,7 @@ INSTALLED_APPS += (
     'cachecow',
     'django_rq',
     'djoser',
+    # 'silk',
 
     # internal (for now)
     #'profiles',

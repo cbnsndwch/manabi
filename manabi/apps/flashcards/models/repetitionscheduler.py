@@ -73,11 +73,10 @@ class RepetitionAlgo(object):
 
     MINIMUM_EASE_FACTOR = 1.3
 
-    # days
-    YOUNG_FAILURE_INTERVAL = (1.0 / (24.0 * 60.0)) * 10.0 # 10 mins
+    YOUNG_FAILURE_INTERVAL = timedelta(
+        days=(1.0 / (24.0 * 60.0)) * 10.0) # 10 mins
 
-    # days
-    MATURE_FAILURE_INTERVAL = 1.0
+    MATURE_FAILURE_INTERVAL = timedelta(days=1.0)
 
     #TODO-OLD MATURE_FAILURE_INTERVAL should not be a constant value,
     #     but dependent on other factors of a given card
@@ -121,7 +120,7 @@ class RepetitionAlgo(object):
 
         return NextRepetition(self.card, interval, ease_factor, due_at)
 
-    def _next_interval(self, failure_interval=0):
+    def _next_interval(self, failure_interval=timedelta()):
         '''
         Returns an interval.
         '''
@@ -193,11 +192,13 @@ class RepetitionAlgo(object):
 
                 # Reset `next_interval` using the new delta.
                 next_interval = current_interval + interval_delta
-        return timedelta(days=next_interval)
+        return next_interval
 
     def _next_ease_factor(self):
-        next_ease_factor = (self.card.ease_factor
-                            + self.EASE_FACTOR_MODIFIERS[self.grade])
+        next_ease_factor = (
+            self.card.ease_factor +
+            self.EASE_FACTOR_MODIFIERS[self.grade]
+        )
 
         # Early review?
         if self.card.due_at and self._percent_waited() < 1.0:
@@ -205,7 +206,7 @@ class RepetitionAlgo(object):
             # repetition which elapsed.
             delta = next_ease_factor - self.card.ease_factor
             factor = self._adjustment_curve(self._percent_waited())
-            delta = _multiply_timedelta(delta, factor)
+            delta *= factor
 
             # Reset EF using the new delta.
             next_ease_factor = self.card.ease_factor + delta
@@ -352,7 +353,7 @@ class YoungCardAlgo(RepetitionAlgo):
         return (self.card.interval
                 < initial_interval(self.card.fact.deck, GRADE_EASY))
 
-    def _next_interval(self, failure_interval=0):
+    def _next_interval(self, failure_interval=timedelta()):
         return super(YoungCardAlgo, self)._next_interval(
             failure_interval=self.YOUNG_FAILURE_INTERVAL)
 
@@ -370,13 +371,13 @@ class YoungCardAlgo(RepetitionAlgo):
 
 
 class MatureCardAlgo(RepetitionAlgo):
-    def _next_interval(self, failure_interval=0):
+    def _next_interval(self, failure_interval=timedelta()):
         return super(MatureCardAlgo, self)._next_interval(
             failure_interval=self.MATURE_FAILURE_INTERVAL)
 
 
 class NewCardAlgo(RepetitionAlgo):
-    def _next_interval(self, failure_interval=0):
+    def _next_interval(self, failure_interval=timedelta()):
         #FIXME, do_fuzz=do_fuzz)
         interval = initial_interval(self.card.fact.deck, self.grade)
 
@@ -414,7 +415,7 @@ class FailedCardAlgo(RepetitionAlgo):
     #SOFT_DELAY = timedelta(60) # minutes
     # This is just the deck's unknown interval
 
-    def _next_interval(self, failure_interval=0):
+    def _next_interval(self, failure_interval=timedelta()):
         #FIXME, do_fuzz=do_fuzz)
         interval = initial_interval(self.card.fact.deck, self.grade)
 

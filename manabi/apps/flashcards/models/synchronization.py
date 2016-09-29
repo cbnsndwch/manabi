@@ -68,6 +68,7 @@ def _copy_facts_to_subscribers(facts, subscribers):
                 synchronized_with=shared_fact,
                 **fact_kwargs
             )
+            print "gonna copy fact", fact, 'with id', fact.id
             copied_facts.append(fact)
 
             # Copy the cards.
@@ -81,6 +82,8 @@ def _copy_facts_to_subscribers(facts, subscribers):
             copied_cards.append(copied_cards_for_fact)
 
     # Persist everything.
+    print copied_facts
+    print copied_facts[0].id
     created_facts = Fact.objects.bulk_create(
         copied_facts, batch_size=BULK_BATCH_SIZE)
     for fact, fact_cards in itertools.izip(created_facts, copied_cards):
