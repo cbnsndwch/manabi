@@ -1,7 +1,7 @@
 from django.core.management.base import BaseCommand
 from django.db import connections
 
-from manabi.apps.flashcards.models import Card
+from manabi.apps.flashcards.models import Card, Fact
 
 
 
@@ -37,3 +37,11 @@ class Command(BaseCommand):
             new_card.save(update_fields=['template'])
             print '->', new_template
             # print old_card_id, legacy_id
+
+            # for subscriber_fact in new_card.fact.syncing_subscriber_facts.iterator():
+            #     subscriber_cards = subscriber_fact.card_set.all()
+            #     if
+            #     for card in :
+            # Card.objects.filter(
+            #     fact__in=,
+
