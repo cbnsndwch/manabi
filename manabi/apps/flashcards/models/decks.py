@@ -80,12 +80,17 @@ class Deck(models.Model):
         '''
         Soft deletes without propagating anything to subscribers.
         '''
+        from manabi.apps.flashcards.models import Card
+
         self.active = False
         self.save(update_fields=['active'])
 
+        self.facts.update(active=False)
+        self.card_set.update(active=False)
+
         self.subscriber_decks.clear()
 
-        for fact in facts:
+        for fact in self.facts.iterator():
             fact.subscriber_facts.clear()
         self.facts.update(active=False)
 

@@ -6,7 +6,8 @@ from django.db import migrations
 
 
 def forwards(apps, schema_editor):
-    print "TODO: Port legacy_template to template before rerunning these, if ever. Otherwise suffer data loss (again)."
+    # TODO: Port legacy_template to template before rerunning these, if ever. Otherwise suffer data loss (again).
+    pass
 
 
 class Migration(migrations.Migration):

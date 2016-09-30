@@ -18,11 +18,13 @@ class NewCardsLimit(object):
         self,
         user,
         new_cards_per_day_limit_override=None,
+        buffered_new_cards_count=0,
         time_zone=None,
     ):
         self.user = user
         self.new_cards_per_day_limit_override = (
             new_cards_per_day_limit_override)
+        self.buffered_new_cards_count = buffered_new_cards_count
         self.time_zone = time_zone
 
     @property
@@ -33,8 +35,12 @@ class NewCardsLimit(object):
     @property
     @lru_cache(maxsize=None)
     def reviewed_today_count(self):
-        return CardHistory.objects.of_day(
-            self.user, self.time_zone or DEFAULT_TIME_ZONE).count()
+        return (
+            CardHistory.objects
+            .of_day(self.user, self.time_zone or DEFAULT_TIME_ZONE)
+            .filter(was_new=True)
+            .count()
+        ) + self.buffered_new_cards_count
 
     @property
     @lru_cache(maxsize=None)

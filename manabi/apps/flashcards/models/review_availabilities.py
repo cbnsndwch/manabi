@@ -31,7 +31,9 @@ class ReviewAvailabilities(object):
         '''
         `buffered_new_cards_count` are the count of new cards that the user
         is already about to study (e.g. the cards in front of the appearance
-        of these availabilities, if on an interstitial).
+        of these availabilities, if on an interstitial). They're effectively
+        counted as if they were already reviewed, with respect to this class's
+        calculations.
 
         `new_cards_limit` is an instance of `NewCardsLimit.`
         '''
@@ -47,13 +49,14 @@ class ReviewAvailabilities(object):
                 user,
                 new_cards_per_day_limit_override = (
                     new_cards_per_day_limit_override),
+                buffered_new_cards_count=buffered_new_cards_count,
                 time_zone=time_zone,
             )
         )
 
     @property
     def _base_cards_queryset(self):
-        cards = Card.objects.available()
+        cards = Card.objects.available().of_user(self.user)
 
         if self.deck:
             cards = cards.of_deck(self.deck)
@@ -75,22 +78,21 @@ class ReviewAvailabilities(object):
     def next_new_cards_count(self):
         '''
         If the user is beyond their daily limit, this provides up to the
-        provided override limit, if provided and able.
+        next override limit.
         '''
         if self.user.is_anonymous():
             return 0
 
         available_count = self._base_cards_queryset.new_count(self.user)
 
+        if self.new_cards_per_day_limit_reached:
+            cards_limit = NEW_CARDS_PER_DAY_LIMIT_OVERRIDE_INCREMENT
+        else:
+            cards_limit = self._new_cards_limit.next_new_cards_limit
+
         return max(
             0,
-            min(
-                available_count,
-                (
-                    self._new_cards_limit.next_new_cards_limit -
-                    self._buffered_new_cards_count
-                ),
-            )
+            min(available_count, cards_limit - self._buffered_new_cards_count),
         )
 
     @property
