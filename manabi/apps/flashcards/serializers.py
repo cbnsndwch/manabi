@@ -184,7 +184,8 @@ class CardSerializer(ManabiModelSerializer):
 
     class Meta(object):
         model = Card
-        read_only_fields = (
+
+        fields = read_only_fields = (
             'id',
             'deck',
             'fact',
