@@ -32,6 +32,7 @@ from manabi.apps.flashcards.permissions import (
 from manabi.apps.flashcards.serializers import (
     CardReviewSerializer,
     CardSerializer,
+    DetailedCardSerializer,
     DeckSerializer,
     DetailedFactSerializer,
     FactSerializer,
@@ -238,6 +239,9 @@ class NextCardsForReviewViewSet(viewsets.ViewSet):
 
 class CardViewSet(viewsets.ModelViewSet):
     serializer_class = CardSerializer
+    serializer_action_classes = {
+        'retrieve': DetailedCardSerializer,
+    }
 
     def get_queryset(self):
         return Card.objects.of_user(self.request.user)

@@ -33,7 +33,7 @@ router.register(r'flashcards/facts',
     base_name='fact')
 router.register(r'flashcards/cards',
     CardViewSet,
-    base_name='fact')
+    base_name='card')
 router.register(r'flashcards/review_availabilities',
     ReviewAvailabilitiesViewSet,
     base_name='card')

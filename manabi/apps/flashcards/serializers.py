@@ -147,7 +147,7 @@ class FactSerializer(ManabiModelSerializer):
 
 class FactWithCardsSerializer(FactSerializer):
     active_card_templates = serializers.MultipleChoiceField(
-        choices=['recognition', 'kanji_reading', 'kanji_writing'],
+        choices=['recognition', 'kanji_reading', 'kanji_writing', 'production'],
         allow_empty=True,
     )
 
@@ -182,7 +182,7 @@ class CardSerializer(ManabiModelSerializer):
     reading = serializers.CharField(source='fact.reading')
     meaning = serializers.CharField(source='fact.meaning')
 
-    class Meta:
+    class Meta(object):
         model = Card
         read_only_fields = (
             'id',
@@ -201,6 +201,11 @@ class CardSerializer(ManabiModelSerializer):
             'meaning',
             'is_new',
         )
+
+
+class DetailedCardSerializer(CardSerializer):
+    deck = DeckSerializer()
+    suspended = serializers.BooleanField()
 
 
 class ReviewAvailabilitiesSerializer(serializers.Serializer):
