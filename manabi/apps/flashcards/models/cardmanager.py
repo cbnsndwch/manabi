@@ -265,7 +265,7 @@ class CommonFiltersMixin(object):
             cards = cards.filter(deck__owner=user).exclude(deck__suspended=True)
 
         if excluded_ids:
-            cards = cards.exclude_ids(excluded_ids)
+            cards = cards.excluding_ids(excluded_ids)
 
         return cards
 
