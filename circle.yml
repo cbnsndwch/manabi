@@ -4,13 +4,8 @@ machine:
   services:
     - redis
 
-dependencies:
-  pre:
-    - pip install
-
 deployment:
   production:
     branch: master
     commands:
-      - pip install -r config/requirements.txt
-      - ansible-playbook -i config/playbooks/inventory config/playbooks/deploy.yml
+      - config/deploy.sh

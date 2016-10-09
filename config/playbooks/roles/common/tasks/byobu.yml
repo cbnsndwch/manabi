@@ -1,0 +1,12 @@
+---
+
+- name: Install byobu
+  apt:
+    name: byobu
+  become: yes
+
+- name: Make byobu the default
+  command: byobu-enable
+
+- name: Enable colorful byobu prompt
+  command: byobu-enable-prompt

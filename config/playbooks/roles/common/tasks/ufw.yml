@@ -1,0 +1,34 @@
+---
+
+
+- name: Allow SSH
+  ufw:
+    rule: allow
+    proto: tcp
+    port: 22
+  become: yes
+  notify: Restart ufw
+
+- name: Allow all outgoing by default
+  ufw:
+    state: enabled
+    direction: outgoing
+    policy: allow
+  become: yes
+  notify: Restart ufw
+
+- name: Deny all incoming by default
+  ufw:
+    state: enabled
+    direction: incoming
+    policy: deny
+  become: yes
+  notify: Restart ufw
+
+- name: Add CloudFlare IPs (v4) for Nginx
+  shell: for i in `curl {{ item[0] }}`; do ufw allow proto tcp from $i to any port {{ item[1] }}; done
+  with_nested:
+    - ['https://www.cloudflare.com/ips-v4', 'https://www.cloudflare.com/ips-v6']
+    - ['80', '443']
+  become: yes
+  notify: Restart ufw

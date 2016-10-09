@@ -2,6 +2,13 @@
 
 - hosts: production
   remote_user: ubuntu
-  tasks:
-  - name: Hello world
-    shell: echo "hello world"
+  gather_facts: no
+  pre_tasks:
+    - name: Ensure Python 2.7 is installed
+      raw: sudo bash -c "test -e /usr/bin/python || (apt -qqy update && apt install -qy python-minimal)"
+      become: true
+
+- hosts: production
+  remote_user: ubuntu
+  roles:
+    - common

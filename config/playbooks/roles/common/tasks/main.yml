@@ -1,0 +1,27 @@
+---
+
+- name: Install aptitude for certain apt module commands
+  apt:
+    name: aptitude
+  become: yes
+
+- name: Update apt and upgrade packages
+  apt:
+    update_cache: yes
+    upgrade: safe
+  become: yes
+
+- name: Install useful default software
+  apt:
+    name: "{{ item }}"
+  with_items:
+    - htop
+    - ntp
+    - silversearcher-ag
+  become: yes
+
+# Security.
+- include: allow_only_ssh_login.yml
+- include: byobu.yml
+- include: ufw.yml
+- include: fail2ban.yml
