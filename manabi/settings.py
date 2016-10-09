@@ -220,25 +220,15 @@ INSTALLED_APPS += (
     'djoser',
     # 'silk',
 
-    # internal (for now)
-    #'profiles',
-    #'about',
-
     # My own.
     'manabi.apps.flashcards',
     'manabi.apps.books',
-    #'dojango',
     'manabi.apps.utils',
     'manabi.apps.jdic',
     'kanjivg',
-    #'manabi.apps.stats',
-    #TODO-OLD 'mobileaccount',
-    #TODO-OLD 'popups',
     'manabi.apps.manabi_redis',
     'manabi.apps.reading_level',
     'manabi.apps.twitter_usages',
-
-    'gunicorn',
 )
 
 
@@ -357,7 +347,7 @@ MECAB_ENCODING = 'utf8'
 
 
 if LIVE_HOST:
-    DEFAULT_URL_PREFIX = 'http://www.manabi.org'
+    DEFAULT_URL_PREFIX = 'https://manabi.io'
 else:
     #DEFAULT_URL_PREFIX = 'http://192.168.2.127:8000'
     DEFAULT_URL_PREFIX = 'http://192.168.0.1:8000'
