@@ -1,0 +1,9 @@
+machine:
+  hosts:
+    dev.manabi.io: 127.0.0.1
+  services:
+    - redis
+
+database:
+  override:
+

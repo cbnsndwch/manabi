@@ -1,9 +1,12 @@
 # -*- coding: utf-8 -*-
 
 import logging
+import os
 import os.path
 import posixpath
 from socket import gethostname
+
+import kanjivg
 
 LIVE_HOST = (gethostname() == 'aehlke.xen.prgmr.com')
 
@@ -333,7 +336,6 @@ FIXTURE_DIRS = (
 JDIC_AUDIO_SERVER_URL = 'http://jdic.manabi.org/audio/'
 JDIC_AUDIO_SERVER_TIMEOUT = 6 # seconds
 
-import kanjivg
 _kanjivg_static_path = os.path.join(kanjivg.__path__[0], 'static', 'kanjivg')
 KANJI_SVG_XSLT_PATH = os.path.join(_kanjivg_static_path, 'svg2gfx.xslt')
 KANJI_SVGS_PATH = os.path.join(_kanjivg_static_path, 'svgs')
@@ -375,6 +377,8 @@ if LIVE_HOST:
         from manabi.settings_production import *
     except ImportError:
         pass
+elif os.environ.get('CIRCLECI'):
+    from manabi.settings_circleci import *
 else:
     try:
         from manabi.settings_development import *
