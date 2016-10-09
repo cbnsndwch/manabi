@@ -12,6 +12,5 @@ deployment:
   production:
     branch: master
     commands:
-      - cd config
-      - pip install -r requirements.txt
-      - ansible-playbook
+      - pip install -r config/requirements.txt
+      - ansible-playbook -i config/playbooks/inventory config/playbooks/deploy.yml
