@@ -1,29 +1,38 @@
+#!/usr/bin/env python
+
 import sys
 
 from os.path import abspath, dirname, join
+import os
 
-try:
-    import pinax
-except ImportError:
-    sys.stderr.write("Error: Can't import Pinax. Make sure you are in a virtual environment that has Pinax installed or create one with pinax-boot.py.\n")
-    sys.exit(1)
 
-from django.conf import settings
-from django.core.management import setup_environ, execute_from_command_line
+def add_path(p):
+    if p in sys.path:
+        sys.path.remove(p)
+    sys.path.insert(0, p)
 
-try:
-    import settings as settings_mod # Assumed to be in the same directory.
-except ImportError:
-    sys.stderr.write("Error: Can't find the file 'settings.py' in the directory containing %r. It appears you've customized things.\nYou'll have to run django-admin.py, passing it your settings module.\n(If the file settings.py does indeed exist, it's causing an ImportError somehow.)\n" % __file__)
-    sys.exit(1)
 
-# setup the environment before we start accessing things in the settings.
-setup_environ(settings_mod)
+def remove_path(p):
+    if p in sys.path:
+        sys.path.remove(p)
 
-sys.path.insert(0, join(settings.PINAX_ROOT, "apps"))
-sys.path.insert(0, join(settings.PROJECT_ROOT, "apps"))
 
+remove_path(os.path.dirname(os.path.dirname(__file__)))
+
+add_path(join(os.path.dirname(__file__), 'manabi'))
+add_path(os.path.dirname(__file__))
 
 
 if __name__ == "__main__":
-    execute_from_command_line()
+    os.environ.setdefault("DJANGO_SETTINGS_MODULE", "manabi.settings")
+
+    from django.core.management import execute_from_command_line
+
+    #from django.conf import settings
+    #apps_path = join(settings.PROJECT_ROOT, "apps")
+    #if apps_path not in sys.path:
+    #    sys.path.insert(0, apps_path)
+
+    #for p in sys.path: print p
+
+    execute_from_command_line(sys.argv)
