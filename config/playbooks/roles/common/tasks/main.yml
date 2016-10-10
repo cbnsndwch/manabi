@@ -11,22 +11,35 @@
     upgrade: safe
   become: yes
 
-- name: Install useful default software
+- name: Install common default software
   apt:
     name: "{{ item }}"
   with_items:
+    - build-essential
     - htop
+    - libffi-dev
+    - libpq-dev
+    - libssl-dev
+    - libxml2-dev
+    - libxslt1-dev
     - ntp
-    - silversearcher-ag
     - python-dev
     - python-pip
-    - python-setuptools
     - python-psycopg2
-    - libxml2-dev
+    - python-setuptools
+    - silversearcher-ag
   become: yes
+
+- name: Install common system Python packages
+  pip:
+    name: '{{ item }}'
+  with_items:
+    - virtualenv
+  become: yes
+
+- include: byobu.yml
 
 # Security.
 - include: allow_only_ssh_login.yml
-- include: byobu.yml
 - include: ufw.yml
 - include: fail2ban.yml
