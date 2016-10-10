@@ -1,0 +1,7 @@
+---
+
+- name: Checkout source
+  git:
+    repo: git@github.com:aehlke/manabi.git
+    dest: /home/ubuntu/manabi
+    version: master

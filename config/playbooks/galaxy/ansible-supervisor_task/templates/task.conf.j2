@@ -1,0 +1,15 @@
+# {{ ansible_managed }}
+
+[program:{{ name }}]
+command={{ command }}
+process_name={{ process_name }}
+{% if directory is defined %}directory={{ directory }}{% endif %}
+redirect_stderr={{ redirect_stderr }}
+autostart={{ autostart }}
+autorestart={{ autorestart }}
+user={{ user }}
+numprocs={{ numprocs }}
+environment={% if 'USER' not in env_vars %}USER="{{ user }}",{% endif %}{% if 'HOME' not in env_vars %}HOME="/home/{{ user }}",{% endif %}{% for name, value in env_vars.iteritems() %}{{ name }}="{{ value }}",{% endfor %}
+{% if stopsignal is defined %}
+stopsignal={{ stopsignal }}
+{% endif %}

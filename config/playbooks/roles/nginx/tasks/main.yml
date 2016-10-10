@@ -1,0 +1,13 @@
+---
+
+- name: Install nginx
+  apt:
+    name: nginx
+  become: yes
+
+- name: Add manabi nginx site
+  template:
+    src: templates/manabi.conf.j2
+    dest: /etc/nginx/sites-enabled/manabi.conf
+  become: yes
+  notify: Reload nginx

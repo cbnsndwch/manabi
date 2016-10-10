@@ -1,0 +1,6 @@
+---
+
+- name: Install uwsgi
+  pip:
+    name: uwsgi
+  become: true

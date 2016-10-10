@@ -1,0 +1,6 @@
+---
+
+dependencies:
+  - { role: common, tags: ['common'] }
+  - { role: uwsgi, tags: ['uwsgi'] }
+  - { role: nginx, tags: ['nginx'] }

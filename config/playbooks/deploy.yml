@@ -11,4 +11,4 @@
 - hosts: production
   remote_user: ubuntu
   roles:
-    - common
+    - { role: manabi, tags: ['manabi'] }

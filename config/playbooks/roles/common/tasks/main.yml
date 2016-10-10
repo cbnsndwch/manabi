@@ -18,6 +18,11 @@
     - htop
     - ntp
     - silversearcher-ag
+    - python-dev
+    - python-pip
+    - python-setuptools
+    - python-psycopg2
+    - libxml2-dev
   become: yes
 
 # Security.
