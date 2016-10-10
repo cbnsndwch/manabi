@@ -3,9 +3,9 @@
 dependencies:
   - role: ansible-supervisor_task
     name: uwsgi
-    directory: /home/ubuntu/manabi
-    command: 'uwsgi --socket {{ uwsgi_socket }} --module manabi.wsgi --stats /tmp/manabi_uwsgi_stats.socket --vacuum'
-    process_name: 'uwsgi_%(process_num)s'
+    directory: {{ app_root_path }}
+    command: 'uwsgi --socket "{{ uwsgi_socket }}" -H "{{ app_virtualenv_path }}" --module manabi.wsgi --processes 3 --stats /tmp/manabi_uwsgi_stats.socket --vacuum'
+    process_name: uwsgi
     user: ubuntu
     tags: uwsgi
-    numprocs: '{{ ansible_processor_cores }}'
+    numprocs: 1

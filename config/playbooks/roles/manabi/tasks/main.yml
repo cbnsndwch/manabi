@@ -3,7 +3,14 @@
 - name: Checkout source
   git:
     repo: git@github.com:aehlke/manabi.git
-    dest: /home/ubuntu/manabi
+    dest: '{{ app_root_path }}'
     version: master
     accept_hostkey: yes
     force: yes
+
+- name: Install python dependencies
+  pip:
+    requirements: '{{ app_root_path }}/requirements.txt'
+    virtualenv: '{{ app_virtualenv_path }}'
+    virtualenv_python: python2.7
+    virtualenv_site_packages: no

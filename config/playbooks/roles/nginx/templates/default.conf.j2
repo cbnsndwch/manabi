@@ -1,0 +1,8 @@
+# {{ ansible_managed }}
+
+# Disable nginx's default welcome server.
+server {
+    listen 80;
+    server_name "";
+    return 444;
+}

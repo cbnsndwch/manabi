@@ -19,6 +19,13 @@
   become: yes
   notify: Reload nginx
 
+- name: Disable default nginx welcome server
+  template:
+    src: templates/default.conf.j2
+    dest: /etc/nginx/sites-enabled/default
+  become: yes
+  notify: Reload nginx
+
 - name: Add manabi nginx site
   template:
     src: templates/manabi.conf.j2
