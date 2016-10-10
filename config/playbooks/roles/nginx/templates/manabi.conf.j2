@@ -1,7 +1,7 @@
 # {{ ansible_managed }}
 
 upstream uwsgi {
-    server unix:///path/to/your/mysite/mysite.sock; # for a file socket
+    server unix://{{ uwsgi_socket }}; # for a file socket
 }
 
 server {

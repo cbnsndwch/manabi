@@ -6,3 +6,4 @@
     dest: /home/ubuntu/manabi
     version: master
     accept_hostkey: yes
+    force: yes
