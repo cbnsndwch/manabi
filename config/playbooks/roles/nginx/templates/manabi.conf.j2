@@ -8,13 +8,14 @@ server {
     listen 80;
 
     # the domain name it will serve for
-    server_name {{ app_hostname }};
+    server_name {{ app_hostname }} api.{{ app_hostname }};
     charset     utf-8;
 
     # max upload size
     client_max_body_size 15M;
 
     location / {
+        include uwsgi_params;
         uwsgi_pass uwsgi;
     }
 }

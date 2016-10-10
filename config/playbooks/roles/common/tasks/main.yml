@@ -18,6 +18,8 @@
     - build-essential
     - htop
     - libffi-dev
+    - libpcre3
+    - libpcre3-dev
     - libpq-dev
     - libssl-dev
     - libxml2-dev
@@ -28,6 +30,7 @@
     - python-psycopg2
     - python-setuptools
     - silversearcher-ag
+    - zlib1g-dev
   become: yes
 
 - name: Install common system Python packages

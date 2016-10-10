@@ -8,7 +8,7 @@ from socket import gethostname
 
 import kanjivg
 
-LIVE_HOST = (gethostname() == 'aehlke.xen.prgmr.com')
+LIVE_HOST = os.environ.get('PRODUCTION')
 
 PROJECT_ROOT = os.path.abspath(os.path.dirname(__file__))
 
