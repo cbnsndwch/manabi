@@ -8,4 +8,4 @@ deployment:
   production:
     branch: master
     commands:
-      - config/deploy.sh
+      - ssh-agent config/deploy.sh
