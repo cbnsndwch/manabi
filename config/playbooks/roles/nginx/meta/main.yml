@@ -4,4 +4,5 @@ dependencies:
   - role: ansible-supervisor_task
     name: nginx
     command: /usr/sbin/nginx
+    process_name: nginx
     user: ubuntu
