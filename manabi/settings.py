@@ -222,6 +222,7 @@ INSTALLED_APPS += (
     'django_rq',
     'djoser',
     # 'silk',
+    'raven.contrib.django.raven_compat',
 
     # My own.
     'manabi.apps.flashcards',
@@ -374,6 +375,7 @@ REST_FRAMEWORK = {
 
 if LIVE_HOST:
     try:
+        from manabi.settings_production_secrets import *
         from manabi.settings_production import *
     except ImportError:
         pass
@@ -381,7 +383,7 @@ elif os.environ.get('CIRCLECI'):
     from manabi.settings_circleci import *
 else:
     try:
-        from manabi.settings_development import *
         from manabi.settings_development_secrets import *
+        from manabi.settings_development import *
     except ImportError:
         pass

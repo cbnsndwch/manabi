@@ -17,7 +17,7 @@ apps/dojango/media/dojo
 *.swk
 .svn
 *svn-base
-settings_production.py
+settings_production_secrets.py
 settings_development_secrets.py
 manabi_db_dump.gz
 !apps/*/settings.py

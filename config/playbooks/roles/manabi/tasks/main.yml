@@ -14,3 +14,9 @@
     virtualenv: '{{ app_virtualenv_path }}'
     virtualenv_python: python2.7
     virtualenv_site_packages: no
+
+- name: Place decrypted production secrets
+  copy:
+    src: vault/settings_production_secrets.py
+    dest: '{{ app_root_path }}/settings_production_secrets.py'
+    force: yes
