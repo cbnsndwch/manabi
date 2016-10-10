@@ -15,7 +15,6 @@ server {
     client_max_body_size 15M;
 
     location / {
-        uwsgi_pass  uwsgi;
-        include     /path/to/your/mysite/uwsgi_params; # the uwsgi_params file you installed
+        uwsgi_pass uwsgi;
     }
 }
