@@ -5,4 +5,4 @@ dependencies:
     name: nginx
     command: /usr/sbin/nginx
     process_name: nginx
-    user: ubuntu
+    user: root
