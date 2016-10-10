@@ -5,3 +5,4 @@
     repo: git@github.com:aehlke/manabi.git
     dest: /home/ubuntu/manabi
     version: master
+    accept_hostkey: yes

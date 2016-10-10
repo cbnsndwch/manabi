@@ -13,5 +13,4 @@ pip install -q -r requirements.txt
 
 cd playbooks
 ansible-galaxy install -r requirements.yml
-ssh-add
 ansible-playbook deploy.yml "$@"
