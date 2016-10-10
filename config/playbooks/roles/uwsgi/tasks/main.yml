@@ -1,6 +1,9 @@
 ---
 
-- name: Install uwsgi
+- name: Install uwsgi and utilities
   pip:
-    name: uwsgi
+    name: '{{ item }}'
+  with_items:
+    - uwsgi
+    - uwsgitop
   become: true
