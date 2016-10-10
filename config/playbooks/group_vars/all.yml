@@ -2,3 +2,5 @@
 
 app_port: 8080
 app_hostname: manabi.io
+
+uwsgi_socket: /tmp/manabi_uwsgi.socket

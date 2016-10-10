@@ -1,1 +1,10 @@
 ---
+
+dependencies:
+  - role: ansible-supervisor_task
+    name: uwsgi
+    directory: /home/ubuntu/manabi/
+    command: 'uwsgi --socket {{ uwsgi_socket }} -chmod-socket 664 --module manabi.wsgi --stats /tmp/manabi_uwsgi_stats.socket --vacuum'
+    user: ubuntu
+    tags: uwsgi
+    numprocs: '{{ ansible_processor_cores * 2 + 1 }}'

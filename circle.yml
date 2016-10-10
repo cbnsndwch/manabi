@@ -8,4 +8,6 @@ deployment:
   production:
     branch: master
     commands:
-      - ssh-agent config/deploy.sh
+      - eval `ssh-agent`
+      - ssh-add /home/ubuntu/.ssh/id_circleci_github
+      - ssh-add && config/deploy.sh
