@@ -10,4 +10,4 @@ deployment:
     commands:
       - eval `ssh-agent`
       - ssh-add /home/ubuntu/.ssh/id_circleci_github
-      - ssh-add && config/deploy.sh
+      - config/deploy.sh
