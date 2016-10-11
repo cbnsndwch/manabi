@@ -1,6 +1,6 @@
 ---
 
-- name: Checkout source
+- name: Pull source
   git:
     repo: git@github.com:aehlke/manabi.git
     dest: '{{ app_root_path }}'
@@ -8,6 +8,7 @@
     accept_hostkey: yes
     force: yes
   notify: Reload uwsgi
+  tags: git-pull
 
 - name: Install python dependencies
   pip:

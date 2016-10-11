@@ -61,10 +61,11 @@ if DEBUG:
         },
     }
 else:
-    logging.basicConfig(
-        level=logging.ERROR,
-        format='%(asctime)s %(levelname)s %(message)s',
-        filename='/var/log/python-manabi.log')
+    pass
+    #  logging.basicConfig(
+    #      level=logging.ERROR,
+    #      format='%(asctime)s %(levelname)s %(message)s',
+    #      filename='/var/log/python-manabi.log')
 
 TIME_ZONE = 'UTC'
 LANGUAGE_CODE = 'en'
