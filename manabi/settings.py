@@ -17,6 +17,8 @@ TEMPLATE_DEBUG = not LIVE_HOST #DEBUG
 
 USE_TEST_STUBS = False
 
+ALLOWED_HOSTS = ['.manabi.io']
+
 INTERNAL_IPS = (
     '127.0.0.1',
 )
