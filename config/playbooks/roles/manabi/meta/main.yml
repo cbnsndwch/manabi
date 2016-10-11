@@ -4,3 +4,5 @@ dependencies:
   - { role: common, tags: ['common'] }
   - { role: uwsgi, tags: ['uwsgi'] }
   - { role: nginx, tags: ['nginx'] }
+  - { role: postgresql, tags: ['postgresql'] }
+  - { role: redis, tags: ['redis'] }

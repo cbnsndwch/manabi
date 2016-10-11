@@ -1,0 +1,12 @@
+---
+
+- name: Reload PostgreSQL server
+  command: '{{ pg_ctl_path }} reload'
+  become: yes
+
+- name: Restart PostgreSQL server
+  service:
+    name: postgresql
+    state: started
+    enabled: yes
+  become: yes

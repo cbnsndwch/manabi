@@ -1,0 +1,26 @@
+---
+
+- name: Add PostgreSQL apt repository
+  apt_repository:
+    repo: 'deb https://apt.postgresql.org/pub/repos/apt xenial-pgdg main'
+  become: yes
+
+- name: Add PostgreSQL repository key
+  apt_key:
+    url: https://www.postgresql.org/media/keys/ACCC4CF8.asc
+  become: yes
+
+- name: Update apt cache
+  apt:
+    update_cache: yes
+  become: yes
+
+- name: Install PostgreSQL server
+  shell: >
+    LANG={{ locale }} LC_COLLATE={{ locale }} LC_CTYPE={{ locale }}
+    LC_MESSAGES={{ locale }} LC_MONETARY={{ locale }}
+    LC_NUMERIC={{ locale }} LC_TIME={{ locale }}
+    LC_ALL={{ locale }}
+    apt-get install -y postgresql-9.6
+  become: yes
+  notify: Restart PostgreSQL server
