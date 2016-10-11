@@ -1,2 +1,3 @@
 *.swp
 *.egg-info
+settings_production_secrets.py
