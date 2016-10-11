@@ -1,3 +1,11 @@
 ---
 
 - include: install.yml
+
+- name: Place Redis configuration
+  template:
+    src: templates/redis.conf.j2
+    dest: /etc/redis/redis.conf
+    owner: '{{ redis_user }}'
+  become: yes
+  notify: Restart Redis server

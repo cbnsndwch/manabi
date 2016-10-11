@@ -1,0 +1,7 @@
+---
+
+- name: Restart Redis server
+  supervisorctl:
+    name: redis-server
+    state: restarted
+  become: yes
