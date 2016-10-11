@@ -1,0 +1,69 @@
+---
+
+- name: Install Redis test dependency
+  apt:
+    name: tcl
+  become: yes
+
+- name: Set Redis checksum
+  set_fact:
+    redis_checksum: "sha1:{{ redis_checksums[redis_version] }}"
+  when:
+    - redis_checksum is not defined
+
+- name: Download Redis
+  get_url:
+    url: '{{ redis_download_url }}'
+    dest: '/usr/local/src/redis-{{ redis_version }}.tar.gz'
+    checksum: '{{ redis_checksum|default(omit) }}'
+  become: yes
+
+- name: Extract Redis tarball
+  unarchive:
+    src: '/usr/local/src/redis-{{ redis_version }}.tar.gz'
+    dest: /usr/local/src
+    creates: '/usr/local/src/redis-{{ redis_version }}/Makefile'
+    copy: no
+  become: yes
+
+- name: Compile Redis
+  command: 'make -j{{ ansible_processor_cores + 1 }}'
+  args:
+    chdir: '/usr/local/src/redis-{{ redis_version }}'
+    creates: '/usr/local/src/redis-{{ redis_version }}/src/redis-server'
+  become: yes
+
+- name: Create Redis install directory
+  file:
+    path: '{{ redis_install_dir }}'
+    state: directory
+  become: yes
+
+- name: Create /etc/redis
+  file:
+    path: /etc/redis
+    state: directory
+  become: yes
+
+- name: Add redis user
+  user:
+    name: '{{ redis_user }}'
+    comment: "Redis"
+    home: '{{ redis_install_dir }}'
+    shell: /bin/false
+    system: yes
+  become: yes
+
+- name: Create /var/run/redis
+  file:
+    path: /var/run/redis
+    state: directory
+    owner: '{{ redis_user }}'
+  become: yes
+
+- name: Install Redis
+  command: 'make PREFIX={{ redis_install_dir }} install'
+  args:
+    chdir: '/usr/local/src/redis-{{ redis_version }}'
+    creates: '{{ redis_install_dir }}/bin/redis-server'
+  become: yes
