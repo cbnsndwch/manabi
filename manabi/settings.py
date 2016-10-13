@@ -15,7 +15,6 @@ PROJECT_ROOT = os.path.abspath(os.path.dirname(__file__))
 BASE_DIR = os.path.dirname(os.path.dirname(__file__))
 
 DEBUG = not LIVE_HOST
-TEMPLATE_DEBUG = not LIVE_HOST #DEBUG
 
 USE_TEST_STUBS = False
 
@@ -99,48 +98,26 @@ STATIC_URL = '/site_media/static/'
 ADMIN_MEDIA_PREFIX = posixpath.join(STATIC_URL, 'admin/')
 SECRET_KEY = 'secret-key-only-used-for-development-do-not-use-in-production'
 
-# List of callables that know how to import templates from various sources.
+TEMPLATES = [{
+    'BACKEND': 'django.template.backends.django.DjangoTemplates',
+    'DIRS': [os.path.join(BASE_DIR, 'templates')],
+    'APP_DIRS': True,
+    'OPTIONS': {
+        'context_processors': [
+            'django.template.context_processors.debug',
+            'django.template.context_processors.request',
+            'django.contrib.auth.context_processors.auth',
+            'django.contrib.messages.context_processors.messages',
+        ]
+    },
+}]
 if LIVE_HOST:
-    TEMPLATE_LOADERS = (
-        ('django.template.loaders.cached.Loader', (
+    TEMPLATES['OPTIONS']['loaders'] = [
+        ('django.template.loaders.cached.Loader', [
             'django.template.loaders.filesystem.Loader',
             'django.template.loaders.app_directories.Loader',
-        )),
-    )
-    TEMPLATES = [{
-        'BACKEND': 'django.template.backends.django.DjangoTemplates',
-        'DIRS': [os.path.join(BASE_DIR, 'templates')],
-        'OPTIONS': {
-            'loaders': [
-                ('django.template.loaders.cached.Loader', [
-                    'django.template.loaders.filesystem.Loader',
-                    'django.template.loaders.app_directories.Loader',
-                ]),
-            ],
-        },
-    }]
-else:
-    # TEMPLATE_LOADERS = (
-    #     'django.template.loaders.filesystem.Loader',
-    #     'django.template.loaders.app_directories.Loader',
-    # )
-    TEMPLATES = [{
-        'BACKEND': 'django.template.backends.django.DjangoTemplates',
-        'DIRS': [os.path.join(BASE_DIR, 'templates')],
-        'APP_DIRS': True,
-        'OPTIONS': {
-            'loaders': [
-                'django.template.loaders.filesystem.Loader',
-                'django.template.loaders.app_directories.Loader',
-            ],
-            #  'context_processors': [
-            #      # 'django.template.context_processors.debug',
-            #      'django.template.context_processors.request',
-            #      'django.contrib.auth.context_processors.auth',
-            #      'django.contrib.messages.context_processors.messages',
-            #  ],
-        },
-    }]
+        ]),
+    ]
 
 MIDDLEWARE_CLASSES = (
     'django.middleware.gzip.GZipMiddleware',
@@ -183,28 +160,24 @@ if DEBUG:
 
 ROOT_URLCONF = 'manabi.urls'
 
-TEMPLATE_DIRS = (
-    os.path.join(PROJECT_ROOT, 'templates'),
-)
-
-TEMPLATE_CONTEXT_PROCESSORS = (
-    'django.contrib.auth.context_processors.auth',
-    'django.core.context_processors.request',
-    'django.core.context_processors.debug',
-    'django.core.context_processors.i18n',
-    'django.core.context_processors.media',
-    'django.core.context_processors.static',
-    'django.contrib.messages.context_processors.messages',
-
-    #'staticfiles.context_processors.static_url',
-    #"pinax.core.context_processors.pinax_settings",
-    #'pinax.apps.account.context_processors.account',
-    #'notification.context_processors.notification',
-    #'announcements.context_processors.site_wide_announcements',
-
-    #'dojango.context_processors.config',
-    #'manabi.context_processors.site_base_extender',
-)
+#  TEMPLATE_CONTEXT_PROCESSORS = (
+#      'django.contrib.auth.context_processors.auth',
+#      'django.core.context_processors.request',
+#      'django.core.context_processors.debug',
+#      'django.core.context_processors.i18n',
+#      'django.core.context_processors.media',
+#      'django.core.context_processors.static',
+#      'django.contrib.messages.context_processors.messages',
+#
+#      #'staticfiles.context_processors.static_url',
+#      #"pinax.core.context_processors.pinax_settings",
+#      #'pinax.apps.account.context_processors.account',
+#      #'notification.context_processors.notification',
+#      #'announcements.context_processors.site_wide_announcements',
+#
+#      #'dojango.context_processors.config',
+#      #'manabi.context_processors.site_base_extender',
+#  )
 
 INSTALLED_APPS = (
     'django.contrib.admin',
