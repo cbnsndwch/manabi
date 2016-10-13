@@ -8,9 +8,11 @@ from socket import gethostname
 
 import kanjivg
 
+
 LIVE_HOST = os.environ.get('PRODUCTION')
 
 PROJECT_ROOT = os.path.abspath(os.path.dirname(__file__))
+BASE_DIR = os.path.dirname(os.path.dirname(__file__))
 
 DEBUG = not LIVE_HOST
 TEMPLATE_DEBUG = not LIVE_HOST #DEBUG
