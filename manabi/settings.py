@@ -294,7 +294,7 @@ RQ_QUEUES = {
 #DISABLE_QUERYSET_CACHE = not LIVE_HOST
 
 #TODELETE?
-SEND_BROKEN_LINK_EMAILS = True
+SEND_BROKEN_LINK_EMAILS = False
 IGNORABLE_404_ENDS = ('.php', '.cgi')
 IGNORABLE_404_STARTS = ('/phpmyadmin/',)
 
@@ -328,7 +328,7 @@ SITE_NAME = 'Manabi'
 LOGIN_URL = '/account/login/'
 LOGIN_REDIRECT_URLNAME = 'home'
 
-DEFAULT_FROM_EMAIL = 'Manabi <support@manabi.org>'
+DEFAULT_FROM_EMAIL = 'Manabi <support@manabi.io>'
 
 FIXTURE_DIRS = (
     'fixtures/',
