@@ -58,18 +58,7 @@ urlpatterns = [
     url(r'^api/auth/', include('djoser.urls')),
     url(r'^api/flashcards/', include('manabi.apps.flashcards.api_urls')),
     url(r'^api/twitter_usages/', include('manabi.apps.twitter_usages.urls')),
-
-    #url(r'^flashcards/api/', include(rest_api_urlpatterns)),
 ]
 
 # if not settings.LIVE_HOST:
 #    urlpatterns += [url(r'^silk/', include('silk.urls', namespace='silk'))]
-
-
-# TODELETE: LEGACY
-# + decorated_patterns('', allow_lazy_user,
-#     url(r'^$', 'views.index', name='home'),
-
-#     (r'^flashcards/', include('manabi.apps.flashcards.urls')),
-#     (r'^kanjivg/', include('kanjivg.urls')),
-# )

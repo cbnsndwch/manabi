@@ -6,8 +6,6 @@ import os.path
 import posixpath
 from socket import gethostname
 
-import kanjivg
-
 
 LIVE_HOST = os.environ.get('PRODUCTION')
 
@@ -250,7 +248,6 @@ INSTALLED_APPS += (
     'manabi.apps.books',
     'manabi.apps.utils',
     'manabi.apps.jdic',
-    'kanjivg',
     'manabi.apps.manabi_redis',
     'manabi.apps.reading_level',
     'manabi.apps.twitter_usages',
@@ -357,13 +354,6 @@ FIXTURE_DIRS = (
 #TODO-OLD
 JDIC_AUDIO_SERVER_URL = 'http://jdic.manabi.org/audio/'
 JDIC_AUDIO_SERVER_TIMEOUT = 6 # seconds
-
-_kanjivg_static_path = os.path.join(kanjivg.__path__[0], 'static', 'kanjivg')
-KANJI_SVG_XSLT_PATH = os.path.join(_kanjivg_static_path, 'svg2gfx.xslt')
-KANJI_SVGS_PATH = os.path.join(_kanjivg_static_path, 'svgs')
-#KANJI_SVG_XSLT_PATH = os.path.join(STATIC_ROOT, 'kanjivg', 'svg2gfx.xslt')
-#KANJI_SVGS_PATH = os.path.join(STATIC_ROOT, 'kanjivg', 'svgs')
-
 
 START_OF_DAY = 5 # hour of day most likely to be while the user is asleep, localized
 

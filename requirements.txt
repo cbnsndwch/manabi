@@ -41,7 +41,6 @@ unidecode
 
 https://github.com/kennethreitz/dj-static/archive/e73fa3bce00ac30b78218d60ece9efe931058a95.zip
 https://github.com/aehlke/django-cachecow/archive/master.zip
-https://github.com/aehlke/django-kanjivg/archive/master.zip
 https://github.com/aehlke/django-snippetscream/archive/master.zip
 
 # For django-catnap.
