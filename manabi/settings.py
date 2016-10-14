@@ -64,11 +64,38 @@ if DEBUG:
         },
     }
 else:
-    pass
-    #  logging.basicConfig(
-    #      level=logging.ERROR,
-    #      format='%(asctime)s %(levelname)s %(message)s',
-    #      filename='/var/log/python-manabi.log')
+    LOGGING = {
+        'version': 1,
+        'formatters': {
+            'verbose': {
+                'format': '%(levelname)s %(asctime)s %(module)s %(process)d %(thread)d %(message)s',
+            },
+            'simple': {
+                'format': '%(levelname)s %(message)s',
+            },
+        },
+        'handlers': {
+            'console': {
+                'level': 'WARNING',
+                'class': 'logging.StreamHandler',
+            },
+        },
+         'root': {
+             'handlers': ['console'],
+             'level': logging.WARNING,
+        },
+        'loggers': {
+            'manabi': {
+                'handlers': ['console'],
+                'level': 'WARNING',
+            },
+            'django.request': {
+                'handlers': ['console'],
+                'propagate': True,
+                'level': 'WARNING',
+            },
+        },
+    }
 
 TIME_ZONE = 'UTC'
 LANGUAGE_CODE = 'en'
