@@ -7,7 +7,7 @@ import posixpath
 from socket import gethostname
 
 
-LIVE_HOST = os.environ.get('PRODUCTION')
+LIVE_HOST = os.path.isfile('/etc/manabi/production')
 
 PROJECT_ROOT = os.path.abspath(os.path.dirname(__file__))
 BASE_DIR = os.path.dirname(os.path.dirname(__file__))

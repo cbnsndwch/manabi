@@ -1,5 +1,21 @@
 ---
 
+- name: Machine-level configuration directory for Manabi
+  file:
+    path: /etc/manabi
+    state: directory
+    owner: ubuntu
+    group: ubuntu
+  become: yes
+
+- name: Mark machine as production
+  file:
+    path: /etc/manabi/production
+    state: touch
+    owner: ubuntu
+    group: ubuntu
+  become: yes
+
 - name: Pull source
   git:
     repo: git@github.com:aehlke/manabi.git
