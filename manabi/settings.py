@@ -274,26 +274,6 @@ NOSE_ARGS = ['--logging-level=WARNING']
 #    #'debug_toolbar.panels.logger.LoggingPanel',
 #)
 
-
-if LIVE_HOST:
-   CACHES = {
-       'default': dict(
-           #BACKEND = 'johnny.backends.memcached.PyLibMCCache',
-           BACKEND='johnny.backends.memcached.MemcachedCache',
-           #BACKEND='django.core.cache.backends.memcached.MemcachedCache',
-           LOCATION=['127.0.0.1:11211'],
-           JOHNNY_CACHE=True,
-           KEY_PREFIX='dj_manabi',
-           MAX_ENTRIES=5000
-       ),
-   }
-else:
-   CACHES = {
-       'default': {
-           'BACKEND': 'django.core.cache.backends.dummy.DummyCache',
-       }
-   }
-
 RQ_QUEUES = {
     'default': {
         'HOST': 'localhost',
@@ -303,15 +283,6 @@ RQ_QUEUES = {
         'DEFAULT_TIMEOUT': 360,
     },
 }
-
-#JOHNNY_MIDDLEWARE_KEY_PREFIX='jc_manabi'
-
-#DISABLE_QUERYSET_CACHE = not LIVE_HOST
-
-#TODELETE?
-SEND_BROKEN_LINK_EMAILS = False
-IGNORABLE_404_ENDS = ('.php', '.cgi')
-IGNORABLE_404_STARTS = ('/phpmyadmin/',)
 
 #TODO fix, not working
 SHELL_PLUS_POST_IMPORTS = (

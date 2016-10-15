@@ -1,0 +1,14 @@
+---
+
+- name: Install memcached
+  apt:
+    name: memcached
+  become: yes
+  notify: Restart memcached
+
+- name: Place memcached configuration
+  template:
+    src: templates/memcached.conf.j2
+    dest: /etc/memcached.conf
+  become: yes
+  notify: Restart memcached

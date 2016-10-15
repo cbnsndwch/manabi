@@ -6,3 +6,4 @@ dependencies:
   - { role: nginx, tags: ['nginx'] }
   - { role: postgresql, tags: ['postgresql'] }
   - { role: redis, tags: ['redis'] }
+  - { role: memcached, tags: ['memcached'] }
