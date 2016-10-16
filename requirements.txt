@@ -26,6 +26,7 @@ python-dateutil==2.5.2
 djoser==0.5.1
 django-silk==0.7.0
 raven==5.27.1
+python-memcached==1.58
 
 # django-devserver + optional dependencies
 https://github.com/dcramer/django-devserver/archive/master.zip
