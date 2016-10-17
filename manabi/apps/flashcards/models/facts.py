@@ -11,6 +11,7 @@ from constants import MAX_NEW_CARD_ORDINAL
 from manabi.apps.flashcards.signals import fact_suspended, fact_unsuspended
 from manabi.apps.flashcards.models.constants import GRADE_NONE, MIN_CARD_SPACE, CARD_SPACE_FACTOR
 from manabi.apps.flashcards.models.synchronization import copy_facts_to_subscribers
+from manabi.apps.twitter_usages.jobs import harvest_tweets
 
 
 #TODO-OLD
@@ -152,6 +153,9 @@ class Fact(models.Model):
 
         if is_new and self.deck.shared:
             copy_facts_to_subscribers([self])
+
+        if is_new:
+            harvest_tweets(self)
 
     @transaction.atomic
     def delete(self, *args, **kwargs):

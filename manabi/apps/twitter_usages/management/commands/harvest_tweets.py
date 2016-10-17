@@ -1,6 +1,6 @@
 from django.core.management.base import BaseCommand, CommandError
 
-from manabi.apps.twitter_usages.harvest import harvest_tweets
+from manabi.apps.twitter_usages.harvest import harvest_tweets_for_facts
 
 
 class Command(BaseCommand):
@@ -14,4 +14,4 @@ class Command(BaseCommand):
         count = 300 # of 19141
         self.stdout.write("Harvesting up to {} facts' tweets.".format(count))
 
-        harvest_tweets(count)
+        harvest_tweets_for_facts(count)

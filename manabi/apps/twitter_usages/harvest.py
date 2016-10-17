@@ -7,7 +7,6 @@ from django.conf import settings
 from natto import MeCab
 from twython import Twython
 
-from manabi.apps.flashcards.models import Fact
 from manabi.apps.twitter_usages.models import (
     ExpressionTweet,
     search_expressions,
@@ -69,8 +68,45 @@ def word_frequencies(text):
     return frequencies
 
 
-def harvest_tweets(fact_count, tweets_per_fact=10):
-    facts = Fact.objects.exclude(expression='').order_by('?')#.order_by('-modified_at')
+def harvest_tweets(fact, tweets_per_fact=10):
+    if not fact.expression:
+        return
+
+    for expression in search_expressions(fact):
+        SEARCH_COUNT = 100
+        tweets = _search_tweets(expression, SEARCH_COUNT)
+        tweets = _cull_spammy_tweets(tweets, SEARCH_COUNT)
+
+        tweets_with_frequencies = []
+        for tweet in tweets:
+            frequencies = word_frequencies(tweet['text'])
+            try:
+                average = sum(frequencies) / float(len(frequencies))
+            except ZeroDivisionError:
+                average = 0
+            tweets_with_frequencies.append((average, tweet))
+
+        sorted_tweets = sorted_by_usefulness_estimate(
+            tweets_with_frequencies)
+
+        top_tweets = sorted_tweets[:tweets_per_fact]
+
+        for average_word_frequency, tweet in top_tweets:
+            try:
+                ExpressionTweet.objects.create(
+                    search_expression=expression,
+                    tweet=tweet,
+                    tweet_id=tweet['id_str'],
+                    average_word_frequency=average_word_frequency,
+                )
+            except IntegrityError:
+                continue
+
+
+def harvest_tweets_for_facts(fact_count):
+    from manabi.apps.flashcards.models import Fact
+
+    facts = Fact.objects.exclude(expression='').order_by('?')
     facts = facts.exclude(Q(forked=False) & Q(synchronized_with_id__isnull=False))
 
     # TODO This is probably temporary for initial migration.
@@ -83,46 +119,7 @@ def harvest_tweets(fact_count, tweets_per_fact=10):
 
     facts = facts[:fact_count]
 
-    searched_expressions = set()
-
     for fact in facts.iterator():
-        if not fact.expression:
-            continue
+        print u'Fact {}:'.format(fact.id), fact
 
-        for expression in search_expressions(fact):
-            if expression in searched_expressions:
-                continue
-
-            SEARCH_COUNT = 100
-            tweets = _search_tweets(expression, SEARCH_COUNT)
-            searched_expressions.add(expression)
-            tweets = _cull_spammy_tweets(tweets, SEARCH_COUNT)
-
-            tweets_with_frequencies = []
-            for tweet in tweets:
-                frequencies = word_frequencies(tweet['text'])
-                try:
-                    average = sum(frequencies) / float(len(frequencies))
-                except ZeroDivisionError:
-                    average = 0
-                tweets_with_frequencies.append((average, tweet))
-
-            sorted_tweets = sorted_by_usefulness_estimate(
-                tweets_with_frequencies)
-
-            top_tweets = sorted_tweets[:tweets_per_fact]
-
-            print u'Fact {}:'.format(fact.id), expression
-            for average_word_frequency, tweet in top_tweets:
-                try:
-                    ExpressionTweet.objects.create(
-                        search_expression = expression,
-                        tweet = tweet,
-                        tweet_id = tweet['id_str'],
-                        average_word_frequency = average_word_frequency,
-                    )
-                    print tweet['text']
-                except IntegrityError:
-                    print '...Skipping dupe...'
-                    continue
-            print
+        harvest_tweets(fact)
