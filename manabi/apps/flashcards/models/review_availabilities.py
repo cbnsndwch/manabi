@@ -76,7 +76,7 @@ class ReviewAvailabilities(object):
 
     @property
     @lru_cache(maxsize=None)
-    def _next_new_cards_count(self):
+    def _next_new_cards_limit(self):
         if self.new_cards_per_day_limit_reached:
             return NEW_CARDS_PER_DAY_LIMIT_OVERRIDE_INCREMENT
         else:
