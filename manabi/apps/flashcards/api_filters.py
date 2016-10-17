@@ -36,11 +36,14 @@ def next_cards_to_review_filters(request):
 
     early_review = _get_bool(request, 'early_review')
 
+    include_new_buried_siblings = _get_bool(
+        request, 'include_new_buried_siblings')
     new_cards_per_day_limit_override = (
        request.query_params.get('new_cards_per_day_limit_override'))
 
     return {
         'deck': deck,
         'early_review': early_review,
+        'include_new_buried_siblings': include_new_buried_siblings,
         'new_cards_per_day_limit_override': new_cards_per_day_limit_override,
     }
