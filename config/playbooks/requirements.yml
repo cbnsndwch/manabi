@@ -1,4 +1,3 @@
 ---
 
 - src: https://github.com/aehlke/ansible-supervisor_task
-- src: https://github.com/ElaoInfra/ansible-role-oauth2-proxy

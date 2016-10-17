@@ -1,0 +1,7 @@
+---
+
+- name: 'Restart oauth2_proxy_{{ oauth2_proxy_app_name }}'
+  supervisorctl:
+    name: 'oauth2_proxy_{{ oauth2_proxy_app_name }}'
+    state: restarted
+  become: yes

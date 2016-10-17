@@ -2,4 +2,5 @@
 
 rq_dashboard:
   hostname: rq.manabi.io
-  port: 3002
+  oauth2_proxy_port: 3002
+  port: 3003
