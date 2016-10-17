@@ -94,7 +94,7 @@ class ManabiTestCase(APITestCase):
             response = json.loads(response.content)
         self.assertTrue(response.get('success'))
 
-    def review_cards(self, user):
+    def next_cards_for_review(self, user):
         '''
         Returns the cards that were reviewed.
         '''
@@ -187,7 +187,10 @@ def create_staff():
 
 # Data creation.
 
-def create_sample_data(user=None, facts=100):
+def create_sample_data(
+        user=None,
+        facts=100,
+):
     deck = create_deck(user=user)
     return [create_fact(user=user, deck=deck) for _ in xrange(facts)]
 

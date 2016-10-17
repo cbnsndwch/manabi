@@ -1,7 +1,9 @@
 # -*- coding: utf-8 -*-
 
+import itertools
 import json
 import urllib
+from datetime import datetime, timedelta
 
 from django.test import Client, TestCase
 from django.core.urlresolvers import reverse
@@ -33,7 +35,7 @@ class DecksAPITest(ManabiTestCase):
 class ReviewsAPITest(ManabiTestCase):
     def after_setUp(self):
         self.user = create_user()
-        create_sample_data(facts=30, user=self.user)
+        self.facts = create_sample_data(facts=10, user=self.user)
 
     def test_next_cards_for_review(self):
         self.assertTrue(self.api.next_cards_for_review(self.user))
@@ -41,7 +43,7 @@ class ReviewsAPITest(ManabiTestCase):
     def test_review_cards(self):
         count = 0
         while True:
-            cards = self.review_cards(self.user)
+            cards = self.next_cards_for_review(self.user)
             if not cards:
                 break
             count += 1
@@ -51,6 +53,23 @@ class ReviewsAPITest(ManabiTestCase):
             for card in next_cards:
                 self.assertFalse(card['id'] in card_ids)
         self.assertTrue(count)
+
+    def test_late_review(self):
+        grades = itertools.cycle([GRADE_NONE, GRADE_HARD, GRADE_GOOD, GRADE_EASY])
+        for fact in self.facts:
+            for grade, card in zip(grades, fact.card_set.all()):
+                card.due_at = datetime.utcnow() - timedelta(days=1)
+                card.last_review_grade = grade
+                card.last_reviewed_at = datetime.utcnow() - timedelta(days=2)
+                if grade == GRADE_NONE:
+                    card.last_failed_at = card.last_reviewed_at
+                card.interval = timedelta(hours=4)
+                card.ease_factor = 1.1
+                card.template = 0
+                card.save()
+
+        for card in self.next_cards_for_review(self.user):
+            card_review = self.api.review_card(self.user, card, GRADE_GOOD)
 
     def test_undo_review(self):
         next_cards = self.api.next_cards_for_review(self.user)['cards']

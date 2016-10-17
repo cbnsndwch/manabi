@@ -264,7 +264,7 @@ class RepetitionAlgo(object):
             sibling = self.card.siblings.latest('last_reviewed_at')
             if sibling.last_reviewed_at:
                 difference = (self.card.due_at
-                            - sibling.last_reviewed_at)
+                              - sibling.last_reviewed_at)
 
                 if abs(difference) <= self.card.sibling_spacing():
                     denominator += self.card.sibling_spacing()
