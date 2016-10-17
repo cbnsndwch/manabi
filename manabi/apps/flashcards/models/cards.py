@@ -240,8 +240,7 @@ class Card(models.Model):
             timedelta(seconds=
                       CARD_SPACE_FACTOR * self.interval.total_seconds())
         )
-
-        return timedelta(days=min_space)
+        return min_space
 
     def delay(self, duration):
         '''
