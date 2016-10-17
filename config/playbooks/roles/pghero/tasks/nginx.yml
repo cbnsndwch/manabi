@@ -2,7 +2,7 @@
 
 - name: Add pghero nginx site
   template:
-    src: pghero.conf.j2
+    src: roles/pghero/templates/pghero.conf.j2
     dest: /etc/nginx/sites-enabled/pghero.conf
   become: yes
   notify: Reload nginx
