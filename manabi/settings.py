@@ -4,6 +4,7 @@ import logging
 import os
 import os.path
 import posixpath
+import sys
 from socket import gethostname
 
 
@@ -266,6 +267,10 @@ RQ_QUEUES = {
         'DEFAULT_TIMEOUT': 360,
     },
 }
+if 'test' in sys.argv:
+    for queue_config in RQ_QUEUES.values():
+        queue_config['ASYNC'] = False
+
 
 #TODO fix, not working
 SHELL_PLUS_POST_IMPORTS = (
