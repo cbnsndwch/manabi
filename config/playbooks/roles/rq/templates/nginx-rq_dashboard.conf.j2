@@ -7,6 +7,6 @@ server {
     charset     utf-8;
 
     location / {
-        proxy_pass http://localhost:{{ rq_dashboard.port }};
+        proxy_pass http://localhost:{{ rq_dashboard.oauth2_proxy_port }};
     }
 }
