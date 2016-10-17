@@ -37,7 +37,7 @@ class FactQuerySet(QuerySet):
         return self.filter(
             Q(card__deck__owner=user) & (
                 # Sibling was reviewed too recently.
-                | (
+                (
                     Q(card__last_reviewed_at__gte=(
                         review_time - MIN_CARD_SPACE))
                     & Q(card__last_reviewed_at__gte=(
