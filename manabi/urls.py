@@ -43,6 +43,7 @@ router.register(r'flashcards/next_cards_for_review',
 
 urlpatterns = [
     url(r'^admin/', include(admin.site.urls)),
+    url(r'^rq/', include('django_rq.urls')),
 
     url(r'^terms-of-service/$', direct_to_template,
         {'template': 'tos.html'}, name='terms_of_service'),

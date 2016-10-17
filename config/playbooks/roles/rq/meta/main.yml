@@ -1,0 +1,14 @@
+---
+
+dependencies:
+  - { role: redis, tags: ['redis'] }
+  - role: ansible-supervisor_task
+    name: rq
+    command: '{{ app_virtualenv_path }}/bin/python {{ app_root_path }}/manage.py rqworker default --worker-class "manabi.rq_worker.ManabiWorker"'
+    directory: '{{ app_root_path }}'
+    # RQ requires the TERM signal to perform a warm shutdown. If RQ does not die
+    # within 10 seconds, supervisor will forcefully kill it
+    stopsignal: TERM
+    process_name: rq
+    user: ubuntu
+    numprocs: 1

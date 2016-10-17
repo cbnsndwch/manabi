@@ -7,3 +7,4 @@ dependencies:
   - { role: postgresql, tags: ['postgresql'] }
   - { role: redis, tags: ['redis'] }
   - { role: memcached, tags: ['memcached'] }
+  - { role: rq, tags: ['rq'] }

@@ -1,0 +1,6 @@
+---
+
+- name: Restart RQ workers
+  supervisorctl:
+    name: rq
+    state: restarted

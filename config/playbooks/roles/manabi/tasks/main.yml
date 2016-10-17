@@ -15,6 +15,9 @@
     owner: ubuntu
     group: ubuntu
   become: yes
+  notify:
+    - Reload uwsgi
+    - Restart RQ workers
 
 - name: Pull source
   git:
@@ -23,7 +26,9 @@
     version: master
     accept_hostkey: yes
     force: yes
-  notify: Reload uwsgi
+  notify:
+    - Reload uwsgi
+    - Restart RQ workers
   tags: git-pull
 
 - name: Install python dependencies
@@ -32,11 +37,15 @@
     virtualenv: '{{ app_virtualenv_path }}'
     virtualenv_python: python2.7
     virtualenv_site_packages: no
-  notify: Reload uwsgi
+  notify:
+    - Reload uwsgi
+    - Restart RQ workers
 
 - name: Place decrypted production secrets
   copy:
     src: vault/settings_production_secrets.py
     dest: '{{ app_root_path }}/manabi/settings_production_secrets.py'
     force: yes
-  notify: Reload uwsgi
+  notify:
+    - Reload uwsgi
+    - Restart RQ workers
