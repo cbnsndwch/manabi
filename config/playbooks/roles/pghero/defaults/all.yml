@@ -1,0 +1,5 @@
+---
+
+pghero:
+  hostname: pghero.manabi.io
+  port: 3001

@@ -1,0 +1,8 @@
+---
+
+- name: Add manabi nginx site
+  template:
+    src: templates/pghero.conf.j2
+    dest: /etc/nginx/sites-enabled/pghero.conf
+  become: yes
+  notify: Reload nginx

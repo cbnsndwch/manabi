@@ -12,3 +12,4 @@
   remote_user: ubuntu
   roles:
     - { role: manabi, tags: ['manabi'] }
+    - { role: pghero, tags: ['pghero'] }

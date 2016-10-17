@@ -1,0 +1,10 @@
+---
+
+dependencies:
+  - role: ansible-supervisor_task
+    name: pghero
+    comand: 'pghero scale web=1'
+    process_name: pghero
+    user: ubuntu
+    numprocs: 1
+  - role: nginx

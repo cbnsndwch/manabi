@@ -1,0 +1,16 @@
+# {{ ansible_managed }}
+
+upstream uwsgi {
+    server unix://{{ uwsgi_socket }}; # for a file socket
+}
+
+server {
+    listen 80;
+
+    server_name {{ pghero.hostname }};
+    charset     utf-8;
+
+    location / {
+        proxy_pass http://localhost:{{ pghero.port }};
+    }
+}
