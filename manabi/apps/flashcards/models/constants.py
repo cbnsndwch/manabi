@@ -64,8 +64,7 @@ NEW_CARDS_PER_DAY_LIMIT_OVERRIDE_INCREMENT = 5
 # 3: failed, not due
 
 # Sibling spacing.
-MIN_CARD_SPACE = seconds_to_days(60*60*8)
+MIN_CARD_SPACE = timedelta(hours=8)
 CARD_SPACE_FACTOR = .1 # * interval, used for card spacing if greater than MIN_CARD_SPACE.
 
 DEFAULT_TIME_ZONE = pytz.timezone('America/New_York')
-

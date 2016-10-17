@@ -214,6 +214,7 @@ class ReviewAvailabilitiesSerializer(serializers.Serializer):
     early_review_available = serializers.BooleanField()
 
     next_new_cards_count = serializers.IntegerField()
+    buried_new_cards_count = serializers.IntegerField()
     new_cards_per_day_limit_reached = serializers.BooleanField()
     new_cards_per_day_limit_override = serializers.IntegerField()
 
@@ -224,6 +225,7 @@ class ReviewAvailabilitiesSerializer(serializers.Serializer):
         read_only_fields = (
             'ready_for_review',
             'next_new_cards_count',
+            'buried_new_cards_count',
             'early_review_available',
         )
 

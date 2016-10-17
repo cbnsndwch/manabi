@@ -75,6 +75,15 @@ class ReviewAvailabilities(object):
         return self._base_cards_queryset.due(self.user).exists()
 
     @property
+    @lru_cache(maxsize=None)
+    def _next_new_cards_count(self):
+        if self.new_cards_per_day_limit_reached:
+            return NEW_CARDS_PER_DAY_LIMIT_OVERRIDE_INCREMENT
+        else:
+            return self._new_cards_limit.next_new_cards_limit
+
+    @property
+    @lru_cache(maxsize=None)
     def next_new_cards_count(self):
         '''
         If the user is beyond their daily limit, this provides up to the
@@ -83,16 +92,37 @@ class ReviewAvailabilities(object):
         if self.user.is_anonymous():
             return 0
 
-        available_count = self._base_cards_queryset.new_count(self.user)
-
-        if self.new_cards_per_day_limit_reached:
-            cards_limit = NEW_CARDS_PER_DAY_LIMIT_OVERRIDE_INCREMENT
-        else:
-            cards_limit = self._new_cards_limit.next_new_cards_limit
+        available_count = self._base_cards_queryset.new_count(
+            self.user,
+            including_buried=False,
+        )
 
         return max(
             0,
-            min(available_count, cards_limit - self._buffered_new_cards_count),
+            min(available_count,
+                self._next_new_cards_limit - self._buffered_new_cards_count),
+        )
+
+    @property
+    def buried_new_cards_count(self):
+        '''
+        `None` means unspecified; not used if `next_new_cards_count` > 0.
+        '''
+        if self.user.is_anonymous():
+            return None
+
+        if self.next_new_cards_count > 0:
+            return None
+
+        available_count = self._base_cards_queryset.new_count(
+            self.user,
+            including_buried=True,
+        )
+
+        return max(
+            0,
+            min(available_count,
+                self._next_new_cards_limit - self._buffered_new_cards_count),
         )
 
     @property

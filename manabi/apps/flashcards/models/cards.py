@@ -232,9 +232,12 @@ class Card(models.Model):
         TODO-OLD: maybe this should be more dependent on each card or something
         TODO-OLD: also maybe a max space if dependent on other cards' intervals
         '''
-        current_interval_in_days = self.interval.total_seconds() / (60*60*24)
-        min_space = max(MIN_CARD_SPACE,
-                        CARD_SPACE_FACTOR * (current_interval_in_days or 0))
+        if self.interval is None:
+            return MIN_CARD_SPACE
+
+        min_space = max(
+            MIN_CARD_SPACE,
+            CARD_SPACE_FACTOR * self.interval.total_seconds())
 
         return timedelta(days=min_space)
 

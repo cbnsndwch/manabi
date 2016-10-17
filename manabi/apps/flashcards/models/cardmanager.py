@@ -8,6 +8,7 @@ from django.db.models import Q, F, Avg, Max, Min, Count
 
 from manabi.apps.manabi_redis.models import redis
 from manabi.apps.flashcards.models.constants import GRADE_NONE, MATURE_INTERVAL_MIN
+from manabi.apps.flashcards.models.burying import with_siblings_buried
 
 
 class SchedulerMixin(object):
@@ -15,22 +16,26 @@ class SchedulerMixin(object):
     Methods for retrieving the next cards that are ready to be reviewed.
     '''
 
-    def _next_failed_due_cards(self, user, initial_query, count, review_time, buried_facts,
-                               **kwargs):
+    def _next_failed_due_cards(
+        self, user, initial_query, count, review_time, buried_facts,
+        **kwargs
+    ):
         if not count:
             return []
 
-        # Don't space/bury these (Or should we?)
+        # Don't space/bury these based on FactQuerySet.buried (Or should we?)
         cards = initial_query.filter(
             last_review_grade=GRADE_NONE,
             due_at__isnull=False,
             due_at__lte=review_time)
-        cards = cards.order_by('due_at')
+        cards = with_siblings_buried(cards, 'due_at')
 
         return cards[:count]
 
-    def _next_not_failed_due_cards(self, user, initial_query, count, review_time, buried_facts,
-                                   **kwargs):
+    def _next_not_failed_due_cards(
+        self, user, initial_query, count, review_time, buried_facts,
+        **kwargs
+    ):
         '''
         Returns the first [count] cards from initial_query which are due,
         weren't failed the last review, and  taking spacing of cards from
@@ -46,7 +51,7 @@ class SchedulerMixin(object):
             due_at__isnull=False,
             due_at__lte=review_time)
         cards = cards.exclude(fact__in=buried_facts)
-        cards = cards.order_by('-interval')
+        cards = with_siblings_buried(cards, '-interval')
 
         #TODO-OLD Also get cards that aren't quite due yet, but will be soon,
         # and depending on their maturity
@@ -55,8 +60,10 @@ class SchedulerMixin(object):
 
         return cards[:count]
 
-    def _next_failed_not_due_cards(self, user, initial_query, count, review_time, buried_facts,
-                                   **kwargs):
+    def _next_failed_not_due_cards(
+        self, user, initial_query, count, review_time, buried_facts,
+        **kwargs
+    ):
         if not count:
             return []
 
@@ -70,13 +77,13 @@ class SchedulerMixin(object):
         # Don't space/bury these (Or should we?)
         cards = initial_query.filter(last_review_grade=GRADE_NONE, due_at__gt=review_time)
         cards = cards.exclude(fact__in=buried_facts)
-        cards = cards.order_by('due_at')
+        cards = with_siblings_buried(cards, 'due_at')
 
         return cards[:count]
 
     def _next_new_cards(
         self, user, initial_query, count, review_time, buried_facts,
-        learn_more=False, **kwargs
+        include_new_buried_siblings=False, learn_more=False, **kwargs
     ):
         from manabi.apps.flashcards.models.cards import CARD_TEMPLATE_CHOICES
         from manabi.apps.flashcards.models.facts import Fact
@@ -86,23 +93,14 @@ class SchedulerMixin(object):
 
         cards = initial_query.filter(due_at__isnull=True)
         cards = cards.exclude(fact__in=buried_facts)
-        cards = cards.order_by('new_card_ordinal')
-        cards = list(cards[:count * len(CARD_TEMPLATE_CHOICES)])
+        cards = with_siblings_buried(cards, 'new_card_ordinal')
+        cards = list(cards[:count])
 
-        # One card per fact.
-        #TODO have this elsewhere too?
-        fact_ids = set(card.fact_id for card in cards)
-        unburied_cards = []
-        for card in cards:
-            if card.fact_id in fact_ids:
-                fact_ids.remove(card.fact_id)
-                unburied_cards.append(card)
-        cards = unburied_cards
-
-        # Add spaced cards if in early review/learn more mode and we haven't supplied enough.
-        if learn_more and len(cards) < count:
-            buried_cards = initial_query.exclude(fact__in=unburied_due_facts)
-            buried_cards = buried_cards.filter(due_at__isnull=True)
+        # Add spaced cards if in early review/learn more mode and we haven't
+        # supplied enough.
+        if (include_new_buried_siblings or learn_more) and len(cards) < count:
+            buried_cards = initial_query.filter(due_at__isnull=True)
+            buried_cards = buried_cards.exclude(pk__in=cards)
             buried_cards = buried_cards.order_by('new_card_ordinal')
             cards.extend(list(buried_cards[:count - len(cards)]))
 
@@ -144,7 +142,11 @@ class SchedulerMixin(object):
 
         return fresher_cards[:count]
 
-    def _next_card_funcs(self, early_review=False, learn_more=False):
+    def _next_card_funcs(
+            self,
+            early_review=False,
+            learn_more=False,
+    ):
         if early_review and learn_more:
             raise ValueError("Cannot set both early_review and learn_more together.")
 
@@ -175,6 +177,7 @@ class SchedulerMixin(object):
         new_cards_limit=None,
         excluded_ids=[],
         early_review=False,
+        include_new_buried_siblings=False,
         learn_more=False,
     ):
         '''
@@ -183,6 +186,10 @@ class SchedulerMixin(object):
         set `early_review` to True for reviewing cards early
         (following any due cards)
 
+        `include_new_buried_siblings` is used to allow learning
+        cards whose siblings have already been learned recently.
+
+        DEPRECATED:
         If learn_more is True, only new cards will be chosen,
         even if they were spaced due to sibling reviews.
 
@@ -200,7 +207,10 @@ class SchedulerMixin(object):
         #TODO-OLD use args instead, like *kwargs etc for these funcs
         now = datetime.datetime.utcnow()
 
-        card_funcs = self._next_card_funcs(early_review=early_review, learn_more=learn_more)
+        card_funcs = self._next_card_funcs(
+            early_review=early_review,
+            learn_more=learn_more,
+        )
 
         user_cards = self.common_filters(user, deck=deck, excluded_ids=excluded_ids)
 
@@ -217,8 +227,10 @@ class SchedulerMixin(object):
             cards = card_func(
                 user, user_cards, cards_left, now,
                 early_review=early_review,
+                include_new_buried_siblings=include_new_buried_siblings,
                 learn_more=learn_more,
-                buried_facts=buried_facts)
+                buried_facts=buried_facts,
+            )
 
             cards_left -= len(cards)
 
@@ -273,11 +285,14 @@ class CommonFiltersMixin(object):
         user_cards = self.available().of_user(user)
         return user_cards.filter(last_reviewed_at__isnull=True)
 
-    def new_count(self, user):
+    def new_count(self, user, including_buried=True):
         '''
         Use this rather than `new(user).count()` for future-proofing.
         '''
-        return self.new(user).count()
+        new_cards = self.new(user)
+        if not including_buried:
+            new_cards = with_siblings_buried(new_cards)
+        return new_cards.count()
 
     def approx_new_count(self, user=None, deck=None):
         '''

@@ -36,19 +36,17 @@ class FactQuerySet(QuerySet):
 
         return self.filter(
             Q(card__deck__owner=user) & (
-                # Sibling is due.
-                Q(card__due_at__lt=review_time) |
                 # Sibling was reviewed too recently.
-                (
+                | (
                     Q(card__last_reviewed_at__gte=(
-                        review_time - timedelta(days=MIN_CARD_SPACE))) &
-                    Q(card__last_reviewed_at__gte=(
+                        review_time - MIN_CARD_SPACE))
+                    & Q(card__last_reviewed_at__gte=(
                         review_time - F('card__interval') * CARD_SPACE_FACTOR))
-                ) |
+                )
                 # Sibling is currently in the client-side review queue.
-                Q(card__id__in=excluded_card_ids) |
+                | Q(card__id__in=excluded_card_ids)
                 # Sibling is failed. (Either sibling's due, or it's shown before new cards.)
-                Q(card__last_review_grade=GRADE_NONE)
+                | Q(card__last_review_grade=GRADE_NONE)
             )
         )
 

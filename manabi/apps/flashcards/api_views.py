@@ -145,8 +145,10 @@ class ReviewAvailabilitiesViewSet(viewsets.ViewSet):
     def _test_helper_get(self, request, format=None):
         from manabi.apps.flashcards.test_stubs import NEXT_CARDS_TO_REVIEW_STUBS
         interstitial = NEXT_CARDS_TO_REVIEW_STUBS[1]['interstitial']
-        interstitial['primary_prompt'] = "You'll soon forget 19 expressions—now's a good time to review them."
-        interstitial['secondary_prompt'] = "We have 7 more you might have forgotten, plus new ones to learn."
+        interstitial['primary_prompt'] = (
+            "You'll soon forget 19 expressions—now's a good time to review them.")
+        interstitial['secondary_prompt'] = (
+            "We have 7 more you might have forgotten, plus new ones to learn.")
 
         return Response(interstitial)
 
