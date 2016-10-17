@@ -1,0 +1,5 @@
+---
+
+rq_dashboard:
+  hostname: rq.manabi.io
+  port: 3002

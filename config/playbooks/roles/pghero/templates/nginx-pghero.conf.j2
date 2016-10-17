@@ -1,9 +1,5 @@
 # {{ ansible_managed }}
 
-upstream uwsgi {
-    server unix://{{ uwsgi_socket }}; # for a file socket
-}
-
 server {
     listen 80;
 
