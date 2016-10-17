@@ -237,7 +237,9 @@ class Card(models.Model):
 
         min_space = max(
             MIN_CARD_SPACE,
-            CARD_SPACE_FACTOR * self.interval.total_seconds())
+            timedelta(seconds=
+                      CARD_SPACE_FACTOR * self.interval.total_seconds())
+        )
 
         return timedelta(days=min_space)
 
