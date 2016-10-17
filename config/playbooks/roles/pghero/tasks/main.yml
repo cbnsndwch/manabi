@@ -2,7 +2,7 @@
 
 - name: Add Packager apt key for PgHero
   apt_key:
-    keyserver: https://deb.packager.io/key
+    url: https://deb.packager.io/key
   become: yes
 
 - name: Add PgHero apt repository
