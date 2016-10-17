@@ -10,6 +10,9 @@
 
 - hosts: production
   remote_user: ubuntu
+  vars_files:
+    - group_vars/all/manabi.yml
+    - group_vars/all/vault.yml
   roles:
     - { role: manabi, tags: ['manabi'] }
     - { role: pghero, tags: ['pghero'] }
