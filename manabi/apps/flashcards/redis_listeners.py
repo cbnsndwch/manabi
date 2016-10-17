@@ -9,9 +9,9 @@ def card_saved(sender, instance, created, **kwargs):
     card = instance
     if not created:
         return
-    card.redis.update_deck()
+    # card.redis.update_deck()
 
 @receiver(post_delete, sender=Card, dispatch_uid='card_deleted_redis')
 def card_deleted(sender, card, **kwargs):
-    card.redis.delete()
-
+    # card.redis.delete()
+    pass

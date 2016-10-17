@@ -304,7 +304,7 @@ class Card(models.Model):
             self.interval, next_repetition.interval)
         self.update_due_at(next_repetition.due_at)
 
-        self.redis.update_ease_factor()
+        # self.redis.update_ease_factor()
 
     def review(self, grade, duration=None, question_duration=None):
         '''
@@ -352,5 +352,5 @@ class Card(models.Model):
         card_history_item.save()
 
         self.save()
-        self.redis.after_review()
+        # self.redis.after_review()
         post_card_reviewed.send(self, instance=self)
