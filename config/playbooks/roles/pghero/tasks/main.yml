@@ -19,6 +19,7 @@
   apt:
     name: pghero
   become: yes
+  notify: Restart PgHero
 
 - name: Configure PgHero
   command: 'pghero config:set {{ item }}'
@@ -28,5 +29,6 @@
     - 'PGHERO_PASSWORD={{ pghero_secrets.password }}'
     - 'PORT={{ pghero.port }}'
   become: yes
+  notify: Restart PgHero
 
 - include: nginx.yml
