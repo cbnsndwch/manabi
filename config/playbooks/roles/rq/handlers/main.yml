@@ -4,3 +4,4 @@
   supervisorctl:
     name: rq
     state: restarted
+  become: yes
