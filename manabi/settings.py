@@ -26,8 +26,6 @@ ADMINS = (
     ('alex', 'alex.ehlke@gmail.com'),
 )
 
-MANAGERS = ADMINS
-
 if DEBUG:
     LOGGING = {
         'version': 1,
