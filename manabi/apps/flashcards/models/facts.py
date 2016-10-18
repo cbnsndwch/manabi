@@ -155,7 +155,7 @@ class Fact(models.Model):
             copy_facts_to_subscribers([self])
 
         if is_new:
-            harvest_tweets(self)
+            harvest_tweets(self).delay()
 
     @transaction.atomic
     def delete(self, *args, **kwargs):
