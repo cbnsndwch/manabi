@@ -14,3 +14,6 @@ REDIS = {
     'port': 6379,
     'db'  : 0,
 }
+
+TWITTER_APP_KEY = None
+TWITTER_APP_SECRET = None

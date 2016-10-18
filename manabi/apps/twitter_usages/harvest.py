@@ -69,6 +69,9 @@ def word_frequencies(text):
 
 
 def harvest_tweets(fact, tweets_per_fact=10):
+    if settings.TWITTER_APP_KEY is None
+        return
+
     if not fact.expression:
         return
 
