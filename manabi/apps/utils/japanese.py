@@ -45,7 +45,7 @@ def _furiganaize_complex_compound_word(word, reading,
     # Make sure there is no kanji in between the hiragana
     if not all(_is_hiragana(char) for char in middle_kana):
         return None
-    
+
     # Get the latest part of the reading, excluding the minimal length of kanji at the start/end,
     # which contains the middle hiragana.
     maximal_reading_kana = reading[len(prefix_kanji):-len(postfix_kanji)]
@@ -57,7 +57,7 @@ def _furiganaize_complex_compound_word(word, reading,
     prefix_kanji_reading = reading[:len(prefix_kanji)] + kanji_readings[0]
     postfix_kanji_reading = kanji_readings[1] + reading[-len(postfix_kanji):]
 
-    space_char = u'\u3000' 
+    space_char = u'\u3000'
     return u'{prefix_kanji}[{prefix_kanji_reading}]{middle}{space_char}{postfix_kanji}[{postfix_kanji_reading}]'.format(
             prefix_kanji=prefix_kanji,
             prefix_kanji_reading=prefix_kanji_reading,
@@ -105,7 +105,7 @@ def _furiganaize(word, reading, is_at_beginning_of_transliteration=False):
         middle_ret = u'{kanji}[{reading}]'.format(kanji=expression_middle, reading=kanji_reading)
 
     # \u3000 is a full-width space - necessary if this isn't the start of the transliteration
-    space_char = u'\u3000' if not is_at_beginning_of_transliteration or prefix_kana else u'' 
+    space_char = u'\u3000' if not is_at_beginning_of_transliteration or prefix_kana else u''
 
     return u'{prefix}{space_char}{middle}{postfix}'.format( \
             prefix=prefix_kana, space_char=space_char, middle=middle_ret, postfix=postfix_kana)
@@ -156,4 +156,3 @@ def generate_reading(expression):
 if __name__ == '__main__':
     expression = u'\u8cb8\u3057\u51fa\u3057\u3066'
     print generate_reading(expression)
-
