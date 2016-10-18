@@ -2,4 +2,5 @@
 
 pghero:
   hostname: pghero.manabi.io
-  port: 3001
+  port: 6000  # NOTE: pghero has a bug; it defaults to this port and doesn't allow changing it. See https://github.com/ankane/pghero/issues/86#issuecomment-254394461
+  oauth2_proxy_port: 3010

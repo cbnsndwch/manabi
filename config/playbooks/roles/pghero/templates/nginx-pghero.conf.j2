@@ -7,6 +7,6 @@ server {
     charset     utf-8;
 
     location / {
-        proxy_pass http://localhost:{{ pghero.port }};
+        proxy_pass http://localhost:{{ pghero.oauth2_proxy_port }};
     }
 }
