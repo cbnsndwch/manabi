@@ -1,6 +1,7 @@
 import rq
 from django.conf import settings
 from raven import Client
+from raven.transport.http import HTTPTransport
 from rq.contrib.sentry import register_sentry
 
 
@@ -9,5 +10,5 @@ class ManabiWorker(rq.Worker):
         super(ManabiWorker, self).__init__(*args, **kwargs)
 
         dsn = settings.RAVEN_CONFIG['dsn']
-        client = Client(dsn, tarnsport=HTTPTransport)
+        client = Client(dsn, transport=HTTPTransport)
         register_sentry(client, self)
