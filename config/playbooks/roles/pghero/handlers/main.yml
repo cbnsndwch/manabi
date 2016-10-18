@@ -1,7 +1,7 @@
 ---
 
 - name: Restart PgHero
-  supervisorctl:
+  service:
     name: pghero
     state: restarted
   become: yes

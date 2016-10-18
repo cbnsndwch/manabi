@@ -31,4 +31,15 @@
   become: yes
   notify: Restart PgHero
 
+- name: Set PgHero to one worker
+  command: pghero scale web=1
+  become: yes
+  notify: Restart PgHero
+
+- name: Ensure PgHero is started
+  service:
+    name: pghero
+    state: started
+  become: yes
+
 - include: nginx.yml
