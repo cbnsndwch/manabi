@@ -1,6 +1,3 @@
-import os
-import raven
-
 REDIS = {
     'host': 'localhost',
     'port': 6378,
