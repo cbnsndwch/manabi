@@ -8,6 +8,6 @@ class ManabiWorker(rq.Worker):
     def __init__(self, *args, **kwargs):
         super(ManabiWorker, self).__init__(*args, **kwargs)
 
-        dsn = settings.RAVEN_CONFIG['dns']
+        dsn = settings.RAVEN_CONFIG['dsn']
         client = Client(dsn, tarnsport=HTTPTransport)
         register_sentry(client, self)

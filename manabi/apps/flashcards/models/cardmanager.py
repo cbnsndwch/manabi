@@ -75,7 +75,8 @@ class SchedulerMixin(object):
         #TODO-OLD randomize the order (once we fix the Undo)
 
         # Don't space/bury these (Or should we?)
-        cards = initial_query.filter(last_review_grade=GRADE_NONE, due_at__gt=review_time)
+        cards = initial_query.filter(
+            last_review_grade=GRADE_NONE, due_at__gt=review_time)
         cards = cards.exclude(fact__in=buried_facts)
         cards = with_siblings_buried(cards, 'due_at')
 
@@ -106,11 +107,17 @@ class SchedulerMixin(object):
 
         return cards
 
-    def _next_due_soon_cards(self, user, initial_query, count, review_time, buried_facts,
-                             **kwargs):
+    def _next_due_soon_cards(
+        self,
+        user,
+        initial_query,
+        count,
+        review_time,
+        buried_facts,
+        **kwargs
+    ):
         '''
-        Used for early review.
-        Ordered by due date.
+        Used for early review. Ordered by due date.
         '''
         if not count:
             return []
@@ -125,8 +132,15 @@ class SchedulerMixin(object):
 
         return staler_cards[:count]
 
-    def _next_due_soon_cards2(self, user, initial_query, count, review_time, buried_facts,
-                              **kwargs):
+    def _next_due_soon_cards2(
+        self,
+        user,
+        initial_query,
+        count,
+        review_time,
+        buried_facts,
+        **kwargs
+    ):
         if not count:
             return []
 
@@ -195,10 +209,9 @@ class SchedulerMixin(object):
 
         "Due soon" cards won't be chosen in this case,
         contrary to early_review's normal behavior.
+        (#TODO-OLD consider changing this to have a separate option)
 
         `new_cards_limit` is an integer.
-
-        (#TODO-OLD consider changing this to have a separate option)
         '''
         from manabi.apps.flashcards.models.facts import Fact
 
@@ -212,10 +225,12 @@ class SchedulerMixin(object):
             learn_more=learn_more,
         )
 
-        user_cards = self.common_filters(user, deck=deck, excluded_ids=excluded_ids)
+        user_cards = self.common_filters(
+            user, deck=deck, excluded_ids=excluded_ids)
 
         facts = Fact.objects.deck_facts(deck)
-        buried_facts = facts.buried(user, review_time=now, excluded_card_ids=excluded_ids)
+        buried_facts = facts.buried(
+            user, review_time=now, excluded_card_ids=excluded_ids)
 
         cards_left = count
         card_queries = []
@@ -225,11 +240,15 @@ class SchedulerMixin(object):
                 break
 
             cards = card_func(
-                user, user_cards, cards_left, now,
+                user,
+                user_cards,
+                cards_left,
+                now,
                 early_review=early_review,
                 include_new_buried_siblings=include_new_buried_siblings,
                 learn_more=learn_more,
                 buried_facts=buried_facts,
+                new_cards_limit=new_cards_limit,
             )
 
             cards_left -= len(cards)
