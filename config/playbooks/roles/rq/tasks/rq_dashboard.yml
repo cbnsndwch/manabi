@@ -2,7 +2,7 @@
 
 - name: Add rq-dashboard nginx site
   template:
-    src: nginx-pghero.conf.j2
-    dest: /etc/nginx/sites-enabled/pghero.conf
+    src: nginx-rq_dashboard.conf.j2
+    dest: /etc/nginx/sites-enabled/rq_dashboard.conf
   become: yes
   notify: Reload nginx
