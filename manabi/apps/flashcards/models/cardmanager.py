@@ -33,7 +33,12 @@ class SchedulerMixin(object):
         return cards[:count]
 
     def _next_not_failed_due_cards(
-        self, user, initial_query, count, review_time, buried_facts,
+        self,
+        user,
+        initial_query,
+        count,
+        review_time,
+        buried_facts,
         **kwargs
     ):
         '''
@@ -83,11 +88,21 @@ class SchedulerMixin(object):
         return cards[:count]
 
     def _next_new_cards(
-        self, user, initial_query, count, review_time, buried_facts,
-        include_new_buried_siblings=False, learn_more=False, **kwargs
+        self,
+        user,
+        initial_query,
+        count,
+        review_time,
+        buried_facts,
+        include_new_buried_siblings=False,
+        learn_more=False,  # DEPRECATED?
+        new_cards_limit=None,
+        **kwargs
     ):
         from manabi.apps.flashcards.models.cards import CARD_TEMPLATE_CHOICES
         from manabi.apps.flashcards.models.facts import Fact
+
+        count = min(count, new_cards_limit)
 
         if not count:
             return []
